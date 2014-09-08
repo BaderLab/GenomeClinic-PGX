@@ -1,4 +1,4 @@
 Frangipani
 ==========
 
-Web application for clinical pharmacogenomic interpretation
+Web application for clinical pharmacogenomic interpretation.
