@@ -1,0 +1,11 @@
+{
+	"name": "Frangipani",
+	"description": "Web-based Clinical Genome Interpretation",
+	"version": "0.0.1",
+	"dependencies": {
+		"express": "4.*",
+		"request": "*",
+		"body-parser": "*",
+		"hbs": "*"
+	}
+}
