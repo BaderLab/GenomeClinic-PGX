@@ -6,6 +6,6 @@
 		"express": "4.*",
 		"request": "*",
 		"body-parser": "*",
-		"hbs": "*"
+		"handlebars": "*"
 	}
 }

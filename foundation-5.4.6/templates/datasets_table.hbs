@@ -1,0 +1,19 @@
+<table>
+	<thead>
+		<tr>
+			{{#each headings}}
+			<th>{{this}}</th>
+			{{/each}}
+		</tr>
+	</thead>
+	<tbody>
+		{{#each datasets}}
+		<tr>
+			<td>{{id}}</td>
+			<td>{{projectNumber}}</td>
+			<td>{{isPublic}}</td>
+			<td>{{name}}</td>
+		</tr>
+		{{/each}}
+	</tbody>
+</table>

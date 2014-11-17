@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Frangipani</title>
+    <link rel="stylesheet" href="css/foundation.css" />
+
+    <!-- Custom style sheet -->
+    <link rel="stylesheet" href="css/app.css">
+
+    <script src="js/vendor/modernizr.js"></script>
+
+    <link rel="icon" href="img/icon.jpg" />
+    <link rel="author" href="humans.txt" />
+  </head>
+
+  <body>
+
+    <!-- Top sticky nav bar -->
+    <div class="contain-to-grid sticky">
+      <nav class="top-bar" data-topbar role="navigation">
+        
+        <ul class="title-area">
+          <li class="name"><h1><a href="http://localhost:8080">Frangipani</a></h1></li>
+        </ul>
+
+        <section class="top-bar-section">
+          <ul class="right">
+            <li><a data-tooltip aria-haspopup="true" title="Designed with GA4GH API v0.5.1" href="http://cloud.google.com/genomics/v1beta2/reference/" target="_blank">Google Genomics GA4GH API</a></li>
+            <li class"has-form"><a href="#" class="button radius" data-reveal-id="infoModal">More Info</a></li>
+          </ul>
+        </section>
+
+      </nav>
+    </div>
+
+    <!-- Modal describing this page -->
+    <div id="infoModal" class="reveal-modal" data-reveal>
+      <div class="row">
+        <div class="large-6 columns">
+          <h2>Frangipani</h2>
+          <p class="lead">Your genomes. <i>Pretty.</i></p>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse finibus venenatis turpis vel viverra. Ut lectus tellus, euismod ac interdum a, dignissim vitae neque. Ut arcu arcu, sodales id lorem sit amet, lacinia tincidunt odio. Curabitur congue facilisis consectetur. Sed tristique ac risus sit amet malesuada. Pellentesque id volutpat urna. Vivamus a augue at diam viverra eleifend. Cras faucibus orci quis aliquet faucibus.</p>
+        </div>
+        <div class="large-6 columns">
+          <img src="img/flowers5.jpg" />
+        </div>
+      </div>
+      <a class="close-reveal-modal">&#215;</a>
+    </div>
+
+    <!-- Multiple steps to getting a variant -->
+    <div class="row">
+      <div class="large-12 columns">
+        <h1>Variants from public genomes.</h1>
+      </div>
+    </div>
+
+    <div class="row">
+      <dl class="tabs vertical" data-tab>
+        <dd class="active"><a href="#tab1"><h4>1.</h4> Find a public dataset</a></dd>
+        <dd><a href="#tab2"><h4>2.</h4>Search for a callset</a></dd>
+        <dd><a href="#tab3"><h4>3.</h4>Get some variants!</a></dd>
+      </dl>
+
+      <div class="tabs-content vertical">
+        <div class="content active" id="tab1">
+          <a href="#" class="button radius" id="frangipani-get-gg-datasets">Get public datasets</a>
+        </div>
+        <div class="content" id="tab2">
+          <p>Sed id auctor justo, et volutpat enim. Proin blandit venenatis urna, sit amet ornare massa commodo non. Fusce faucibus elit libero, at volutpat felis porta in. Ut varius justo non hendrerit porta. Donec at consectetur enim, a elementum tortor. Integer quis odio vestibulum, aliquam magna a, suscipit orci.</p>
+        </div>
+        <div class="content" id="tab3">
+          <p>Quisque placerat, felis sed porttitor pharetra, tortor diam molestie lorem, ut egestas libero leo sed dui. Nunc gravida venenatis est, sit amet tempus risus sollicitudin a. Duis a dui lacus. Etiam vel efficitur leo. Nullam ipsum sem, fermentum ac feugiat vel, porttitor ac est.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Foundation Javascript components -->
+    <script src="js/vendor/jquery.js"></script>
+    <script src="js/foundation.min.js"></script>
+    <script>
+      $(document).foundation();
+    </script>
+
+    <!-- Handlebars template compiler -->
+    <script src="js/handlebars-v2.0.0.js"></script>
+
+    <!-- My Javascript -->
+    <script src="get_variants.js"></script>
+  </body>
+</html>

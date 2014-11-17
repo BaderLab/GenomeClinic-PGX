@@ -16,9 +16,8 @@ app.use(function(request, response, next) {
 });
 */
 
-
 app.get("/", function(request, response) {
-	response.sendFile("foundation-5.4.6/genomics_testing.html", {root: "."});
+	response.sendFile("foundation-5.4.6/get_variants.html", {root: "."});
 });
 
 app.get("/datasets", function(request, response) {
@@ -41,7 +40,7 @@ app.post(variantSearchUrl, function(request, response) {
 app.listen(8080);
 
 
-/* Requests are made to the Google Genomics ("GG") server */
+/* Requests are made to the Google Genomics ("GG") GA4GH-compliant server */
 
 // Google API key associated with Bader Lab IP address
 var myAPIKey= "AIzaSyDQ37_4RW9gHeWxwaEn1Ab-7_kHAAFLXXM";
@@ -57,36 +56,3 @@ function getGGDatasets(nodeResponse) {
 		nodeResponse.send(body);
 	});
 }
-
-function getGGVariants(chromosome, start, end, nodeResponse) {
-	var options= {
-		url: "https://www.googleapis.com/genomics/v1beta2/variants/search?key=" + myAPIKey,
-		method: "POST",
-		json: true,
-		body: {
-			"variantSetIds": ["10473108253681171589"],
-			"callSetIds": ["10473108253681171589-6", "10473108253681171589-0"],
-			"referenceName": chromosome,
-			"start": start,
-			"end": end,
-			"pageSize": 10  // request 10 variants in this range
-		}
-	}
-
-	request(options, function(error, googleResponse, body) {
-		nodeResponse.send(body);
-	});
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
