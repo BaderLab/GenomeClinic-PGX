@@ -30,6 +30,13 @@ app.get("/datasets", function(request, response) {
  * app.use('/ab*cd', function (req, res, next) {
  * or regex such as:
  * app.use(/\/abc|\/xyz/, function (req, res, next)... */
+callsetSearchUrl= "/callsets/search";
+app.use(callsetSearchUrl, bodyParser.json());
+app.post(callsetSearchUrl, function(request, response) {
+	callsetParams= request.body;
+	getGGCallsets(callsetParams, response);
+});
+
 variantSearchUrl= "/variants/search";
 app.use(variantSearchUrl, bodyParser.json());
 app.post(variantSearchUrl, function(request, response) {
@@ -50,6 +57,19 @@ function getGGDatasets(nodeResponse) {
 		url: "https://www.googleapis.com/genomics/v1beta2/datasets?key=" + myAPIKey,
 		method: "GET",
 		json: true
+	};
+
+	request(options, function(error, googleResponse, body) {
+		nodeResponse.send(body);
+	});
+}
+
+function getGGCallsets(params, nodeResponse) {
+	var options= {
+		url: "https://www.googleapis.com/genomics/v1beta2/callsets/search?key=" + myAPIKey,
+		method: "POST",
+		json: true,
+		body: params
 	};
 
 	request(options, function(error, googleResponse, body) {

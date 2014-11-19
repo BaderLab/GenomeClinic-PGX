@@ -1,0 +1,20 @@
+<table>
+	<thead>
+		<tr>
+			{{#each headings}}
+			<th>{{this}}</th>
+			{{/each}}
+		</tr>
+	</thead>
+	<tbody>
+		{{#each callSets}}
+		<tr>
+			<td>{{id}}</td>
+			<td>{{name}}</td>
+			<td>{{sampleId}}</td>
+			<td>{{variantSetIds}}</td>
+			<td>{{created}}</td>
+		</tr>
+		{{/each}}
+	</tbody>
+</table>

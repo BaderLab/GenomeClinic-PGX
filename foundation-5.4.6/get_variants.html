@@ -28,7 +28,7 @@
 
         <section class="top-bar-section">
           <ul class="right">
-            <li><a data-tooltip aria-haspopup="true" title="Designed with GA4GH API v0.5.1" href="http://cloud.google.com/genomics/v1beta2/reference/" target="_blank">Google Genomics GA4GH API</a></li>
+            <li><a data-tooltip aria-haspopup="true" title="Designed with API v0.5.1" href="http://cloud.google.com/genomics/v1beta2/reference/" target="_blank">Google Genomics GA4GH API</a></li>
             <li class"has-form"><a href="#" class="button radius" data-reveal-id="infoModal">More Info</a></li>
           </ul>
         </section>
@@ -58,6 +58,7 @@
       </div>
     </div>
 
+    <!-- Tabs -->
     <div class="row">
       <dl class="tabs vertical" data-tab>
         <dd class="active"><a href="#tab1"><h4>1.</h4> Find a public dataset</a></dd>
@@ -66,15 +67,45 @@
       </dl>
 
       <div class="tabs-content vertical">
+
         <div class="content active" id="tab1">
           <a href="#" class="button radius" id="frangipani-get-gg-datasets">Get public datasets</a>
         </div>
+
         <div class="content" id="tab2">
-          <p>Sed id auctor justo, et volutpat enim. Proin blandit venenatis urna, sit amet ornare massa commodo non. Fusce faucibus elit libero, at volutpat felis porta in. Ut varius justo non hendrerit porta. Donec at consectetur enim, a elementum tortor. Integer quis odio vestibulum, aliquam magna a, suscipit orci.</p>
+          <form id="frangipani-get-gg-callsets">
+            <div class="row">
+              <div class="large-12 columns">
+                <div class="row collapse postfix-radius">
+                  <div class="large-10 columns">
+                    <input type="text" name="variantSetIds" placeholder="Variant Set ID">
+                  </div>
+                  <div class="large-2 columns">
+                    <a href="#" class="button postfix">Search!</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
         </div>
+
         <div class="content" id="tab3">
-          <p>Quisque placerat, felis sed porttitor pharetra, tortor diam molestie lorem, ut egestas libero leo sed dui. Nunc gravida venenatis est, sit amet tempus risus sollicitudin a. Duis a dui lacus. Etiam vel efficitur leo. Nullam ipsum sem, fermentum ac feugiat vel, porttitor ac est.</p>
+          <form id="frangipani-get-gg-variants">
+            <div class="row">
+              <div class="large-12 columns">
+                <div class="row collapse postfix-radius">
+                  <div class="large-10 columns">
+                    <input type="text" name="search" placeholder="Search">
+                  </div>
+                  <div class="large-2 columns">
+                    <a href="#" class="button postfix">Search!</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
         </div>
+
       </div>
     </div>
 
