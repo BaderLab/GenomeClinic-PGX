@@ -3,6 +3,10 @@
 	Contact: gary.bader [at] utoronto.ca
 	From: Toronto, Canada
 
+	Chief: Michael Brudno
+	Contact: brudno [at] cs.toronto.edu
+	From: Toronto, Canada
+
 	Lead: Ron Ammar
 	Contact: ron.ammar [at] mail.utoronto.ca
 	Twitter: @ronammar
