@@ -17,7 +17,7 @@
  * templates.js file and load that in the beginning rather than have many
  * small synchronous AJAX calls to get templates when the webpage loads.
  */
-function renderHbs(template_name, template_data) {
+var renderHbs= function(template_name, template_data) {
 	if (!renderHbs.template_cache) { 
 	    renderHbs.template_cache= {};
 	}
@@ -35,7 +35,7 @@ function renderHbs(template_name, template_data) {
 	}
 
 	return renderHbs.template_cache[template_name](template_data);
-}
+};
 
 /* When a button is clicked, calls a function. While the function is 
  * executing, button displays some intermediate text. Upon completion, button
@@ -58,7 +58,7 @@ var clickAction= function(button, promiseFunction, options) {
 	});
 };
 
-/* */
+/* AJAX call to application server to retrieve projects. */
 var getProjects= function() {
 	var promise= Promise.resolve($.ajax({
 		url: "/datasets",  // Need the "http://" here or will get CORS error
@@ -73,12 +73,27 @@ var getProjects= function() {
 
 /* Clear the main application div. */
 var clearApplicationMain= function() {
+	// Scroll to the top of the page using animation
+	$("body").animate({scrollTop: 0, scrollLeft: 0}, "slow");
+
 	applicationMain.children().remove();
 };
 
-/* */
+/* Update the table of projects. */
 var updateProjectTable= function(context) {
 	clearApplicationMain();
+
+	// sort datasets in case-insensitive manner by name key
+	var compare= function (d1, d2) {
+		var a= d1.name.toUpperCase();
+		var b= d2.name.toUpperCase();
+		if (a < b)
+			return -1;
+		if (a > b)
+			return 1;
+		return 0;
+	};
+	context.datasets= context.datasets.sort(compare);
 
 	var html= renderHbs('frangipani-projects.hbs', context);
 	applicationMain.append(html);
@@ -92,10 +107,13 @@ var applicationMain;
 var app= function() {
 	applicationMain= $("#frangipani-app-main");
 	clickAction($("#frangipani-browse-button"), getProjects);
+	//clickAction($(".frangipani-project-name"), );
 };
 
 
-/* Wait for the DOM to load before processing. */
+/* 
+ * Wait for the DOM to load before any processing.
+ */
 $(document).ready(app);
 
 
