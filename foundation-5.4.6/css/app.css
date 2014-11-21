@@ -69,6 +69,7 @@
         .zurb-footer-bottom ul.zurb-links li a:hover {
           color: #777; }
   .zurb-footer-bottom p.copyright {
-    margin: 6px 0 0;
+  	float: right;
+    margin: 0px;
     font-size: 0.75rem;
     color: #666; }
