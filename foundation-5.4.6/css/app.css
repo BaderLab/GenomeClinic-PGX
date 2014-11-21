@@ -46,7 +46,7 @@
 
 /* Borrowed from the Zurb footer on the Foundation website. */
 .zurb-footer-bottom {
-  background: #333;
+  background: #444;
   padding: 20px 10px 10px; }
   .zurb-footer-bottom .design-border {
     border-bottom: 1px solid #484848;
@@ -64,12 +64,12 @@
       font-weight: 700;
       font-size: 0.75rem; }
       .zurb-footer-bottom ul.zurb-links li a {
-        color: #666;
+        color: #999;
         padding: 3px 6px; }
         .zurb-footer-bottom ul.zurb-links li a:hover {
-          color: #777; }
+          color: #DDD; }
   .zurb-footer-bottom p.copyright {
   	float: right;
     margin: 0px;
     font-size: 0.75rem;
-    color: #666; }
+    color: #999; }

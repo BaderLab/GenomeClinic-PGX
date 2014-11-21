@@ -6,6 +6,7 @@
 		"express": "4.*",
 		"request": "*",
 		"body-parser": "*",
-		"handlebars": "*"
+		"handlebars": "*",
+		"rsvp": "3.*"
 	}
 }

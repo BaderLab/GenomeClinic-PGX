@@ -153,7 +153,5 @@ function fetcher() {
 }
 
 /* Only start once the DOM is loaded. */
-$(document).ready(function() {
-	fetcher();
-});
+$(document).ready(fetcher);
 
