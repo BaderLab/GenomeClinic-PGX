@@ -18,26 +18,7 @@ app.get("/", function(request, response) {
 });
 
 app.use("/datasets", routes.getRouter);
+app.use("/callsets/search", routes.postRouter);
 
-/* For the JSON POST requests, build an Express router and have the
- * app use() that router, rather than writing code like this:
-
-	app.use("/search", bodyParser.json());
-	app.post("/search", function(request, response) {
-		params= request.body;
-		getSearchResults(params.words, params.numbers, response);
-	});
-
- * Instead do this, and you can even put all the routes in a separate node module:
-
-	var jsonPostRouter= express.Router();
-	jsonPostRouter.use(bodyParser.json())
-	jsonPostRouter.post( function(request, response) {
-		params= request.body;
-		getSearchResults(params.words, params.numbers, response);
-	});
-
-	app.use("/search", jsonPostRouter);
- */
 
 app.listen(8080);

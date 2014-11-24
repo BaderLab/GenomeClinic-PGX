@@ -1,6 +1,6 @@
 <div class="row">
 	<div class="large-12 columns">
-		<h2><i class="fi-page-multiple"></i> Browse Projects</h2>
+		<h2><i class="fi-page-multiple"></i> Projects</h2>
 	</div>
 </div>
 <div class="row">
@@ -9,18 +9,14 @@
 			<tbody>
 				{{#each datasets}}
 				<tr>
-					<td><a href="#" class="frangipani-project-name" data-id={{id}}>{{name}}</a></td>
+					{{!-- Put quotes around attributes that may have spaces, or handlebars
+					will only output the first word. --}}
+					<td><a href="#" class="frangipani-project-name" data-patient="{{name}}" data-id={{id}}>{{name}}</a></td>
 				</tr>
 				{{/each}}
 			</tbody>
 		</table>
 	</div>
-	<div class="large-8 columns">
-		<h3>Details for project ____</h3>
-		<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse finibus venenatis turpis vel viverra. Ut lectus tellus, euismod ac interdum a, dignissim vitae neque. Ut arcu arcu, sodales id lorem sit amet, lacinia tincidunt odio.</p>
-		<h3><i class="fi-torsos-all"></i> Patients</h3>
-		<p><strong>Table of genomes from this project goes here</strong></p>
-		<p>Progress wheel below!</p>
-		<i class="fa fa-refresh fa-spin"></i>
+	<div class="large-8 columns" id="frangipani-project-details">
 	</div>
 </div>

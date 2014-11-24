@@ -40,8 +40,9 @@ var renderHbs= function(template_name, template_data) {
 /* When a button is clicked, calls a function. While the function is 
  * executing, button displays some intermediate text. Upon completion, button
  * reverts to original text. */
-var clickAction= function(button, promiseFunction, options) {
-	var originalText= button.text();
+var clickAction= function(button, promiseFunction, options, useThis) {
+	var originalText;
+
 	var resetButton= function(val) {
 		button.text(originalText);
 	};
@@ -49,7 +50,14 @@ var clickAction= function(button, promiseFunction, options) {
 	button.on("click", function(event) {
 		event.preventDefault();
 
+		if (useThis === true) {
+			button= $(this);
+			options["thisButton"]= $(this);
+		}
+
+		originalText= button.text();
 		button.text("Fetching...");
+
 		if (options === undefined) {
 			promiseFunction().then(resetButton);
 		} else {
@@ -69,6 +77,44 @@ var getProjects= function() {
 	return promise.then( function(result) {
 		updateProjectTable(result);
 	});
+};
+
+/* Get patients from this project. Project details are passed in via
+ * options object keyed by "thisButton".
+ * @return {Object} A promise describing state of request. */
+var getProjectPatients= function(options) {
+	// Scroll to the top of the page using animation
+	$("body").animate({scrollTop: 0, scrollLeft: 0}, "slow");
+
+	// Clear patient table
+	patientTable.children().remove();
+
+	patientButton= options["thisButton"];
+	patientId= patientButton.data("id");
+	patientName= patientButton.data("patient");
+
+	var promise= Promise.resolve($.ajax({
+		url: "/callsets/search",
+		type: "POST",
+		contentType: "application/json",
+		dataType: "json",
+		data: JSON.stringify({
+			"variantSetIds": [patientId],
+			"pageSize": 20
+		})
+	}));
+
+	promise.then(function(result) {
+		var context= {
+			callSets: result["callSets"],
+			projectName: patientName,
+			id: patientId
+		}
+		var html= renderHbs('frangipani-project-details.hbs', context);
+		patientTable.append(html);
+	});
+
+	return promise;
 };
 
 /* Clear the main application div. */
@@ -97,6 +143,9 @@ var updateProjectTable= function(context) {
 
 	var html= renderHbs('frangipani-projects.hbs', context);
 	applicationMain.append(html);
+
+	// Refresh page functionality.
+	refresh();
 };
 
 
@@ -107,7 +156,12 @@ var applicationMain;
 var app= function() {
 	applicationMain= $("#frangipani-app-main");
 	clickAction($("#frangipani-browse-button"), getProjects);
-	//clickAction($(".frangipani-project-name"), );
+};
+
+var patientTable;
+var refresh= function() {
+	patientTable= $("#frangipani-project-details");
+	clickAction($(".frangipani-project-name"), getProjectPatients, {}, true);
 };
 
 

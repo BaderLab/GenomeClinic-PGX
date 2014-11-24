@@ -7,6 +7,6 @@
 		"request": "*",
 		"body-parser": "*",
 		"handlebars": "*",
-		"rsvp": "3.*"
+		"bluebird": "2.*"
 	}
 }
