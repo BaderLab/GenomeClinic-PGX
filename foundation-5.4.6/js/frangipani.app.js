@@ -83,11 +83,7 @@ var getProjects= function() {
  * options object keyed by "thisButton".
  * @return {Object} A promise describing state of request. */
 var getProjectPatients= function(options) {
-	// Scroll to the top of the page using animation
-	$("body").animate({scrollTop: 0, scrollLeft: 0}, "slow");
-
-	// Clear patient table
-	patientTable.children().remove();
+	resetPatientTable();
 
 	patientButton= options["thisButton"];
 	patientId= patientButton.data("id");
@@ -107,11 +103,16 @@ var getProjectPatients= function(options) {
 	promise.then(function(result) {
 		var context= {
 			callSets: result["callSets"],
+			nextPageToken: result["nextPageToken"],
 			projectName: patientName,
 			id: patientId
 		}
 		var html= renderHbs('frangipani-project-details.hbs', context);
 		patientTable.append(html);
+	}).then(function(result) {
+		// set scrolledToBottom to false, to allow for AJAX request triggers
+		// on scroll events only after the table has been appended
+		scrolledToBottom= false;
 	});
 
 	return promise;
@@ -120,9 +121,20 @@ var getProjectPatients= function(options) {
 /* Clear the main application div. */
 var clearApplicationMain= function() {
 	// Scroll to the top of the page using animation
-	$("body").animate({scrollTop: 0, scrollLeft: 0}, "slow");
+	$("body").animate({scrollTop: 0, scrollLeft: 0}, "fast");
 
 	applicationMain.children().remove();
+};
+
+/* Reset the patient table. */
+var resetPatientTable= function() {
+	// Scroll to the top of the page using animation, and set scrolledToBottom
+	// as true to block AJAX request triggers on scroll events until we're at the top
+	scrolledToBottom= true;
+	$("body").animate({scrollTop: 0, scrollLeft: 0}, "fast");
+	
+	// Clear patient table
+	patientTable.children().remove();
 };
 
 /* Update the table of projects. */
@@ -159,9 +171,24 @@ var app= function() {
 };
 
 var patientTable;
+var scrolledToBottom= true;
 var refresh= function() {
 	patientTable= $("#frangipani-project-details");
 	clickAction($(".frangipani-project-name"), getProjectPatients, {}, true);
+
+	$(window).on("scroll", function(event) {
+		if (!scrolledToBottom && 
+			$(window).scrollTop() + $(window).height() >= patientTable.height()) {
+
+			scrolledToBottom= true;
+
+			// TESTING:
+			console.log("Reached bottom! :) Next page " + $("#frangipani-progress-spinner").data("id"));
+			console.log($("#frangipani-progress-spinner").data("id") === "");
+			console.log($("#frangipani-progress-spinner").data("id") === undefined);
+			console.log($("#frangipani-progress-spinner").data("id") == "");
+		}
+	});
 };
 
 
