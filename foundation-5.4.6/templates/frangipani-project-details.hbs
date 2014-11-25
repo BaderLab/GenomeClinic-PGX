@@ -1,0 +1,20 @@
+<h3>Details for <em>{{projectName}}</em></h3>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse finibus venenatis turpis vel viverra. Ut lectus tellus, euismod ac interdum a, dignissim vitae neque. Ut arcu arcu, sodales id lorem sit amet, lacinia tincidunt odio.</p>
+<h3><i class="fi-torsos-all"></i> Patients</h3>
+<table>
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Details</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{#each callSets}}
+		<tr>
+			<td>{{name}}</td>
+			<td>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</td>
+		</tr>
+		{{/each}}
+	</tbody>
+</table>
+<i class="fa fa-refresh fa-spin" id="frangipani-progress-spinner" data-id={{id}} data-next-page={{nextPageToken}}></i>
