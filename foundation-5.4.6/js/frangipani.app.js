@@ -61,10 +61,13 @@ var getProjectPatients= function(options) {
 		var projectName= projectButton.data("project");
 		var currentTemplate= "frangipani-project-details.hbs";
 		var domInsertPoint= patientTable;
+		var nextPageToken= undefined;
 		resetPatientTable();
 	} else {
 		currentTemplate= "frangipani-more-patients.hbs";
 		domInsertPoint= patientTable.find("tbody");
+		projectId= options["id"];
+		nextPageToken= options["nextPageToken"];
 	}
 
 	var promise= Promise.resolve($.ajax({
@@ -74,26 +77,34 @@ var getProjectPatients= function(options) {
 		dataType: "json",
 		data: JSON.stringify({
 			"variantSetIds": [projectId],
-			"pageSize": 20,
-			"nextPageToken": options["nextPageToken"]
+			"pageSize": 30,
+			"pageToken": nextPageToken
 		})
 	}));
 
 	promise.then(function(result) {
 		var context= {
-			callSets: result["callSets"],
-			nextPageToken: result["nextPageToken"],
-			projectName: projectName,
-			id: projectId
+			"callSets": result["callSets"],
+			"nextPageToken": result["nextPageToken"],
+			"projectName": projectName,
+			"id": projectId
 		}
 		var html= renderHbs(currentTemplate, context);
 		domInsertPoint.append(html);
 
-	}).then(function(result) {
+		// update the progress spinner's next page token, if the spinner already exists
+		progressSpinner.data("next-page", context["nextPageToken"]);
+	
+		return context;
+
+	}).then(function(context) {
 		// set scrolledToBottom to false, to allow for AJAX request triggers
-		// on scroll events only after the table has been appended
+		// on scroll events only after the table has been appended. If there
+		// are no more page tokens, we have reached the bottom.
 		refresh();
-		scrolledToBottom= false;
+		if (context["nextPageToken"] !== undefined) {
+			scrolledToBottom= false;
+		}
 		progressSpinner.hide();
 	});
 
@@ -206,6 +217,11 @@ var loadPatientsOnScroll= function() {
 
 			scrolledToBottom= true;
 			progressSpinner.show();
+			var options= {
+				"id": progressSpinner.data("id"),
+				"nextPageToken": progressSpinner.data("next-page")
+			};
+			getProjectPatients(options);
 		}
 	});
 };
