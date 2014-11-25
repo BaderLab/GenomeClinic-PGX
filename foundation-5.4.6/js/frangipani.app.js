@@ -37,35 +37,6 @@ var renderHbs= function(template_name, template_data) {
 	return renderHbs.template_cache[template_name](template_data);
 };
 
-/* When a button is clicked, calls a function. While the function is 
- * executing, button displays some intermediate text. Upon completion, button
- * reverts to original text. */
-var clickAction= function(button, promiseFunction, options, useThis) {
-	var originalText;
-
-	var resetButton= function(val) {
-		button.text(originalText);
-	};
-
-	button.on("click", function(event) {
-		event.preventDefault();
-
-		if (useThis === true) {
-			button= $(this);
-			options["thisButton"]= $(this);
-		}
-
-		originalText= button.text();
-		button.text("Fetching...");
-
-		if (options === undefined) {
-			promiseFunction().then(resetButton);
-		} else {
-			promiseFunction(options).then(resetButton);
-		}
-	});
-};
-
 /* AJAX call to application server to retrieve projects. */
 var getProjects= function() {
 	var promise= Promise.resolve($.ajax({
@@ -83,11 +54,18 @@ var getProjects= function() {
  * options object keyed by "thisButton".
  * @return {Object} A promise describing state of request. */
 var getProjectPatients= function(options) {
-	resetPatientTable();
-
-	patientButton= options["thisButton"];
-	patientId= patientButton.data("id");
-	patientName= patientButton.data("patient");
+	// Find out if this is a new table or rows to be appended to existing table
+	if (options["nextPageToken"] === undefined) {
+		var projectButton= options["thisButton"];
+		var projectId= projectButton.data("id");
+		var projectName= projectButton.data("project");
+		var currentTemplate= "frangipani-project-details.hbs";
+		var domInsertPoint= patientTable;
+		resetPatientTable();
+	} else {
+		currentTemplate= "frangipani-more-patients.hbs";
+		domInsertPoint= patientTable.find("tbody");
+	}
 
 	var promise= Promise.resolve($.ajax({
 		url: "/callsets/search",
@@ -95,8 +73,9 @@ var getProjectPatients= function(options) {
 		contentType: "application/json",
 		dataType: "json",
 		data: JSON.stringify({
-			"variantSetIds": [patientId],
-			"pageSize": 20
+			"variantSetIds": [projectId],
+			"pageSize": 20,
+			"nextPageToken": options["nextPageToken"]
 		})
 	}));
 
@@ -104,15 +83,18 @@ var getProjectPatients= function(options) {
 		var context= {
 			callSets: result["callSets"],
 			nextPageToken: result["nextPageToken"],
-			projectName: patientName,
-			id: patientId
+			projectName: projectName,
+			id: projectId
 		}
-		var html= renderHbs('frangipani-project-details.hbs', context);
-		patientTable.append(html);
+		var html= renderHbs(currentTemplate, context);
+		domInsertPoint.append(html);
+
 	}).then(function(result) {
 		// set scrolledToBottom to false, to allow for AJAX request triggers
 		// on scroll events only after the table has been appended
+		refresh();
 		scrolledToBottom= false;
+		progressSpinner.hide();
 	});
 
 	return promise;
@@ -156,13 +138,14 @@ var updateProjectTable= function(context) {
 	var html= renderHbs('frangipani-projects.hbs', context);
 	applicationMain.append(html);
 
-	// Refresh page functionality.
+	// Add event listeners and refresh jQuery DOM objects.
+	addProjectEventListeners();
 	refresh();
 };
 
 
 /* 
- * Main app functionality.
+ * Main app function.
  */
 var applicationMain;
 var app= function() {
@@ -170,25 +153,67 @@ var app= function() {
 	clickAction($("#frangipani-browse-button"), getProjects);
 };
 
+/* App components */
 var patientTable;
 var scrolledToBottom= true;
+var progressSpinner;
 var refresh= function() {
 	patientTable= $("#frangipani-project-details");
-	clickAction($(".frangipani-project-name"), getProjectPatients, {}, true);
+	progressSpinner= $("#frangipani-progress-spinner");
+};
 
+
+/*
+ * Event listeners
+ */
+
+/* When a button is clicked, calls a function. While the function is 
+ * executing, button displays some intermediate text. Upon completion, button
+ * reverts to original text. */
+var clickAction= function(button, promiseFunction, options, useThis) {
+	var originalText;
+
+	var resetButton= function(val) {
+		button.text(originalText);
+	};
+
+	button.on("click", function(event) {
+		event.preventDefault();
+
+		if (useThis === true) {
+			button= $(this);
+			options["thisButton"]= $(this);
+		}
+
+		originalText= button.text();
+		button.text("Fetching...");
+
+		if (options === undefined) {
+			promiseFunction().then(resetButton);
+		} else {
+			promiseFunction(options).then(resetButton);
+		}
+	});
+};
+
+/* If there are more patients, load them when scrolled to the bottom of the
+ * patient table. */
+var loadPatientsOnScroll= function() {
 	$(window).on("scroll", function(event) {
 		if (!scrolledToBottom && 
+			progressSpinner.data("next-page") != "" &&
 			$(window).scrollTop() + $(window).height() >= patientTable.height()) {
 
 			scrolledToBottom= true;
-
-			// TESTING:
-			console.log("Reached bottom! :) Next page " + $("#frangipani-progress-spinner").data("id"));
-			console.log($("#frangipani-progress-spinner").data("id") === "");
-			console.log($("#frangipani-progress-spinner").data("id") === undefined);
-			console.log($("#frangipani-progress-spinner").data("id") == "");
+			progressSpinner.show();
 		}
 	});
+};
+
+/* Add the app event listeners */
+var addProjectEventListeners= function() {
+	clickAction($(".frangipani-project-name"), getProjectPatients, {}, true);
+	loadPatientsOnScroll();
 };
 
 

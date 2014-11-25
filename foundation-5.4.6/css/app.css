@@ -73,3 +73,14 @@
     margin: 0px;
     font-size: 0.75rem;
     color: #999; }
+
+/* Default value to be toggled. */
+#frangipani-progress-spinner {
+  display: inline;
+}
+
+
+
+
+
+
