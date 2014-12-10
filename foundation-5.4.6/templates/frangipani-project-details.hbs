@@ -11,10 +11,10 @@
 	<tbody>
 		{{#each callSets}}
 		<tr>
-			<td>{{name}}</td>
+			<td><a href="#" class="frangipani-patient-link" data-patient-id={{name}}>{{name}}</a></td>
 			<td>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</td>
 		</tr>
 		{{/each}}
 	</tbody>
 </table>
-<i class="fa fa-refresh fa-spin" id="frangipani-progress-spinner" data-id={{id}} data-next-page={{nextPageToken}}></i>
+<i class="fa fa-refresh fa-spin" id="frangipani-progress-spinner" data-id={{id}} data-next-page={{nextPageToken}}></i>	

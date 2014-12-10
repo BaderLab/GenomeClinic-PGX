@@ -91,6 +91,8 @@ var getProjectPatients= function(options) {
 		}
 		var html= renderHbs(currentTemplate, context);
 		domInsertPoint.append(html);
+		addClickPatitentEventListener();
+
 
 		// update the progress spinner's next page token, if the spinner already exists
 		progressSpinner.data("next-page", context["nextPageToken"]);
@@ -205,6 +207,24 @@ var clickAction= function(button, promiseFunction, options, useThis) {
 			promiseFunction(options).then(resetButton);
 		}
 	});
+};
+
+var clickPatient = function(button){
+	var patientName = button.data('patient-id');
+	button.on('click',function(event){
+		event.preventDefault();
+		console.log("Clicked" + this);
+		var context = {'patientName': patientName};
+		console.log(context);
+		var html = renderHbs("frangipani-request-variants.hbs",context);
+		console.log(html);
+		patientTable.empty();
+		patientTable.append(html);
+	});
+};
+
+var addClickPatitentEventListener = function(){
+	clickPatient($(".frangipani-patient-link"));
 };
 
 /* If there are more patients, load them when scrolled to the bottom of the
