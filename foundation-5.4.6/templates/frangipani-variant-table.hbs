@@ -1,0 +1,30 @@
+<i class='fi-torsos'></i><h2>Variants</h2>
+<table>
+	<thead>
+		<tr>
+			<th>Chromosome</th>
+			<th>Start Position</th>
+			<th>End Position</th>
+			<th>RS number</th>
+			<th>Reference Allele</th>
+			<th>Alternate Allele</th>
+			<th>quality</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{#each variants}}
+		<tr>
+			<td>{{referenceName}}</td>
+			<td>{{start}}</td>
+			<td>{{end}}</td>
+			<td>
+				<a href="http://www.ncbi.nlm.nih.gov/snp/?term={{names.[0]}}" target="_blank" data-rs-number={{names.[0]}}>{{names.[0]}}</a>
+			</td>
+			<td>{{referenceBases}}</td>
+			<td>{{alternateBases}}</td>
+			<td>{{quality}}</td>
+		{{/each}}
+	</tbody>
+</table>
+
+<i class="fa fa-refresh fa-spin" id="frangipani-progress-spinner" data-patient-name={{patientName}} data-dataset-id={{variantSetIds}} data-patient-id={{callSetIds}} data-next-page={{nextPageToken}} data-reference-name={{referenceName}} data-start-pos={{start}} data-end-pos={{end}} ></i>

@@ -44,6 +44,16 @@
 	border-bottom-right-radius: 3px;
 }
 
+#frangipani-submit-variant-request {
+  position: relative;
+  float: left;
+}
+
+#frangipani-new-search {
+  display: none;
+  position: relative;
+  float: left;
+}
 /* Borrowed from the Zurb footer on the Foundation website. */
 .zurb-footer-bottom {
   background: #444;
