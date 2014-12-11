@@ -49,6 +49,11 @@
   float: left;
 }
 
+#frangipani-cancel-variant-request {
+  position: relative;
+  float: left;
+}
+
 #frangipani-new-search {
   display: none;
   position: relative;

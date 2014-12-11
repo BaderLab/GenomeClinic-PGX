@@ -101,7 +101,7 @@ var getProjectPatients= function(options) {
 			$(window).off('scroll.table');
 		});
 
-		clickAction($('.frangipani-patient-link'),getPatientVariantQuery,{},true);
+		$('.frangipani-patient-link').on('click',getPatientVariantQuery);
 
 		// update the progress spinner's next page token, if the spinner already exists
 		progressSpinner.data("next-page", context["nextPageToken"]);
@@ -229,9 +229,9 @@ var clickAction= function(button, promiseFunction, options, useThis) {
 */
 var getPatientVariantQuery = function(options){
 	var isSearching;
-	var button = options['thisButton'];
-	var patientName = button.data('patient-name');
-	var callSetIds = button.data('patient-id');
+	var button = this.dataset;
+	var patientName = button['patientName'];
+	var callSetIds = button['patientId'];
 	var variantSetIds = $('#frangipani-progress-spinner').data('id');
 	var context = {'patientName': patientName,'callSetIds': callSetIds,'variantSetIds': variantSetIds};
 	var html = renderHbs("frangipani-request-variants.hbs",context);	
@@ -276,11 +276,15 @@ var getPatientVariantQuery = function(options){
 		event.preventDefault();
 		if(isSearching === false){
 			$(this).toggle();
-			$('input').text("");
-			$('.variant-query-fields').slideDown();
+			$('.variant-query-fields').slideDown().find("input").val("");
 		}
 	});
-	
+
+	$('#frangipani-cancel-variant-request').on('click',function(event){
+		event.preventDefault();
+		$('.variant-query-fields').slideUp().parent().find('#frangipani-new-search').slideDown();
+		isSearching = false;
+	});
 
 	/* When this button is clicked a the data from the form is first
 	 * Parsed and then validated. A query is then sent to retrieve
