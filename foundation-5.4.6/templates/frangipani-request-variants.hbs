@@ -7,11 +7,20 @@
 <form class="variant-query-fields">
 	<fieldset>
 		<legend>Variant Queries</legend>
-		<p>Please Select the appropriate details</p>
+		<div class='row'>
+			<div class='large-6 column'>
+				<div class ='large-8 column left'>
+					<p class='text-left large-12'>Please Select the appropriate details</p>
+				</div>
+				<div class='large-4 column'>
+					<a href="#" class="button radius tiny center large-12" id="frangipangi-query-field-example">Example</a>
+				</div>
+			</div>
+		</div>
 		<div class="row">
 			<div class="small-6 columns">
 				<label>Chromosome Number
-					<input id="reference-name" type="text" placeholder="1 - 23, X,Y,MT" />
+					<input id="reference-name" type="text" placeholder="1 - 22, X,Y,MT" />
 				</label>
 			</div>
 		</div>
@@ -28,13 +37,11 @@
 			</div>
 		</div>
 		<div class="row">
-			<div class="large-3 column">
-					<a href="#" class="button radius" id="frangipani-submit-variant-request">Submit</a>
+			<div class="large-4 column">
+					<a href="#" class="large-12 button radius" id="frangipani-submit-variant-request">Submit</a>
 			</div>
-			<div class="large-9 column">
-				<div class="large-3 column">
-					<a href="#" class="button radius alert" id="frangipani-cancel-variant-request">Cancel</a>
-				</div>
+			<div class="large-2 column left">
+					<a href="#" class="large-12 button radius alert" id="frangipani-cancel-variant-request">Cancel</a>
 			</div>	
 		</div>
 	</fieldset>	

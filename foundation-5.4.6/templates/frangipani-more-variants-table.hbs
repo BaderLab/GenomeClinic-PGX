@@ -1,13 +1,16 @@
 {{#each variants}}
 	<tr>
-		<td>{{referenceName}}</td>
+		<td class='text-center'>{{referenceName}}</td>
 		<td>{{start}}</td>
 		<td>{{end}}</td>
-		<td>
+		<td class='text-center'>
 			<a href="#" data-rs-number={{names.[0]}}>{{names.[0]}}</a>
 		</td>
-		<td>{{referenceBases}}</td>
-		<td>{{alternateBases}}</td>
-		<td>{{quality}}</td>
+		<td class='text-center'>{{referenceBases}}</td>
+		<td class='text-center'>{{alternateBases}}</td>
+		<td class='text-center'>{{genotypeCall}}</td>
+		<td class='text-center'>{{zygosity}}</td>
+		<td class='text-center'>{{quality}}</td>
+		<td class='text-center'>{{phase}}</td>
 	</tr>
 {{/each}}

@@ -1,4 +1,6 @@
+
 </i><h3><i class='fi-torsos'></i> Variants</h3>
+<h4 class='subheader'>Returning All results for Chromosome {{referenceName}} Start Position: {{start}} End Position: {{end}}</h4>
 <table>
 	<thead>
 		<tr>
@@ -8,21 +10,27 @@
 			<th>RS number</th>
 			<th>Reference Allele</th>
 			<th>Alternate Allele</th>
-			<th>quality</th>
+			<th>Genotype</th>
+			<th>Zygosity</th>
+			<th>Quality</th>
+			<th>PhaseSet</th>
 		</tr>
 	</thead>
 	<tbody>
 		{{#each variants}}
 		<tr>
-			<td>{{referenceName}}</td>
+			<td class='text-center'>{{referenceName}}</td>
 			<td>{{start}}</td>
 			<td>{{end}}</td>
-			<td>
+			<td class='text-center'>
 				<a href="http://www.ncbi.nlm.nih.gov/snp/?term={{names.[0]}}" target="_blank" data-rs-number={{names.[0]}}>{{names.[0]}}</a>
 			</td>
-			<td>{{referenceBases}}</td>
-			<td>{{alternateBases}}</td>
-			<td>{{quality}}</td>
+			<td class='text-center'>{{referenceBases}}</td>
+			<td class='text-center'>{{alternateBases}}</td>
+			<td class='text-center'>{{genotypeCall}}</td>
+			<td class='text-center'>{{zygosity}}</td>
+			<td class='text-center'>{{quality}}</td>
+			<td class='text-center'>{{phase}}</td>
 		{{/each}}
 	</tbody>
 </table>
