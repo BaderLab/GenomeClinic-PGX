@@ -36,7 +36,6 @@ var settings = {
 }
 
 
-
 /* 
  * Auxiliary helper functions:
  */
@@ -196,59 +195,64 @@ var getVariantCallSet = function(options){
 			dataType: "json",
 			data: JSON.stringify(dataToAdd)
 		    }));
-
-		promise.then(function(results){
-			globalResults = results;	
+			promise.then(function(results){
+			if (!$.isEmptyObject(results)){	
 			//Searcgh through results variants and determine
 			//zygosity and genotype to add to the table
-			var variants = results['variants'];
-			for (var i=0; i < variants.length; i++){
-				if (variants[i]['referenceBases'].length > 10 || variants[i]['alternateBases'].length > 10){
-					variants[i] = undefined;
-				} else {
-					variants[i]['phase'] = variants[i].calls[0].phaseset;
-					var genotypeArray = variants[i].calls[0].genotype;
-					var zygosity = 0;
-					var genotype = [];
-					for (var j = 0; j < genotypeArray.length; j++){
-						if (genotypeArray[j] === 0){
-							genotype.push(variants[i]['referenceBases']);
-						} else {
-							zygosity += 1;
-							genotype.push(variants[i]['alternateBases'][genotypeArray[j]-1]);
-						}
-					}
-					genotype = genotype.join('/');
-					if (zygosity === 0){
-						zygosity = 'homo_ref';
-					} else  if (zygosity === 1){
-						zygosity = 'hetero';
+				var variants = results['variants'];
+				for (var i=0; i < variants.length; i++){
+					if (variants[i]['referenceBases'].length > 10 || variants[i]['alternateBases'].length > 10){
+						variants[i] = undefined;
 					} else {
-						zygosity = 'homo_alt';
+						variants[i]['phase'] = variants[i].calls[0].phaseset;
+						var genotypeArray = variants[i].calls[0].genotype;
+						var zygosity = 0;
+						var genotype = [];
+						for (var j = 0; j < genotypeArray.length; j++){
+							if (genotypeArray[j] === 0){
+								genotype.push(variants[i]['referenceBases']);
+							} else {
+								zygosity += 1;
+								genotype.push(variants[i]['alternateBases'][genotypeArray[j]-1]);
+							}
+						}
+						genotype = genotype.join('/');
+						if (zygosity === 0){
+							zygosity = 'homo_ref';
+						} else  if (zygosity === 1){
+							zygosity = 'hetero';
+						} else {
+							zygosity = 'homo_alt';
+						}
+						variants[i]['zygosity'] = zygosity;
+						variants[i]['genotypeCall'] = genotype;
 					}
-					variants[i]['zygosity'] = zygosity;
-					variants[i]['genotypeCall'] = genotype;
+				};
+
+
+				results['patientName'] = settings.currentData.patientName
+				results['referenceName'] = dataToAdd['referenceName'];
+				results['start'] = dataToAdd['start'];
+				results['end'] = dataToAdd['end'];
+				//render HTML onto the page populating the table
+				var html = renderHbs(template,results);	
+				domInsertPoint.append(html);
+				//add in evenet listeners to rs numbers here
+				varSet['pageToken'] = results['nextPageToken'];
+			} else {
+				$("#NoQuerriesFound").foundation('reveal','open');
+				var results = {
+					'nextPageToken':undefined
 				}
-			};
-
-
-			results['patientName'] = settings.currentData.patientName
-			results['referenceName'] = dataToAdd['referenceName'];
-			results['start'] = dataToAdd['start'];
-			results['end'] = dataToAdd['end'];
-			//render HTML onto the page populating the table
-			var html = renderHbs(template,results);	
-			domInsertPoint.append(html);
-			//add in evenet listeners to rs numbers here
-			varSet['pageToken'] = results['nextPageToken'];
+			}
 			return results;
-		}).then(function(result) {
+		}).then(function(results) {
 		// set scrolledToBottom to false, to allow for AJAX request triggers
 		// on scroll events only after the table has been appended. If there
 		// are no more page tokens, we have reached the bottom.
 			refresh();
 			settings.buttonClicked = false;
-			if (result["nextPageToken"] !== undefined) {
+			if (results["nextPageToken"] !== undefined) {
 				settings.scrolledToBottom= false;	
 			}
 				settings.progressSpinner.hide();	
@@ -499,6 +503,8 @@ var getPatientVariantQuery = function(options){
      *  the Search box to drop dowm. the new search button
      * itself is hid
      */
+
+
 	$('#frangipani-new-search').on('click',function(event){
 		event.preventDefault();
 		if(!settings.buttonClicked){
@@ -528,6 +534,14 @@ var getPatientVariantQuery = function(options){
 	 * variant information for the specified individual. Succesful searches
 	 * populate a table
 	 */
+
+	$('input').on('keypress', function(event){
+		var key = event.keyCode || event.which;
+		if (key === 13){
+			$('#frangipani-submit-variant-request').trigger('click');
+		}
+	});
+
 	$('#frangipani-submit-variant-request').on('click', function(event){
 		var varSet = settings.currentData.variants;
 
@@ -577,15 +591,11 @@ var getPatientVariantQuery = function(options){
 var loadPatientsOnScroll= function(addContentFunction,ref) {
 
 	$(window).on("scroll.table", function(event) {
-		console.log(ref);
 		if (ref === 'project'){
 			var refPoint = settings.currentData;	
 		} else if (ref === 'patient'){
 			var refPoint = settings.currentData.variants;
-		} else {
-			refPoint = settings;
-			console.log(refPoint);
-		}
+		} 
 		if (!settings.scrolledToBottom &&
 			refPoint.pageToken != "" && refPoint.pageToken !== undefined &&
 			$(window).scrollTop() + $(window).height() >= settings.patientTable.height()) {
@@ -608,6 +618,7 @@ var addProjectEventListeners= function() {
 */
 
 var app= function() {
+	console.log(Promise);
 	settings.applicationMain= $("#frangipani-app-main");
 	clickAction($("#frangipani-browse-button"), getProjects);
 };
