@@ -77,7 +77,7 @@ var renderHbs= function(template_name, template_data) {
 /* AJAX call to application server to retrieve projects. */
 var getProjects= function() {
 	settings.currentData = undefined;
-
+	unbindScroll();
 	var promise= Promise.resolve($.ajax({
 		url: "/datasets",  // Need the "http://" here or will get CORS error
 		type: "GET",
@@ -145,7 +145,7 @@ var getProjectPatients= function(options) {
 				settings.currentData = undefined;
 				settings.patientTable.empty();
 				toggleProjectsSideBar();
-				$(window).off('scroll.table');
+				unbindScroll();
 			});
 
 		// update the progress spinner's next page token, if the spinner already exists
@@ -407,7 +407,7 @@ var toggleProjectsSideBar = function(){
  * displayed in the browser
 */
 var getPatientVariantQuery = function(options){
-	$(window).off('scroll.table');
+	unbindScroll();
 	var varSet = settings.currentData.variants = {};		
 	var button = this.dataset;
 	settings.currentData['patientName'] = button['patientName'];
