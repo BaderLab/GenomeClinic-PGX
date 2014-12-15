@@ -22,15 +22,15 @@
 
 .size-96 { font-size: 96px; }
 
+#frangipani-title-description {
+  position: relative;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
 #frangipani-github-icon {
 	padding: 4px 15px;
 	line-height: 0px;
-}
-
-#franipani-progress-spinner {
-  position: absolute;
-  top: 50%;
-  left: 50%;
 }
 
 #frangipani-plus-icon {
@@ -70,6 +70,7 @@
   position: relative;
   float: left;
 }
+
 /* Borrowed from the Zurb footer on the Foundation website. */
 .zurb-footer-bottom {
   background: #444;

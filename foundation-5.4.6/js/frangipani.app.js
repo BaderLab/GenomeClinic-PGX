@@ -4,6 +4,39 @@
  * @patrick Magee
  */
 
+
+
+
+/*
+ * Global Settings and global values
+ */
+
+
+/* A variable to contain all of the currnet information on
+ * which patient is being accessed, which project is being
+ * used etc instead of coding the information within the html
+ * footer of the page. All functions add to this
+ */
+var settings = {
+	//Side Bar data including status and html
+	'sideBar': {
+		'projectSideBarState': true,
+		'previousHtml': undefined,
+		'originalText': undefined
+		},
+
+	//triggers and data
+	'buttonClicked': false,
+	'applicationDataPreviousState': undefined,
+	'applicationMain': undefined,
+	'patientTable': undefined,
+	'scrolledToBottom': true,
+	'progressSpinner': undefined,
+	'currentData': undefined
+}
+
+
+
 /* 
  * Auxiliary helper functions:
  */
@@ -18,6 +51,7 @@
  * templates.js file and load that in the beginning rather than have many
  * small synchronous AJAX calls to get templates when the webpage loads.
  */
+
 var renderHbs= function(template_name, template_data) {
 	if (!renderHbs.template_cache) { 
 	    renderHbs.template_cache= {};
@@ -59,20 +93,23 @@ var getProjects= function() {
  * @return {Object} A promise describing state of request. */
 var getProjectPatients= function(options) {
 	// Find out if this is a new table or rows to be appended to existing table
-	if (options["pageToken"] === undefined) {
-		var projectButton= options["thisButton"];
-		var projectId= projectButton.data("id");
-		var projectName= projectButton.data("project");
+	if (settings.currentData === undefined){
+		settings.currentData = {};
+	}
+	if (settings.currentData.pageToken === undefined){
+		var projectButton = options["thisButton"];
+		settings.currentData = {
+			"variantSetIds": [projectButton.data("id")],
+			"projectName": projectButton.data('project'),
+			"pageToken": undefined
+		};
 		var currentTemplate= "frangipani-project-details.hbs";
-		var domInsertPoint= patientTable;
-		var pageToken= undefined;
+		var domInsertPoint= settings.patientTable;
 		resetPatientTable();
 	} else {
-		console.log('here')
+		console.log("in here");
 		currentTemplate= "frangipani-more-patients.hbs";
-		domInsertPoint= patientTable.find("tbody");
-		projectId= options["id"];
-		pageToken= options["pageToken"];
+		domInsertPoint= settings.patientTable.find("tbody");
 	}
 
 	//Promise Function
@@ -82,19 +119,19 @@ var getProjectPatients= function(options) {
 		contentType: "application/json",
 		dataType: "json",
 		data: JSON.stringify({
-			"variantSetIds": [projectId],
+			"variantSetIds": settings.currentData.variantSetIds,
 			"pageSize": 30,
-			"pageToken": pageToken
+			"pageToken": settings.currentData.pageToken
 		})
 	}));
 
 	promise.then(function(result) {
+		settings.currentData['pageToken'] = result['nextPageToken'];
 		var context= {
 			"callSets": result["callSets"],
-			"nextPageToken": result["nextPageToken"],
-			"projectName": projectName,
-			"id": projectId
+			"projectName": settings.currentData.projectName,
 		}
+
 		var html= renderHbs(currentTemplate, context);
 		domInsertPoint.append(html);
 
@@ -104,12 +141,14 @@ var getProjectPatients= function(options) {
 		$('.frangipani-back-button').off('click');
 		$(".frangipani-back-button").on('click',function(event){
 				event.preventDefault();
-				patientTable.empty();
+				settings.currentData = undefined;
+				settings.patientTable.empty();
 				toggleProjectsSideBar();
+				$(window).off('scroll.table');
 			});
 
 		// update the progress spinner's next page token, if the spinner already exists
-		progressSpinner.data("next-page", context["nextPageToken"]);
+		settings.progressSpinner.data("next-page", context["nextPageToken"]);
 	
 		return context;
 
@@ -118,10 +157,10 @@ var getProjectPatients= function(options) {
 		// on scroll events only after the table has been appended. If there
 		// are no more page tokens, we have reached the bottom.
 		refresh();
-		if (context["nextPageToken"] !== undefined) {
-			scrolledToBottom= false;
+		if (settings.currentData.pageToken !== undefined) {
+			settings.scrolledToBottom= false;
 		}
-		progressSpinner.hide();
+		settings.progressSpinner.hide();
 	});
 
 	return promise;
@@ -131,108 +170,87 @@ var getProjectPatients= function(options) {
  * based on passed in information or informatiuon contained in the page footer.
 * If there are more patients, load them when scrolled to the bottom of the
  * patient table. */
+
+
 var getVariantCallSet = function(options){
+		var varSet = settings.currentData.variants;
 		//new search
-		if (options['pageToken']===undefined){
-			var dataToAdd = options;
+		if (varSet['pageToken']===undefined){
+			var dataToAdd = varSet;
 			var template = "frangipani-variant-table.hbs";
 			var domInsertPoint = $('#tableContents');
 
 		//adding on to previous table
 		} else {
-			var dataholder = progressSpinner.data();
 			var template = "frangipani-more-variants-table.hbs";
 			var domInsertPoint = $('#tableContents').find("tbody");
-
-			//data construct to pass to the ajax call
-			var dataToAdd = {
-				'pageToken': options['pageToken'],
-				'pageSize': 30,
-				'callSetIds': [progressSpinner.data('patient-id')],
-				'variantSetIds': [progressSpinner.data('dataset-id')],
-				'referenceName': progressSpinner.data('reference-name'),				
-			};
-
-			//optionally add start and stop positions if they were provided
-			if (progressSpinner.data('start-pos') !== "none"){
-				dataToAdd['start'] = progressSpinner.data('start-pos');
-			} 
-			if (progressSpinner.data('end-pos') !== "none"){
-				dataToAdd['end'] = progressSpinner.data('end-pos');
-			}
-
+			var dataToAdd = varSet;
 		}
 
 		//promise function takes in previously parsed dataToAdd
-		var promise = Promise.resolve($.ajax({
+		promise = Promise.resolve($.ajax({
 			url: "/variants/search",
 			type: "POST",
 			contentType: "application/json",
 			dataType: "json",
-			data: JSON.stringify(dataToAdd)}));
+			data: JSON.stringify(dataToAdd)
+		    }));
 
 		promise.then(function(results){
-			//need to modify the start and stop fields from undefined in order to allow
-			//proper page displahy
-			if (dataToAdd['start'] === undefined){
-				dataToAdd['start'] = "none";
-
-			} 
-			if (dataToAdd['end'] === undefined){
-				dataToAdd['end'] = "none";
-			}
-
+			globalResults = results;	
 			//Searcgh through results variants and determine
 			//zygosity and genotype to add to the table
 			var variants = results['variants'];
 			for (var i=0; i < variants.length; i++){
-				variants[i]['phase'] = variants[i].calls[0].phaseset;
-				var genotypeArray = variants[i].calls[0].genotype;
-				var zygosity = 0;
-				var genotype = [];
-				for (var j = 0; j < genotypeArray.length; j++){
-					if (genotypeArray[j] === 0){
-						genotype.push(variants[i]['referenceBases']);
-					} else {
-						zygosity += 1;
-						genotype.push(variants[i]['alternateBases'][genotypeArray[j]-1]);
-					}
-				}
-				genotype = genotype.join('/');
-				if (zygosity === 0){
-					zygosity = 'homo_ref';
-				} else  if (zygosity === 1){
-					zygosity = 'hetero';
+				if (variants[i]['referenceBases'].length > 10 || variants[i]['alternateBases'].length > 10){
+					variants[i] = undefined;
 				} else {
-					zygosity = 'homo_alt';
+					variants[i]['phase'] = variants[i].calls[0].phaseset;
+					var genotypeArray = variants[i].calls[0].genotype;
+					var zygosity = 0;
+					var genotype = [];
+					for (var j = 0; j < genotypeArray.length; j++){
+						if (genotypeArray[j] === 0){
+							genotype.push(variants[i]['referenceBases']);
+						} else {
+							zygosity += 1;
+							genotype.push(variants[i]['alternateBases'][genotypeArray[j]-1]);
+						}
+					}
+					genotype = genotype.join('/');
+					if (zygosity === 0){
+						zygosity = 'homo_ref';
+					} else  if (zygosity === 1){
+						zygosity = 'hetero';
+					} else {
+						zygosity = 'homo_alt';
+					}
+					variants[i]['zygosity'] = zygosity;
+					variants[i]['genotypeCall'] = genotype;
 				}
-				variants[i]['zygosity'] = zygosity;
-				variants[i]['genotypeCall'] = genotype;
 			};
 
 
-			results['patientName'] = patientTable.find("h3").data('patient-name')	;
-			results['callSetIds'] = dataToAdd['callSetIds'][0]
+			results['patientName'] = settings.currentData.patientName
 			results['referenceName'] = dataToAdd['referenceName'];
-			results['variantSetIds'] = dataToAdd['variantSetIds'][0];
 			results['start'] = dataToAdd['start'];
 			results['end'] = dataToAdd['end'];
 			//render HTML onto the page populating the table
 			var html = renderHbs(template,results);	
 			domInsertPoint.append(html);
 			//add in evenet listeners to rs numbers here
-
-			progressSpinner.data('next-page',results['nextPageToken']);
+			varSet['pageToken'] = results['nextPageToken'];
 			return results;
 		}).then(function(result) {
 		// set scrolledToBottom to false, to allow for AJAX request triggers
 		// on scroll events only after the table has been appended. If there
 		// are no more page tokens, we have reached the bottom.
-		refresh();
-		if (result["nextPageToken"] !== undefined) {
-			scrolledToBottom= false;
-		}
-		progressSpinner.hide();
+			refresh();
+			settings.buttonClicked = false;
+			if (result["nextPageToken"] !== undefined) {
+				settings.scrolledToBottom= false;	
+			}
+				settings.progressSpinner.hide();	
 		});
 
 		return promise;
@@ -259,19 +277,20 @@ var clearApplicationMain= function() {
 	// Scroll to the top of the page using animation
 	//$("body").animate({scrollTop: 0, scrollLeft: 0}, "fast");
 	scrolltoTop();
-	applicationMain.children().remove();
+	settings.currentData = undefined;
+	settings.applicationMain.children().remove();
 };
 
 /* Reset the patient table. */
 var resetPatientTable= function() {
 	// Scroll to the top of the page using animation, and set scrolledToBottom
 	// as true to block AJAX request triggers on scroll events until we're at the top
-	scrolledToBottom= true;
+	settings.scrolledToBottom= true;
 	scrolltoTop();
 
 	
 	// Clear patient table
-	patientTable.children().remove();
+	settings.patientTable.children().remove();
 };
 
 
@@ -283,8 +302,8 @@ var toggleClassOnDiv = function(component,classIdentifier){
 /* Update the table of projects. */
 var updateProjectTable= function(context) {
 	clearApplicationMain();
-	if (!projectSideBarState){
-		projectSideBarState = true
+	if (!settings.sideBar.projectSideBarState){
+		settings.sideBar.projectSideBarState = true
 		toggleClassOnDiv($('.frangipani-project-details'),'large-12');
 	}
 	// sort datasets in case-insensitive manner by name key
@@ -301,7 +320,7 @@ var updateProjectTable= function(context) {
 
 
 	var html= renderHbs('frangipani-projects.hbs', context);
-	applicationMain.append(html);
+	settings.applicationMain.append(html);
 
 	// Add event listeners and refresh jQuery DOM objects.
 	addProjectEventListeners();
@@ -321,13 +340,13 @@ var clickAction= function(button, promiseFunction, options, useThis) {
 
 	var resetButton= function(val) {
 		button.text(originalText);
-		buttonClicked = false
+		settings.buttonClicked = false
 	};
 
 	button.on("click", function(event) {
 		event.preventDefault();
-		if (!buttonClicked){
-			buttonClicked=true
+		if (!settings.buttonClicked){
+			settings.buttonClicked=true
 			if (useThis === true) {
 				button= $(this);
 				options["thisButton"]= $(this);
@@ -353,27 +372,26 @@ var clickAction= function(button, promiseFunction, options, useThis) {
  * Which several functions (including the Browse function) set back
  * to true when activated.
 */
-var projectSideBarState = true;
-var previousHtml;
-var projectSideBar = $(".frangipani-available-projects");
+
+//var projectSideBar = $(".frangipani-available-projects");
 var toggleProjectsSideBar = function(){
-	if (projectSideBarState === true){	
+	if (settings.sideBar.projectSideBarState === true){	
 		//save the contents of the div
-		previousHtml = $('#frangipani-title-description').html()
+		settings.previousHtml = $('#frangipani-title-description').html()
 		$('#frangipani-title-description').empty().append('<a href="#" class="button"><i class="fi-arrow-left"> Back</i></a>').find('a')
 		.addClass('frangipani-back-button');
 		$('.frangipani-available-projects').toggle('slide');
 		$('#frangipani-project-details').addClass('large-12');
 
-		projectSideBarState = false;
+		settings.sideBar.projectSideBarState = false;
 	} else {
 		//remove the button and repopulate with the previously saved html
-		$('#frangipani-title-description').empty().append(previousHtml);
+		$('#frangipani-title-description').empty().append(settings.previousHtml);
 		$('#frangipani-project-details').removeClass('large-12')	
 		$('.frangipani-available-projects').toggle('slide');
 
 		//reset the state
-		projectSideBarState = true;
+		settings.sideBar.projectSideBarState = true;
 	}
 };
 
@@ -385,57 +403,89 @@ var toggleProjectsSideBar = function(){
 */
 var getPatientVariantQuery = function(options){
 	$(window).off('scroll.table');
-	var isSearching;
+	var varSet = settings.currentData.variants = {};		
 	var button = this.dataset;
-	var patientName = button['patientName'];
-	var callSetIds = button['patientId'];
-	var variantSetIds = $('#frangipani-progress-spinner').data('id');
-	var context = {'patientName': patientName,'callSetIds': callSetIds,'variantSetIds': variantSetIds};
+	settings.currentData['patientName'] = button['patientName'];
+	varSet['callSetIds'] = [button['patientId']];
+	varSet['variantSetIds'] = settings.currentData.variantSetIds;
+
+	var context = { 'patientName': settings.currentData['patientName'],
+					'callSetIds': varSet['callSetIds'],
+					'variantSetIds': varSet['variantSetIds']
+	};
 	var html = renderHbs("frangipani-request-variants.hbs",context);	
 
 	//empty the current contents of the patientTable Div and append the search html
-	applicationDataPreviousState = patientTable.html()	
-	patientTable.empty();
-	patientTable.append(html);
+	settings.applicationDataPreviousState = settings.patientTable.html()	
+	settings.patientTable.empty();
+	settings.patientTable.append(html);
 
 	//refresh the progressSpinner, this will be used later
 	refresh();
-	progressSpinner.hide();
-	scrolledToBottom = false;
+	settings.progressSpinner.hide();
+	settings.scrolledToBottom = false;
 
 	// field data validation. eventually to be replaced
 	// by data validation within the html itself
 	var validate = function(){
 
-		var validObjects = new Object();
+		//var validObjects = new Object();
 		var start = +$('#start-position').val();
 		var end = +$('#end-position').val();
 		var referenceName = $('#reference-name').val();
+		var pageSize = $('#variants-per-page').val();
+		var returnState = true
 
-		if (referenceName.length !== 0){
-			validObjects['referenceName'] = referenceName;
-		} else {
-			return undefined;
+		if (pageSize <= 0){
+			returnState = false;
 		}
-		if(start > 0 && start !== NaN ){
-			validObjects['start'] = start;
+		if (referenceName.length === 0){
+			returnState = false;
 		}
-		if (end > 0 && end !== NaN){
-			validObjects['end'] = end;
+		if(start !== undefined && end === undefined ||
+			end !== undefined && start === undefined){
+			returnState = false;
 		}
-		return validObjects;
+		if(start > end){
+			returnState = false;
+		}
+		if (start === 0 && end === 0){
+			start = undefined;
+			end = undefined;
+		}
+
+		if (returnState){
+			varSet['pageSize'] = pageSize;
+			varSet['referenceName'] = referenceName;
+			varSet['start'] = start;
+			varSet['end'] = end;
+		}
+
+		return returnState;
 	};
 
+	var resetSearchFields = function(){
+		$('.variant-query-fields').slideDown().find("input").val("");
+		$('#variants-per-page').val(30);
+
+	}
+
 	//add information to the back button event handler
-	$('.frangipani-back-button').data({'id':variantSetIds,'project':""}).data()
+	$('.frangipani-back-button').data({'id':varSet['variantSetIds'][0],'project':settings.currentData['projectName']}).data()
 	$('.frangipani-back-button').off('click');
 	$('.frangipani-back-button').on('click',function(event){
-		if (!buttonClicked){
+		if (!settings.buttonClicked){
+			$(window).off('scroll.table')
 			buttonClicked = true;
+			varSet = undefined;
+			settings.currentData['pageToken'] = undefined;
 			event.preventDefault();
 			var options = {'thisButton':$(this)};
 			getProjectPatients(options).then(function(){
-				buttonClicked = false;
+				settings.buttonClicked = false;
+				settings.scrolledToBottom = false;
+				refresh()
+				loadPatientsOnScroll(getProjectPatients,'project');
 			});
 		}
 	});
@@ -446,9 +496,9 @@ var getPatientVariantQuery = function(options){
      */
 	$('#frangipani-new-search').on('click',function(event){
 		event.preventDefault();
-		if(!buttonClicked){
+		if(!settings.buttonClicked){
 			$(this).toggle();
-			$('.variant-query-fields').slideDown().find("input").val("");
+			resetSearchFields();
 		}
 	});
 
@@ -464,7 +514,7 @@ var getPatientVariantQuery = function(options){
 	$('#frangipani-cancel-variant-request').on('click',function(event){
 		event.preventDefault();
 		$('.variant-query-fields').slideUp().parent().find('#frangipani-new-search').slideDown();
-		buttonClicked = false;
+		settings.buttonClicked = false;
 	});
 
 
@@ -474,38 +524,37 @@ var getPatientVariantQuery = function(options){
 	 * populate a table
 	 */
 	$('#frangipani-submit-variant-request').on('click', function(event){
+		var varSet = settings.currentData.variants;
 
-		if (!buttonClicked){
-			buttonClicked = true;
+		if (!settings.buttonClicked){
+			settings.buttonClicked = true;
 			event.preventDefault();
 			var searchObjects = validate();
-			if (searchObjects !== undefined){
+			if (searchObjects){
 				//hide the search tab and add a spinner to the new search button while data is loading
 				$('.variant-query-fields').slideUp().parent().find('#frangipani-new-search')
 				.text("")
 				.append('<i class="fa fa-refresh fa-spin"></i>')
-				.slideDown();
+				.show();
 				$("#tableContents").empty();
 
 				//options to send to the variantCall
-				var options = $.extend({'callSetIds': [callSetIds],
-					'variantSetIds': [variantSetIds],
-					'pageSize': 30,
-					'pageToken': undefined}, 
-					searchObjects);
+				varSet.pageToken = undefined;
 				//variant Call
-				getVariantCallSet(options).then(function(){
-					$("frangipani-new-search").text = "New Search";
-					//isSearching = false;
-					buttonClicked = false;
-					loadPatientsOnScroll(getVariantCallSet);
+				getVariantCallSet().then(function(){
+					$("#frangipani-new-search").text = "New Search";	
+					loadPatientsOnScroll(getVariantCallSet,'patient');
 					$('#frangipani-new-search').empty().text("NewSearch")	
 				});
+
+
 				
 			} else {
 				//preliminary alert
-				buttonClicked = false
-				alert("YOU DID NOT PUT IN THE PROPER ELEMENTS");
+				settings.buttonClicked = false
+				$('#myModal').foundation('reveal','open');
+				resetSearchFields();
+
 			}
 			
 		}
@@ -520,18 +569,19 @@ var getPatientVariantQuery = function(options){
  * function is triggered, populating the next page of the table
  * this allows for continuous scrolling.
 */
-var loadPatientsOnScroll= function(addContentFunction) {
+var loadPatientsOnScroll= function(addContentFunction,ref) {
 	$(window).on("scroll.table", function(event) {
-		if (!scrolledToBottom && 
-			progressSpinner.data("next-page") != "" &&
-			$(window).scrollTop() + $(window).height() >= patientTable.height()) {
-			scrolledToBottom= true;
-			progressSpinner.show();
-			var options= {
-				"id": progressSpinner.data("id"),
-				"pageToken": progressSpinner.data("next-page")
-			};
-			addContentFunction(options);
+		if (ref === 'project'){
+			var refPoint = settings.currentData;
+		} else if (ref === 'patient'){
+			var refPoint = settings.currentData.variants;
+		}
+		if (!settings.scrolledToBottom &&
+			refPoint.pageToken != "" && refPoint.pageToken !== undefined &&
+			$(window).scrollTop() + $(window).height() >= settings.patientTable.height()) {
+			settings.scrolledToBottom= true;
+			settings.progressSpinner.show();	
+			addContentFunction();
 		}
 	});
 };
@@ -540,7 +590,7 @@ var loadPatientsOnScroll= function(addContentFunction) {
 var addProjectEventListeners= function() {
 	clickAction($(".frangipani-project-name"), getProjectPatients, {}, true);
 	$('.frangipani-project-name').on('click',toggleProjectsSideBar);
-	loadPatientsOnScroll(getProjectPatients);
+	loadPatientsOnScroll(getProjectPatients, 'project');
 };
 
 
@@ -548,21 +598,14 @@ var addProjectEventListeners= function() {
 * Main app function.
 */
 
-var buttonClicked = false;
-var applicationDataPreviousState;
-var originalText;
-var applicationMain;
 var app= function() {
-applicationMain= $("#frangipani-app-main");
-clickAction($("#frangipani-browse-button"), getProjects);
+	settings.applicationMain= $("#frangipani-app-main");
+	clickAction($("#frangipani-browse-button"), getProjects);
 };
 /* App components */
-var patientTable;
-var scrolledToBottom= true;
-var progressSpinner;
 var refresh= function() {
-patientTable= $("#frangipani-project-details");
-progressSpinner= $("#frangipani-progress-spinner");
+	settings.patientTable= $("#frangipani-project-details");
+	settings.progressSpinner= $("#frangipani-progress-spinner");
 };
 
 
