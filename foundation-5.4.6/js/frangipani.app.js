@@ -108,7 +108,6 @@ var getProjectPatients= function(options) {
 		var domInsertPoint= settings.patientTable;
 		resetPatientTable();
 	} else {
-		console.log("in here");
 		currentTemplate= "frangipani-more-patients.hbs";
 		domInsertPoint= settings.patientTable.find("tbody");
 	}
@@ -138,6 +137,7 @@ var getProjectPatients= function(options) {
 
 
 		//Add Click event handlers to new rendered html
+		loadPatientsOnScroll(getProjectPatients,'project');
 		$('.frangipani-patient-link').on('click',getPatientVariantQuery);
 		$('.frangipani-back-button').off('click');
 		$(".frangipani-back-button").on('click',function(event){
@@ -575,11 +575,16 @@ var getPatientVariantQuery = function(options){
  * this allows for continuous scrolling.
 */
 var loadPatientsOnScroll= function(addContentFunction,ref) {
+
 	$(window).on("scroll.table", function(event) {
+		console.log(ref);
 		if (ref === 'project'){
-			var refPoint = settings.currentData;
+			var refPoint = settings.currentData;	
 		} else if (ref === 'patient'){
 			var refPoint = settings.currentData.variants;
+		} else {
+			refPoint = settings;
+			console.log(refPoint);
 		}
 		if (!settings.scrolledToBottom &&
 			refPoint.pageToken != "" && refPoint.pageToken !== undefined &&
@@ -595,7 +600,6 @@ var loadPatientsOnScroll= function(addContentFunction,ref) {
 var addProjectEventListeners= function() {
 	clickAction($(".frangipani-project-name"), getProjectPatients, {}, true);
 	$('.frangipani-project-name').on('click',toggleProjectsSideBar);
-	loadPatientsOnScroll(getProjectPatients, 'project');
 };
 
 
