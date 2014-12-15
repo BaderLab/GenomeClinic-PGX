@@ -76,6 +76,7 @@ var renderHbs= function(template_name, template_data) {
 
 /* AJAX call to application server to retrieve projects. */
 var getProjects= function() {
+	settings.currentData = undefined;
 
 	var promise= Promise.resolve($.ajax({
 		url: "/datasets",  // Need the "http://" here or will get CORS error
@@ -259,6 +260,10 @@ var getVariantCallSet = function(options){
 
 /* Code snippet taken from jqeury github page for reliablly scrolling
  * to top or bottom of body when it is called. This function runs once. */
+var unbindScroll = function(){
+	$(window).off('scroll.table');
+}
+
 var scrolltoTop = function(){
 
 	$.Deferred(function( defer ) {

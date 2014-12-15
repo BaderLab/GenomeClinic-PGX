@@ -71,6 +71,10 @@
   float: left;
 }
 
+
+th:hover {
+  background: #555555; 
+}
 /* Borrowed from the Zurb footer on the Foundation website. */
 .zurb-footer-bottom {
   background: #444;
