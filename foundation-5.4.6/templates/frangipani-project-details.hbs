@@ -1,20 +1,44 @@
-<h3>Details for <em>{{projectName}}</em></h3>
+
+<div class='row'>
+	<div class='large-6 column left'>
+		<h3>Details for <em>{{projectName}}</em></h3>
+	</div>
+	<!--
+	<div class='large-4 column'>
+		<a href="#" id="frangipani-view-all-variants" class='button radius right' data-project-name={{projectName}}>View All Variants</a>
+	</div>
+	-->
+</div>
 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse finibus venenatis turpis vel viverra. Ut lectus tellus, euismod ac interdum a, dignissim vitae neque. Ut arcu arcu, sodales id lorem sit amet, lacinia tincidunt odio.</p>
-<h3><i class="fi-torsos-all"></i> Patients</h3>
+<div class='row'>
+	<div class='large-12 column'>
+		<h3><i class="fi-torsos-all"></i> Patients</h3>
+	</div>
+	<div class='large-12 column'>
+			<a href="#" id="frangipani-view-all-variants" class='button radius small-2 tiny secondary	' data-project-name={{projectName}}>View All Variants</a>
+
+
+			<a href="#" id="frangipani-view-select-variants" class='button radius small-2 tiny secondary'>View Selected Variants</a>
+	</div>
+</div>
 <table>
 	<thead>
 		<tr>
 			<th>Name</th>
 			<th>Details</th>
+			<th>Select</th>	
 		</tr>
 	</thead>
 	<tbody>
 		{{#each callSets}}
 		<tr>
-			<td>{{name}}</td>
-			<td>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</td>
+			<td><a href="#" class="frangipani-patient-link" data-patient-id={{id}} data-patient-name={{name}}>{{name}}</a></td>
+			<td>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse finibus venenatis turpis vel viverra.</td>
+			<td><input type="checkbox" class='large-12'/></td>
 		</tr>
 		{{/each}}
 	</tbody>
 </table>
-<i class="fa fa-refresh fa-spin" id="frangipani-progress-spinner" data-id={{id}} data-next-page={{nextPageToken}}></i>
+<div class=small-12 small-centered columns>
+	<i class="fa fa-refresh fa-spin" id="frangipani-progress-spinner"></i>
+</div>	

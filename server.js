@@ -19,6 +19,7 @@ app.get("/", function(request, response) {
 
 app.use("/datasets", routes.getRouter);
 app.use("/callsets/search", routes.postRouter);
+app.use("/variants/search",routes.variantRouter);
 
 
 app.listen(8080);

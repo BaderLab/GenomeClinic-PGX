@@ -1,0 +1,24 @@
+{{#each variants}}
+	<tr>
+		<td class='text-center'>{{referenceName}}</td>
+		<td>{{start}}</td>
+		<td>{{end}}</td>
+		<td class='text-center'>
+			<a href="http://www.ncbi.nlm.nih.gov/snp/?term={{names.[0]}}" target="_blank" data-rs-number={{names.[0]}}>{{names.[0]}}</a>
+		</td>
+		<td>{{referenceBases}}</td>
+		<td>{{alternateBases}}</td>
+		<td>{{info.VT}}</td>
+		<td>{{info.SNPSOURCE}}</td>
+		<!-- Allele Frequencies -->
+		<td>{{info.AF}}</td>
+		<td>{{info.AMR_AF}}</td>
+		<td>{{info.EUR_AF}}</td>
+		<td>{{info.ASN_AF}}</td>
+		<td>{{info.AFR_AF}}</td>
+		<!--For Later user in order to explore all 
+			patients with a given variant
+		<td class='text-center'><a href="#" class="button radius tiny secondary" data-variant-id={{names.[0]}}>explore</a></td>
+		-->
+	</tr>
+{{/each}}

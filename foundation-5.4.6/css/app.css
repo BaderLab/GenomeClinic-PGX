@@ -22,6 +22,12 @@
 
 .size-96 { font-size: 96px; }
 
+#frangipani-title-description {
+  position: relative;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
 #frangipani-github-icon {
 	padding: 4px 15px;
 	line-height: 0px;
@@ -44,6 +50,31 @@
 	border-bottom-right-radius: 3px;
 }
 
+#frangipani-submit-variant-request {
+  position: relative;
+  float: left;
+}
+
+#frangipani-cancel-variant-request {
+  position: relative;
+  float: left;
+}
+
+#frangipani-app-main {
+  min-height: 100%;
+  height: auto;
+}
+
+#frangipani-new-search {
+  display: none;
+  position: relative;
+  float: left;
+}
+
+
+th:hover {
+  background: #BCBCBC; 
+}
 /* Borrowed from the Zurb footer on the Foundation website. */
 .zurb-footer-bottom {
   background: #444;

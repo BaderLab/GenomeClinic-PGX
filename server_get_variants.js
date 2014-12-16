@@ -1,5 +1,5 @@
 var express= require("express");
-var request= require("request");
+var request= require("request");	
 var bodyParser= require("body-parser");
 
 /* My testing server */
@@ -76,3 +76,22 @@ function getGGCallsets(params, nodeResponse) {
 		nodeResponse.send(body);
 	});
 }
+
+function getGGVariants(params, nodeResponse){
+	var options = { 
+		url: "https://www.googleapis.com/genomics/v1beta2/variants?key=" + myAPIKey,
+		method: "POST",
+		json: true,
+		body: params
+	};
+
+	request(options, function(error, googleResponse, body) {
+		nodeResponse.send(body);
+	});
+}
+
+
+
+
+
+

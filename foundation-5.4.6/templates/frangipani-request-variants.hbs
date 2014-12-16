@@ -1,0 +1,72 @@
+<h3 data-patient-name={{patientName}}>Details for <em>{{patientName}}</em></h3>
+<div class="row">
+	<div class="small-12 columns">
+		<a href="#" id="frangipani-new-search" class="button radius">New Search</a>
+	</div>
+</div>
+<form class="variant-query-fields">
+	<fieldset>
+		<legend>Variant Queries</legend>
+		<div class='row'>
+			<div class='large-6 column'>
+				<div class ='large-8 column left'>
+					<p class='text-left large-12'>Please Select the appropriate details</p>
+				</div>
+				<div class='large-4 column'>
+					<a href="#" class="button radius tiny center large-12" id="frangipangi-query-field-example">Example</a>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="small-6 columns">
+				<label>Chromosome Number
+					<input id="reference-name" type="text" placeholder="1 - 22, X,Y,MT" />
+				</label>
+			</div>
+			<div class="small-6 column">
+				<label>Number Of Variants to Display
+					<input id="variants-per-page" type="text" placeholder='30' value='30'/>
+				</label>
+			</div>
+		</div>
+		<div class="row">
+			<div class="small-6 columns">
+				<label>Start Position
+					<input id="start-position" type="text" placeholder="0" />
+				</label>
+			</div>
+			<div class="small-6 columns">
+				<label>End Position
+					<input id="end-position" type="text" placeholder="0" />
+				</label>
+			</div>
+		</div>
+		<div class="row">
+			<div class="large-4 column">
+					<a href="#" class="large-12 button radius" id="frangipani-submit-variant-request">Submit</a>
+			</div>
+			<div class="large-2 column left">
+					<a href="#" class="large-12 button radius alert" id="frangipani-cancel-variant-request">Cancel</a>
+			</div>	
+		</div>
+	</fieldset>	
+</form>
+<div class="row">
+	<div class="large-12 column" id="tableContents">
+	</div>
+</div>
+
+
+<div id="myModal" class="reveal-modal" data-reveal>
+  <h2>Incorrect Search Info.</h2>
+  <p>The Data you entered was incorrect, please ensure that you include a chromosome number between 1-22, X,Y, or MT and ensure you set a minimum page limit</p>
+  <a class="close-reveal-modal">&#215;</a>
+</div>
+
+<div id="NoQuerriesFound" class="reveal-modal" data-reveal>
+	<h2>No results found</h2>
+	<p>It appears that we did not find any variants that correspond to your search criteria. You may wish to try and increase the window size of your search to produce more results
+	</p>
+	<a class="close-reveal-modal">&#215;</a>
+</div>
+
