@@ -14,6 +14,7 @@
 			<th>Zygosity</th>
 			<th>Quality</th>
 			<th>PhaseSet</th>
+			<th>Explore All Patients</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -31,8 +32,11 @@
 			<td class='text-center'>{{zygosity}}</td>
 			<td class='text-center'>{{quality}}</td>
 			<td class='text-center'>{{phase}}</td>
+			<!--For Later user in order to explore all 
+				patients with a given variant -->
+			<td class='text-center'><a href="#" class="button radius tiny secondary" data-variant-id={{names.[0]}}>explore</a></td>
 		{{/each}}
-	</tbody>
+	</tbody>	
 </table>
 
 <i class="fa fa-refresh fa-spin" id="frangipani-progress-spinner"></i>

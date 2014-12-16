@@ -64,7 +64,11 @@ var renderHbs= function(template_name, template_data) {
 			async: false,  // I'm keeping this async for now (from original code) - but I really don't like it
 			success: function(data) {
 				renderHbs.template_cache[template_name]= Handlebars.compile(data);
+			},
+			error: function(err,message) {
+				console.log(message);
 			}
+			
 		});
 	}
 
@@ -138,6 +142,7 @@ var getProjectPatients= function(options) {
 		//Add Click event handlers to new rendered html
 		loadPatientsOnScroll(getProjectPatients,'project');
 		$('.frangipani-patient-link').on('click',getPatientVariantQuery);
+		$('#frangipani-view-all-variants').on('click',getPatientVariantQuery);
 		$('.frangipani-back-button').off('click');
 		$(".frangipani-back-button").on('click',function(event){
 				event.preventDefault();
@@ -145,7 +150,7 @@ var getProjectPatients= function(options) {
 				settings.patientTable.empty();
 				toggleProjectsSideBar();
 				unbindScroll();
-			});
+		});
 
 		// update the progress spinner's next page token, if the spinner already exists
 		settings.progressSpinner.data("next-page", context["nextPageToken"]);
@@ -167,98 +172,156 @@ var getProjectPatients= function(options) {
 };
 
 /* construct an ajax call to the google server to retrive variant information
- * based on passed in information or informatiuon contained in the page footer.
-* If there are more patients, load them when scrolled to the bottom of the
+ * based on user provided information. The ajax call will do one of two things,
+ * it will either submit a call querying for an individual patient, or it will
+ * submit a call that queries the server for a group of variants within the 
+ * population. the options parameter is a javascript object that contains all
+ * the information that is required for the scrip to run and for the call to be
+ * made. additionall information is being stored in settings.currentData.variants
+ * or settings.currentData
+ * If there are more patients, load them when scrolled to the bottom of the
  * patient table. */
 
+var getVariants = function(options){	
+	currentData = settings.currentData;
 
-var getVariantCallSet = function(options){
-		var varSet = settings.currentData.variants;
-		//new search
-		if (varSet['pageToken']===undefined){
-			var dataToAdd = varSet;
-			var template = "frangipani-variant-table.hbs";
-			var domInsertPoint = $('#tableContents');
+	//Required variables to be passed in ajax call
+	var dataToAdd = {
+		'variantSetIds': currentData['variantSetIds'],
+		'referenceName': currentData.variants['referenceName'],
+		'pageSize': currentData.variants['pageSize']
+	};
 
-		//adding on to previous table
+	//optional variables which have been previously set with
+	//getPatientVariantQuery base on the information that it was
+	//given.
+	if (currentData.variants['start'] !== undefined){
+		dataToAdd['start'] = currentData.variants['start'];
+	} 
+	if (currentData.variants['end'] !== undefined){
+		dataToAdd['end'] = currentData.variants['end'];
+	}
+	if (currentData.variants['pageToken'] !== undefined){
+		dataToAdd['pageToken'] = currentData.variants['pageToken'];
+	}
+
+
+	if (currentData.variants['callSetIds'] !== undefined){
+		dataToAdd['callSetIds'] = currentData.variants['callSetIds'];
+	}
+
+	if (currentData.variants['pageToken'] === undefined){
+		domInsertPoint = $("#tableContents")
+		template = options.firstPageTemplate;
+	} else {
+		domInsertPoint = $("#tableContents").find("tbody")
+		template = options.nextPageTemplate;
+	}
+	promise = Promise.resolve($.ajax({
+		url: "/variants/search",
+		type: "POST",
+		contentType: "application/json",
+		dataType: "json",
+		data: JSON.stringify(dataToAdd)
+	}));
+
+	//generic promise function for querying information from the genomics
+	//Server.
+	promise.then(function(results){
+		if (!$.isEmptyObject(results)){	
+			globalResults = results;
+			//specified function to use to modify the results
+			results = options.useFunction(results)	
+
+
+			//add information to the results object for parsing , incase it is not there already
+			results['patientName'] = settings.currentData.patientName || settings.currentData.projectName
+			results['referenceName'] = dataToAdd['referenceName'];
+			results['start'] = dataToAdd['start'];
+			results['end'] = dataToAdd['end'];
+
+
+			//render HTML and append it to the domInsertPoint
+			var html = renderHbs(template,results);	
+			domInsertPoint.append(html);
+
+			//set the next page token in the variants arm of settings.
+			settings.currentData.variants['pageToken'] = results['nextPageToken'];
+
+		//in case nothing was found in your search, reveals a hidden popup informing
+		//the user that nothing was found
 		} else {
-			var template = "frangipani-more-variants-table.hbs";
-			var domInsertPoint = $('#tableContents').find("tbody");
-			var dataToAdd = varSet;
+
+			$("#NoQuerriesFound").foundation('reveal','open');
+			var results = {
+				'nextPageToken':undefined
+			}
 		}
+		return results;
+	}).then(function(results){
+	// set scrolledToBottom to false, to allow for AJAX request triggers
+	// on scroll events only after the table has been appended. If there
+	// are no more page tokens, we have reached the bottom.
+		refresh();
+		settings.buttonClicked = false;
+		if (results["nextPageToken"] !== undefined) {
+			settings.scrolledToBottom= false;	
+		}
+			settings.progressSpinner.hide();	
+	});
+	return promise;
 
-		//promise function takes in previously parsed dataToAdd
-		promise = Promise.resolve($.ajax({
-			url: "/variants/search",
-			type: "POST",
-			contentType: "application/json",
-			dataType: "json",
-			data: JSON.stringify(dataToAdd)
-		    }));
-			promise.then(function(results){
-			if (!$.isEmptyObject(results)){	
-			//Searcgh through results variants and determine
-			//zygosity and genotype to add to the table
-				var variants = results['variants'];
-				for (var i=0; i < variants.length; i++){
-					if (variants[i]['referenceBases'].length > 10 || variants[i]['alternateBases'].length > 10){
-						variants[i] = undefined;
-					} else {
-						variants[i]['phase'] = variants[i].calls[0].phaseset;
-						var genotypeArray = variants[i].calls[0].genotype;
-						var zygosity = 0;
-						var genotype = [];
-						for (var j = 0; j < genotypeArray.length; j++){
-							if (genotypeArray[j] === 0){
-								genotype.push(variants[i]['referenceBases']);
-							} else {
-								zygosity += 1;
-								genotype.push(variants[i]['alternateBases'][genotypeArray[j]-1]);
-							}
-						}
-						genotype = genotype.join('/');
-						if (zygosity === 0){
-							zygosity = 'homo_ref';
-						} else  if (zygosity === 1){
-							zygosity = 'hetero';
-						} else {
-							zygosity = 'homo_alt';
-						}
-						variants[i]['zygosity'] = zygosity;
-						variants[i]['genotypeCall'] = genotype;
-					}
-				};
+};	
 
 
-				results['patientName'] = settings.currentData.patientName
-				results['referenceName'] = dataToAdd['referenceName'];
-				results['start'] = dataToAdd['start'];
-				results['end'] = dataToAdd['end'];
-				//render HTML onto the page populating the table
-				var html = renderHbs(template,results);	
-				domInsertPoint.append(html);
-				//add in evenet listeners to rs numbers here
-				varSet['pageToken'] = results['nextPageToken'];
-			} else {
-				$("#NoQuerriesFound").foundation('reveal','open');
-				var results = {
-					'nextPageToken':undefined
+//function for modifying the results returned from an ajax call when 
+//ALL variants are returned.
+var getAllVariants = function(results) {
+	var variants = results['variants'];
+	//Remove LONG (>10 bp) variants for sake of visual appearance.
+	for (var i=0; i < variants.length; i++){
+		if (variants[i]['referenceBases'].length > 10 || variants[i]['alternateBases'].length > 10){
+			variants[i] = undefined;
+		}
+	};
+	return results;
+
+};
+
+
+//function for modifying the results returned from an ajax call when
+//only a single callSetId is being queriedd
+var setGenoTypeAndZygosity = function(results){
+	var variants = results['variants'];
+	for (var i=0; i < variants.length; i++){
+		if (variants[i]['referenceBases'].length > 10 || variants[i]['alternateBases'].length > 10){
+			variants[i] = undefined;
+		} else {	
+			variants[i]['phase'] = variants[i].calls[0].phaseset;
+			var genotypeArray = variants[i].calls[0].genotype;
+			var zygosity = 0;
+			var genotype = [];
+			for (var j = 0; j < genotypeArray.length; j++){
+				if (genotypeArray[j] === 0){
+					genotype.push(variants[i]['referenceBases']);
+				} else {
+					zygosity += 1;
+					genotype.push(variants[i]['alternateBases'][genotypeArray[j]-1]);
 				}
 			}
-			return results;
-		}).then(function(results) {
-		// set scrolledToBottom to false, to allow for AJAX request triggers
-		// on scroll events only after the table has been appended. If there
-		// are no more page tokens, we have reached the bottom.
-			refresh();
-			settings.buttonClicked = false;
-			if (results["nextPageToken"] !== undefined) {
-				settings.scrolledToBottom= false;	
+			genotype = genotype.join('/');
+			if (zygosity === 0){
+				zygosity = 'homo_ref';
+			} else  if (zygosity === 1){
+				zygosity = 'hetero';
+			} else {
+				zygosity = 'homo_alt';
 			}
-				settings.progressSpinner.hide();	
-		});
-
-		return promise;
+			variants[i]['zygosity'] = zygosity;
+			variants[i]['genotypeCall'] = genotype;
+		}
+	};
+	return results
 };
 
 
@@ -387,7 +450,7 @@ var toggleProjectsSideBar = function(){
 	if (settings.sideBar.projectSideBarState === true){	
 		//save the contents of the div
 		settings.previousHtml = $('#frangipani-title-description').html()
-		$('#frangipani-title-description').empty().append('<a href="#" class="button"><i class="fi-arrow-left"> Back</i></a>').find('a')
+		$('#frangipani-title-description').empty().append('<a href="#" class="button radius"><i class="fi-arrow-left"> Back</i></a>').find('a')
 		.addClass('frangipani-back-button');
 		$('.frangipani-available-projects').toggle('slide');
 		$('#frangipani-project-details').addClass('large-12');
@@ -414,14 +477,24 @@ var getPatientVariantQuery = function(options){
 	unbindScroll();
 	var varSet = settings.currentData.variants = {};		
 	var button = this.dataset;
-	settings.currentData['patientName'] = button['patientName'];
-	varSet['callSetIds'] = [button['patientId']];
-	varSet['variantSetIds'] = settings.currentData.variantSetIds;
+	if (button.hasOwnProperty('patientName')){
+		settings.currentData['patientName'] = button['patientName']; // set this globally
+		varSet['callSetIds'] = [button['patientId']]; //set this globally //set this globally
 
-	var context = { 'patientName': settings.currentData['patientName'],
-					'callSetIds': varSet['callSetIds'],
-					'variantSetIds': varSet['variantSetIds']
-	};
+		var context = { 'patientName': settings.currentData['patientName']};
+		var options = { 'useFunction': setGenoTypeAndZygosity,
+						'firstPageTemplate': "frangipani-variant-table.hbs",
+						'nextPageTemplate': "frangipani-more-variants-table.hbs"
+					};
+	} else {
+		var context = { 'patientName': settings.currentData['projectName']};
+		var options = { 'useFunction': getAllVariants,
+						'firstPageTemplate': "frangipani-get-all-variants.hbs",
+						'nextPageTemplate': "frangipani-get-all-variants-more.hbs"
+		};
+
+	}
+
 	var html = renderHbs("frangipani-request-variants.hbs",context);	
 
 	//empty the current contents of the patientTable Div and append the search html
@@ -477,18 +550,18 @@ var getPatientVariantQuery = function(options){
 		$('.variant-query-fields').slideDown().find("input").val("");
 		$('#variants-per-page').val(30);
 
-	}
+	};
 
 	//add information to the back button event handler
-	$('.frangipani-back-button').data({'id':varSet['variantSetIds'][0],'project':settings.currentData['projectName']}).data()
+	$('.frangipani-back-button').data({'id':settings.currentData['variantSetIds'][0],'project':settings.currentData['projectName']}).data()
 	$('.frangipani-back-button').off('click');
 	$('.frangipani-back-button').on('click',function(event){
 		if (!settings.buttonClicked){
+			event.preventDefault();
 			$(window).off('scroll.table')
 			buttonClicked = true;
-			varSet = undefined;
+			settings.currentData.variants = undefined;
 			settings.currentData['pageToken'] = undefined;
-			event.preventDefault();
 			var options = {'thisButton':$(this)};
 			getProjectPatients(options).then(function(){
 				settings.buttonClicked = false;
@@ -560,10 +633,11 @@ var getPatientVariantQuery = function(options){
 				//options to send to the variantCall
 				varSet.pageToken = undefined;
 				//variant Call
-				getVariantCallSet().then(function(){
+				var promise = getVariants(options)
+				promise.then(function(){
 					$("#frangipani-new-search").text = "New Search";	
-					loadPatientsOnScroll(getVariantCallSet,'patient');
-					$('#frangipani-new-search').empty().text("NewSearch")	
+					loadPatientsOnScroll(getVariants,'patient',options);
+					$('#frangipani-new-search').empty().text("NewSearch");
 				});
 
 
@@ -588,7 +662,7 @@ var getPatientVariantQuery = function(options){
  * function is triggered, populating the next page of the table
  * this allows for continuous scrolling.
 */
-var loadPatientsOnScroll= function(addContentFunction,ref) {
+var loadPatientsOnScroll= function(addContentFunction,ref,options) {
 
 	$(window).on("scroll.table", function(event) {
 		if (ref === 'project'){
@@ -600,8 +674,12 @@ var loadPatientsOnScroll= function(addContentFunction,ref) {
 			refPoint.pageToken != "" && refPoint.pageToken !== undefined &&
 			$(window).scrollTop() + $(window).height() >= settings.patientTable.height()) {
 			settings.scrolledToBottom= true;
-			settings.progressSpinner.show();	
-			addContentFunction();
+			settings.progressSpinner.show();
+			if (options !== undefined){	
+				addContentFunction(options);
+			} else {
+				addContentFunction();
+			}
 		}
 	});
 };
@@ -618,7 +696,6 @@ var addProjectEventListeners= function() {
 */
 
 var app= function() {
-	console.log(Promise);
 	settings.applicationMain= $("#frangipani-app-main");
 	clickAction($("#frangipani-browse-button"), getProjects);
 };
