@@ -17,7 +17,7 @@
  * used etc instead of coding the information within the html
  * footer of the page. All functions add to this
  */
-var settings = {
+window.settings = {
 	//Side Bar data including status and html
 	'sideBar': {
 		'projectSideBarState': true,
@@ -33,7 +33,7 @@ var settings = {
 	'scrolledToBottom': true,
 	'progressSpinner': undefined,
 	'currentData': undefined
-}
+};
 
 
 /* 
