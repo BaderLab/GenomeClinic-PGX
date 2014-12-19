@@ -7,6 +7,7 @@
 		"request": "*",
 		"body-parser": "*",
 		"handlebars": "*",
-		"bluebird": "2.*"
+		"bluebird": "2.*",
+		"mongodb":"2.*",
 	}
 }
