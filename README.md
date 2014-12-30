@@ -11,7 +11,7 @@ The application server uses [Node.js](http://nodejs.org/), so download and insta
 
 ## MongoDB installation and setup
 
-MongoDB is a noSQL database with built in js support. The application requires a local mongodb server to be running. to install mongo you can download the binaries from[here](http://www.mongodb.org/downloads) for all platforms and distributions.
+MongoDB is a noSQL database with built in js support. Our web application requires a local mongodb server to be running. To install mongo you can download the binaries from [here](http://www.mongodb.org/downloads) for all platforms and distributions.
 
 Once installed you will need to run the mongo server prior to running the main server. 
 you first need to create a data director and then type the following to start the server listening on port 27017
