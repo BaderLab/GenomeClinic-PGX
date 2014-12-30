@@ -13,7 +13,7 @@ The application server uses [Node.js](http://nodejs.org/), so download and insta
 
 MongoDB is a noSQL database with built in js support. Our web application requires a local MongoDB server to be running. To install, you can download the binaries [here](http://www.mongodb.org/downloads) for all platforms and distributions.
 
-Once installed, you will need to run the MongoDB server prior to running our web application server. Create a `db_data/` director and then type the following to start the server listening on port 27017
+Once installed, you will need to run the MongoDB server prior to running our web application server. Create a `db_data/` directory and then type the following to start the server listening on port 27017
 
 `mongod --dbpath=db_data/ --port 27017`
 
