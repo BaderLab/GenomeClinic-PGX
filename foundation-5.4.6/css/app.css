@@ -33,11 +33,18 @@
 	line-height: 0px;
 }
 
+/* Adjust the button padding to match other "has-form" buttons. 
+ * Use !important to override has-dropdown !important padding rules. */
 #frangipani-plus-icon {
 	padding-left: 12px;
-	padding-right: 12px;
+	padding-right: 12px !important;
 	padding-top: 5px;
 	padding-bottom: 5px;
+}
+
+/* Remove the caret from the Foundation dropdown style */
+#frangipani-plus-icon::after {
+  display: none;
 }
 
 #frangipani-search-field {
@@ -104,3 +111,9 @@ th:hover {
     margin: 0px;
     font-size: 0.75rem;
     color: #999; }
+
+
+
+
+
+
