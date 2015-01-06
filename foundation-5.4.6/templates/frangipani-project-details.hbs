@@ -25,7 +25,10 @@
 	<thead>
 		<tr>
 			<th>Name</th>
+			<th>Age</th>
+			<th>Sex</th>
 			<th>Details</th>
+			<th>Placeholder</th>
 			<th>Select</th>	
 		</tr>
 	</thead>
@@ -33,7 +36,10 @@
 		{{#each callSets}}
 		<tr>
 			<td><a href="#" class="frangipani-patient-link" data-patient-id={{id}} data-patient-name={{name}}>{{name}}</a></td>
-			<td>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse finibus venenatis turpis vel viverra.</td>
+			<td class="text-center age">{{age}}</td>
+			<td class="text-center sex">{{sex}}</td>
+			<td class="text-center details">{{details}}</td>
+			<td>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam a massa quis sem eleifend bibendum.</td>
 			<td><input type="checkbox" class='large-12'/></td>
 		</tr>
 		{{/each}}
