@@ -68,7 +68,6 @@ exports.getPatients= function(projectOptions) {
 						body.callSets[ind]['details'] = array[i]['details'];
 					}
 				}
-				console.log(body);
 				resolve(body)
 			}).catch(function(err){
 				reject(err);
