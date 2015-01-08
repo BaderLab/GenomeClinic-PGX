@@ -12,10 +12,10 @@
  */
 
 
-/* A variable to contain all of the currnet information on
+/* A variable to contain all of the current information on
  * which patient is being accessed, which project is being
  * used etc instead of coding the information within the html
- * footer of the page. All functions add to this
+ * footer of the page. All functions add to this.
  */
 window.settings = {
 	//Side Bar data including status and html

@@ -8,6 +8,6 @@
 		"body-parser": "*",
 		"handlebars": "*",
 		"bluebird": "2.*",
-		"mongodb":"2.*",
+		"mongodb":"2.*"
 	}
 }
