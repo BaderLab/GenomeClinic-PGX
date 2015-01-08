@@ -6,6 +6,7 @@
 var request= require("request");
 var Promise= require("bluebird");
 var apiKeys= require('./api');
+var DB= require('./DB');
 
 // Google Genomics URL and API key associated with Lab IP address
 var rootUrl= "https://www.googleapis.com/genomics/v1beta2/";
@@ -49,8 +50,28 @@ exports.getPatients= function(projectOptions) {
 			if (err) {
 				reject(err);
 			}
+			/* Make a call to the local database running to get patient info
+			 * that can then be added to the body prior to passing it back to
+			 * the browser */
 
-			resolve(body);
+			var callSetIds = [];
+			for(var i=0;i < body.callSets.length;i++){
+				callSetIds.push(body.callSets[i]['id'])
+			}
+			DB.find({tableName:'patientTable',query:{callSetId:{$in:callSetIds}}}).then(function(array){
+				for ( var i =0; i < array.length; i++ ){
+					var ind;
+					ind = callSetIds.indexOf(array[i]['callSetId'])
+					if (ind >= 0){
+						body.callSets[ind]['sex'] = array[i]['sex'];
+						body.callSets[ind]['age'] = array[i]['age'];
+						body.callSets[ind]['details'] = array[i]['details'];
+					}
+				}
+				resolve(body)
+			}).catch(function(err){
+				reject(err);
+			});
 		});
 	});
 

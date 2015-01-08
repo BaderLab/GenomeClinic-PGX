@@ -5,16 +5,16 @@
  */
 
 var express= require("express");
-var routes= require("./frangipani_node_modules/routes");
+var routes= require("./js/routes");
 
 var app= express();
 
 // Serve static content (css files, js files, templates, etc) from the
 // foundation directory
-app.use(express.static("foundation-5.4.6", {index: false}));
+app.use(express.static("main", {index: false}));
 
 app.get("/", function(request, response) {
-	response.sendFile("foundation-5.4.6/frangipani.html", {root: "."});
+	response.sendFile("main/frangipani.html", {root: "."});
 });
 
 app.use("/datasets", routes.getRouter);
