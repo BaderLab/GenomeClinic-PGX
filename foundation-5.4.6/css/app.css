@@ -78,6 +78,14 @@
   float: left;
 }
 
+#frangipani-patient-board {
+  border: 2px solid #DFDFDF;
+  padding: 10px 10px 10px;
+  box-shadow: 0 0 5px #888;
+  margin-bottom: 20px;
+  margin-top: 20px;
+
+}
 
 th:hover {
   background: #BCBCBC; 

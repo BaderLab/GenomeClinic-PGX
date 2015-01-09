@@ -17,7 +17,7 @@
  * used etc instead of coding the information within the html
  * footer of the page. All functions add to this.
  */
-window.settings = {
+var settings = {
 	//Side Bar data including status and html
 	'sideBar': {
 		'projectSideBarState': true,
@@ -183,7 +183,7 @@ var getProjectPatients= function(options) {
  * patient table. */
 
 var getVariants = function(options){	
-	currentData = settings.currentData;
+	var currentData = settings.currentData;
 
 	//Required variables to be passed in ajax call
 	var dataToAdd = {
@@ -211,11 +211,11 @@ var getVariants = function(options){
 	}
 
 	if (currentData.variants['pageToken'] === undefined){
-		domInsertPoint = $("#tableContents")
-		template = options.firstPageTemplate;
+		var domInsertPoint = $("#tableContents")
+		var template = options.firstPageTemplate;
 	} else {
-		domInsertPoint = $("#tableContents").find("tbody")
-		template = options.nextPageTemplate;
+		var domInsertPoint = $("#tableContents").find("tbody")
+		var template = options.nextPageTemplate;
 	}
 	promise = Promise.resolve($.ajax({
 		url: "/variants/search",
@@ -229,9 +229,8 @@ var getVariants = function(options){
 	//Server.
 	promise.then(function(results){
 		if (!$.isEmptyObject(results)){	
-			globalResults = results;
 			//specified function to use to modify the results
-			results = options.useFunction(results)	
+			var results = options.useFunction(results)	
 
 
 			//add information to the results object for parsing , incase it is not there already
@@ -478,16 +477,24 @@ var getPatientVariantQuery = function(options){
 	var varSet = settings.currentData.variants = {};		
 	var button = this.dataset;
 	if (button.hasOwnProperty('patientName')){
+		var sex;
+		var details;
+		var age;
 		settings.currentData['patientName'] = button['patientName']; // set this globally
 		varSet['callSetIds'] = [button['patientId']]; //set this globally //set this globally
-
-		var context = { 'patientName': settings.currentData['patientName']};
+		sex = $(this).parent().closest('tr').children(".sex").text();	
+		age = $(this).parent().closest('tr').children(".age").text();
+		details = $(this).parent().closest('tr').children(".details").text();
+		var context = { patientName: settings.currentData['patientName'],
+						age: age,
+						sex: sex,
+						details:details }; 
 		var options = { 'useFunction': setGenoTypeAndZygosity,
 						'firstPageTemplate': "frangipani-variant-table.hbs",
 						'nextPageTemplate': "frangipani-more-variants-table.hbs"
 					};
 	} else {
-		var context = { 'patientName': settings.currentData['projectName']};
+		var context = { patientName: settings.currentData['projectName']};
 		var options = { 'useFunction': getAllVariants,
 						'firstPageTemplate': "frangipani-get-all-variants.hbs",
 						'nextPageTemplate': "frangipani-get-all-variants-more.hbs"
