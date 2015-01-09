@@ -116,7 +116,7 @@ for entry in outputList:
 	for i in range(1,len(headerInfo)):
 		if entry.has_key(headerInfo[i]):
 
-			if isinstance(entry[headerInfo[i]],str):
+			if isinstance(entry[headerInfo[i]],str) and headerInfo[i] is not "phased_status":
 				entryData = "\"" + str(entry[headerInfo[i]]) + "\""
 			else:
 				entryData = str(entry[headerInfo[i]])
