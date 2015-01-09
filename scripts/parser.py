@@ -2,7 +2,7 @@ import os
 import sys
 from collections import OrderedDict
 import re
-
+import json
 
 ###
 #class InputError(error):
@@ -40,7 +40,7 @@ for line in inFile:
 		start = not start #set start flag to false
 	else:
 		line = line.strip("\n").split("\t") 
-		tempDict = {} #temp dict that stores current variables
+		tempDict = OrderedDict()#temp dict that stores current variables
 		variantInfoFlag = False # Will be set to true once the index is greater then the length of the headerInfo
 		variantInfo = []
 		for i in range(0,len(line)):
@@ -102,31 +102,6 @@ for line in inFile:
 
 inFile.close()
 
-outFile = open(outFileName,'w')
-#Write the file to a js object that can then be loaded into node.js
-outFile.write("var entries = [];")
 
-for entry in outputList:
-
-	if isinstance(entry[headerInfo[0]],str):#if the file is a string, add quotation marks to the string
-		entryData = "\"" + str(entry[headerInfo[0]]) + "\""
-	else:
-		entryData = str(entry[headerInfo[0]])
-	outputString = "{\"" + str(headerInfo[0]) + "\": " + entryData
-	for i in range(1,len(headerInfo)):
-		if entry.has_key(headerInfo[i]):
-
-			if isinstance(entry[headerInfo[i]],str) and headerInfo[i] is not "phased_status":
-				entryData = "\"" + str(entry[headerInfo[i]]) + "\""
-			else:
-				entryData = str(entry[headerInfo[i]])
-			outputString += ", \"" + str(headerInfo[i]) +  "\": " + entryData
-
-	outputString  += "}"
-	outFile.write("entries.push(" +outputString + ");" )
-
-#add export line to js file
-outFile.write("module.exports = entries;")
-outFile.close()
-
-
+with open(outFileName,'w') as output:
+	json.dump(outputList,output,indent=4)
