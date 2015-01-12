@@ -26,6 +26,8 @@ def convert(inp):
 fileName = sys.argv[1]
 outFileName = sys.argv[2]
 
+print outFileName
+
 outputList = [] 
 
 start = True
@@ -104,4 +106,5 @@ inFile.close()
 
 
 with open(outFileName,'w') as output:
-	json.dump(outputList,output,indent=4)
+	json.dump(outputList,output)
+		
