@@ -22,7 +22,7 @@ var child_process=Promise.promisifyAll(require('child_process'));
 function InputError(message){
 		this.name = "InputError";
 		this.message = ( message || "" );
-		Error.call(this)
+		Error.call(this);
 		Error.captureStackTrace(this,this.constructor);
 };
 InputError.prototype = Object.create(Error.prototype);
@@ -76,7 +76,7 @@ function annotateAndAddVariants(options){
 	//new promise to return
 	var promise = new Promise(function(resolve,reject){
 		if (!options['annovarpath']){
-			annovarPath = '/Users/patrickmagee/Tools/annovar' // hard coded annovarpath --once on server to be set from config file
+			annovarPath = '/Users/patrickmagee/Tools/annovar'; // hard coded annovarpath --once on server to be set from config file
 			//throw new InvalidArgument("AnnovarPath not provided");
 		} else {
 			var annovarPath = path.resolve(options['annovarpath']);
@@ -85,7 +85,7 @@ function annotateAndAddVariants(options){
 		if (!options['input']){
 			throw new InputError("Input file path not provided");
 		} else if (!(path.extname(options['input']) == ".vcf")){
-			throw new InputError("Input file must be vcf format")	
+			throw new InputError("Input file must be vcf format");
 		} else {
 			var inputFile = path.resolve(options['input']);
 			var tempOutputFile = inputFile + '.hg19_multianno.txt';
@@ -134,21 +134,21 @@ function annotateAndAddVariants(options){
 		})
 		.then(function(){
 			//connect to localdatabse --> currently hardcoded modify to use config file
-			return db.connect('mongodb://localhost:27017/patientDB')
+			return db.connect('mongodb://localhost:27017/patientDB');
 		})
 		.then(function(){
 			//create newTable and raise exception oif tablname already exists
-			return db.createTable(tableName)
+			return db.createTable(tableName);
 		})
 		.then(function(){
 
 			//add event logging
 			var annovarCmd = 'perl '  + annovarPath + '/table_annovar.pl ' +  
 				inputFile + ' ' + annovarPath + '/humandb/ -buildver hg19 -operation ' + dbusageString + '  -nastring . -vcfinput ' + 
-				'-protocol  ' + annodbString 
+				'-protocol  ' + annodbString;
 
 			//run annovar command as a child process
-			return child_process.execAsync(annovarCmd)
+			return child_process.execAsync(annovarCmd);
 		})
 		.then(function(err,stdout,stderr){
 			//if an error occurs during running annovarCmd raise a new error
@@ -158,7 +158,7 @@ function annotateAndAddVariants(options){
 		})
 		.then(function(){
 			//check to ensure the tempOutFile was created
-			return fs.statAsync(tempOutputFile)
+			return fs.statAsync(tempOutputFile);
 		})
 		.then(function(){
 			//parse the contents of the temporary outfile with the parse.py script as a child process
@@ -173,15 +173,15 @@ function annotateAndAddVariants(options){
 		})
 		.then(function(){
 			//check to ensure outputfile successfully created
-			return fs.statAsync(outputFile)
+			return fs.statAsync(outputFile);
 		})	
 		.then(function(){
 			//read data from parsed file and load it into node
-			return fs.readFileAsync(outputFile).then(JSON.parse)
+			return fs.readFileAsync(outputFile).then(JSON.parse);
 		})
 		.then(function(data){
-			var tempList = []
-			var maxInput = data.length
+			var tempList = [];
+			var maxInput = data.length;
 			//bulk write operations are currently limited to 1000 entries,
 			//therefore you need to split the entries int smaller chuncks
 			// of 1000
@@ -192,20 +192,20 @@ function annotateAndAddVariants(options){
 				} else {
 					max = i + 1000;
 				}
-				tempList.push(data.slice(i,max))
+				tempList.push(data.slice(i,max));
 			} 
-			return tempList
+			return tempList;
 		})
 		.each(function(docs){
 			//call the insertMany method on each list entry
-			return db.insertMany({tableName:tableName,documents:docs})
+			return db.insertMany({tableName:tableName,documents:docs});
 		})
 		.then(function(docs){
 			//for future logging purposes
 			var totalLength= 0;
 			for (var i = 0; i < docs.length; i++)
 				totalLength += docs[i].length;
-			return totalLength
+			return totalLength;
 		})
 		.then(function(length){
 			resolve('completed Annotation and uploaded ' + length + ' entries');
@@ -242,8 +242,8 @@ function annotateAndAddVariants(options){
 		})
 		*/
 		.catch(function(err){
-			console.log(err.message)
-			console.log(err.stack)
+			console.log(err.message);
+			console.log(err.stack);
 		})
 		.done(function(){
 			//Cleanup, remove files and close db connection
@@ -252,7 +252,7 @@ function annotateAndAddVariants(options){
 				return fs.unlinkAsync(file);
 			})
 			.then(function(){
-				return fs.unlinkAsync(outputFile)
+				return fs.unlinkAsync(outputFile);
 			})
 			.then(function(){
 				if (db.db){
@@ -261,7 +261,7 @@ function annotateAndAddVariants(options){
 			})
 			.catch(function(err){
 				//do nothing
-				return null
+				return null;
 			});
 		})
 			
