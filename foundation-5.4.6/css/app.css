@@ -68,7 +68,7 @@
 }
 
 #frangipani-app-main {
-  min-height: 100%;
+  min-height: 130%;
   height: auto;
 }
 
@@ -86,6 +86,7 @@
   margin-top: 20px;
 
 }
+
 
 th:hover {
   background: #BCBCBC; 
