@@ -9,7 +9,6 @@
 		"handlebars": "*",
 		"bluebird": "2.*",
 		"mongodb":"2.*",
-		"glob":"*",
-		"node-getopt":"*"
+		"glob":"*"
 	}
 }

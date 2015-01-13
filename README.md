@@ -21,21 +21,6 @@ Once installed, you will need to run the MongoDB server prior to running our web
 Feel free to change the location of the `db_data/` directory. If you change the port ensure that you also change
 the corresponding port number in DB.js.
 
-If you are using windows and would like to install mongoDB as a service to run in the background you first must create at mongodb.cfg file
-in the mongoDB directory. The config file contains information about the db-path and the logfile path (as well as anything else you need to define).
-To make the file open an a command prompt as the administrator and type (change the path as necessary):
-
-`echo logpath="C:\Program Files\MongoDB\log\mongo.log" > "C:\Program Files\MongoDB\mongod.cfg"
-echo dbpath="C:\Program Files\MongoDB\data\db" > "C:\Program Files\MongoDB\mongod.cfg"
-echo port=27017 > "C:\Program Files\MongoDB\mongod.cfg"`
-
-Next, install mongoDB as a service:
-
-`"C:\Program Files\MongoDB\bin\mongod.exe" --config "C:\Program Files\MongoDB\mongod.cfg" --install`
-
-If the install is successful, start the service by typing:
-
-`net start MongoDB`
 
 
 ## Package installation:
@@ -47,3 +32,21 @@ To get all the node packages:
 To start the server on localhost, port 8080:
 
 `node server.js`
+
+
+## Annovar Installation
+
+Annovar is a suite of perl tools that can be downloaded from [Here](http://www.openbioinformatics.org/annovar/annovar_download_form.php). It requires you to register prior to downloading the file, a link will then be sent to the email provided. 
+
+once downloaded, open a terminal and navigated to the annovar/ directory and run the following commands to install the appropriate databases
+
+
+```shell
+perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar ljb26_all humandb/
+perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar cg69 humandb/
+perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar esp6500_all humandb/
+perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar 1000g2014sep_all humandb/
+perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar clinvar_20140929 humandb/
+```
+
+These can be exceptionally large files so the download will take some time.
