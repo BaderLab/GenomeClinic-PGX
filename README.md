@@ -33,6 +33,16 @@ To start the server on localhost, port 8080:
 
 `node server.js`
 
+The server can be terminated by typing "CTRL-C" in a Unix terminal.
+
+If you are going to run the server in the background, like this
+
+`node server.js &`
+
+we advise that you terminate the server using a SIGINT, allowing the server to exit gracefully:
+
+`kill -SIGINT <process_id>`
+
 
 ## Annovar Installation
 
