@@ -13,9 +13,11 @@ Insteadt, whenever you are working on a feature you should branch discovery and 
 To ensure consistancy use the following naming schema for your branches.
 
 
-1. Adding a feature:	feature/<feature name>. Ie  feature/db
-2. fixing an issue:		issue/<issue Number>. Ie.  issue/122
-3. hotfixes:			hotfix/<issue number or feature name>. ie hotfix/23
+| Name         |Syntax       | Example       |
+|:-------------|:------------|:--------------|
+| New Feature  |feature/feature name|feature/db|
+| Issues       |issue/issue Number|issue/122|
+| Hotfixes     |hotfix/issue number or feature name|hotfix/23|
 
 
 those are the naming schema for now (more to come when we come across them). you should be making commits and pushes to the same branch
