@@ -18,7 +18,7 @@ dbFunctions.connectAndInitializeDB();
 app.use(express.static("foundation-5.4.6", {index: false}));
 
 app.get("/", function(request, response) {
-	response.sendFile("foundation-5.4.6/frangipani.html", {root: "."});
+	response.sendFile("foundation-5.4.6/frangipani_test.html", {root: "."});
 });
 
 app.use("/datasets", routes.getRouter);

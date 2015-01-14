@@ -151,17 +151,25 @@
           <hr>
           <div class="row">
             <div class="large-8 large-centered radius columns" style="top:10px;">
-              <input id="fileupload" type="file" name="files[]" data-url="upload/files" multiple style="display:none"></input>
+              <input id="fileselect" type="file" name="files[]" data-url="upload/files" multiple style="display:none"></input>
               <ul class="button-group round even-3">
-              <li><a href="#" class="button alert" id="upload"><i class="fi-plus size-21"></i>&nbsp&nbspAdd File</a></li>
-              <li><a href="#" class="button alert"><i class="fi-x size-21"></i>&nbsp&nbspCancel</a></li>
-              <li><a href="#" class="button alert"><i class="fi-upload size-21"></i>&nbsp&nbspUpload</a></li>
+              <li><a href="#" class="button alert" id="upload-button"><i class="fi-plus size-21"></i>&nbsp&nbspAdd File</a></li>
+              <li><a href="#" class="button alert" id="cancel-button"><i class="fi-x size-21"></i>&nbsp&nbspCancel</a></li>
+              <li><a href="#" class="button alert" id="submit-button"><i class="fi-upload size-21"></i>&nbsp&nbspSumbit</a></li>
             </div>
           </div>
           <hr>
           <div class="row">
             <div class="large-12 large-centered secondary alert-box">
-              <p class='center'>HELOO</p>
+              <ul>
+              <!--
+              
+      
+                This will be file elements
+
+
+              -->    
+              </ul>
             </div>
           </div>
         </form>
@@ -185,29 +193,16 @@
     <!-- Foundation Javascript components -->
     <script src="js/vendor/jquery.js"></script>
     <script src="js/foundation.min.js"></script>
+    <script src="js/vendor/jquery.ui.widget.js"></script>
+    <script src="js/jquery.iframe-transport.js"></script>
+    <script src="js/jquery.fileupload.js"></script>
+    <script src="js/uploader.js"></script>
     <script>
       $(document).foundation();
     </script>
     <!-- Jquery File Uploader -->
     <script>
-      $('.gene').on("mouseup",function(){
-        if ($(this).hasClass("alert")){
-         $(this).removeClass("alert")
-         .children("input").prop('checked',false);
-        } else {
-          $(this).addClass("alert")
-          .children("input").prop("checked",true)
-        }
-      })
-
-      $("#select-all").on("mouseup",function(){
-        $('.gene').addClass("alert")
-        .children("input").prop("checked",true);
-      })
-      $("#deselect-all").on("mouseup",function(){
-        $('.gene').removeClass("alert")
-        .children("input").prop("checked",false);
-      })
+      
     </script>
     <!-- Handlebars template compiler -->
     <script src="js/handlebars-v2.0.0.js"></script>
