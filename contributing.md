@@ -13,13 +13,17 @@ Insteadt, whenever you are working on a feature you should branch discovery and 
 To ensure consistancy use the following naming schema for your branches.
 
 
-1. Adding a feature:	feature/[feature name]. Ie  feature/db
-2. fixing an issue:		issue/[issue Number]. Ie.  issue/122
-3. hotfixes:			hotfix/[issue number or feature name]. ie hotfix/23
+1. Adding a feature:	feature/<feature name>. Ie  feature/db
+2. fixing an issue:		issue/<issue Number>. Ie.  issue/122
+3. hotfixes:			hotfix/<issue number or feature name>. ie hotfix/23
 
 
 those are the naming schema for now (more to come when we come across them). you should be making commits and pushes to the same branch
-you are working on locally to the remote directory. for example `git push origin feature/db` will push the commits on your current local branch to the remote `feature/db` branch, creating it if it does not exist. This allows for multiple people to be working on the same feature if required. When you think you have a complete feature, or fix  the appropriate method for mergin it back into the discovery branch is to submit a pull request directly from the repository website on github.
+you are working on locally to the remote directory. for example 
+
+`git push origin feature/db` 
+
+will push the commits on your current local branch to the remote `feature/db` branch, creating it if it does not exist. This allows for multiple people to be working on the same feature if required. When you think you have a complete feature, or fix  the appropriate method for mergin it back into the discovery branch is to submit a pull request directly from the repository website on github.
 
 
 To do this, first commit then push your changes to the remote branch ie `feature/db` if not already done so. Next navigate to the main repository page and select the green icon at the top labeled: create and compare pull request. This will open a new page. At the top change the base to `discovery` and the head to the branch that you are working on `feature/db`
