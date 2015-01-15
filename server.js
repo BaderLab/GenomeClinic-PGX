@@ -7,6 +7,7 @@
 var express= require("express");
 var routes= require("./frangipani_node_modules/routes");
 var dbFunctions= require("./frangipani_node_modules/mongodb_functions");
+var uploader= require("jquery-file-upload-middleware");
 
 var app= express();
 var PORT= 8080;
@@ -21,9 +22,18 @@ app.get("/", function(request, response) {
 	response.sendFile("foundation-5.4.6/frangipani_test.html", {root: "."});
 });
 
+/*
+uploader.configure({
+	uploadDir: "upload",
+	uploadUrl:'/upload/vcf'
+});
+
+
+app.use("/upload/vcf/", uploader.fileHandler()); */
 app.use("/datasets", routes.getRouter);
 app.use("/callsets/search", routes.postRouter);
 app.use("/variants/search",routes.postRouter);
+app.use("/upload/vcf",routes.uploadRouter)
 
 app.listen(PORT);
 
