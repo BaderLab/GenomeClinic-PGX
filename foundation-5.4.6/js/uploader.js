@@ -1,16 +1,6 @@
 
 
-var buttonHandlers = function(){
-  $('.gene').on("mouseup",function(){
-    if ($(this).hasClass("alert")){
-      $(this).removeClass("alert")
-      .children("input").prop('checked',false);
-    } else {
-      $(this).addClass("alert")
-      .children("input").prop("checked",true)
-    }
-  });
-
+var formHandlers = function(){
   $('#sex-switch').prop('checked', false);
   $('#sex-switch-value').text("Male");
 
@@ -21,17 +11,26 @@ var buttonHandlers = function(){
       $("#sex-switch-value").text("Male");
     }
   })
+};
 
-  
-  $("#select-all").on("mouseup",function(){
-     $('.gene').addClass("alert")
-     .children("input").prop("checked",true);
-  });
-  
-  $("#deselect-all").on("mouseup",function(){
-    $('.gene').removeClass("alert")
-    .children("input").prop("checked",false);
-  });
+
+
+
+var validateAndSendForm = function(){
+  var promise;
+  var data = {};
+  var dataTmp = $('#jquery-new-patient-form').serializeArray();
+  for (var i = 0; i< dataTmp.length;i++){
+    data[dataTmp[i]['name']] = dataTmp[i]['value'];
+  }
+  data['sex'] = $('#sex-switch-value').text().toLowerCase();
+
+  promise = new Promise(function(resolve,reject){
+    
+  })
+
+
+  return data;
 }
 
 
@@ -51,13 +50,13 @@ var uploader = function(){
     $(this).closest('.button-group').toggle().parents().find('#upload-button').toggle()
     .parents().find("#upload-box").toggle().parents().find('.progress').show();
 
-   });
+  });
 
   $("#fileselect").fileupload({
     url:'/upload/vcf',
     add: function(e,data){
-      var name = data.files[0].name;  
 
+      var name = data.files[0].name;  
 
       if (!(name.endsWith('.vcf'))){
         alert("Invalid File, please choose a file that ends in .vcf extension");
@@ -74,13 +73,15 @@ var uploader = function(){
         $('#upload-button').toggle().parents().find(".button-group").toggle();
 
         $("#submit-button").on('click',function(){
+          validateAndSendForm()
           $('#file-to-upload').addClass("working")
           $("#submit-button").off('click')
           jqXHR = data.submit()
       
         });
       }
-    },  
+    }, 
+
     progress: function(e,data){
       var progress = parseInt(data.loaded,10)/parseInt(data.total,10)*100
       $('#upload-progress').animate({width:progress + '%'},0);
@@ -91,18 +92,19 @@ var uploader = function(){
       $('#file-to-upload').removeClass('working').append("&nbsp&nbsp<span class='error'><i>File failed to upload properly</i></span>");
 
     },
+
     done: function(e,data){
       $('.progress').addClass('success');
       $('#file-to-upload').removeClass('working').append("&nbsp&nbsp<i class='fi-check size-16'><i>");
     }
-  })
+  });
 }
 
 
 
 
 var main = function(){
-  buttonHandlers();
+  formHandlers();
   uploader()
 };
 

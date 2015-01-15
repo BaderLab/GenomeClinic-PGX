@@ -84,24 +84,24 @@
       </div>
       <div class="row">
         <div class="large-12 columns">
-          <form id="jquery-file-uploader">
+          <form id="jquery-new-patient-form">
             <fieldset>
               <legend>Please Enter Patient Information</legend> 
 
               <div class="row">
                 <div class="large-6 columns left">
                   <label><h6>Patient Identifier</h6>
-                    <input type="text" placeholder="NA02021">
+                    <input type="text" name="patientID" placeholder="NA02021">
                   </label>
                 </div>
                 <div class="large-6 columns right">
                   <label><h6>Patient Alias</h6>
-                    <input type="text" placeholder="">
+                    <input type="text" name="patientAlias" placeholder="">
                   </label>
                 </div>              
                 <div class="large-6 columns left">
                   <label><h6>Phenotype ID
-                    <input type="text" placeholder="">
+                    <input type="text" name="phenotypeID" placeholder="">
                   </label>
                 </div>
               </div>
@@ -114,7 +114,7 @@
                       </div>
                       <div class="small-4 medium-4 columns right">  
                         <div class="switch large round right" tabindex="0">
-                          <input id="sex-switch" type="checkbox" >
+                          <input id="sex-switch" type="checkbox">
                           <label for="sex-switch"></label>
                         </div>
                       </div>
@@ -128,7 +128,7 @@
                         <div class="range-slider radius" data-slider data-options="start:0;end:120; display_selector: #sliderOutput;">
                           <span class="range-slider-handle" role="slider" tabindex="0"></span>
                           <span class="range-slider-active-segment"></span>
-                          <input type="hidden">
+                          <input type="hidden" name="age">
                         </div>
                       </div>
                     </div>
@@ -150,8 +150,8 @@
                   <div class="row">
                     <div class="small-12 medium-12 columns" id="upload-box" style="display:none">
                       <p id='file-to-upload'></p>
-                      <div class='progress' >
-                        <span class='meter' id='upload-progress' style='width:0'></span>
+                      <div class='progress'>
+                        <span class='meter' id='upload-progress' style='width:0%'></span>
                       </div>
                     </div>
                   </div>
