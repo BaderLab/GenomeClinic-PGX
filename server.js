@@ -7,6 +7,7 @@
 var express= require("express");
 var routes= require("./frangipani_node_modules/routes");
 var dbFunctions= require("./frangipani_node_modules/mongodb_functions");
+var dbConstants= require("./frangipani_node_modules/mongodb_constants");
 
 
 /* Command line options */
@@ -16,6 +17,22 @@ var opts= require("nomnom")
 		full: "port",
 		default: 8080,
 		help: "User-specifed port number"
+	})
+	.option("mongodbHost", {
+		full: "mongodb-host",
+		default: dbConstants.DB_HOST,
+		help: "User-specifed MongoDB hostname",
+		callback: function(mongodbHost) {
+			dbConstants.DB_HOST= mongodbHost;
+		}
+	})
+	.option("mongodbPortNumber", {
+		full: "mongodb-port",
+		default: dbConstants.DB_PORT,
+		help: "User-specifed MongoDB port number",
+		callback: function(mongodbPortNumber) {
+			dbConstants.DB_PORT= parseInt(mongodbPortNumber);
+		}
 	})
 	.parse();
 console.log("Server running on port " + opts.portNumber);
