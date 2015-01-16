@@ -76,6 +76,36 @@ var renderHbs= function(template_name, template_data) {
 };
 
 
+/* Same as above, but returns a promise. */
+var asyncRenderHbs= function(template_name, template_data) {
+	if (!asyncRenderHbs.template_cache) { 
+	    asyncRenderHbs.template_cache= {};
+	}
+
+	var promise= undefined;
+
+	if (!asyncRenderHbs.template_cache[template_name]) {
+		promise= new Promise(function(resolve, reject) {
+			var template_url= '/templates/' + template_name;
+			$.ajax({
+				url: template_url,
+				method: 'GET',
+				success: function(data) {
+					asyncRenderHbs.template_cache[template_name]= Handlebars.compile(data);
+					resolve(asyncRenderHbs.template_cache[template_name](template_data));
+				},
+				error: function(err, message) {
+					reject(err);
+				}			
+			});
+		});
+	} else {
+		promise= Promise.resolve(asyncRenderHbs.template_cache[template_name](template_data));
+	}
+
+	return promise;
+};
+
 
 /* AJAX call to application server to retrieve projects. */
 var getProjects= function() {
@@ -390,12 +420,25 @@ var updateProjectTable= function(context) {
 	context.datasets= context.datasets.sort(compare);
 
 
+	/*
+	// Sync version of rendering hbs template
 	var html= renderHbs('frangipani-projects.hbs', context);
 	settings.applicationMain.append(html);
 
 	// Add event listeners and refresh jQuery DOM objects.
 	addProjectEventListeners();
 	refresh();
+	*/
+
+	// Async version of rendering hbs template
+	asyncRenderHbs('frangipani-projects.hbs', context)
+		.then(function(html) {
+			settings.applicationMain.append(html);
+
+			// Add event listeners and refresh jQuery DOM objects.
+			addProjectEventListeners();
+			refresh();
+		})
 };
 
 
