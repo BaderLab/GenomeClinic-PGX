@@ -1,5 +1,12 @@
 
 
+String.prototype.endsWith = function(suffix) {
+    return this.indexOf(suffix, this.length - suffix.length) !== -1;
+};
+
+
+
+
 var formHandlers = function(){
   $('#sex-switch').prop('checked', false);
   $('#sex-switch-value').text("Male");
@@ -26,7 +33,7 @@ var validateAndSendForm = function(){
   data['sex'] = $('#sex-switch-value').text().toLowerCase();
 
   promise = new Promise(function(resolve,reject){
-    
+
   })
 
 
