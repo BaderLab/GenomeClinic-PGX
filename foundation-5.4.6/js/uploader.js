@@ -17,7 +17,30 @@ var formHandlers = function(){
     } else {
       $("#sex-switch-value").text("Male");
     }
-  })
+  });
+
+  $('#patientID').on("keyup",function(){
+    var promise;
+    var keyValue = $(this).val().toString();
+    var self = $(this)
+    promise = Promise.resolve($.ajax({
+      url:'database/getPatients',
+      type:'GET',
+      contentType:'application/json',
+      dataType:'json'
+    }));
+    promise.then(function(result){
+      for (var i=0; i<result.length; i++){
+        if (result[i]['patient_id'] == keyValue){
+          self.addClass('error').parents().find("small").text("PatientID already exists!").show();
+          return null;
+        }
+      
+        self.removeClass('error').parents().find('small').hide();
+      }
+
+    }).catch(function(err){console.log(err)});
+  });
 };
 
 
@@ -31,19 +54,32 @@ var validateAndSendForm = function(){
     data[dataTmp[i]['name']] = dataTmp[i]['value'];
   }
   data['sex'] = $('#sex-switch-value').text().toLowerCase();
+  if (data['patientID']==""){
+    $('#patientID').addClass('error').parents().find("small").text("Required").show()
+    return undefined;
+  }
 
-  promise = new Promise(function(resolve,reject){
+  promise = Promise.resolve($.ajax({
+    url:'database/addPatients',
+    type:'POST',
+    contentType:'application/json',
+    dataType:'json',
+    data:data
+  }))
 
+  return promise.then(function(result){
+    return result
+
+  }).catch(function(err){
+    console.log(err);
   })
-
-
-  return data;
 }
 
 
 
 var uploader = function(){
   var jqXHR;
+  var patientTableName;
 
   $("#upload-button").on("click",function(){
     $("#fileselect").trigger('click');
@@ -80,10 +116,12 @@ var uploader = function(){
         $('#upload-button').toggle().parents().find(".button-group").toggle();
 
         $("#submit-button").on('click',function(){
-          validateAndSendForm()
-          $('#file-to-upload').addClass("working")
-          $("#submit-button").off('click')
-          jqXHR = data.submit()
+          var status = validateAndSendForm()
+          if (status){
+            $('#file-to-upload').addClass("working")
+            $("#submit-button").off('click')
+            jqXHR = data.submit()
+          }
       
         });
       }
