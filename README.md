@@ -33,6 +33,10 @@ To start the server on localhost, port 8080:
 
 `node server.js`
 
+For more options, see the help message:
+
+`node server.js -h`
+
 The server can be terminated by typing "CTRL-C" in a Unix terminal.
 
 If you are going to run the server in the background, like this
