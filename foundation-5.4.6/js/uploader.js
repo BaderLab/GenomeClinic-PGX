@@ -19,7 +19,7 @@ var formHandlers = function(){
     }
   });
 
-  $('#patientID').on("keyup",function(){
+  $('#patient_id').on("keyup",function(){
     var promise;
     var keyValue = $(this).val().toString();
     var self = $(this)
@@ -47,33 +47,35 @@ var formHandlers = function(){
 
 
 var validateAndSendForm = function(){
-  var promise;
   var data = {};
   var dataTmp = $('#jquery-new-patient-form').serializeArray();
   for (var i = 0; i< dataTmp.length;i++){
-    data[dataTmp[i]['name']] = dataTmp[i]['value'];
+    if (dataTmp[i]['value'] != ""){
+      if (dataTmp[i]['name'] == 'age')
+        data[dataTmp[i]['name']] = parseInt(dataTmp[i]['value'],10);
+      else
+        data[dataTmp[i]['name']] = dataTmp[i]['value'];
+    }
   }
   data['sex'] = $('#sex-switch-value').text().toLowerCase();
-  if (data['patientID']==""){
-    $('#patientID').addClass('error').parents().find("small").text("Required").show()
-    return undefined;
+
+  if (!data['patient_id']){
+    $('#patient_id').addClass('error').parents().find("small").text("Required").show()
+    return Promise.reject().then(function(err){
+      throw new Error('Patient Id required')
+    });
   }
 
-  promise = Promise.resolve($.ajax({
-    url:'database/addPatients',
-    type:'POST',
-    contentType:'application/json',
-    dataType:'json',
-    data:data
-  }))
+  var promise= Promise.resolve($.ajax({
+    url: 'database/addPatient',
+    type: "POST",
+    contentType: "application/json",
+    dataType: "text",
+    data: JSON.stringify(data)
+  }));
 
-  return promise.then(function(result){
-    return result
-
-  }).catch(function(err){
-    console.log(err);
-  })
-}
+  return promise
+};
 
 
 
@@ -116,13 +118,14 @@ var uploader = function(){
         $('#upload-button').toggle().parents().find(".button-group").toggle();
 
         $("#submit-button").on('click',function(){
-          var status = validateAndSendForm()
-          if (status){
+          var status = validateAndSendForm();
+          status.then(function(result){
             $('#file-to-upload').addClass("working")
             $("#submit-button").off('click')
             jqXHR = data.submit()
-          }
-      
+          }).catch(function(err){
+            console.log(err)
+          });
         });
       }
     }, 

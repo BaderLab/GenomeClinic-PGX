@@ -10,7 +10,7 @@
  * Written by Patrick Magee
 */
 var Promise = require("../node_modules/bluebird");
-var db = require("../frangipani_node_modules/DB");
+//var db = require("../frangipani_node_modules/DB");
 var fs = Promise.promisifyAll(require('fs')); 
 var path = require("path");
 var glob = Promise.promisifyAll(require("../node_modules/glob"));
@@ -132,13 +132,13 @@ function annotateAndAddVariants(options){
 		.then(function(){
 			return fs.statAsync(annovarPath);
 		})
-		.then(function(){
+		//.then(function(){
 			//connect to localdatabse --> currently hardcoded modify to use config file
-			return db.connect('mongodb://localhost:27017/patientDB');
-		})
+		//	return db.connect('mongodb://localhost:27017/patientDB');
+		//})
 		.then(function(){
 			//create newTable and raise exception oif tablname already exists
-			return db.createTable(tableName);
+			return dbFunctions.createTable(tableName);
 		})
 		.then(function(){
 
@@ -198,7 +198,7 @@ function annotateAndAddVariants(options){
 		})
 		.each(function(docs){
 			//call the insertMany method on each list entry
-			return db.insertMany({tableName:tableName,documents:docs});
+			return dbFunctions.insertMany({tableName:tableName,documents:docs});
 		})
 		.then(function(docs){
 			//for future logging purposes
