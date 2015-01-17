@@ -438,7 +438,7 @@ var updateProjectTable= function(context) {
 			// Add event listeners and refresh jQuery DOM objects.
 			addProjectEventListeners();
 			refresh();
-		})
+		});
 };
 
 
