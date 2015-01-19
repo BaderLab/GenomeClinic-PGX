@@ -410,7 +410,7 @@ var clickAction= function(button, promiseFunction, options, useThis) {
 	var originalText;
 
 	var resetButton= function(val) {
-		button.text(originalText);
+		button.html(originalText);
 		settings.buttonClicked = false
 	};
 
@@ -423,7 +423,7 @@ var clickAction= function(button, promiseFunction, options, useThis) {
 				options["thisButton"]= $(this);
 			}
 
-			originalText= button.text();
+			originalText= button.html();
 			button.text("Fetching...");
 
 			if (options === undefined) {
