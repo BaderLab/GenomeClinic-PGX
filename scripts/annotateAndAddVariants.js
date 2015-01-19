@@ -117,7 +117,7 @@ function annotateAndAddVariants(options){
 			if (count1 !== count2){
 				throw new InvalidArgument("length of -annodb and -dbusage options does not match!");
 			} else {
-				databaseString = options['annodb'];
+				annodbString = options['annodb'];
 				dbusageString = options['dbusage'];
 			}
 
@@ -138,17 +138,20 @@ function annotateAndAddVariants(options){
 		//})
 		.then(function(){
 			//create newTable and raise exception oif tablname already exists
-			return dbFunctions.createTable(tableName);
+			return dbFunctions.createCollection(tableName);
 		})
 		.then(function(){
 
 			//add event logging
-			var annovarCmd = 'perl '  + annovarPath + '/table_annovar.pl ' +  
-				inputFile + ' ' + annovarPath + '/humandb/ -buildver hg19 -operation ' + dbusageString + '  -nastring . -vcfinput ' + 
-				'-protocol  ' + annodbString;
+			var execPath = path.resolve(annovarPath + '/table_annovar.pl');
+			var dbPath = path.resolve(annovarPath + "/humandb/");
+			var logFile = path.resolve(annovarPath + "/log.txt");
+			var annovarCmd = 'perl \"'  + execPath +  "\" \"" + inputFile + '\" \"' + dbPath + '\"  -buildver hg19 -operation ' + dbusageString + '  -nastring . -vcfinput ' + 
+				'-protocol  ' + annodbString + ' > ' + logFile;
 
 			//run annovar command as a child process
-			return child_process.execAsync(annovarCmd);
+			return child_process.execAsync(annovarCmd,{maxBuffer:1000000*1024});
+
 		})
 		.then(function(err,stdout,stderr){
 			//if an error occurs during running annovarCmd raise a new error
@@ -162,7 +165,8 @@ function annotateAndAddVariants(options){
 		})
 		.then(function(){
 			//parse the contents of the temporary outfile with the parse.py script as a child process
-			var parserCmd = 'python ./parser.py ' + tempOutputFile + " " + outputFile;
+			var execPath = 'scripts/parser.py';
+			var parserCmd = 'python \"' + execPath + "\" \"" + tempOutputFile + "\" " + outputFile + "\"";
 			return child_process.execAsync(parserCmd);
 		})
 		.then(function(err,stdout,stderr){
@@ -242,8 +246,12 @@ function annotateAndAddVariants(options){
 		})
 		*/
 		.catch(function(err){
-			console.log(err.message);
-			console.log(err.stack);
+			return dbFunctions.dropCollection(tableName)
+			.then(function(){
+				console.log(err);
+			}).catch(function(drop_err){
+				console.log(drop_err);
+			})
 		})
 		.done(function(){
 			//Cleanup, remove files and close db connection
