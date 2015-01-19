@@ -76,16 +76,16 @@ var validateForm = function(uploadData){
 
 
   if (data[0]['value']===""){
-    $('#patient_id').addClass('error').parents().find("small").text("Required").show()
+    $('#patient_id').addClass('error').parents().find("small").text("Required").show();
     return Promise.reject().then(function(err){
-      throw new Error('Patient Id required')
+      throw new Error('Patient Id required');
     });
 
   } else if ($('#patient_id').hasClass('error')){
 
 
     return Promise.reject().then(function(err){
-      throw new Error("Patient Id Already used")
+      throw new Error("Patient Id Already used");
     });
 
   } else {
@@ -119,7 +119,7 @@ var uploader = function(){
   //Cancel this data transfer AND take back to add file button
   $("#cancel-button").on("click",function(){
     if($("#file-to-upload").hasClass("working"))
-      jqXHR.abort()
+      jqXHR.abort();
 
     $(this).closest('.button-group').toggle().parents().find('#upload-button').toggle()
     .parents().find("#upload-box").toggle().parents().find('.progress').show();
@@ -169,7 +169,7 @@ var uploader = function(){
 
     //update a progress bar to track the upload process
     progress: function(e,data){
-      var progress = parseInt(data.loaded,10)/parseInt(data.total,10)*100
+      var progress = parseInt(data.loaded,10)/parseInt(data.total,10)*100;
       $('#upload-progress').animate({width:progress + '%'},0);
     },
 

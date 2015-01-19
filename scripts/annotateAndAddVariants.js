@@ -142,12 +142,17 @@ function annotateAndAddVariants(options){
 		})
 		.then(function(){
 
+			return dbFunctions.createIndex(tableName,{'Chr':1,'Start':1,'End':1});
+
+		})
+		.then(function(){
+
 			//add event logging
 			var execPath = path.resolve(annovarPath + '/table_annovar.pl');
 			var dbPath = path.resolve(annovarPath + "/humandb/");
 			var logFile = path.resolve(annovarPath + "/log.txt");
 			var annovarCmd = 'perl \"'  + execPath +  "\" \"" + inputFile + '\" \"' + dbPath + '\"  -buildver hg19 -operation ' + dbusageString + '  -nastring . -vcfinput ' + 
-				'-protocol  ' + annodbString + ' > ' + logFile;
+				'-protocol  ' + annodbString;
 
 			//run annovar command as a child process
 			return child_process.execAsync(annovarCmd,{maxBuffer:1000000*1024});
