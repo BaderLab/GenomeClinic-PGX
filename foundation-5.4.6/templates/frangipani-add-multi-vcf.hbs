@@ -1,19 +1,19 @@
 <div class="row">
 	<div class="large-12 columns">
-		<div class="large-4 columns">
+		<div class="large-3 columns" style="text-align:center;">
 			<h6>Patient Id</h6>
 		</div>
-		<div class="large-3 columns">
+		<div class="large-3 columns" style="text-align:center;">
 			<h6>Patient Alias</h6>
 		</div>
-		<div class="large-2 columns">
+		<div class="large-2 columns" style="text-align:center;">
 			<h6>Phenotype</h6>
 		</div>
-		<div class="large-1 columns">
+		<div class="large-1 columns" style="text-align:center;">
 			<h6>Age</h6>
 		</div>
-		<div class="large-2 columns">
-			<h6>Sex</h6>
+		<div class="large-3 columns" style="text-align:center;">
+			<h style="text-align:center;">Sex</h6>
 		</div>
 		<hr>
 	</div>
@@ -21,21 +21,29 @@
 {{#each patient_ids}}
 <div class="row">
 	<div class="large-12 columns new-patients">
-		<div class="large-4 columns">
+		<div class="large-3 columns data-fieled">
 			<input class="patient_id" type='text' value={{patient_id}} placeholder="NA001" name="patient_id">
 			<small class="error" style="display:none;">Patient Identifier Already In use</small>
 		</div>
-		<div class="large-3 columns">
-			<input class="patient_alias" type='text' placeholder="Jim" name="patient_alias" value="jim">
+		<div class="large-3 columns data-field">
+			<input class="patient_alias" type='text' placeholder="">
 		</div>
-		<div class="large-2 columns">
-			<input class="patient_phenotype" type='text' placeholder="" name="patient_phenotype" value="213">
+		<div class="large-2 columns data-field">
+			<input class="patient_phenotype" type='text'>
 		</div>
-		<div class="large-1 columns">
-			<input class="age" type='text' placeholder="40" name="age" value="23">
+		<div class="large-1 columns data-field">
+			<input class="age" type='text' placeholder="40">
 		</div>
-		<div class="large-2 columns">
-			<input class="sex" type='text' placeholder="M" name="sex" value="Male">
+		<div class="large-3 columns data-field">
+			<div class="small-4 medium-4 columns left" style="padding-left:4px;">
+				<input type='text' disabled='disabled' class='sex' value='M'>
+			</div>
+			<div class="small-3 medium-3 columns right">  
+                <div class="switch large round right" tabindex="0">
+                	<input class="sex-switch" id="sex-switch{{@index}}" type="checkbox">
+                    <label for="sex-switch{{@index}}"></label>
+                </div>
+            </div>
 		</div>
 	</div>
 </div>
