@@ -66,14 +66,15 @@
       <!-- Config form -->
       <div class="row">
         <div class="large-10 large-centered columns">
-          <form>
-            
+          <form data-abide>
+
             <div class="row collapse">
               <div class="large-3 columns">
                 <span class="prefix">My Institution's Name</span>
               </div>
               <div class="large-9 columns">
-                <input type="text" id="frangipani-institution" />
+                  <input type="text" id="frangipani-institution" required/>
+                  <small class="error">Institution name required.</small>
               </div>
             </div>
 
@@ -82,7 +83,8 @@
                 <span class="prefix">Administrator e-mail</span>
               </div>
               <div class="large-9 columns">
-                <input type="text" />
+                <input type="email" required />
+                <small class="error">An email address is required.</small>
               </div>
             </div>
 
@@ -93,7 +95,8 @@
                   <span class="prefix">Annovar path</span>
                 </div>
                 <div class="large-9 columns">
-                  <input type="text" placeholder="e.g. /home/frangipani_server_user/annovar/" />
+                  <input type="text" placeholder="e.g. /home/frangipani_server_user/annovar/" required />
+                  <small class="error">An Annovar path is required.</small>
                 </div>
               </div>
               
@@ -142,7 +145,7 @@
                 </div>
               </div>
               <div class="large-2 columns">
-                <span id="sliderOutput" style="display: block; margin-top: 15px; font-weight: bold;"></span>
+                <span id="sliderOutput" style="display: block; margin-top: 15px; font-style: italic;"></span>
               </div>
             </div>
 
@@ -165,9 +168,9 @@
             </div>
 
             <div class="row">
-              <div class="large-7 columns"></div>
-              <div class="large-3 columns">
-                <a href="#" class="button large round alert">Get started!</a>
+              <div class="large-6 columns"></div>
+              <div class="large-4 columns">
+                <a href="#" class="button large round alert"><i class="fa fa-hand-o-right"></i>&nbsp;Get started!</a>
               </div>
             </div>
           </form>
