@@ -171,7 +171,7 @@ function annotateAndAddVariants(options){
 		.then(function(){
 			//parse the contents of the temporary outfile with the parse.py script as a child process
 			var execPath = 'scripts/parser.py';
-			var parserCmd = 'python \"' + execPath + "\" \"" + tempOutputFile + "\" " + outputFile + "\"";
+			var parserCmd = 'python \"' + execPath + "\" \"" + tempOutputFile + "\" \"" + outputFile + "\"";
 			return child_process.execAsync(parserCmd);
 		})
 		.then(function(err,stdout,stderr){

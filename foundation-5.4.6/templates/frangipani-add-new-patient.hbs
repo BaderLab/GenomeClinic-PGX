@@ -1,22 +1,33 @@
-    <div id="frangipani-app-main">
-
-      <div class="row">  
-        <div class="large-12 columns" style="top:15px;">
-          <h2><i class="fi-torso size-28"></i>&nbspAdd a new patient</h2>
-        </div>
-      </div>
-      <div class="row">
-        <div class="large-12 columns">
-          <form id="jquery-new-patient-form">
-            <fieldset>
+<div id="frangipani-app-main">
+  <div class="row">  
+    <div class="large-12 columns" style="top:15px;">
+      <h2><i class="fi-torso size-28"></i>&nbspAdd a new patient</h2>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-12 columns" style="top:15px;bottom:0px;">
+      <ul class="tabs" data-tab role="tablist">
+        <li class="tab-title active" role="presentational"><a href="#panel1" role="tab" tabindex="0" aria-selected="true" controls="panel1">Add Single Patient</a></li>
+        <li class="tab-title" role="presentational"><a href="#panel2" role="tab" tabindex="0" aria-selected="false" controls="panel1">Add Multipatient VCF</a></li>
+        <li class="tab-title" role="presentational"><a href="#panel2" role="tab" tabindex="0" aria-selected="false" controls="panel1">Add Multiple Patients</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-12 columns">
+      <form id="jquery-new-patient-form">
+        <fieldset>
+          <div class="tabs-content">
+            <section role="tabpanel" aria-hidden="false" class="content active"  id="panel1">
+            <div class="new-patients">
               <legend>Please Enter Patient Information</legend> 
-
               <div class="row">
                 <div class="large-6 columns left">
                   <label><h6>Patient Identifier</h6>
-                    <input type="text" name="patient_id" id="patient_id" placeholder="NA02021">
+                    <input class='patient_id'   type="text" name="patient_id" id="patient_id" placeholder="NA02021">
+                    <small class="error" style="display:none;">Patient Identifier Already In use</small>
                   </label>
-                  <small class="error" style="display:none;">Patient Identifier Already In use</small>
+                  
                 </div>
                 <div class="large-6 columns right">
                   <label><h6>Patient Alias</h6>
@@ -31,7 +42,6 @@
                   </label>
                 </div>
               </div>
-            </div>
               <div class="row">
                 <div class="large-6 columns left">
                   <label><h6>Sex</h6>
@@ -61,30 +71,35 @@
                     </div>
                   </label>
                 </div>
-              </div>  
-              <hr>
-              <div class="row">
-                <div class="large-4 columns left" style="top:10px;">
-
-                  <input id="fileselect" type="file" name="files[]" style="display:none"></input>
-                  <a href="#" class="button alert round large-12" id="upload-button"><i class="fi-plus size-21"></i>&nbsp&nbspAdd File</a></li>
-                  <ul class="button-group even-2 round" style="display:none">
-                    <li><a href="#" class="button alert" id="cancel-button"><i class="fi-x size-21"></i>&nbsp&nbspCancel</a></li>
-                    <li><a href="#" class="button alert" id="submit-button"><i class="fi-upload size-21"></i>&nbsp&nbspSumbit</a></li>
-                  </ul>
-                </div>
-                <div class="large-8 columns right" style="top:10px;">
-                  <div class="row">
-                    <div class="small-12 medium-12 columns" id="upload-box" style="display:none">
-                      <p id='file-to-upload'></p>
-                      <div class='progress'>
-                        <span class='meter' id='upload-progress' style='width:0%'></span>
-                      </div>
+              </div>
+            </div>
+            </section>
+            <section role="tabpanel" aria-hidden="true" class="content" id="panel2">
+            </section>
+            <hr>
+            <div class="row">
+              <div class="large-4 columns left" style="top:10px;">
+                <input id="fileselect" type="file" name="files[]" style="display:none"></input>
+                <a href="#" class="button alert round large-12" id="upload-button"><i class="fi-plus size-21"></i>&nbsp&nbspAdd File</a></li>
+                <ul class="button-group even-2 round" style="display:none">
+                  <li><a href="#" class="button alert" id="cancel-button"><i class="fi-x size-21"></i>&nbsp&nbspCancel</a></li>
+                  <li><a href="#" class="button alert" id="submit-button"><i class="fi-upload size-21"></i>&nbsp&nbspSumbit</a></li>
+                </ul>
+              </div>
+              <div class="large-8 columns right" style="top:10px;">
+                <div class="row">
+                  <div class="small-12 medium-12 columns" id="upload-box" style="display:none">
+                    <p id='file-to-upload'></p>
+                    <div class='progress'>
+                      <span class='meter' id='upload-progress' style='width:0%'></span>
                     </div>
                   </div>
                 </div>
               </div>
-          </fieldset>
-        </form>
-      </div>
+            </div>
+          </div>
+        </fieldset>
+      </form>
     </div>
+  </div>
+</div>>
