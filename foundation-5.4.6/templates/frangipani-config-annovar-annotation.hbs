@@ -1,0 +1,22 @@
+<div class="large-6 columns">
+	<div class="row">
+	<div class="large-12 large-centered columns">
+	<label>Annovar annotations</label>
+	<table>
+		<tbody>
+			{{#each annotations}}
+				<tr>
+					<td><p>{{this}}</p></td>
+					<td>
+						<div class="switch small radius">
+							<input id="checkbox{{this}}" type="checkbox" checked>
+							<label for="checkbox{{this}}"></label>
+						</div>
+					</td>
+				</tr>
+			{{/each}}
+		</tbody>
+	</table>
+	</div>
+	</div>
+</div>
