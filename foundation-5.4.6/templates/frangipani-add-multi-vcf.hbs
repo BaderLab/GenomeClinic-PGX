@@ -1,0 +1,42 @@
+<div class="row">
+	<div class="large-12 columns">
+		<div class="large-4 columns">
+			<h6>Patient Id</h6>
+		</div>
+		<div class="large-3 columns">
+			<h6>Patient Alias</h6>
+		</div>
+		<div class="large-2 columns">
+			<h6>Phenotype</h6>
+		</div>
+		<div class="large-1 columns">
+			<h6>Age</h6>
+		</div>
+		<div class="large-2 columns">
+			<h6>Sex</h6>
+		</div>
+		<hr>
+	</div>
+</div>
+{{#each patient_ids}}
+<div class="row">
+	<div class="large-12 columns new-patients">
+		<div class="large-4 columns">
+			<input class="patient_id" type='text' value={{patient_id}} placeholder="NA001" name="patient_id">
+			<small class="error" style="display:none;">Patient Identifier Already In use</small>
+		</div>
+		<div class="large-3 columns">
+			<input class="patient_alias" type='text' placeholder="Jim" name="patient_alias" value="jim">
+		</div>
+		<div class="large-2 columns">
+			<input class="patient_phenotype" type='text' placeholder="" name="patient_phenotype" value="213">
+		</div>
+		<div class="large-1 columns">
+			<input class="age" type='text' placeholder="40" name="age" value="23">
+		</div>
+		<div class="large-2 columns">
+			<input class="sex" type='text' placeholder="M" name="sex" value="Male">
+		</div>
+	</div>
+</div>
+{{/each}}
