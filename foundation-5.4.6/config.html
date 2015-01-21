@@ -69,37 +69,50 @@
 
           <form data-abide id="frangipani-config-form">
 
-            <div class="row collapse">
-              <div class="large-3 columns">
-                <span class="prefix">Your Institution's Name</span>
-              </div>
-              <div class="large-9 columns">
-                  <input type="text" id="frangipani-institution" required/>
-                  <small class="error">Institution name required.</small>
+            <div class="row">
+              <div class="large-12 columns">
+                <div class="row collapse prefix-radius">
+                  <div class="large-3 columns">
+                    <span class="prefix">Your Institution's Name</span>
+                  </div>
+                  <div class="large-9 columns">
+                      <input type="text" id="frangipani-institution" required/>
+                      <small class="error">Institution name required.</small>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <span data-tooltip aria-haspopup="true" class="tip-left round" title="We promise not to spam you!">
-            <div class="row collapse">
-              <div class="large-3 columns">
-                <span class="prefix">Administrator e-mail</span>
+            <div class="row">
+              <div class="large-12 columns">
+                <span data-tooltip aria-haspopup="true" class="tip-left round" title="We promise not to spam you!">
+                  <div class="row collapse prefix-radius">
+                    <div class="large-3 columns">
+                      <span class="prefix">Administrator e-mail</span>
+                    </div>
+                      <div class="large-9 columns">
+                        <input type="email" required />
+                        <small class="error">An email address is required.</small>
+                      </div>
+                  </div>
+                </span>
               </div>
-                <div class="large-9 columns">
-                  <input type="email" required />
-                  <small class="error">An email address is required.</small>
-                </div>
             </div>
-            </span>
 
             <fieldset>
               <legend><a href="http://www.openbioinformatics.org/annovar/">Annovar</a> Settings</legend>
-              <div class="row collapse">
-                <div class="large-3 columns">
-                  <span class="prefix">Annovar path</span>
-                </div>
-                <div class="large-9 columns">
-                  <input type="text" placeholder="e.g. /home/frangipani_server_user/annovar/" required />
-                  <small class="error">An Annovar path is required.</small>
+
+              <div class="row">
+                <div class="large-12 columns">
+                  <div class="row collapse prefix-radius">
+                    <div class="large-3 columns">
+                      <span class="prefix">Annovar path</span>
+                    </div>
+                    <div class="large-9 columns">
+                      <input type="text" placeholder="e.g. /home/frangipani_server_user/annovar/" required />
+                      <small class="error">An Annovar path is required.</small>
+                    </div>
+                  </div>
                 </div>
               </div>
               
@@ -139,7 +152,7 @@
 
             <div class="row">
               <div class="large-7 column">
-                <div class="row collapse">
+                <div class="row collapse prefix-radius">
                   <div class="large-10 columns">
                     <span class="prefix">Maximum number of variants to output for any query</span>
                   </div>
@@ -157,21 +170,29 @@
               </div>
             </div>
 
-            <div class="row collapse">
-              <div class="large-3 columns">
-                <span class="prefix">Default footer for reports</span>
-              </div>
-              <div class="large-9 columns">
-                <input type="text" id="frangipani-footer" />
+            <div class="row">
+              <div class="large-12 columns">
+                <div class="row collapse prefix-radius">
+                  <div class="large-3 columns">
+                    <span class="prefix">Default footer for reports</span>
+                  </div>
+                  <div class="large-9 columns">
+                    <input type="text" id="frangipani-footer" />
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div class="row collapse">
-              <div class="large-3 columns">
-                <span class="prefix">Default disclaimer for reports</span>
-              </div>
-              <div class="large-9 columns">
-                <textarea rows=11 id="frangipani-disclaimer"></textarea>
+            <div class="row">
+              <div class="large-12 columns">
+                <div class="row collapse prefix-radius">
+                  <div class="large-3 columns">
+                    <span class="prefix">Default disclaimer for reports</span>
+                  </div>
+                  <div class="large-9 columns">
+                    <textarea rows=11 id="frangipani-disclaimer"></textarea>
+                  </div>
+                </div>
               </div>
             </div>
 
