@@ -36,16 +36,20 @@
 
   //general form handlers
   var formHandlers = function(){
-    $('.sex-switch').prop('checked', false);
-    //Sex switch hanlder convers between male and femal
-    $(document).on('change','.sex-switch',function(){
-      if ($(this).prop("checked")){
+       //Sex switch hanlder convers between male and femal
+    $('.sex-switch').find('a').on('click',function(){
+      $(this).closest('.sex-switch').find('a').addClass('secondary')
+      $(this).removeClass('secondary')
 
-        $(this).closest('.data-field').find('.sex').val("F");
-      } else {
-        $(this).closest('.data-field').find('.sex').val("M");
-      }
+      var newSex = $(this).text()
+
+      if (newSex == "N/A")
+        newSex = "";
+
+      $(this).closest('input').val(newSex);
     });
+
+    $('')
   }
     
 
@@ -197,7 +201,7 @@
   }
 
 
-  var singlePatientVcf = function(e,data){
+  var addVcf = function(e,data,classID,name){
     var reader = new FileReader();
     reader.onload = function(e){
       var foundSeq = false;
@@ -216,23 +220,32 @@
 
           foundSeq = true;
           tempArray = previewData[count].split(/[\s]+/);
-          tempArray = tempArray.slice(tempArray.indexOf('FORMAT')+1);
+          patientIds = tempArray.slice(tempArray.indexOf('FORMAT')+1);
+          
+          var options = {'patient_ids':patientIds,
+                         'classId':'fileNum' + classID,
+                         'size':(data.files[0].size/1000),
+                         'file-name':data.files[0].name}
 
-          if (tempArray.length > 1) {
-            $('#panel1').find('.patient_id').addClass('error').siblings('small').text("More then one sample detected in file").show();
-            $('#cancel-button').trigger('click');
-          } else {
-            patientId = tempArray[0];
-            $('#panel1').find('.patient_id').val(patientId);
-          }
+          var patientTableHtml = renderHbs('frangipani-add-multi-vcf.hbs',options);
+          console.log(patientTableHtml);
+          var fileUploadHtml = renderHbs('frangipani-add-uploader-progress-bar.hbs', options);
+          console.log(fileUploadHtml);
+          $('#patient_information').show().append(patientTableHtml);
+          $('#patient_vcf').show().append(fileUploadHtml)
+          formHandlers();
+          patientIdHandler();
+
+
         }
+
         count++;
+
       }
 
       if (count == previewData.length & !foundSeq){
         throw new Error('vcf not formed correctly');
       }
-        
     }
 
     reader.readAsDataURL(data.files[0].slice(0,10*1024*10)); //load 1 mb
@@ -245,6 +258,7 @@
   //In an async manner.
   var uploader = function(){
     var jqXHR;
+    var numberFiles = 0;
 
 
     //Uploadt button event handler for triggering the hidden file selection
@@ -257,24 +271,19 @@
     $("#cancel-button").on("click",function(){
       if($("#file-to-upload").hasClass("working"))
         jqXHR.abort();
-      
-      $("#panel2").empty();
-      $('#panel1').find("input:enabled").val("");
 
       $(this).closest('.button-group').toggle().parents().find('#upload-button').toggle()
       .parents().find("#upload-box").toggle().parents().find('.progress').show();
 
     });
-
-
+   
     //Upload file with handlers for addition, failure,progress and completeiong of the upload
     $("#fileselect").fileupload({
       url:'/upload/vcf',
       add: function(e,data){
-        global1 = data;
-        global2 = e;
-        var name = data.files[0].name;  
+        var name = data.files[0].name;
 
+        
         if (!(name.endsWith('.vcf'))){
           alert("Invalid File, please choose a file that ends in .vcf extension");
         } else {
@@ -282,28 +291,12 @@
               name = "..." + name.substr(-20);
           }
 
-          $('#file-to-upload').text(name)
-          .append('&nbsp<i>' + data.files[0].size/1000 + 'kb</i>');
-          data.context = $("#upload-box");
-
-          $('.progress').removeClass('success').children("#upload-progress").css({'width':'0%'});
-          $('#upload-box').show().children('.progress').find('#upload');
-          $('#upload-button').toggle().parents().find(".button-group").toggle();
-
-
-          if ($('#panel1').hasClass('active')){
-            singlePatientVcf(e,data);
-          } else if ($('#panel2').hasClass('active')){
-            multiPatientVcf(e,data);
-          }
-
-          //if ($('#panel3').hasClass('active'){
-            //addMultiPatients(e,data);
-          //}
-          
-
+          numberFiles++;
+          addVcf(e,data,numberFiles,name); // the context will be the uploader div
+          data.context = $('#fileNum' + numberFiles);
+          console.log(data.context);
           //Submit the file for uploading
-          $("#submit-button").on('click',function(){
+          data.context.find('.submit-button').on('click',function(){
             var status = validateForm(data);
             status.then(function(uploadData){
               data.formData = uploadData;
@@ -320,6 +313,8 @@
       }, 
       //update a progress bar to track the upload process
       progress: function(e,data){
+        console.log(e.target);
+        console.log(data);
         var progress = parseInt(data.loaded,10)/parseInt(data.total,10)*100;
         $('#upload-progress').animate({width:progress + '%'},0);
       },
@@ -333,6 +328,8 @@
 
       //upon completion add checkmark and a 
       done: function(e,data){
+        console.log(e);
+        console.log(data);
         $('.progress').addClass('success');
         $('#file-to-upload').removeClass('working').append("&nbsp&nbsp<i class='fi-check size-16'><i>");
       }

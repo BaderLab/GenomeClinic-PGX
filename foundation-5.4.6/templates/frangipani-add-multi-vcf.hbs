@@ -1,50 +1,34 @@
 <div class="row">
-	<div class="large-12 columns">
-		<div class="large-3 columns" style="text-align:center;">
-			<h6>Patient Id</h6>
+	<div class="large-12 columns new-file {{classId}}">
+		{{#each patient_ids}}
+		<div class="row">
+			<div class="large-12 columns new-patients">
+				<div class="large-3 columns data-fieled">
+					<input type='text' value={{this}} placeholder="NA001" name="patient_id">
+					<small class="error" style="display:none;">Patient Identifier Already In use</small>
+				</div>
+				<div class="large-3 columns data-field">
+					<input name="patient_alias" type='text' placeholder="">
+				</div>
+				<div class="large-2 columns data-field">
+					<input name="patient_phenotype" type='text'>
+				</div>
+				<div class="large-1 columns data-field">
+					<input name="age" type='text' placeholder="40">
+				</div>
+				<div class="large-3 columns data-field">
+			      <div class="small-12 medium-12 columns right">  
+			        <input name="sex" style="display:none" type="text" value="">
+			        <ul class="button-group even-3 radius sex-switch">
+			          <li><a href="#" class="button secondary tiny">M</a></li>
+			          <li><a href="#" class="button secondary tiny">F</a></li>
+			          <li><a href="#" class="button tiny">N/A</a></li>
+			        </ul>
+			      </div>
+			    </div>
+			</div>
 		</div>
-		<div class="large-3 columns" style="text-align:center;">
-			<h6>Patient Alias</h6>
-		</div>
-		<div class="large-2 columns" style="text-align:center;">
-			<h6>Phenotype</h6>
-		</div>
-		<div class="large-1 columns" style="text-align:center;">
-			<h6>Age</h6>
-		</div>
-		<div class="large-3 columns" style="text-align:center;">
-			<h style="text-align:center;">Sex</h6>
-		</div>
+		{{/each}}
 		<hr>
 	</div>
 </div>
-{{#each patient_ids}}
-<div class="row">
-	<div class="large-12 columns new-patients">
-		<div class="large-3 columns data-fieled">
-			<input class="patient_id" type='text' value={{patient_id}} placeholder="NA001" name="patient_id">
-			<small class="error" style="display:none;">Patient Identifier Already In use</small>
-		</div>
-		<div class="large-3 columns data-field">
-			<input class="patient_alias" type='text' placeholder="">
-		</div>
-		<div class="large-2 columns data-field">
-			<input class="patient_phenotype" type='text'>
-		</div>
-		<div class="large-1 columns data-field">
-			<input class="age" type='text' placeholder="40">
-		</div>
-		<div class="large-3 columns data-field">
-			<div class="small-4 medium-4 columns left" style="padding-left:4px;">
-				<input type='text' disabled='disabled' class='sex' value='M'>
-			</div>
-			<div class="small-3 medium-3 columns right">  
-                <div class="switch large round right" tabindex="0">
-                	<input class="sex-switch" id="sex-switch{{@index}}" type="checkbox">
-                    <label for="sex-switch{{@index}}"></label>
-                </div>
-            </div>
-		</div>
-	</div>
-</div>
-{{/each}}

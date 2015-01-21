@@ -1,128 +1,54 @@
-<div id="frangipani-app-main">
-  <div class="row">  
-    <div class="large-12 columns" style="top:15px;">
-      <h2><i class="fi-torso size-28"></i>&nbspAdd a new patient</h2>
-    </div>
+<div class="row">  
+  <div class="large-12 columns" style="top:15px;">
+    <h2><i class="fi-torso size-28"></i>&nbspAdd a new patient</h2>
   </div>
-  <div class="row">
-    <div class="large-12 columns" style="top:15px;bottom:0px;">
-      <ul class="tabs" data-tab role="tablist">
-        <li class="tab-title active" role="presentational"><a href="#panel1" role="tab" tabindex="0" aria-selected="true" controls="panel1">Add Single Patient</a></li>
-        <li class="tab-title" role="presentational"><a href="#panel2" role="tab" tabindex="0" aria-selected="false" controls="panel1">Add Multipatient VCF</a></li>
-      </ul>
-    </div>
+</div>
+<div class="row">
+  <div class="large-12 columns">
+    <h6 class="subheader spacer">Add a new file to get started!</h6>
+    <p>Files must be in the VCF format. Eeach file can have any number of samples within it, additionally you can add as many files as you want!. Once selected you can cancel any file upload to remove it from the queue. Make sure that you fill out the form as much as possilbe! the only field however that is required is a unique Patient Identifier. Have fun!</p>
   </div>
-  <div class="row">
-    <div class="large-12 columns">
-      <form id="jquery-new-patient-form">
-        <fieldset>
-          <div class="tabs-content">
-            <section role="tabpanel" aria-hidden="false" class="content active"  id="panel1">
-            <div class="row">
-              <div class="large-12 columns spacer">
-                <h6 class="subheader">Patient Information</h6>
-              </div>  
+  <div class="large-12 columns">
+    <form id="jquery-new-patient-form">
+      <div class="row">
+        <div class="large-4 columns left" style="top:30px;">
+          <input id="fileselect" type="file" name="files[]" style="display:none" multiple></input>
+          <a href="#" class="button alert round large-12" id="upload-button"><i class="fi-plus size-16"></i>&nbsp&nbspAdd File</a></li>
+        </div>
+        <div class="large-4 columns right" style="top:30px;">
+          <ul class="button-group even-2 round">
+            <li><a href="#" class="button alert" id="cancel-button"><i class="fi-x size-16"></i>&nbsp&nbspCancel</a></li>
+            <li><a href="#" class="button alert" id="submit-button"><i class="fi-upload size-16"></i>&nbsp&nbspSumbit</a></li>
+          </ul>
+        </div>     
+      </div>
+      <fieldset style="display:none" id="patient_information">
+        <legend>Patient Information</legend>
+        <div class="row">
+          <div class="large-12 columns">
+            <div class="large-3 columns" style="text-align:center;">
+              <h6>Patient Id</h6>
             </div>
-            <div class="new-patients">
-              <div class="row">
-                <div class="large-6 columns left data-field spacer">
-                  <div class="row collapse">
-                    <div class="small-3 medium-3 columns">
-                      <span class='prefix'><h6>Patient Id</h6></span>
-                    </div>
-                    <div class="small-9 medium-9 columns">
-                      <input class='patient_id' type="text" name="patient_id" placeholder="NA02021">
-                      <small class="error" style="display:none;">Patient Identifier Already In use</small>
-                    </div>
-                  </div>
-                </div>
-                <div class="large-6 columns right data-field spacer">
-                  <div class="row collapse">
-                    <div class="small-3 medium-3 columns">
-                      <span class="prefix"><h6>Patient Alias</h6></span>
-                    </div>
-                    <div class="small-9 medium-9 columns">
-                      <input type="text" name="patient_alias" id="patient_alias" placeholder="">
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="row">            
-                <div class="large-6 columns left data-field spacer">
-                  <div class="row collapse">
-                    <div class="small-3 medium-3 columns">
-                      <span class="prefix"><h6>Phenotype Id</h6></span>
-                    </div>
-                    <div class="small-9 medium-9 columns">                
-                      <input type="text" name="phenotype_id" id="phenotype_id" placeholder="">
-                    </div>
-                  </div>
-                </div>
-                <div class="large-6 column right data-field spacer">
-                  <div class="row collapse">
-                    <div class="small-2 large-2 columns">
-                      <span class="prefix"><h6>Age</h6></span>
-                    </div>
-                    <div class="small-2 medium-2 columns left">
-                      <input class='age' type='text' disabled='disabled' id="sliderOutput">
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="row">  
-                <div class="large-6 columns left data-field spacer">
-                  <div class="row collapse">
-                     <div class="small-2 large-2 columns">
-                      <span class="prefix"><h6>Sex</h6></span>
-                    </div>
-                    <div class="small-2 medium-2 columns left">
-                      <input class='sex' type='text' value='M' disabled='disabled'>
-                    </div>
-                    <div class="small-4 medium-4 columns right">  
-                      <div class="switch large round right" tabindex="0">
-                        <input class='sex-switch' id="sex-switch" type="checkbox">
-                        <label for="sex-switch"></label>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="large-6 columns spacer">
-                  <div class="range-slider radius" data-slider data-options="start:0;end:120; display_selector: #sliderOutput;">
-                    <span class="range-slider-handle" role="slider" tabindex="0"></span>
-                    <span class="range-slider-active-segment"></span>
-                    <input type="hidden" name="age">
-                  </div>
-                </div>
-              </div>
+            <div class="large-3 columns" style="text-align:center;">
+              <h6>Patient Alias</h6>
             </div>
-            </section>
-            <section role="tabpanel" aria-hidden="true" class="content" id="panel2">
-            </section>
+            <div class="large-2 columns" style="text-align:center;">
+              <h6>Phenotype</h6>
+            </div>
+            <div class="large-1 columns" style="text-align:center;">
+              <h6>Age</h6>
+            </div>
+            <div class="large-3 columns" style="text-align:center;">
+              <h style="text-align:center;">Sex</h6>
+            </div>
             <hr>
-            <div class="row">
-              <div class="large-4 columns left" style="top:10px;">
-                <input id="fileselect" type="file" name="files[]" style="display:none"></input>
-                <a href="#" class="button alert round large-12" id="upload-button"><i class="fi-plus size-21"></i>&nbsp&nbspAdd File</a></li>
-                <ul class="button-group even-2 round" style="display:none">
-                  <li><a href="#" class="button alert" id="cancel-button"><i class="fi-x size-21"></i>&nbsp&nbspCancel</a></li>
-                  <li><a href="#" class="button alert" id="submit-button"><i class="fi-upload size-21"></i>&nbsp&nbspSumbit</a></li>
-                </ul>
-              </div>
-              <div class="large-8 columns right" style="top:10px;">
-                <div class="row">
-                  <div class="small-12 medium-12 columns" id="upload-box" style="display:none">
-                    <p id='file-to-upload'></p>
-                    <div class='progress'>
-                      <span class='meter' id='upload-progress' style='width:0%'></span>
-
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
-        </fieldset>
-      </form>
-    </div>
+        </div>
+      </fieldset>
+      <fieldset style="display:none;" id="patient_vcf">
+        <legend>Upload Files</legend>
+      </fieldset>
+    </form>
   </div>
-</div>>
+</div>
+
