@@ -66,7 +66,8 @@
       <!-- Config form -->
       <div class="row">
         <div class="large-10 large-centered columns">
-          <form data-abide>
+
+          <form data-abide id="frangipani-config-form">
 
             <div class="row collapse">
               <div class="large-3 columns">
@@ -137,17 +138,22 @@
             </fieldset>
 
             <div class="row">
-              <div class="large-6 columns">
-                <label style="display: block; margin-top: 15px;">Maximum number of variants to output for any query:</label>
+              <div class="large-7 column">
+                <div class="row collapse">
+                  <div class="large-10 columns">
+                    <span class="prefix">Maximum number of variants to output for any query</span>
+                  </div>
+                  <div class="large-2 columns">
+                    <input type="text" id="frangipani-max-records-slider-output" style="font-weight: bold; text-align: center;" pattern="[0-9]+" required></span>
+                    <small class="error">Please enter a number.</small>
+                  </div>
+                </div>
               </div>
-              <div class="large-4 columns">
-                <div class="range-slider" id= "frangipani-max-records-slider" data-slider data-options="start: 100; end: 2000; display_selector: #sliderOutput;">
+              <div class="large-5 columns">
+                <div class="range-slider" id= "frangipani-max-records-slider" data-slider data-options="start: 100; end: 2000; display_selector: #frangipani-max-records-slider-output;" style="margin-top: 13px;">
                   <span class="range-slider-handle" role="slider" tabindex="0"></span>
                   <span class="range-slider-active-segment"></span>
                 </div>
-              </div>
-              <div class="large-2 columns">
-                <span id="sliderOutput" style="display: block; margin-top: 15px; font-style: italic;"></span>
               </div>
             </div>
 
@@ -175,6 +181,7 @@
                 <a href="#" class="button large round alert"><i class="fa fa-hand-o-right"></i>&nbsp;Get started!</a>
               </div>
             </div>
+
           </form>
         </div>
       </div>

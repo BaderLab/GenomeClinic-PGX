@@ -90,14 +90,15 @@ var aux= {
  */
 var handler= function() {
 
-	/* Set the defaults: */
+	/* 
+	 * Set the config defaults:
+	 */
 
 	// Customize the disclaimer for the institute, using a default first
 	aux.updateDisclaimer();
 	$("#frangipani-disclaimer").val(aux.DISCLAIMER);
 	$("#frangipani-institution").attr("placeholder", "e.g. " + aux.INSTITUTION);
 	$("#frangipani-institution").on("keyup", function(event) {
-		console.log("typed!!!");
 		aux.INSTITUTION= $(this).val();
 		aux.updateDisclaimer();
 		$("#frangipani-disclaimer").val(aux.DISCLAIMER);
@@ -106,9 +107,13 @@ var handler= function() {
 	// Set the maximum number of records.
 	$("#frangipani-max-records-slider").foundation("slider", "set_value", aux.MAX_RECORDS);
 
+	// Attached a listener to max records slider and associated input field
+	$("#frangipani-max-records-slider-output").on("keyup", function(event) {
+		$("#frangipani-max-records-slider").foundation("slider", "set_value", $(this).val());		
+	});
+
 	// Set default footer
 	$("#frangipani-footer").val(aux.FOOTER);
-
 
 
 	/* Create switches for each annovar annotation. */
