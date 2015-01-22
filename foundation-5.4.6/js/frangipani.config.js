@@ -80,6 +80,24 @@ var aux= {
 	/* Update the Disclaimer using the current institution name. */
 	updateDisclaimer: function() {
 		aux.DISCLAIMER= aux.DISCLAIMER_PREFIX + aux.INSTITUTION + aux.DISCLAIMER_SUFFIX;
+	},
+
+	/* Convert form into JSON.
+	 * Function adapted from http://stackoverflow.com/questions/1184624/convert-form-data-to-js-object-with-jquery */
+	serializeObject: function(form) {
+	    var o = {};
+	    var a = form.serializeArray();
+	    $.each(a, function() {
+	        if (o[this.name] !== undefined) {
+	            if (!o[this.name].push) {
+	                o[this.name] = [o[this.name]];
+	            }
+	            o[this.name].push(this.value || '');
+	        } else {
+	            o[this.name] = this.value || '';
+	        }
+	    });
+	    return o;
 	}
 
 };
@@ -98,7 +116,7 @@ var handler= function() {
 	aux.updateDisclaimer();
 	$("#frangipani-disclaimer").val(aux.DISCLAIMER);
 	$("#frangipani-institution").attr("placeholder", "e.g. " + aux.INSTITUTION);
-	$("#frangipani-institution").on("keyup", function(event) {
+	$("#frangipani-institution").on("change", function(event) {
 		aux.INSTITUTION= $(this).val();
 		aux.updateDisclaimer();
 		$("#frangipani-disclaimer").val(aux.DISCLAIMER);
@@ -108,7 +126,7 @@ var handler= function() {
 	$("#frangipani-max-records-slider").foundation("slider", "set_value", aux.MAX_RECORDS);
 
 	// Attached a listener to max records slider and associated input field
-	$("#frangipani-max-records-slider-output").on("keyup", function(event) {
+	$("#frangipani-max-records-slider-output").on("change", function(event) {
 		$("#frangipani-max-records-slider").foundation("slider", "set_value", $(this).val());		
 	});
 
@@ -127,26 +145,31 @@ var handler= function() {
 			$("#frangipani-annovar-options").append(html);
 		});
 
-	/*
-	var promise= Promise.resolve($.ajax({
-			url: "/callsets/search",
-			type: "POST",
-			contentType: "application/json",
-			dataType: "json",
-			data: JSON.stringify({
-				"variantSetIds": settings.currentData.variantSetIds,
-				"pageSize": 30,
-				"pageToken": settings.currentData.pageToken
-			})
-		}));
+	/* Receive the submitted form data (Abide validation events are handled by
+	 * foundation ). */
+	$("#frangipani-config-form").on('invalid.fndtn.abide', function () {
+		// Invalid form input
+		var invalid_fields = $(this).find('[data-invalid]');
+		console.log(invalid_fields);
+	})
+	$("#frangipani-config-form").on('valid.fndtn.abide', function () {
+		// Valid form input
+		var formInput= aux.serializeObject($(this));
 
-		promise.then(function(result) {
-			settings.currentData['pageToken'] = result['nextPageToken'];
-			var context= {
-				"callSets": result["callSets"],
-				"projectName": settings.currentData.projectName,
+		// Iterate over the annovar annotation fields and put them into a list
+		var annovarAnnotationList= [];
+		var prefixPattern= /^frangipani\-annovar\-annotation\-.+/;
+		for (var key in formInput) {
+			// Important check that property is not from inherited prototype prop
+			if(formInput.hasOwnProperty(key) && prefixPattern.test(key)) {
+				annovarAnnotationList.push(formInput[key]);
+
+				// remove from the form input object
+				delete formInput[key];
 			}
-	*/
+		}
+		formInput["annovar"]= annovarAnnotationList;
+	});
 
 };
 

@@ -67,7 +67,7 @@
       <div class="row">
         <div class="large-10 large-centered columns">
 
-          <form data-abide id="frangipani-config-form">
+          <form data-abide="ajax" id="frangipani-config-form">
 
             <div class="row">
               <div class="large-12 columns">
@@ -76,7 +76,7 @@
                     <span class="prefix">Your Institution's Name</span>
                   </div>
                   <div class="large-9 columns">
-                      <input type="text" id="frangipani-institution" required/>
+                      <input type="text" id="frangipani-institution" name="frangipani-institution" required/>
                       <small class="error">Institution name required.</small>
                   </div>
                 </div>
@@ -91,7 +91,7 @@
                       <span class="prefix">Administrator e-mail</span>
                     </div>
                       <div class="large-9 columns">
-                        <input type="email" required />
+                        <input type="email" name="frangipani-admin-email" required />
                         <small class="error">An email address is required.</small>
                       </div>
                   </div>
@@ -109,7 +109,7 @@
                       <span class="prefix">Annovar path</span>
                     </div>
                     <div class="large-9 columns">
-                      <input type="text" placeholder="e.g. /home/frangipani_server_user/annovar/" required />
+                      <input type="text" placeholder="e.g. /home/frangipani_server_user/annovar/" name="frangipan-annovar-path" required />
                       <small class="error">An Annovar path is required.</small>
                     </div>
                   </div>
@@ -128,7 +128,7 @@
                     <div class="large-6 columns">
                       <div class="switch small radius">
                          <!-- hg19 selected by default -->
-                        <input id="hg19RadioSwitch" type="radio" name="genomeBuild" checked>
+                        <input id="hg19RadioSwitch" type="radio" name="genome-build" value="hg19" checked>
                         <label for="hg19RadioSwitch"></label>
                       </div>
                     </div>
@@ -139,7 +139,7 @@
                     </div>
                     <div class="large-6 columns">
                       <div class="switch small radius">
-                        <input id="hg18RadioSwitch" type="radio" name="genomeBuild">
+                        <input id="hg18RadioSwitch" type="radio" name="genome-build" value="hg18">
                         <label for="hg18RadioSwitch"></label>
                       </div>
                     </div>
@@ -157,7 +157,7 @@
                     <span class="prefix">Maximum number of variants to output for any query</span>
                   </div>
                   <div class="large-2 columns">
-                    <input type="text" id="frangipani-max-records-slider-output" style="font-weight: bold; text-align: center;" pattern="[0-9]+" required></span>
+                    <input type="text" id="frangipani-max-records-slider-output" name="max-query-records" style="font-weight: bold; text-align: center;" pattern="[0-9]+" required></span>
                     <small class="error">Please enter a number.</small>
                   </div>
                 </div>
@@ -177,7 +177,7 @@
                     <span class="prefix">Default footer for reports</span>
                   </div>
                   <div class="large-9 columns">
-                    <input type="text" id="frangipani-footer" />
+                    <input type="text" id="frangipani-footer" name="report-footer" />
                   </div>
                 </div>
               </div>
@@ -190,7 +190,7 @@
                     <span class="prefix">Default disclaimer for reports</span>
                   </div>
                   <div class="large-9 columns">
-                    <textarea rows=11 id="frangipani-disclaimer"></textarea>
+                    <textarea rows=11 id="frangipani-disclaimer" name="disclaimer"></textarea>
                   </div>
                 </div>
               </div>
@@ -199,7 +199,7 @@
             <div class="row">
               <div class="large-6 columns"></div>
               <div class="large-4 columns">
-                <a href="#" class="button large round alert"><i class="fa fa-hand-o-right"></i>&nbsp;Get started!</a>
+                <button class="button large round alert" type="submit"><i class="fa fa-hand-o-right"></i>&nbsp;Get started!</button>
               </div>
             </div>
 
