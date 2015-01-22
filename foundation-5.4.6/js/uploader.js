@@ -16,11 +16,10 @@
  *written by Patrick Magee
 */
 
-/* adding the endsWith functionallity to strings for cross platform compatibility
-*/
-
 
 (function(){
+  /* adding the endsWith functionallity to strings for cross platform compatibility
+  */
   if (typeof String.prototype.startsWith != 'function') {
     String.prototype.startsWith = function (str){
       return this.slice(0, str.length) == str;
@@ -33,37 +32,81 @@
     };
   }
 
+  /* Static handlers that loaded only once at the beginning of the page load. These are for
+   * The submit-all button as well as the cancel-all and upload button event handlers.
+   */
+  var staticHandlers = function(){
 
-  //general form handlers
-  var formHandlers = function(){
-       //Sex switch hanlder convers between male and femal
-    $('.sex-switch').find('a').on('click',function(){
-      $(this).closest('.sex-switch').find('a').addClass('secondary')
-      $(this).removeClass('secondary')
-
-      var newSex = $(this).text()
-
-      if (newSex == "N/A")
-        newSex = "";
-
-      $(this).closest('input').val(newSex);
+    //trigger the hidden file dialog button
+    $("#upload-button").on("click",function(event){
+      event.preventDefault();
+      $("#fileselect").trigger('click');
     });
 
-    $('')
-  }
-    
+    //trigger the hidden submit buttons that the uploader is boud too
+    $("#submit-all-button").on('click',function(event){
+      event.preventDefault();
+      $(document).find(".submit-button").trigger('click');
+    })
 
-  //Check to see if the user input is currently already in
-  //the patient databse. If it is, add the rror class
-  //to the input container.
-  var patientIdHandler = function(){
+    //Cancel this data transfer AND take back to add file button
+    $("#cancel-all-button").on("click",function(event){
+      event.preventDefault();
+      $('.canel-button').trigger('click');
+      $('#patient_information').empty().closest('fieldset').hide();
+      $('#patient_vcf').empty().closest('fieldset').hide();
+    });
+  };
 
-    //Initialization check
-    $('.patient_id').each(function(){
-      var promise;
-      var keyValue = $(this).val().toString();
+
+  /* Dynamic event handlers. This collection of handlers must be reloaded each time  
+   * new patient and file content is added to the page to ensure that the handlers are
+   * active on them. Handlers for field validation as well as generic event handlers are
+   * included
+   */ 
+  var dynamicHandlers = function(){
+
+    //Sex switch hanlder convers between male and female and NA Dynamically changing the
+    //Hidden input value
+    $('.sex-switch').find('a').on('click',function(event){
+      event.preventDefault();
+      $(this).closest('.sex-switch').find('a').addClass('secondary')
+      $(this).removeClass('secondary')
+      var newSex = $(this).text();
+      if (newSex === "N/A")
+        newSex = "";
+      $(this).closest('div').find('input').val(newSex);
+    });
+
+    //listen for keyup events on age input fields. When an event happens ensure taht there is
+    //A valid number in the field. if not, convert it to ""
+    $('.age').on('keyup',function(){
+      if (isNaN($(this).val())){
+        $(this).val("");
+      } 
+    });
+
+    //Sometimes the parsing of the names may not be correct, this will modify the input in accordance with that
+    $('.remove-patient').on('click',function(event){
+      event.preventDefault();
+      $(this).closest('.new-patients').parent().remove();
+    });
+
+    /* The Patient_id tag must be unique both within the form and within the currently existing 
+     * base. This handler listens for keyup events. it then checks two things, according to an internal
+     * hierarchy. first it submits an ajax request to the server asking for the names of all patients
+     * it then compares the current field to all the entires in the list, flagging an error if one is found
+     * additionally it is actively aware of all the entries on a page. And will flag an error when you type
+     * an id that is already present on the page
+     */
+    $('.patient_id').on("keyup",function(){
       var self = $(this);
+      var promise;
+      var keyValue = self.val().toString(); //current key value
+      var patientIdFields = $('.patient_id').toArray(); //get ALL patientID fields
+      var valueCounts = {};
 
+      //ajax request to server
       promise = Promise.resolve($.ajax({
         url:'database/getPatients',
         type:'GET',
@@ -72,41 +115,37 @@
       }));
 
       promise.then(function(result){
+        var error = false;
+        //search for item existing in the current list
         for (var i=0; i<result.length; i++){
-          if (result[i]['patient_id'] == keyValue){
-            self.addClass('error').siblings('small').text("PatientID already exists!").show();
+          if (result[i]['patient_id'] == keyValue && !error){
+            self.addClass('error').addClass('db-error').siblings('small').text("PatientID already exists!").show();
+            error=true;
           }
         }
-      }).catch(function(err){console.log(err)});
 
-      self.on("keyup",function(){
-        var promise;
-        var keyValue = self.val().toString();
+        if (!error)
+          self.removeClass('error').removeClass('db-error').siblings('small').hide();
 
-        promise = Promise.resolve($.ajax({
-          url:'database/getPatients',
-          type:'GET',
-          contentType:'application/json',
-          dataType:'json'
-        }));
-
-        promise.then(function(result){
-          for (var i=0; i<result.length; i++){
-            if (result[i]['patient_id'] == keyValue){
-              self.addClass('error').siblings('small').text("PatientID already exists!").show();
-              return null;
+        //Search for current entry within the form
+        for (var i=0; i<patientIdFields.length; i++){
+          var item = patientIdFields[i].value
+          valueCounts[item] = ( valueCounts[item] || 0 ) + 1;
+        }
+        //IF a db-error already exists on an input, this will not override it, as the db-error takes precedence.
+        for (var i=0; i<patientIdFields.length; i++){
+          if (valueCounts[patientIdFields[i].value] > 1){
+            if(!$(document).find(patientIdFields[i]).hasClass('db-error'))
+              $(document).find(patientIdFields[i]).addClass('error').addClass('form-error').siblings('small').text('PatientID already exists on form').show();
+          } else {
+            if (patientIdFields[i] != self[0] && $(document).find(patientIdFields[i]).hasClass('form-error') && !$(document).find(patientIdFields[i]).hasClass('db-error')){
+              $(document).find(patientIdFields[i]).removeClass('error').removeClass('form-error').siblings('small').hide();
             }
-          
-            self.removeClass('error').siblings('small').hide();
           }
+        }
 
-        }).catch(function(err){console.log(err)});
-      });
+      }).catch(function(err){console.log(err)});
     });
-
-    
-  
-
   };
 
 
@@ -114,176 +153,86 @@
   //Validate the input on the form and parse the form data
   //into and output object to give to the upload file handler
   //returns a promise.
-  var validateForm = function(uploadData){
-    var returnData = {};
-    var returnList = [];
+  var validateForm = function(data,Id){
+    var returnList = {}; //object to return.
     var promise;
 
     promise = new Promise(function(resolve,reject){
-      $(document).find('section.active').find('.new-patients').each(function(){
-        var data=$(this).serializeArray();
-       
+      //Check to see if any of the input fields have an error, stoppiong the validation if they do
+      if ($(document).find('input').hasClass('error')){
+        reject(new Error("Invalid Patient Id"));
+      }
 
-        for (var i=0;i<data.length;i++){
-          if (data[i]['name']==="patient_id" && data[i]['value']===""){
-            $(this).find('.patient_id').addClass('error').siblings('small').text("Required").show();
-            reject(new Error('Patient Id required'));
-          } else if ($(this).find('.patient_id').hasClass('error')){
-            reject(new Error("Invalid Patient Id in Use"));
-          } else {
-          returnData[data[i]['name']] = data[i]['value'];
+      //Get a list of all the patients and iterate over the list
+      var patients = $(document).find('.fileNum' + Id).find('.new-patients');
+      if (patients.length < 1){
+        reject(new Error("Nothing to submit"))
+      }
+      for ( var i=0; i<patients.length; i++ ){
+
+        var tempObj = {};
+        var dataArray = $(patients[i]).find('input').serializeArray(); // serialize the input for each patient
+        //iterate over the input for each patient
+        for ( var j=0; j<dataArray.length; j++ ){
+          //If the patient_id field is empty reject the promise and add an error tag
+          if (dataArray[j]['name']==="patient_id" && dataArray[j]['value']===""){
+            $(patients[i]).find('.patient_id').addClass('error').addClass('form-error').siblings('small').text('required').show();
+            reject(new Error("Patient Id is Required"));
+          //only include non-null values
+          } else if (dataArray[j]['value']!="") {
+            if (dataArray[j]['name'] == 'age'){
+              //parse age to an int
+              dataArray[j]['value'] = parseInt(dataArray[j]['value']);
+            }
+            //because the way the server parses the objects passed to it, you cannot have a 
+            //recrusive array with multiple depths. Therefore each property is prepended by
+            //an index for later parsing so that a flat object is created
+            returnList[i.toString() + '-' + dataArray[j]['name']] = dataArray[j]['value'];
           }
-        }
-        if (!returnData.hasOwnProperty('sex'))
-          returnData['sex'] = $(this).find('.sex').text();
-        if (!returnData.hasOwnProperty('age'))
-          returnData['age'] = parseInt($(this).find('.age').text());
-
-        returnList.push(returnData);
-      });
+        };
+      }
       resolve(returnList);
     });
-
     return promise;
   };
 
 
 
-       
-  var multiPatientVcf = function(e,data){
-    var reader = new FileReader();
-    reader.onload = function(e){
-      var foundSeq = false;
-      var count  = 0
-      var patientIds=[];
-      var previewData = atob(reader.result.split(',')[1]);
-      var tempString;
-      var tempArray;
 
-      previewData = previewData.split(/[\n\r]+/);
-        
-      while (!foundSeq || count == previewData.length){
-          tempString = previewData[count];
-
-          if (tempString.startsWith('#CHROM')){
-
-            foundSeq = true;
-            tempArray = previewData[count].split(/[\s]+/);
-            tempArray = tempArray.slice(tempArray.indexOf('FORMAT')+1);
-
-            for ( var i=0 ; i < tempArray.length; i++ ){
-              patientIds.push({'patient_id':tempArray[i]});
-            }
-
-            var html = renderHbs('frangipani-add-multi-vcf.hbs',{'patient_ids':patientIds});
-            $('#panel2').append(html);
-            patientIdHandler();
-            formHandlers();
-            $(document).foundation();
-
-          }
-
-          count++;
-        }
-
-        console.log($(document).find('section.active'));
-        $('#panel2').find('.new-patients').each(function(){
-          $(this).find('input').serializeArray();
-        }) 
-
-        if (count == previewData.length & !foundSeq){
-          throw new Error('vcf not formed correctly');
-        }
-        
-    }
-
-    reader.readAsDataURL(data.files[0].slice(0,10*1024*10));
-  }
-
-
-  var addVcf = function(e,data,classID,name){
-    var reader = new FileReader();
-    reader.onload = function(e){
-      var foundSeq = false;
-      var count  = 0
-      var patientId;
-      var previewData = atob(reader.result.split(',')[1]);
-      var tempString;
-      var tempArray;
-
-      previewData = previewData.split(/[\n\r]+/);
-        
-      while (!foundSeq || count == previewData.length){
-        tempString = previewData[count];
-
-        if (tempString.startsWith('#CHROM')){
-
-          foundSeq = true;
-          tempArray = previewData[count].split(/[\s]+/);
-          patientIds = tempArray.slice(tempArray.indexOf('FORMAT')+1);
-          
-          var options = {'patient_ids':patientIds,
-                         'classId':'fileNum' + classID,
-                         'size':(data.files[0].size/1000),
-                         'file-name':data.files[0].name}
-
-          var patientTableHtml = renderHbs('frangipani-add-multi-vcf.hbs',options);
-          console.log(patientTableHtml);
-          var fileUploadHtml = renderHbs('frangipani-add-uploader-progress-bar.hbs', options);
-          console.log(fileUploadHtml);
-          $('#patient_information').show().append(patientTableHtml);
-          $('#patient_vcf').show().append(fileUploadHtml)
-          formHandlers();
-          patientIdHandler();
-
-
-        }
-
-        count++;
-
-      }
-
-      if (count == previewData.length & !foundSeq){
-        throw new Error('vcf not formed correctly');
-      }
-    }
-
-    reader.readAsDataURL(data.files[0].slice(0,10*1024*10)); //load 1 mb
-  };
-
-
-
-
-  //Main uploader function. Handles the ajax request to upload a file
-  //In an async manner.
+  /* Main uploader function that uses the jquery-file-upload plugin. This is an event listener that watches 
+   * for files being added to the input fileList. this list is hidden and is readonly. 
+   * When it detects that a new file was added, it is then added to an internal queue that is managed by
+   * the plugin itself. Additinoally sevaeral callbacks are bound to specific events for the file:
+   *
+   * Add: when a file is added this event is triggered
+   * progress: after a file is submitted it triggers a 'progress' event at set intervals with information
+   *           on how much of the file had been uploaded
+   * Fail: upon the event of a failure to upload trigger this event
+   * Done: when A single upload is done, trigger this event
+   * Stop: when ALL uploads are complete, trigger this event
+   * 
+   * When the file has succesfully completed uploading a fileInfo object is returned and the 'DONE' event is triggerd
+   *
+   * Currently, The upload event is bound to a hidden button, unique for each file. this is to enable selective
+   * Uplaoding based on which files have active page content. In order to trigger the submission, the user hits the
+   * Submit button, which sends a trigger('click') to all of the hidden submit-buttons.
+   *
+   * the listeners then track individual file progress as they are uploaded asynchronously and simultaneosly
+   */
   var uploader = function(){
-    var jqXHR;
+    //track the number of files
     var numberFiles = 0;
 
-
-    //Uploadt button event handler for triggering the hidden file selection
-    $("#upload-button").on("click",function(){
-      $("#fileselect").trigger('click');
-    });
-
-
-    //Cancel this data transfer AND take back to add file button
-    $("#cancel-button").on("click",function(){
-      if($("#file-to-upload").hasClass("working"))
-        jqXHR.abort();
-
-      $(this).closest('.button-group').toggle().parents().find('#upload-button').toggle()
-      .parents().find("#upload-box").toggle().parents().find('.progress').show();
-
-    });
-   
-    //Upload file with handlers for addition, failure,progress and completeiong of the upload
+    //initialize the plugin and set up event callbacks
     $("#fileselect").fileupload({
+      //default pathway for vcf upload
       url:'/upload/vcf',
       add: function(e,data){
+        //empty variable for later binding of the submission event
+        var jqXHR;
         var name = data.files[0].name;
 
-        
+        //ensure the file is in the appropriate format
         if (!(name.endsWith('.vcf'))){
           alert("Invalid File, please choose a file that ends in .vcf extension");
         } else {
@@ -291,50 +240,124 @@
               name = "..." + name.substr(-20);
           }
 
-          numberFiles++;
-          addVcf(e,data,numberFiles,name); // the context will be the uploader div
-          data.context = $('#fileNum' + numberFiles);
-          console.log(data.context);
-          //Submit the file for uploading
-          data.context.find('.submit-button').on('click',function(){
-            var status = validateForm(data);
-            status.then(function(uploadData){
-              data.formData = uploadData;
-              $('#file-to-upload').addClass("working");
-              $("#submit-button").off('click');
-              jqXHR = data.submit();
+          //preview the first megabyte of the file, parse patient names and dynmaically
+          //determine how many potential patiennts are included in a single file.
+          numberFiles++
+          var Id = numberFiles 
+          var reader = new FileReader();
+          reader.onloadend = function(e){
+            var foundSeq = false;
+            var count  = 0;
+            var previewData = atob(reader.result.split(',')[1]);
+            var tempString;
+            var tempArray;
 
-              return jqXHR;
-            }).catch(function(err){
-              console.log(err);
-            });
-          });
+            previewData = previewData.split(/[\n\r]+/);
+              
+            while (!foundSeq || count < previewData.length){
+              tempString = previewData[count];
+              if (tempString.startsWith('#CHROM')){
+
+                foundSeq = true;
+                tempArray = previewData[count].split(/[\s]+/);
+                var patientIds = tempArray.slice(tempArray.indexOf('FORMAT')+1);
+                
+                var options = {'patient_ids':patientIds,
+                               'Id': + Id,
+                               'size':(data.files[0].size/1000),
+                               'file-name':name}
+
+                //render page and add event handlers
+                var patientTableHtml = renderHbs('frangipani-add-multi-vcf.hbs',options);
+                var fileUploadHtml = renderHbs('frangipani-add-uploader-progress-bar.hbs', options);
+                $('#patient_information').append(patientTableHtml).closest('fieldset').show();
+                $('#patient_vcf').append(fileUploadHtml).closest('fieldset').show();
+                dynamicHandlers();
+                $('.patient_id').trigger('keyup');
+              }
+              count++;
+            }
+            //if there was no field with #CHROM found then assume improperly formatted vcf
+            if (count == previewData.length & !foundSeq){
+              throw new Error('Input File not in proper Format');
+            } else {
+
+
+              //set contect for latter referal
+              data.context = $(document).find('#fileNum' + Id);
+
+              //add event listeners to the internal cancel
+              data.context.find('.cancel-button').on('click',function(event){
+                event.preventDefault();
+                if (jqXHR) {
+                  jqXHR.abort();
+                  data.context.find('.progress').hide().children('span').css({'width':'0%'});
+                  data.context.find('p').removeClass('working').addClass('canceled').append("&nbsp&nbsp<span class='error'><i>Upload Canceled</i></span>");
+
+                }
+                $(document).find('.fileNum' + Id).parent().remove();
+                $(this).closest('#fileNum' + Id).parent().remove();
+                $(document).find('.patient_id').trigger('keyup');
+                
+
+              });
+
+              //add event listener to the hidden submit button
+              data.context.find('.submit-button').on('click',function(event){
+                event.preventDefault();
+                //validate the form and return a promise
+                var status = validateForm(data,Id);
+
+                status.then(function(uploadData){
+                  //submit the form with the validated data for the specific file.
+                  data.formData = uploadData;
+                  data.context.find('p').addClass('working');
+                  $(document).find('#info-fields').hide();
+                  $('#upload-button').hide(200);
+                  $('submit-all-button').off('click');
+
+                  jqXHR = data.submit();
+
+                }).catch(function(err){
+                  console.log(err)})
+              });
+            }
+          }
+          reader.readAsDataURL(data.files[0].slice(0,10*1024*10));
         }
       }, 
       //update a progress bar to track the upload process
       progress: function(e,data){
-        console.log(e.target);
-        console.log(data);
         var progress = parseInt(data.loaded,10)/parseInt(data.total,10)*100;
-        $('#upload-progress').animate({width:progress + '%'},0);
+        data.context.find('.progress').children('span').animate({width:progress + '%'},0);
       },
 
       //when the upload fails add an error class to the upload bar
       fail: function(e,data){
-        $('.progress').hide().children("#upload-progress").css({'width':'0%'});
-        $('#file-to-upload').removeClass('working').append("&nbsp&nbsp<span class='error'><i>File failed to upload properly</i></span>");
+        data.context.find('.progress').hide().children("span").css({'width':'0%'});
+        data.context.find('p').removeClass('working').append("&nbsp&nbsp<span class='error'><i>File failed to upload properly</i></span>");
 
       },
 
       //upon completion add checkmark and a 
       done: function(e,data){
-        console.log(e);
-        console.log(data);
-        $('.progress').addClass('success');
-        $('#file-to-upload').removeClass('working').append("&nbsp&nbsp<i class='fi-check size-16'><i>");
+        data.context.find('.progress').addClass('success');
+        data.context.find('p').removeClass('working').append("&nbsp&nbsp<i class='fi-check size-16'><i>");
+      },
+
+      //All files have been successfully uploaded
+      stop: function(e){
+        $('.button-group').hide(200).closest(document).find('#upload-button').show(200).off('click').text('Add More Files').on('click',function(event){
+          event.preventDefault();
+          $('#frangipani-add-new-patient').trigger('click');
+        })
       }
     });
   }
+
+
+
+
 
 
   //Render the page htmnl and display it adding handlers at the same time
@@ -343,8 +366,8 @@
       var html= renderHbs('frangipani-add-new-patient.hbs');
       settings.applicationMain.html(html);
       $(document).foundation(); //have to call this to enable the slider
-      formHandlers();
-      patientIdHandler();
+      staticHandlers();
+      dynamicHandlers();
       uploader();
       resolve();
     });
