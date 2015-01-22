@@ -1,20 +1,21 @@
 <div class="row">
-	<div class="large-12 columns new-file {{classId}}">
+	<div class="large-12 columns new-file fileNum{{Id}}">
 		{{#each patient_ids}}
 		<div class="row">
 			<div class="large-12 columns new-patients">
 				<div class="large-3 columns data-fieled">
-					<input type='text' value={{this}} placeholder="NA001" name="patient_id">
+					<input class='patient_id' type='text' value={{this}} placeholder="NA001" name="patient_id" required>
 					<small class="error" style="display:none;">Patient Identifier Already In use</small>
 				</div>
-				<div class="large-3 columns data-field">
+				<div class="large-2 columns data-field">
 					<input name="patient_alias" type='text' placeholder="">
 				</div>
 				<div class="large-2 columns data-field">
 					<input name="patient_phenotype" type='text'>
 				</div>
 				<div class="large-1 columns data-field">
-					<input name="age" type='text' placeholder="40">
+					<input class="age" name="age" type='text' placeholder="40">
+					<small class="error" style="display:none;">Must Be A number</small>
 				</div>
 				<div class="large-3 columns data-field">
 			      <div class="small-12 medium-12 columns right">  
@@ -25,6 +26,11 @@
 			          <li><a href="#" class="button tiny">N/A</a></li>
 			        </ul>
 			      </div>
+			    </div>
+			    <div class="large-1 columns">
+			    	<div class="small-12 medium-12">
+			    		<a href="#" class="button tiny radius remove-patient small-12"><i class="fi-x size-12"></i></a>
+			    	</div>
 			    </div>
 			</div>
 		</div>

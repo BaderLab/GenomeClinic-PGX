@@ -9,7 +9,7 @@
     <p>Files must be in the VCF format. Eeach file can have any number of samples within it, additionally you can add as many files as you want!. Once selected you can cancel any file upload to remove it from the queue. Make sure that you fill out the form as much as possilbe! the only field however that is required is a unique Patient Identifier. Have fun!</p>
   </div>
   <div class="large-12 columns">
-    <form id="jquery-new-patient-form">
+    <form id="jquery-new-patient-form" data-abide>
       <div class="row">
         <div class="large-4 columns left" style="top:30px;">
           <input id="fileselect" type="file" name="files[]" style="display:none" multiple></input>
@@ -17,19 +17,19 @@
         </div>
         <div class="large-4 columns right" style="top:30px;">
           <ul class="button-group even-2 round">
-            <li><a href="#" class="button alert" id="cancel-button"><i class="fi-x size-16"></i>&nbsp&nbspCancel</a></li>
-            <li><a href="#" class="button alert" id="submit-button"><i class="fi-upload size-16"></i>&nbsp&nbspSumbit</a></li>
+            <li><a href="#" class="button alert" id="cancel-all-button"><i class="fi-x size-16"></i>&nbsp&nbspCancel</a></li>
+            <li><a href="#" class="button alert" id="submit-all-button"><i class="fi-upload size-16"></i>&nbsp&nbspSumbit</a></li>
           </ul>
         </div>     
       </div>
-      <fieldset style="display:none" id="patient_information">
+      <fieldset style="display:none" id="info-fields">
         <legend>Patient Information</legend>
         <div class="row">
           <div class="large-12 columns">
             <div class="large-3 columns" style="text-align:center;">
               <h6>Patient Id</h6>
             </div>
-            <div class="large-3 columns" style="text-align:center;">
+            <div class="large-2 columns" style="text-align:center;">
               <h6>Patient Alias</h6>
             </div>
             <div class="large-2 columns" style="text-align:center;">
@@ -39,14 +39,25 @@
               <h6>Age</h6>
             </div>
             <div class="large-3 columns" style="text-align:center;">
-              <h style="text-align:center;">Sex</h6>
+              <h6 style="text-align:center;">Sex</h6>
+            </div>
+            <div class="large-1columns" style="text-align:center;">
+              <h6 style="text-align:center;">Remove</h6>
             </div>
             <hr>
           </div>
         </div>
+        <div class="row">
+          <div class="large-12 columns" id="patient_information">
+          </div>
+        </div>
       </fieldset>
-      <fieldset style="display:none;" id="patient_vcf">
+      <fieldset style="display:none;" id="upload-fields">
         <legend>Upload Files</legend>
+        <div class="row">
+          <div class="large-12 columns" id="patient_vcf">
+          </div>
+        </div>
       </fieldset>
     </form>
   </div>
