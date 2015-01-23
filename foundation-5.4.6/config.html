@@ -42,10 +42,173 @@
         </section>
       </nav>
     </div>
+
+
     <!-- Main body of page -->
-    <div>
-      <!-- EDIT HERE -->
+    <div id="frangipani-config-main">
+
+      <div class="row">
+        <div class="large-10 large-centered columns">
+          <h1>Welcome!</h1>
+          <h5 class="subheader">
+            We've built <i>Frangipani</i> to make genome interpretation easier for clinicians.
+          </h5>
+        </div>
+        <div class="large-10 large-centered columns">
+          <h2>Let's get you set up</h2>
+          <h5 class="subheader">
+            It's time to configure your Frangipani server. We've made some suggestions where possible
+            if you're not sure what to enter.
+          </h5>
+        </div>
+      </div>
+
+      <!-- Config form -->
+      <div class="row">
+        <div class="large-10 large-centered columns">
+
+          <form data-abide="ajax" id="frangipani-config-form">
+
+            <div class="row">
+              <div class="large-12 columns">
+                <div class="row collapse prefix-radius">
+                  <div class="large-3 columns">
+                    <span class="prefix">Your Institution's Name</span>
+                  </div>
+                  <div class="large-9 columns">
+                      <input type="text" id="frangipani-institution" name="institution" required/>
+                      <small class="error">Institution name required.</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="large-12 columns">
+                <span data-tooltip aria-haspopup="true" class="tip-left round" title="We promise not to spam you!">
+                  <div class="row collapse prefix-radius">
+                    <div class="large-3 columns">
+                      <span class="prefix">Administrator e-mail</span>
+                    </div>
+                      <div class="large-9 columns">
+                        <input type="email" name="admin-email" required />
+                        <small class="error">An email address is required.</small>
+                      </div>
+                  </div>
+                </span>
+              </div>
+            </div>
+
+            <fieldset>
+              <legend><a href="http://www.openbioinformatics.org/annovar/">Annovar</a> Settings</legend>
+
+              <div class="row">
+                <div class="large-12 columns">
+                  <div class="row collapse prefix-radius">
+                    <div class="large-3 columns">
+                      <span class="prefix">Annovar path</span>
+                    </div>
+                    <div class="large-9 columns">
+                      <input type="text" placeholder="e.g. /home/frangipani_server_user/annovar/" name="annovar-path" required />
+                      <small class="error">An Annovar path is required.</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row" id="frangipani-annovar-options">
+                <div class="large-6 columns">
+                  <div class="row">
+                    <div class="large-6 large-centered columns">
+                  <label>Genome builds</label>
+                  <div class="row">
+                    <div class="large-6 columns">
+                      <p>hg19</p>
+                    </div>
+                    <div class="large-6 columns">
+                      <div class="switch small radius">
+                         <!-- hg19 selected by default -->
+                        <input id="hg19RadioSwitch" type="radio" name="genome-build" value="hg19" checked>
+                        <label for="hg19RadioSwitch"></label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="large-6 columns">
+                      <p>hg18</p>
+                    </div>
+                    <div class="large-6 columns">
+                      <div class="switch small radius">
+                        <input id="hg18RadioSwitch" type="radio" name="genome-build" value="hg18">
+                        <label for="hg18RadioSwitch"></label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            </div>
+            </fieldset>
+
+            <div class="row">
+              <div class="large-7 column">
+                <div class="row collapse prefix-radius">
+                  <div class="large-10 columns">
+                    <span class="prefix">Maximum number of variants to output for any query</span>
+                  </div>
+                  <div class="large-2 columns">
+                    <input type="text" id="frangipani-max-records-slider-output" name="max-query-records" style="font-weight: bold; text-align: center;" pattern="[0-9]+" required></span>
+                    <small class="error">Please enter a number.</small>
+                  </div>
+                </div>
+              </div>
+              <div class="large-5 columns">
+                <div class="range-slider" id= "frangipani-max-records-slider" data-slider data-options="start: 100; end: 2000; display_selector: #frangipani-max-records-slider-output;" style="margin-top: 13px;">
+                  <span class="range-slider-handle" role="slider" tabindex="0"></span>
+                  <span class="range-slider-active-segment"></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="large-12 columns">
+                <div class="row collapse prefix-radius">
+                  <div class="large-3 columns">
+                    <span class="prefix">Default footer for reports</span>
+                  </div>
+                  <div class="large-9 columns">
+                    <input type="text" id="frangipani-footer" name="report-footer" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="large-12 columns">
+                <div class="row collapse prefix-radius">
+                  <div class="large-3 columns">
+                    <span class="prefix">Default disclaimer for reports</span>
+                  </div>
+                  <div class="large-9 columns">
+                    <textarea rows=11 id="frangipani-disclaimer" name="disclaimer"></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="large-6 columns"></div>
+              <div class="large-4 columns">
+                <button id="frangipani-config-form-button" class="button large round alert" type="submit"><i class="fa fa-hand-o-right"></i>&nbsp;Get started!</button>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
     </div>
+
 
     <!-- Footer - modified from the Foundatoin website -->
     <div class="zurb-footer-bottom">
@@ -67,8 +230,11 @@
       $(document).foundation();
     </script>
 
+    <!-- Handlebars template compiler -->
+    <script src="js/handlebars-v2.0.0.js"></script>
+
     <!-- My Javascript -->
-    <script src="js/frangipani.app.js"></script>
+    <script src="js/frangipani.config.js"></script>
 
   </body>
 </html>

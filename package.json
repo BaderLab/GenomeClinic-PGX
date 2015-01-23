@@ -9,6 +9,7 @@
 		"handlebars": "*",
 		"bluebird": "2.*",
 		"mongodb":"2.*",
-		"glob":"*"
+		"glob":"*",
+		"nomnom":"1.8.*"
 	}
 }
