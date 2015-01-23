@@ -1,6 +1,10 @@
 {{#each callSets}}
 <tr>
-	<td>{{name}}</td>
-	<td>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</td>
+	<td><a href="#"  class="frangipani-patient-link" data-patient-id={{id}} data-patient-name={{name}}>{{name}}</a></td>
+	<td class="text-center age">{{age}}</td>
+	<td class="text-center sex">{{sex}}</td>
+	<td class="text-center details">{{details}}</td>
+	<td>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam a massa quis sem eleifend bibendum.</td>
+	<td><input type="checkbox" class='large-12'/></td>
 </tr>
 {{/each}}

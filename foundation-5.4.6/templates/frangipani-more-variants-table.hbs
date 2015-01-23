@@ -1,0 +1,19 @@
+{{#each variants}}
+	<tr>
+		<td class='text-center'>{{referenceName}}</td>
+		<td>{{start}}</td>
+		<td>{{end}}</td>
+		<td class='text-center'>
+			<a href="http://www.ncbi.nlm.nih.gov/snp/?term={{names.[0]}}" target="_blank" data-rs-number={{names.[0]}}>{{names.[0]}}</a>
+		</td>
+		<td class='text-center'>{{referenceBases}}</td>
+		<td class='text-center'>{{alternateBases}}</td>
+		<td class='text-center'>{{genotypeCall}}</td>
+		<td class='text-center'>{{zygosity}}</td>
+		<td class='text-center'>{{quality}}</td>
+		<td class='text-center'>{{phase}}</td>
+		<!--For Later user in order to explore all 
+				patients with a given variant -->
+		<td class='text-center'><a href="#" class="button radius tiny secondary" data-variant-id={{names.[0]}}>explore</a></td>
+	</tr>
+{{/each}}

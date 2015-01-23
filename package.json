@@ -7,6 +7,10 @@
 		"request": "*",
 		"body-parser": "*",
 		"handlebars": "*",
-		"bluebird": "2.*"
+		"bluebird": "2.*",
+		"mongodb":"2.*",
+		"glob":"*",
+		"nomnom":"1.8.*",
+		"jquery-file-upload-middleware":"*"
 	}
 }
