@@ -2,3 +2,5 @@ node_modules/
 npm-debug.log
 upload/
 tmp/
+mongodb_data/
+old/
