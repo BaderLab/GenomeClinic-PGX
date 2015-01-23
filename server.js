@@ -82,6 +82,7 @@ app.get("/", function(request, response) {
 app.use("/datasets", routes.getRouter);
 app.use("/callsets/search", routes.postRouter);
 app.use("/variants/search",routes.postRouter);
+app.use("/config", routes.postRouter);
 
 app.listen(opts.portNumber);
 

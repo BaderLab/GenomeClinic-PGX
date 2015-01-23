@@ -126,9 +126,12 @@ var handler= function() {
 	$("#frangipani-max-records-slider").foundation("slider", "set_value", aux.MAX_RECORDS);
 
 	// Attached a listener to max records slider and associated input field
-	$("#frangipani-max-records-slider-output").on("change", function(event) {
+	var updateSlider= function(event) {
 		$("#frangipani-max-records-slider").foundation("slider", "set_value", $(this).val());		
-	});
+	};
+	$("#frangipani-max-records-slider-output")
+		.on("change", updateSlider)
+		.on("keyup", updateSlider);
 
 	// Set default footer
 	$("#frangipani-footer").val(aux.FOOTER);
@@ -138,7 +141,6 @@ var handler= function() {
 	var context= {
 		"annotations": aux.ANNOVAR_ANNOTATIONS
 	};
-
 	aux.asyncRenderHbs("frangipani-config-annovar-annotation.hbs", context)
 		.then(function(html) {
 			// append to DOM
@@ -153,6 +155,9 @@ var handler= function() {
 		console.log(invalid_fields);
 	})
 	$("#frangipani-config-form").on('valid.fndtn.abide', function () {
+		// Tell user we are submitting
+		$("#frangipani-config-form-button").text("Sending...");
+
 		// Valid form input
 		var formInput= aux.serializeObject($(this));
 
@@ -168,7 +173,18 @@ var handler= function() {
 				delete formInput[key];
 			}
 		}
-		formInput["annovar"]= annovarAnnotationList;
+		formInput["annovar-dbs"]= annovarAnnotationList;
+
+		var promise= Promise.resolve($.ajax({
+			url: "/config",
+			type: "POST",
+			contentType: "application/json",
+			dataType: "json",
+			data: JSON.stringify(formInput)
+		}));
+		promise.then(function(result) {
+			window.location.replace("/");  //redirect to home page
+		});
 	});
 
 };
