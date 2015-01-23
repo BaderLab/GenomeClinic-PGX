@@ -57,28 +57,22 @@ dbFunctions.connectAndInitializeDB()
 
 
 /* Check if /upload and /tmp directories exist. If not, creates them. */
-fs.statAsync('upload').then(function(result){
-	console.log('upload/ directory already exists')
-}).catch(function(err){
-	console.log('upload Folder does not exists...Creating');
-	return fs.mkdirAsync('upload').then(function(result){
-	console.log('Upload folder successfully created');
-	});
-}).catch(function(err){
-	console.log('cannot create upload folder');
-});
-
-fs.statAsync('tmp').then(function(result){
-	console.log('tmp/ directory already exists')
-}).catch(function(err){
-	console.log('tmp Folder does not exists...Creating');
-	return fs.mkdirAsync('tmp').then(function(result){
-	console.log('tmp folder successfully created');
-	});
-}).catch(function(err){
-	console.log('cannot create tmp folder');
-});
-
+var prerequisiteDirectories= ["upload", "tmp"];
+for (var i= 0; i < prerequisiteDirectories.length; ++i) {
+	// using an immediately-invoked function expression to keep scope across iterations
+	(function () {
+		var currentDirectory= prerequisiteDirectories[i];
+		fs.statAsync(currentDirectory).then(function(result){
+			// directory already exists
+		}).catch(function(err){
+			console.log(currentDirectory + ' directory does not exist. Created.');
+			return fs.mkdirAsync(currentDirectory);
+		}).catch(function(err){
+			console.log("Cannot create " + currentDirectory + " folder");
+			console.log(err);
+		});
+	})();
+}
 
 /* Serve static content (css files, js files, templates, etc) from the
  * foundation directory. */
