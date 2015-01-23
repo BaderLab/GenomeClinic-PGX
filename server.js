@@ -56,7 +56,7 @@ dbFunctions.connectAndInitializeDB()
 	});
 
 
-
+/* Check if /upload and /tmp directories exist. If not, creates them. */
 fs.statAsync('upload').then(function(result){
 	console.log('upload/ directory already exists')
 }).catch(function(err){
@@ -68,7 +68,6 @@ fs.statAsync('upload').then(function(result){
 	console.log('cannot create upload folder');
 });
 
-
 fs.statAsync('tmp').then(function(result){
 	console.log('tmp/ directory already exists')
 }).catch(function(err){
@@ -79,6 +78,7 @@ fs.statAsync('tmp').then(function(result){
 }).catch(function(err){
 	console.log('cannot create tmp folder');
 });
+
 
 /* Serve static content (css files, js files, templates, etc) from the
  * foundation directory. */
