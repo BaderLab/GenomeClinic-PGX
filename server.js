@@ -41,7 +41,6 @@ console.log("Server running on port " + opts.portNumber);
 
 
 /* Initialize the server. */
->>>>>>> dev
 var app= express();
 var configured= undefined;
 
