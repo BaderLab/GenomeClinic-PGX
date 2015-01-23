@@ -10,7 +10,7 @@
  * Written by Patrick Magee
 */
 var Promise = require("../node_modules/bluebird");
-var db = require("../frangipani_node_modules/DB");
+//var db = require("../frangipani_node_modules/DB");
 var fs = Promise.promisifyAll(require('fs')); 
 var path = require("path");
 var glob = Promise.promisifyAll(require("../node_modules/glob"));
@@ -117,7 +117,7 @@ function annotateAndAddVariants(options){
 			if (count1 !== count2){
 				throw new InvalidArgument("length of -annodb and -dbusage options does not match!");
 			} else {
-				databaseString = options['annodb'];
+				annodbString = options['annodb'];
 				dbusageString = options['dbusage'];
 			}
 
@@ -132,23 +132,31 @@ function annotateAndAddVariants(options){
 		.then(function(){
 			return fs.statAsync(annovarPath);
 		})
-		.then(function(){
+		//.then(function(){
 			//connect to localdatabse --> currently hardcoded modify to use config file
-			return db.connect('mongodb://localhost:27017/patientDB');
-		})
+		//	return db.connect('mongodb://localhost:27017/patientDB');
+		//})
 		.then(function(){
 			//create newTable and raise exception oif tablname already exists
-			return db.createTable(tableName);
+			return dbFunctions.createCollection(tableName);
+		})
+		.then(function(){
+
+			return dbFunctions.createIndex(tableName,{'Chr':1,'Start':1,'End':1});
+
 		})
 		.then(function(){
 
 			//add event logging
-			var annovarCmd = 'perl '  + annovarPath + '/table_annovar.pl ' +  
-				inputFile + ' ' + annovarPath + '/humandb/ -buildver hg19 -operation ' + dbusageString + '  -nastring . -vcfinput ' + 
+			var execPath = path.resolve(annovarPath + '/table_annovar.pl');
+			var dbPath = path.resolve(annovarPath + "/humandb/");
+			var logFile = path.resolve(annovarPath + "/log.txt");
+			var annovarCmd = 'perl \"'  + execPath +  "\" \"" + inputFile + '\" \"' + dbPath + '\"  -buildver hg19 -operation ' + dbusageString + '  -nastring . -vcfinput ' + 
 				'-protocol  ' + annodbString;
 
 			//run annovar command as a child process
-			return child_process.execAsync(annovarCmd);
+			return child_process.execAsync(annovarCmd,{maxBuffer:1000000*1024});
+
 		})
 		.then(function(err,stdout,stderr){
 			//if an error occurs during running annovarCmd raise a new error
@@ -162,7 +170,8 @@ function annotateAndAddVariants(options){
 		})
 		.then(function(){
 			//parse the contents of the temporary outfile with the parse.py script as a child process
-			var parserCmd = 'python ./parser.py ' + tempOutputFile + " " + outputFile;
+			var execPath = 'scripts/parser.py';
+			var parserCmd = 'python \"' + execPath + "\" \"" + tempOutputFile + "\" \"" + outputFile + "\"";
 			return child_process.execAsync(parserCmd);
 		})
 		.then(function(err,stdout,stderr){
@@ -198,7 +207,7 @@ function annotateAndAddVariants(options){
 		})
 		.each(function(docs){
 			//call the insertMany method on each list entry
-			return db.insertMany({tableName:tableName,documents:docs});
+			return dbFunctions.insertMany({tableName:tableName,documents:docs});
 		})
 		.then(function(docs){
 			//for future logging purposes
@@ -242,8 +251,12 @@ function annotateAndAddVariants(options){
 		})
 		*/
 		.catch(function(err){
-			console.log(err.message);
-			console.log(err.stack);
+			return dbFunctions.dropCollection(tableName)
+			.then(function(){
+				console.log(err);
+			}).catch(function(drop_err){
+				console.log(drop_err);
+			})
 		})
 		.done(function(){
 			//Cleanup, remove files and close db connection

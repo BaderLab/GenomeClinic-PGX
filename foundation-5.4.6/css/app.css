@@ -22,6 +22,22 @@
 
 .size-96 { font-size: 96px; }
 
+
+.spacer {
+  margin-top: 10px;
+  margin-bottom:10px;
+}
+
+.sex {
+  font-weight: bold;
+  text-align: center;
+}
+
+.age {
+  font-weight:bold;
+  text-align:center;
+}
+
 #frangipani-title-description {
   position: relative;
   padding-top: 20px;

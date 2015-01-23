@@ -10,6 +10,7 @@
 		"bluebird": "2.*",
 		"mongodb":"2.*",
 		"glob":"*",
-		"nomnom":"1.8.*"
+		"nomnom":"1.8.*",
+		"jquery-file-upload-middleware":"*"
 	}
 }
