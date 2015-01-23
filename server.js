@@ -49,6 +49,8 @@ dbFunctions.connectAndInitializeDB()
 	.catch(function(err) {
 		console.error(err.toString());
 		console.error(err.stack);
+		console.log("Exiting due to connection error with DB server.");
+		process.exit(1);
 	});
 
 
