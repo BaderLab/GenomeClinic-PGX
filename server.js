@@ -74,6 +74,7 @@ for (var i= 0; i < prerequisiteDirectories.length; ++i) {
 	})();
 }
 
+
 /* Serve static content (css files, js files, templates, etc) from the
  * foundation directory. */
 app.use(express.static("foundation-5.4.6", {index: false}));
