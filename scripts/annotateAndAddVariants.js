@@ -15,7 +15,8 @@ var fs = Promise.promisifyAll(require('fs'));
 var path = require("path");
 var glob = Promise.promisifyAll(require("../node_modules/glob"));
 var child_process=Promise.promisifyAll(require('child_process'));
-
+var dbConstants = require('../frangipani_node_modules/mongodb_constants');
+var temp = Promise.promisifyAll(require('../node_modules/temp'));
 
 
 //Custom Errors for event handling
@@ -63,18 +64,28 @@ AnnovarError.prototype.constructor = AnnovarError;
  * 'options' which is a js object that contains the following arguments:
  *
  * input: path to input file in vcf format. REQUIRED
- * output: path to output json object in json format.  REQUIRED (currently) -> furture set to temp file
- * table: name of table to add entries to. REQUIRED -> future set to auto assign
- * annodb: "comma separated list of annovar databases to use for annotation". OPTIONAL
- * dbusage: if database provided you MUST provide this comma separated list of g/f/r telling annovar the type of db. OPTIONAL
- * annovarpath: specify the home directory of annovar to point to. OPTIONAL -> default set. -> future us config file to set defaul
-
+ * patients: an array with objects corresponding to individual patients with a mapped table property
+ * 
  */
 
+var getTempName = function(array){
+	var tempList {};
+	var promise = new Promise(function(resolve,reject){
+		for ( var i=0; i<array.length; i++ ){
+			tempList[array[i]['patient_id']] = temp.path({
+			dir:'C:\\Users\\Patrick\\Documents\\BaderLab\\Projects\\Frangipani\\tmp',
+			prefix:array[i]['patient_id'],
+			suffix:'.json'});
+		}
+		resolve(tempList);
+	})
+	return promise;
+};
 
 function annotateAndAddVariants(options){
 	//new promise to return
 	var promise = new Promise(function(resolve,reject){
+		/*
 		if (!options['annovarpath']){
 			annovarPath = '/Users/patrickmagee/Tools/annovar'; // hard coded annovarpath --once on server to be set from config file
 			//throw new InvalidArgument("AnnovarPath not provided");
@@ -127,30 +138,46 @@ function annotateAndAddVariants(options){
 			dbusageString = 'g,f,f,f,f,f,f,f,f,f,f';
 		}
 
+		*/
+		var annovarPath
+		var annodbString;
+		var dbusageString;
+		var inputFile = path.resolve(options['input']);
+		var tempOutputFile = inputFile + '.hg19_multianno.txt';
+		var tempFiles;
+
 		//Check to see whether input file exists and if annovarPath exists
-		fs.statAsync(inputFile)
-		.then(function(){
+		dbFunctions.find('admin',{},{'annovar-path':1,'annovar-dbs':1})
+		.then(function(result){
+			annodbString = 'refgene'//result[0]['annovar-dbs'].join();
+			annovarPath = result[0]['annovar-path'];
+			dbusageString = 'g'//result[0]['annovar-usage'].join();
+			//dbusage = result[0]['annovar-usage']
+		}).then(function(){
+			return fs.statAsync(inputFile)
+		}).then(function(){
 			return fs.statAsync(annovarPath);
-		})
-		//.then(function(){
-			//connect to localdatabse --> currently hardcoded modify to use config file
-		//	return db.connect('mongodb://localhost:27017/patientDB');
-		//})
-		.then(function(){
+		}).then(function(){
+			return getTempName(options['patients']);
+		}).then(function(tempList){
+			tempFiles = tempList;
+		}).then(function(){
+			return options['patients'];
+		}).each(function(patient){
 			//create newTable and raise exception oif tablname already exists
+			var tableName = patient[dbConstants['COLLECTION_ID_FIELD']];
 			return dbFunctions.createCollection(tableName);
-		})
-		.then(function(){
-
+		}).then(function(){
+			return options['patient'];
+		}).each(function(patient){
+			var tableName = patient[dbConstants['COLLECTION_ID_FIELD']];
 			return dbFunctions.createIndex(tableName,{'Chr':1,'Start':1,'End':1});
-
-		})
-		.then(function(){
+		}).then(function(){
 
 			//add event logging
 			var execPath = path.resolve(annovarPath + '/table_annovar.pl');
 			var dbPath = path.resolve(annovarPath + "/humandb/");
-			var logFile = path.resolve(annovarPath + "/log.txt");
+			//var logFile = path.resolve(annovarPath + "/log.txt");
 			var annovarCmd = 'perl \"'  + execPath +  "\" \"" + inputFile + '\" \"' + dbPath + '\"  -buildver hg19 -operation ' + dbusageString + '  -nastring . -vcfinput ' + 
 				'-protocol  ' + annodbString;
 
@@ -167,6 +194,9 @@ function annotateAndAddVariants(options){
 		.then(function(){
 			//check to ensure the tempOutFile was created
 			return fs.statAsync(tempOutputFile);
+		}).then(function(){
+			var path = temp.path({dir:'C:\\Users\\Patrick\\Documents\\BaderLab\\Projects\\Frangipani\\tmp',suffix:'.json');
+			return fs.writeFileAsync(path,JSON.stringify(tempFiles))
 		})
 		.then(function(){
 			//parse the contents of the temporary outfile with the parse.py script as a child process
