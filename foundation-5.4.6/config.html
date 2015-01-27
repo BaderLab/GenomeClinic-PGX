@@ -120,34 +120,60 @@
                 <div class="large-6 columns">
                   <div class="row">
                     <div class="large-6 large-centered columns">
-                  <label>Genome builds</label>
+                      <label>Genome builds</label>
+                      <div class="row">
+                        <div class="large-6 columns">
+                          <p>hg19</p>
+                        </div>
+                        <div class="large-6 columns">
+                          <div class="switch small radius">
+                             <!-- hg19 selected by default -->
+                            <input id="hg19RadioSwitch" type="radio" name="genome-build" value="hg19" checked>
+                            <label for="hg19RadioSwitch"></label>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="large-6 columns">
+                          <p>hg18</p>
+                        </div>
+                        <div class="large-6 columns">
+                          <div class="switch small radius">
+                            <input id="hg18RadioSwitch" type="radio" name="genome-build" value="hg18">
+                            <label for="hg18RadioSwitch"></label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div> 
+                  <div class="row">
+                    <div class="large-6 large-centered columns" style="top:20px;">
+                  <label>Defaul Annotation</label>
                   <div class="row">
                     <div class="large-6 columns">
-                      <p>hg19</p>
+                      <p>Refgene</p>
                     </div>
                     <div class="large-6 columns">
                       <div class="switch small radius">
-                         <!-- hg19 selected by default -->
-                        <input id="hg19RadioSwitch" type="radio" name="genome-build" value="hg19" checked>
-                        <label for="hg19RadioSwitch"></label>
+                         <!-- Refgene selected by default -->
+                        <input id="refgeneRadioSwitch" type="radio" name="default-annotation" value="refgene" checked>
+                        <label for="refgeneRadioSwitch"></label>
                       </div>
                     </div>
                   </div>
                   <div class="row">
                     <div class="large-6 columns">
-                      <p>hg18</p>
+                      <p>UCSC</p>
                     </div>
                     <div class="large-6 columns">
                       <div class="switch small radius">
-                        <input id="hg18RadioSwitch" type="radio" name="genome-build" value="hg18">
-                        <label for="hg18RadioSwitch"></label>
+                        <input id="knowngeneRadioSwitch" type="radio" name="default-annotation" value="knowngene">
+                        <label for="knwongeneRadioSwitch"></label>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-            </div>
             </fieldset>
 
             <div class="row">
