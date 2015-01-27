@@ -16,7 +16,7 @@ var path = require("path");
 var glob = Promise.promisifyAll(require("../node_modules/glob"));
 var child_process=Promise.promisifyAll(require('child_process'));
 var dbConstants = require('../frangipani_node_modules/mongodb_constants');
-var temp = Promise.promisifyAll(require('../node_modules/temp'));
+var Parser = require('./parseVCF');
 
 
 //Custom Errors for event handling
@@ -68,83 +68,14 @@ AnnovarError.prototype.constructor = AnnovarError;
  * 
  */
 
-var getTempName = function(array){
-	var tempList {};
-	var promise = new Promise(function(resolve,reject){
-		for ( var i=0; i<array.length; i++ ){
-			tempList[array[i]['patient_id']] = temp.path({
-			dir:'C:\\Users\\Patrick\\Documents\\BaderLab\\Projects\\Frangipani\\tmp',
-			prefix:array[i]['patient_id'],
-			suffix:'.json'});
-		}
-		resolve(tempList);
-	})
-	return promise;
-};
-
 function annotateAndAddVariants(options){
 	//new promise to return
 	var promise = new Promise(function(resolve,reject){
-		/*
-		if (!options['annovarpath']){
-			annovarPath = '/Users/patrickmagee/Tools/annovar'; // hard coded annovarpath --once on server to be set from config file
-			//throw new InvalidArgument("AnnovarPath not provided");
-		} else {
-			var annovarPath = path.resolve(options['annovarpath']);
-		}
-		//check for input file. if not defined or not vcf raise error
-		if (!options['input']){
-			throw new InputError("Input file path not provided");
-		} else if (!(path.extname(options['input']) == ".vcf")){
-			throw new InputError("Input file must be vcf format");
-		} else {
-			var inputFile = path.resolve(options['input']);
-			var tempOutputFile = inputFile + '.hg19_multianno.txt';
-		}
-		//check for table name 
-		if (!options['table']){ //Eventually to be removed in place of table meta data information. ie. patient name and such
-			throw new InputError("Table name not provided"); 
-		} else {
-			var tableName = options['table'];
-		}
-
-		//check for output file if not provided raise error
-		if (!options['output']){
-			throw new InputError("Output file path not provided");
-		} else {
-			var outputFile = path.resolve(options['output']);
-		} if (options['annodb'] & !options['dbusage'] || //If different annotations go be done other then default
-			!options['annodb'] & options['dbusage']){
-			throw new InvalidArgument("Annotation options provided, please provide dbusage and database options");
-		}
-
-		//set annovar database variables
-		var annodbString;
-		var dbusageString;
-		//check to ensure matching leng of arguments between dbusage and database
-		if (options['annodb']){ 
-			var count1 = (options['annodb'].match(/,/g) || []).length;
-			var count2 = (options['dbusage'].match(/,/g) || []).length;
-			if (count1 !== count2){
-				throw new InvalidArgument("length of -annodb and -dbusage options does not match!");
-			} else {
-				annodbString = options['annodb'];
-				dbusageString = options['dbusage'];
-			}
-
-		} else {
-			//default values
-			annodbString = 'refgene,esp6500_all,ljb26_all,clinvar_20140929,cg69,1000g2014sep_amr,1000g2014sep_eas,1000g2014sep_afr,1000g2014sep_eur,1000g2014sep_sas,1000g2014sep_all';
-			dbusageString = 'g,f,f,f,f,f,f,f,f,f,f';
-		}
-
-		*/
 		var annovarPath
 		var annodbString;
 		var dbusageString;
 		var inputFile = path.resolve(options['input']);
-		var tempOutputFile = inputFile + '.hg19_multianno.txt';
-		var tempFiles;
+		var tempOutputFile;
 
 		//Check to see whether input file exists and if annovarPath exists
 		dbFunctions.find('admin',{},{'annovar-path':1,'annovar-dbs':1})
@@ -155,25 +86,23 @@ function annotateAndAddVariants(options){
 			//dbusage = result[0]['annovar-usage']
 		}).then(function(){
 			return fs.statAsync(inputFile)
+		}).then(function(result){
+			var newFile = inputFile.replace(/\(|\)/gi,"").replace(/\s/gi,"_");
+			return fs.renameAsync(inputFile,newFile).then(function(){
+				inputFile = newFile;
+				tempOutputFile = inputFile + '.hg19_multianno.txt';
+			});
 		}).then(function(){
 			return fs.statAsync(annovarPath);
-		}).then(function(){
-			return getTempName(options['patients']);
-		}).then(function(tempList){
-			tempFiles = tempList;
 		}).then(function(){
 			return options['patients'];
 		}).each(function(patient){
 			//create newTable and raise exception oif tablname already exists
-			var tableName = patient[dbConstants['COLLECTION_ID_FIELD']];
-			return dbFunctions.createCollection(tableName);
+			var collectionName = patient[dbConstants['COLLECTION_ID_FIELD']];
+			return dbFunctions.createCollection(collectionName).then(function(){
+				return dbFunctions.createIndex(collectionName,{'Chr':1,'Start':1,'End':1});
+			}).catch(function(err){console.log(err.stack)});
 		}).then(function(){
-			return options['patient'];
-		}).each(function(patient){
-			var tableName = patient[dbConstants['COLLECTION_ID_FIELD']];
-			return dbFunctions.createIndex(tableName,{'Chr':1,'Start':1,'End':1});
-		}).then(function(){
-
 			//add event logging
 			var execPath = path.resolve(annovarPath + '/table_annovar.pl');
 			var dbPath = path.resolve(annovarPath + "/humandb/");
@@ -183,7 +112,6 @@ function annotateAndAddVariants(options){
 
 			//run annovar command as a child process
 			return child_process.execAsync(annovarCmd,{maxBuffer:1000000*1024});
-
 		})
 		.then(function(err,stdout,stderr){
 			//if an error occurs during running annovarCmd raise a new error
@@ -195,60 +123,20 @@ function annotateAndAddVariants(options){
 			//check to ensure the tempOutFile was created
 			return fs.statAsync(tempOutputFile);
 		}).then(function(){
-			var path = temp.path({dir:'C:\\Users\\Patrick\\Documents\\BaderLab\\Projects\\Frangipani\\tmp',suffix:'.json');
-			return fs.writeFileAsync(path,JSON.stringify(tempFiles))
-		})
-		.then(function(){
-			//parse the contents of the temporary outfile with the parse.py script as a child process
-			var execPath = 'scripts/parser.py';
-			var parserCmd = 'python \"' + execPath + "\" \"" + tempOutputFile + "\" \"" + outputFile + "\"";
-			return child_process.execAsync(parserCmd);
-		})
-		.then(function(err,stdout,stderr){
-			//if an error occurs during running of parse.py raise new error
-			if (stderr != null){
-				throw new ParseError(err);
-			} 
-		})
-		.then(function(){
-			//check to ensure outputfile successfully created
-			return fs.statAsync(outputFile);
-		})	
-		.then(function(){
-			//read data from parsed file and load it into node
-			return fs.readFileAsync(outputFile).then(JSON.parse);
-		})
-		.then(function(data){
-			var tempList = [];
-			var maxInput = data.length;
-			//bulk write operations are currently limited to 1000 entries,
-			//therefore you need to split the entries int smaller chuncks
-			// of 1000
-			for (var i = 0; i < maxInput; i+=1000){
-				var max;
-				if (i + 999 > maxInput){
-					max = maxInput;
-				} else {
-					max = i + 1000;
-				}
-				tempList.push(data.slice(i,max));
-			} 
-			return tempList;
-		})
-		.each(function(docs){
-			//call the insertMany method on each list entry
-			return dbFunctions.insertMany({tableName:tableName,documents:docs});
-		})
-		.then(function(docs){
-			//for future logging purposes
-			var totalLength= 0;
-			for (var i = 0; i < docs.length; i++)
-				totalLength += docs[i].length;
-			return totalLength;
-		})
-		.then(function(length){
-			resolve('completed Annotation and uploaded ' + length + ' entries');
-		})
+			var parser = new Parser(tempOutputFile,options['patients'],dbFunctions);
+			return parser.read();
+		}).then(function(){
+			resolve('completed Annotation and uploaded  entries');
+		}).catch(function(err){
+			//Need more robust error handler here for solving issues
+			console.log(err);
+		}).done(function(){
+			//Cleanup, remove files and close db connection
+			return glob.globAsync(inputFile + "*")
+			.each(function(file){
+				return fs.unlinkAsync(file);
+			})
+		});
 		/*
 		*  Custom error handlers for future use
 		* 
@@ -280,6 +168,7 @@ function annotateAndAddVariants(options){
 			reject(err);
 		})
 		*/
+		/*
 		.catch(function(err){
 			return dbFunctions.dropCollection(tableName)
 			.then(function(){
@@ -288,25 +177,13 @@ function annotateAndAddVariants(options){
 				console.log(drop_err);
 			})
 		})
-		.done(function(){
-			//Cleanup, remove files and close db connection
-			glob.globAsync(inputFile + ".*")
-			.each(function(file){
-				return fs.unlinkAsync(file);
-			})
-			.then(function(){
-				return fs.unlinkAsync(outputFile);
-			})
-			.then(function(){
-				if (db.db){
-					db.db.close();
-				}
-			})
+*/
+/*		
 			.catch(function(err){
 				//do nothing
 				return null;
 			});
-		})
+		})*/
 			
 	});
 	
