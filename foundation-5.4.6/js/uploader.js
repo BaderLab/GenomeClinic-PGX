@@ -45,13 +45,11 @@
 
     //trigger the hidden submit buttons that the uploader is boud too
     $("#submit-all-button").on('click',function(event){
-      event.preventDefault();
       $(document).find(".submit-button").trigger('click');
     })
 
     //Cancel this data transfer AND take back to add file button
     $("#cancel-all-button").on("click",function(event){
-      event.preventDefault();
       $('.canel-button').trigger('click');
       $('#patient_information').empty().closest('fieldset').hide();
       $('#patient_vcf').empty().closest('fieldset').hide();
@@ -236,10 +234,6 @@
         if (!(name.endsWith('.vcf'))){
           alert("Invalid File, please choose a file that ends in .vcf extension");
         } else {
-          if (name.length > 20){
-              name = "..." + name.substr(-20);
-          }
-
           //preview the first megabyte of the file, parse patient names and dynmaically
           //determine how many potential patiennts are included in a single file.
           numberFiles++
