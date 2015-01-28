@@ -4,3 +4,4 @@ upload/
 tmp/
 mongodb_data/
 old/
+annovar/
