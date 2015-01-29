@@ -135,8 +135,8 @@ var getPatients= function() {
 		contentType: "application/json",
 	}))
 	.then(function(result) {
-		var context= //////////////////////// CONTINUE HERE {
-			"callSets": result["callSets"]
+		var context= {
+			"patients": result
 		};
 	});
 
@@ -768,7 +768,7 @@ var addProjectEventListeners= function() {
 
 var app= function() {
 	settings.applicationMain= $("#frangipani-app-main");
-	clickAction($("#frangipani-browse-button"), getProjects);
+	clickAction($("#frangipani-browse-button"), getPatients);
 };
 /* App components */
 var refresh= function() {
