@@ -1,3 +1,5 @@
+{{!-- Put quotes around attributes that may have spaces, or handlebars will 
+      only output the first word. --}}
 <div class="row">	
 	<div class="large-12 columns">
 		<h2><i class="fi-page-multiple"></i> All Patients ({{patients.length}})</h2>
@@ -5,13 +7,24 @@
 </div>
 <div class="row">
 	<div class="large-12 large-centered columns">
-		<table>
+		<table class="large-12">
+			<thead>
+				<tr>
+					<th>Patient Alias</th>
+					<th>ID</th>
+					<th>Sex</th>
+					<th>Age</th>
+					<th>Date Uploaded</th>
+				</tr>
+			</thead>
 			<tbody>
 				{{#each patients}}
-				<tr>
-					{{!-- Put quotes around attributes that may have spaces, or handlebars
-					will only output the first word. --}}
-					<td><a href="#">{{this}}</a></td>
+				<tr class="patient-row">
+					<td>{{patient_alias}}</a></td>
+					<td>{{patient_id}}</td>
+					<td>{{sex}}</td>
+					<td>{{age}}</td>
+					<td>{{date}}</td>
 				</tr>
 				{{/each}}
 			</tbody>

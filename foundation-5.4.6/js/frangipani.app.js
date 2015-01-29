@@ -138,6 +138,7 @@ var getPatients= function() {
 		var context= {
 			"patients": result
 		};
+		return context;
 	});
 
 	return promise;
@@ -765,11 +766,30 @@ var addProjectEventListeners= function() {
 /*
 * Main app function.
 */
-
 var app= function() {
 	settings.applicationMain= $("#frangipani-app-main");
-	clickAction($("#frangipani-browse-button"), getPatients);
+
+	// Create a promise function to wrap our browse button tasks
+	var getPatientFunction= function() {
+		return getPatients()
+			.then(function(result) {
+				clearApplicationMain();
+
+				var context= result;
+
+				return asyncRenderHbs('frangipani-patients.hbs', context)
+			})
+			.then(function(html) {
+				settings.applicationMain.append(html);
+
+				// Add event listeners and refresh jQuery DOM objects.
+				addProjectEventListeners();
+				refresh();
+			});
+	}
+	clickAction($("#frangipani-browse-button"), getPatientFunction);
 };
+
 /* App components */
 var refresh= function() {
 	settings.patientTable= $("#frangipani-project-details");
