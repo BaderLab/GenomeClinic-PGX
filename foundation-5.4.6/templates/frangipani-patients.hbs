@@ -2,7 +2,7 @@
       only output the first word. --}}
 <div class="row">	
 	<div class="large-12 columns">
-		<h2><i class="fi-page-multiple"></i> All Patients ({{patients.length}})</h2>
+		<h2><i class="fi-torsos-all"></i> All Patients (<strong><em>{{patients.length}}</em></strong>)</h2>
 	</div>
 </div>
 <div class="row">
@@ -21,7 +21,7 @@
 				{{#each patients}}
 				<tr class="patient-row">
 					<td>{{patient_alias}}</a></td>
-					<td>{{patient_id}}</td>
+					<td class="frangipani-patient-id">{{patient_id}}</td>
 					<td>{{sex}}</td>
 					<td>{{age}}</td>
 					<td>{{date}}</td>

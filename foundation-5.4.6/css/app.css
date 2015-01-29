@@ -152,7 +152,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Show the hover cursor and change shading when you hover on this table row. */
 tr.patient-row:hover {
   cursor: pointer;
-  background-color: #B2D1FF; 
+  background-color: #B2D1FF;
 }
 
 

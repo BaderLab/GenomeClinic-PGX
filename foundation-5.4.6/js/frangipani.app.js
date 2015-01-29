@@ -760,6 +760,12 @@ var loadPatientsOnScroll= function(addContentFunction,ref,options) {
 var addProjectEventListeners= function() {
 	clickAction($(".frangipani-project-name"), getProjectPatients, {}, true);
 	$('.frangipani-project-name').on('click',toggleProjectsSideBar);
+
+	// Listen for row clicks and then select the patient ID child
+	$("tr.patient-row").on("click", function() {
+		var selectedPatientID= $(this).children("[class~='frangipani-patient-id']").text();
+		console.log(selectedPatientID);
+	});
 };
 
 
