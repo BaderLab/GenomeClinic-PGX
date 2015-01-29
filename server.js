@@ -108,6 +108,7 @@ app.use("/variants/search",routes.postRouter);
 app.use("/upload/vcf",routes.uploadRouter);
 app.use("/database/getPatients", routes.getPatients);
 app.use("/config", routes.postRouter);
+app.use('/database/find',routes.getPatients);
 app.use("/patients", routes.getRouter);
 
 app.listen(opts.portNumber);
