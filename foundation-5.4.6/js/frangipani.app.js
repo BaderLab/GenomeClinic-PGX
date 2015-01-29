@@ -112,7 +112,7 @@ var getProjects= function() {
 	settings.currentData = undefined;
 	unbindScroll();
 	var promise= Promise.resolve($.ajax({
-		url: "/datasets",  // Need the "http://" here or will get CORS error
+		url: "/datasets",
 		type: "GET",
 		contentType: "application/json",
 	}));
@@ -120,6 +120,27 @@ var getProjects= function() {
 	return promise.then( function(result) {
 		updateProjectTable(result);
 	});
+};
+
+/* AJAX call to application server to retrieve patients.
+ * This is based on the local MongoDB collections, not GA4GH. */
+var getPatients= function() {
+	settings.currentData = undefined;
+	unbindScroll();
+
+	//Promise Function
+	var promise= Promise.resolve($.ajax({
+		url: "/patients",
+		type: "GET",
+		contentType: "application/json",
+	}))
+	.then(function(result) {
+		var context= //////////////////////// CONTINUE HERE {
+			"callSets": result["callSets"]
+		};
+	});
+
+	return promise;
 };
 
 /* Get patients from this project. Project details are passed in via
