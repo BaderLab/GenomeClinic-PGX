@@ -54,6 +54,12 @@
       $('#patient_information').empty().closest('fieldset').hide();
       $('#patient_vcf').empty().closest('fieldset').hide();
     });
+
+
+    //Go to the status page to check current status
+    $('#go-to-status').on('click',function(event){
+      $("#frangipani-status-page").trigger('click');
+    });
   };
 
 
@@ -225,6 +231,7 @@
     $("#fileselect").fileupload({
       //default pathway for vcf upload
       url:'/upload/vcf',
+      sequentialUploads: true,
       add: function(e,data){
         //empty variable for later binding of the submission event
         var jqXHR;
@@ -341,7 +348,10 @@
 
       //All files have been successfully uploaded
       stop: function(e){
-        $('.button-group').hide(200).closest(document).find('#upload-button').show(200).off('click').text('Add More Files').on('click',function(event){
+        $('.button-group').hide(200)
+        .parents().find("#go-to-status").show(200)
+        .closest(document).find('#upload-button').show(200)
+        .off('click').text('Add More Files').on('click',function(event){
           event.preventDefault();
           $('#frangipani-add-new-patient').trigger('click');
         })

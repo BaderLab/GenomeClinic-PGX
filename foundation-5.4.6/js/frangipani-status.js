@@ -9,8 +9,15 @@
 	 * made to the connected database. It is triggered whenever the mouse
 	 * enters into the table.
 	 */
+/*	var removeTimer = function(){
+		$('.top-bar-section').find('a').on('mouseup',function(){
+						clearInterval(timer);
+		}).closest(document).find('.top-bar-section').find('a').off('mouseup');
+	};*/
+
 	var refresh = function(){
-		$('#frangipani_patient_status').closest('div').on('mouseenter',function(){
+		var timer = window.setInterval(function(){
+		//$('#frangipani_patient_status').closest('div').setInterval(function(){//on('mouseenter',function()
 				var promise = new Promise(function(resolve,reject){
 				var patientArray;
 				var promise = Promise.resolve($.ajax({
@@ -23,8 +30,6 @@
 					'query':{}
 					})
 				}));
-
-
 				promise.then(function(result){
 					result.reverse();
 					patientArray = result;
@@ -36,8 +41,8 @@
 								patientArray[i]['icon'] = 'fi-check size-24'
 								patientArray[i]['style'] = "color:#66CD00;"
 							} else {
-								patientArray[i]['icon'] = "fi-x size-24"	
-								patientArray[i]['style'] = "color:#FF0000"
+								patientArray[i]['icon'] = "fa fa-cog fa-spin"	
+								patientArray[i]['style'] = "color:#3399FF"
 							}	
 						}
 						//If new file added
@@ -58,9 +63,11 @@
 					var currentRows = $("#frangipani_patient_status").children();
 					for (var i=0;i<patientArray.length;i++){
 						if (patientArray[i]['ready']){
-							$(currentRows[i]).find('.check').html('<i class="fi-check size-24" style="color:#66CD00;"></i>');
+							if(!$(currentRows[i]).find('i').hasClass('fi-check'))
+								$(currentRows[i]).find('.check').html('<i class="fi-check size-24" style="color:#66CD00;"></i>');
 						} else {
-							$(currentRows[i]).find('.check').html('<i class="fi-x size-24" style="color:#FF0000;"></i>');
+							if(!$(currentRows[i]).find('i').hasClass('fa-cog'))
+								$(currentRows[i]).find('.check').html('<i class="fa fa-cog fa-spin" style="color:#3399FF;"></i>');
 						}
 					}
 				}).then(function(){
@@ -68,8 +75,16 @@
 				});
 			});
 			return promise;
+		},5000);
+		
+
+		// remove the click timer and remove the event handler
+		$('.top-bar-section').find('a').on('click.one',function(){
+			clearInterval(timer);
+			$(this).closest(document).find('.top-bar-section').find('a').off('click.one');
 		});
-	}
+		
+	};
 
 	/* Add the html to the page, populating the table and adding event
 	 * handlers
@@ -93,11 +108,11 @@
 			promise.then(function(result){
 				for (var i=0;i<result.length;i++){
 					if (result[i]['ready']){
-						result[i]['ready'] = 'fi-check size-24'
+						result[i]['icon'] = 'fi-check size-24'
 						result[i]['style'] = "color:#66CD00;"
 					} else {
-						result[i]['ready'] = "fi-x size-24"	
-						result[i]['style'] = "color:#FF0000"
+						result[i]['icon'] = "fa fa-cog fa-spin"	
+						result[i]['style'] = "color:#3399FF"
 					}	
 				}
 				patientArray = {patients:result.reverse()};
@@ -112,6 +127,7 @@
 			}).then(function(){
 				$(document).foundation();
 				refresh();
+				//removeTimer();
 				resolve("done");
 			})
 		})
