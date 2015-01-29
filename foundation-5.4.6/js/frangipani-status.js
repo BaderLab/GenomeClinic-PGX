@@ -41,8 +41,8 @@
 								patientArray[i]['icon'] = 'fi-check size-24'
 								patientArray[i]['style'] = "color:#66CD00;"
 							} else {
-								patientArray[i]['icon'] = "fa fa-cog fa-spin"	
-								patientArray[i]['style'] = "color:#3399FF"
+								patientArray[i]['icon'] = "fa fa-spinner fa-spin"	
+								patientArray[i]['style'] = "color:#3399FF;font-size:1.5em;"
 							}	
 						}
 						//If new file added
@@ -66,8 +66,8 @@
 							if(!$(currentRows[i]).find('i').hasClass('fi-check'))
 								$(currentRows[i]).find('.check').html('<i class="fi-check size-24" style="color:#66CD00;"></i>');
 						} else {
-							if(!$(currentRows[i]).find('i').hasClass('fa-cog'))
-								$(currentRows[i]).find('.check').html('<i class="fa fa-cog fa-spin" style="color:#3399FF;"></i>');
+							if(!$(currentRows[i]).find('i').hasClass('fa-spinner'))
+								$(currentRows[i]).find('.check').html('<i class="fa fa-spinner fa-spin" style="color:#3399FF;font-size:1.5em;"></i>');
 						}
 					}
 				}).then(function(){
@@ -111,8 +111,8 @@
 						result[i]['icon'] = 'fi-check size-24'
 						result[i]['style'] = "color:#66CD00;"
 					} else {
-						result[i]['icon'] = "fa fa-cog fa-spin"	
-						result[i]['style'] = "color:#3399FF"
+						result[i]['icon'] = "fa fa-spinner fa-spin"	
+						result[i]['style'] = "color:#3399FF;font-size:1.5em;"
 					}	
 				}
 				patientArray = {patients:result.reverse()};
