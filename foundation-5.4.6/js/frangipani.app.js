@@ -112,7 +112,7 @@ var getProjects= function() {
 	settings.currentData = undefined;
 	unbindScroll();
 	var promise= Promise.resolve($.ajax({
-		url: "/datasets",  // Need the "http://" here or will get CORS error
+		url: "/datasets",
 		type: "GET",
 		contentType: "application/json",
 	}));
@@ -120,6 +120,28 @@ var getProjects= function() {
 	return promise.then( function(result) {
 		updateProjectTable(result);
 	});
+};
+
+/* AJAX call to application server to retrieve patients.
+ * This is based on the local MongoDB collections, not GA4GH. */
+var getPatients= function() {
+	settings.currentData = undefined;
+	unbindScroll();
+
+	//Promise Function
+	var promise= Promise.resolve($.ajax({
+		url: "/patients",
+		type: "GET",
+		contentType: "application/json",
+	}))
+	.then(function(result) {
+		var context= {
+			"patients": result
+		};
+		return context;
+	});
+
+	return promise;
 };
 
 /* Get patients from this project. Project details are passed in via
@@ -738,17 +760,42 @@ var loadPatientsOnScroll= function(addContentFunction,ref,options) {
 var addProjectEventListeners= function() {
 	clickAction($(".frangipani-project-name"), getProjectPatients, {}, true);
 	$('.frangipani-project-name').on('click',toggleProjectsSideBar);
+
+	// Listen for row clicks and then select the patient ID child
+	$("tr.patient-row").on("click", function() {
+		var selectedPatientID= $(this).children("[class~='frangipani-patient-id']").text();
+		console.log(selectedPatientID);
+	});
 };
 
 
 /*
 * Main app function.
 */
-
 var app= function() {
 	settings.applicationMain= $("#frangipani-app-main");
-	clickAction($("#frangipani-browse-button"), getProjects);
+
+	// Create a promise function to wrap our browse button tasks
+	var getPatientFunction= function() {
+		return getPatients()
+			.then(function(result) {
+				clearApplicationMain();
+
+				var context= result;
+
+				return asyncRenderHbs('frangipani-patients.hbs', context)
+			})
+			.then(function(html) {
+				settings.applicationMain.append(html);
+
+				// Add event listeners and refresh jQuery DOM objects.
+				addProjectEventListeners();
+				refresh();
+			});
+	}
+	clickAction($("#frangipani-browse-button"), getPatientFunction);
 };
+
 /* App components */
 var refresh= function() {
 	settings.patientTable= $("#frangipani-project-details");

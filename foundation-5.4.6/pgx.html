@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<!--
+
+  Frangipani pharmacogenomics app HTML.
+
+-->
+<html class="no-js" lang="en">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Frangipani server initialization</title>
+    <link rel="stylesheet" href="css/foundation.css" />
+
+    <!-- Foundation vector graphic icon fonts -->
+    <link rel="stylesheet" href="foundation-icons/foundation-icons.css" />
+
+    <!-- Font awesome vector graphic icons -->
+    <link rel="stylesheet" href="font-awesome-4.2.0/css/font-awesome.min.css" />
+
+    <!-- Custom style sheet -->
+    <link rel="stylesheet" href="css/app.css">
+
+    <script src="js/vendor/modernizr.js"></script>
+
+    <link rel="icon" href="img/icon2.jpg" />
+    <link rel="author" href="humans.txt" />
+  </head>
+
+  <body>
+
+    <!-- Nav bar -->
+    <div class="sticky">
+      <nav class="top-bar" data-topbar role="navigation">
+        <ul class="title-area">
+          <li class="name"><h1><a href="/">Frangipani</a></h1></li>
+        </ul>
+        <section class="top-bar-section">
+          <ul class="left">
+            <li>
+              <a href="http://github.com/BaderLab/Frangipani" id="frangipani-github-icon" target="_blank"><i class="fi-social-github size-36"></i></a>
+            </li>
+          </ul>
+        </section>
+        <section class="top-bar-section">
+          <ul class="right">
+            <li class="has-dropdown">
+              <a href="#" class="button radius alert" id="frangipani-plus-icon"><i class="fi-plus size-16"></i></a>
+              <ul class="dropdown">
+                <li><a href="#" id="frangipani-add-new-patient"><i class="fi-torso size-24"></i>&nbsp&nbsp&nbsp Patient</a></li>
+                <li><a href="/construction.html" id="frangipani-add-new-project"><i class="fi-page-multiple size-24"></i>&nbsp&nbsp&nbsp Project</a></li>
+                <li><a href="/construction.html" id="frangipani-add-new-panel"><i class="fa fa-stethoscope fa-2x"></i>&nbsp&nbsp&nbsp Gene Panel</a></li>
+              </ul>
+            </li>
+
+            <li class="has-form">
+              <div class="row collapse">
+                <div class="large-8 columns">
+                  <input type="text" id="frangipani-search-field" placeholder="Find Patient...">
+                </div>
+                <div class="large-4 columns">
+                  <a href="/construction.html" class="button expand alert" id="frangipani-search-button">Search</a>
+                </div>
+              </div>
+            </li>
+            <li class="has-form">
+              <a href="#" class="button radius alert" id="frangipani-browse-button">Browse</a>
+            </li>
+            <li class="has-form">
+              <a href="/construction.html" class="button radius">Logout</a>
+            </li>
+          </ul>
+        </section>
+      </nav>
+    </div>
+
+
+    <!-- Main body of page -->
+    <div id="frangipani-pgx-main">
+
+    </div>
+
+
+    <!-- Footer - modified from the Foundation website -->
+    <div class="zurb-footer-bottom">
+      <div class="row">
+         <div class="large-12 columns">
+            <ul class="zurb-links">
+              <li><a href="http://www.baderlab.org" target="_blank">About</a></li>
+              <li><a href="http://www.baderlab.org" target="_blank">Contact</a></li>
+           </ul>
+           <p class="copyright">&copy; 2015 Bader &amp; Brudno Labs, University of Toronto. All rights reserved.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Foundation Javascript components -->
+    <script src="js/vendor/jquery.js"></script>
+    <script src="js/foundation.min.js"></script>
+    <script>
+      $(document).foundation();
+    </script>
+
+    <!-- Handlebars template compiler -->
+    <script src="js/handlebars-v2.0.0.js"></script>
+
+    <!-- My Javascript -->
+    <script src="js/frangipani.pgx.js"></script>
+
+  </body>
+</html>

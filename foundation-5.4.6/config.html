@@ -28,10 +28,12 @@
   </head>
 
   <body>
+
+    <!-- Nav bar -->
     <div class="sticky">
       <nav class="top-bar" data-topbar role="navigation">
         <ul class="title-area">
-          <li class="name"><h1><a href="http://localhost:8080">Frangipani</a></h1></li>
+          <li class="name"><h1><a href="/">Frangipani</a></h1></li>
         </ul>
         <section class="top-bar-section">
           <ul class="left">
@@ -70,7 +72,7 @@
           <form data-abide="ajax" id="frangipani-config-form">
 
             <div class="row">
-              <div class="large-12 columns">
+              <div class="large-12 large-centered columns">
                 <div class="row collapse prefix-radius">
                   <div class="large-3 columns">
                     <span class="prefix">Your Institution's Name</span>
@@ -84,14 +86,14 @@
             </div>
 
             <div class="row">
-              <div class="large-12 columns">
+              <div class="large-12 large-centered columns">
                 <span data-tooltip aria-haspopup="true" class="tip-left round" title="We promise not to spam you!">
                   <div class="row collapse prefix-radius">
                     <div class="large-3 columns">
-                      <span class="prefix">Administrator e-mail</span>
+                      <span class="prefix"><i class="fa fa-envelope-o" style="font-size: 1.5em;"></i></span>
                     </div>
                       <div class="large-9 columns">
-                        <input type="email" name="admin-email" required />
+                        <input type="email" name="admin-email" placeholder="Administrator e-mail" required />
                         <small class="error">An email address is required.</small>
                       </div>
                   </div>
@@ -106,7 +108,7 @@
                 <div class="large-12 columns">
                   <div class="row collapse prefix-radius">
                     <div class="large-3 columns">
-                      <span class="prefix">Annovar path</span>
+                      <span class="prefix">Annovar path</span> 
                     </div>
                     <div class="large-9 columns">
                       <input type="text" placeholder="e.g. /home/frangipani_server_user/annovar/" name="annovar-path" required />
@@ -238,15 +240,15 @@
     </div>
 
 
-    <!-- Footer - modified from the Foundatoin website -->
+    <!-- Footer - modified from the Foundation website -->
     <div class="zurb-footer-bottom">
       <div class="row">
          <div class="large-12 columns">
             <ul class="zurb-links">
-              <li><a href="http://www.baderlab.org/RonAmmar" target="_blank">About</a></li>
-              <li><a href="#">Contact</a></li>
+              <li><a href="http://www.baderlab.org" target="_blank">About</a></li>
+              <li><a href="http://www.baderlab.org" target="_blank">Contact</a></li>
            </ul>
-           <p class="copyright">&copy; 2014 Bader &amp; Brudno Labs, University of Toronto. All rights reserved.</p>
+           <p class="copyright">&copy; 2015 Bader &amp; Brudno Labs, University of Toronto. All rights reserved.</p>
         </div>
       </div>
     </div>
