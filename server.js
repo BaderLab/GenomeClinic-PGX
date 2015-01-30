@@ -5,7 +5,7 @@
  */
 
 var express= require("express");
-dbFunctions= require("./frangipani_node_modules/mongodb_functions");
+var dbFunctions= require("./frangipani_node_modules/mongodb_functions");
 var uploader= require("jquery-file-upload-middleware");
 var routes= require("./frangipani_node_modules/routes");
 var Promise= require("bluebird");
