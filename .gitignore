@@ -5,3 +5,4 @@ tmp/
 mongodb_data/
 old/
 annovar/
+TEST/
