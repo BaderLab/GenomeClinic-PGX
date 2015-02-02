@@ -367,13 +367,15 @@
   //Render the page htmnl and display it adding handlers at the same time
   var addPatientHtml = function(){
     var promise = new Promise(function(resolve,reject){
-      var html= renderHbs('frangipani-add-new-patient.hbs');
-      settings.applicationMain.html(html);
-      $(document).foundation(); //have to call this to enable the slider
-      staticHandlers();
-      dynamicHandlers();
-      uploader();
-      resolve();
+      //var html= 
+      asyncRenderHbs('frangipani-add-new-patient.hbs').then(function(html){
+        settings.applicationMain.html(html);
+        $(document).foundation(); //have to call this to enable the slider
+        staticHandlers();
+        dynamicHandlers();
+        uploader();
+        resolve();
+      });
     });
     return promise;
   }

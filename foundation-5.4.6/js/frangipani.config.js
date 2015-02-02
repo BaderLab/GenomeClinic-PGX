@@ -1,4 +1,4 @@
-/*
+	/*
  * Frangipani config page Javascript.
  * @author Ron Ammar
  */
@@ -12,7 +12,10 @@
  */
 var aux= {
 
-	/* Default constants. */
+	/* Default constants. It is important to note that these defaults
+	 * rely on the third party naming schema of annovar. therefore,
+	 * ANNOVAR_ANNOTATION must be upadted and changed to accomodate
+	 * the specific usage of each database*/
 	INSTITUTION: "The Hospital for Sick Children",
 	MAX_RECORDS: 500,
 	ANNOVAR_ANNOTATIONS: {
