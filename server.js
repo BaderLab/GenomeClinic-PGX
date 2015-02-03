@@ -11,7 +11,10 @@ var routes= require("./frangipani_node_modules/routes");
 var Promise= require("bluebird");
 var dbConstants= require("./frangipani_node_modules/mongodb_constants");
 var fs = Promise.promisifyAll(require('fs'));
-
+var passport = require('passport');
+var flash = require('connect-flash');
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
 
 /* Command line options */
 var opts= require("nomnom")
@@ -75,32 +78,52 @@ for (var i= 0; i < prerequisiteDirectories.length; ++i) {
 }
 
 
+
+
+
 /* Serve static content (css files, js files, templates, etc) from the
  * foundation directory. */
 app.use(express.static("foundation-5.4.6", {index: false}));
 
+/*Set up server to use authentication 
+*/
+require('./frangipani_node_modules/passport-config')(passport,dbFunctions);
+
+app.use(cookieParser);
+app.use(session({secret:'testing'}));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(flash());
+
 app.get("/", function(request, response) {
+
 	/* Check if the server has already been configured. 
 	 * Using a bit of promise voodoo to ensure we check the DB first, but only
 	 * when configured !== true, so as to reduce DB interactions. */
-	var promise= new Promise.resolve(configured);
-	if (!configured) {
-		promise= dbFunctions.isConfigured();
-	}
-
-	/* If server is not configured redirect to the config page. Use a boolean
-	 * instead of checking the DB with each request. */
-	promise.then(function(resolved_config) {
-		if (resolved_config) {
-			response.sendFile("foundation-5.4.6/frangipani.html", {root: "."});
-			if (!configured) {
-				configured= resolved_config;
-			}
-		} else {
-			response.sendFile("foundation-5.4.6/config.html", {root: "."});
+	console.log('here');
+	if (request.isAuthenticate()){
+		var promise= new Promise.resolve(configured);
+		if (!configured) {
+			promise= dbFunctions.isConfigured();
 		}
-	});
+
+		/* If server is not configured redirect to the config page. Use a boolean
+		 * instead of checking the DB with each request. */
+		promise.then(function(resolved_config) {
+			if (resolved_config) {
+				response.sendFile("foundation-5.4.6/frangipani.html", {root: "."});
+				if (!configured) {
+					configured= resolved_config;
+				}
+			} else {
+				response.sendFile("foundation-5.4.6/config.html", {root: "."});
+			}
+		});
+	} else {
+		response.sendFile("foundation-5.4.6/frangipani-login.html");
+	}
 });
+
 
 app.use("/datasets", routes.getRouter);
 app.use("/callsets/search", routes.postRouter);
@@ -121,3 +144,11 @@ process.on("SIGINT", function(){
 		process.exit(0);
 	});
 });
+
+
+
+function isLoggedIn(req,res,next){
+	if (req.isAuthenticated())
+		return next();
+	res.redirect('/login-page');
+}
