@@ -56,6 +56,7 @@ once downloaded, open a terminal and navigated to the annovar/ directory and run
 
 
 ```shell
+perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar knowngene humandb/
 perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar ljb26_all humandb/
 perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar cg69 humandb/
 perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar esp6500_all humandb/

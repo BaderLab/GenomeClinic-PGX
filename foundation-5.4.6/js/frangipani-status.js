@@ -64,6 +64,7 @@
 					for (var i=0;i<patientArray.length;i++){
 						if (patientArray[i]['ready']){
 							if(!$(currentRows[i]).find('i').hasClass('fi-check'))
+								$(currentRows[i]).find('.completed').text(patientArray[i]['completed']);
 								$(currentRows[i]).find('.check').html('<i class="fi-check size-24" style="color:#66CD00;"></i>');
 						} else {
 							if(!$(currentRows[i]).find('i').hasClass('fa-spinner'))
