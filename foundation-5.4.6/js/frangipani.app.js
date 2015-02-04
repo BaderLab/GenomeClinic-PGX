@@ -760,12 +760,6 @@ var loadPatientsOnScroll= function(addContentFunction,ref,options) {
 var addProjectEventListeners= function() {
 	clickAction($(".frangipani-project-name"), getProjectPatients, {}, true);
 	$('.frangipani-project-name').on('click',toggleProjectsSideBar);
-
-	// Listen for row clicks and then select the patient ID child
-	$("tr.patient-row").on("click", function() {
-		var selectedPatientID= $(this).children("[class~='frangipani-patient-id']").text();
-		console.log(selectedPatientID);
-	});
 };
 
 
@@ -774,26 +768,6 @@ var addProjectEventListeners= function() {
 */
 var app= function() {
 	settings.applicationMain= $("#frangipani-app-main");
-
-	// Create a promise function to wrap our browse button tasks
-	var getPatientFunction= function() {
-		return getPatients()
-			.then(function(result) {
-				clearApplicationMain();
-
-				var context= result;
-
-				return asyncRenderHbs('frangipani-patients.hbs', context)
-			})
-			.then(function(html) {
-				settings.applicationMain.append(html);
-
-				// Add event listeners and refresh jQuery DOM objects.
-				addProjectEventListeners();
-				refresh();
-			});
-	}
-	clickAction($("#frangipani-browse-button"), getPatientFunction);
 };
 
 /* App components */
