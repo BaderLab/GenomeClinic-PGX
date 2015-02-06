@@ -204,9 +204,10 @@ Handlebars.registerHelper('haplotypeMarkers', function(context, options) {
 
 		var haplotypeMarkers= globalPGXData["pgxGenes"][currentGene][currentHaplotype];
 		if (haplotypeMarkers.indexOf(m) !== -1) {  // haplotype is defined by this marker
-			renderedHtml += "<td>X</td>";
+			renderedHtml += "<td class='variant-alt'>" + 
+				globalPGXData["pgxCoordinates"][m]["alt"].toString() + "</td>"; // alt is an array
 		} else {
-			renderedHtml += "<td></td>";
+			renderedHtml += "<td>" + globalPGXData["pgxCoordinates"][m]["ref"] + "</td>";
 		}
 	}
 
@@ -234,9 +235,6 @@ var addEventListeners= function() {
 		})
 		.then(function(result) {
 			globalPGXData= result;  // set the globally-scope PGX Data
-
-			console.log(globalPGXData); ////////////// TESTING
-
 			loadPGx(result);
 		});
 	});

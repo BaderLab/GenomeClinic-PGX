@@ -155,7 +155,11 @@ tr.patient-row:hover {
   background-color: #B2D1FF;
 }
 
-
+/* Different styling for alternate genotype calls (not reference). */
+td.variant-alt {
+  font-style: italic;
+  color: red;
+}
 
 
 
