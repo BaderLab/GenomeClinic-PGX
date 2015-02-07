@@ -167,6 +167,26 @@ var processPGXResponse= function(selectedPatientAlias, selectedPatientID, server
 };
 
 
+/* Generate all possible haplotypes from the genotype data.
+ * This takes into account 
+ * Returns a promise. */
+var generateAllHaplotypes= function(pgxData) {
+	/* ////////////////////////////// TESTING
+	 * NOTE:
+	 * METHOD IS CURRENTLY BEING TESTED.
+	 * UNTIL PATRICK HAS FIXED BUG WITH MULTIPLE ALTERNATE ALLELES AND GT FIELDS
+	 * ONLY USE CYP2D6 BECAUSE IT DOESNT HAVE ANY MARKERS WITH MULTIPLE ALTS.
+	 */
+	var possibleHapltoypes= {};
+
+	//pgxData["pgxGenes"]["tmpt"] ??
+
+	console.log(pgxData); ///////////////// TESTING
+
+	return Promise.resolve(pgxData);
+};
+
+
 /* Displays the processed PGx data for this specific patient. */
 var loadPGx= function(pgxData) {
 	appMain.children().remove();  // clear the current page
@@ -232,6 +252,9 @@ var addEventListeners= function() {
 		}))
 		.then(function(result) {
 			return processPGXResponse(selectedPatientAlias, selectedPatientID, result);
+		})
+		.then(function(result) {
+			return generateAllHaplotypes(result);
 		})
 		.then(function(result) {
 			globalPGXData= result;  // set the globally-scope PGX Data
