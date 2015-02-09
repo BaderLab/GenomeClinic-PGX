@@ -167,19 +167,112 @@ var processPGXResponse= function(selectedPatientAlias, selectedPatientID, server
 };
 
 
+/* Use the GT field to determine if a variant is heterozygous or homozygous.
+ * Returns a bool. */
+var isHom= function(variant) {
+	var homozygous= true;
+
+	// check that all/both genotype indices are identical
+	var firstIndex= variant["gt"][0];
+	for (var i= 1; i < variant["gt"].length; ++i) {
+		if (variant["gt"][i] !== firstIndex) {
+			homozygous= false;
+		}
+	}
+
+	return homozygous;
+};
+
+
+/* Add variants to the known diplotype. These include already phased or 
+ * homozygous unphased genotypes. The function modifies the defined diplotype
+ * passed to it. A diplotype contains exactly 2 haplotypes, and they can be
+ * equivalent.
+ * Precondition: variants passed to this function are already known to be
+ * phased or homozygous (and unphased). */
+var addToDefinedDiplotype= function(marker, variant, diplotype) {
+	var definedDiplotype= diplotype;
+
+ 	// if empty, initialize defined diplotypes to exactly 2 haplotypes
+ 	if (definedDiplotype === null) {
+ 		definedDiplotype= [[], []];
+ 	}
+
+ 	// not using alleles directly, but this may come in handy later.
+ 	//var alleles= [variant["ref"]].concat(variant["alt"]);
+
+ 	for (var i= 0; i < variant["gt"].length; ++i) {
+ 		if (variant["gt"][i] > 0) {
+ 			definedDiplotype[i].push(marker);
+ 		}
+ 	}
+
+ 	return definedDiplotype;
+ };
+
+
+/* PLACEHOLDER TESTING */
+var getPossibleHaplotypes= function(definedDiplotype, unphasedHets) {
+	return null;  //////////////////////////////////
+};
+
+
 /* Generate all possible haplotypes from the genotype data.
  * This takes into account 
  * Returns a promise. */
 var generateAllHaplotypes= function(pgxData) {
+	var pgxData= pgxData;
+
 	/* ////////////////////////////// TESTING
 	 * NOTE:
 	 * METHOD IS CURRENTLY BEING TESTED.
 	 * UNTIL PATRICK HAS FIXED BUG WITH MULTIPLE ALTERNATE ALLELES AND GT FIELDS
 	 * ONLY USE CYP2D6 BECAUSE IT DOESNT HAVE ANY MARKERS WITH MULTIPLE ALTS.
 	 */
-	var possibleHapltoypes= {};
 
-	//pgxData["pgxGenes"]["tmpt"] ??
+	pgxData["possibleHaplotypes"]= {};
+
+	// Iterate through all genes
+	//var geneNames= Object.keys(pgxData["pgxGenes"]);  ///// UNBLOCK AFTER MERGED WITH NEW ANNOTATOR
+
+	////////////////////TESTING
+	var geneNames= ["cyp2d6", "tpmt"];  ///// Testing ONLY with genes that dont have multiple alts
+	
+	for (var i= 0; i < geneNames.length; ++i) {
+		// see lab notebook for ideas here: - lists of hashes
+		var definedDiplotype= null;
+		var unphasedHets= [];
+		var possibleHaplotypes= [];
+
+		// Iterate through the markers for this gene, and match variants by
+		// coordinates not gene name (which is annotated by annovar)
+		var currentGeneMarkers= pgxData["pgxGenes"][geneNames[i]]["geneMarkers"];
+		var allVariants= pgxData["variants"];
+		for (var j= 0; j < currentGeneMarkers.length; ++j) {
+			var m= currentGeneMarkers[j];
+			var chrom= pgxData["pgxCoordinates"][m]["chr"];
+			var pos= pgxData["pgxCoordinates"][m]["pos"];
+
+			// Match with this patient's variants. Simplest to iterate through
+			// all patient variants and match coordinates for current marker
+			for (var k= 0; k < allVariants.length; ++k) {
+				var currentVariant= allVariants[k];
+				if (chrom === currentVariant["chr"] && pos === currentVariant["start"]) {  ///////////// START may turn into POS later - POTENTIAL BUG!
+					if (currentVariant["phased_status"] || isHom(currentVariant)) {
+						definedDiplotype= addToDefinedDiplotype(m, currentVariant, definedDiplotype);
+					} else {
+						unphasedHets.push(currentVariant);
+					}
+					possibleHaplotypes= getPossibleHaplotypes(definedDiplotype, unphasedHets);
+				}
+			}
+		}
+
+		console.log("here!", definedDiplotype, unphasedHets); /////////////////
+		
+		// add the possible haplotypes to the main pgx
+		pgxData["possibleHaplotypes"][geneNames[i]]= possibleHaplotypes;
+	}
 
 	console.log(pgxData); ///////////////// TESTING
 
