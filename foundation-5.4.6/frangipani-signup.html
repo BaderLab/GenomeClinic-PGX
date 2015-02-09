@@ -52,75 +52,77 @@
     <div id="frangipani-login-page" style="min-height:100%;">
       <div class="row">
         <div class="large-6 large-centered columns">
-          <form action="/login" method="post" style="margin-top:20%">
+          <form action="/signup" method="post" style="margin-top:20%">
             <fieldset>
               <h3 style="margin-bottom:60px;margin-top:10px;"><i class="fa fa-chevron-right"></i>&nbspSign Up</h3>
               <div class="row" >
-                <div class="large-12 columns">
+                <div class="small-12 columns">
                   <div class="row collapse prefix-radius">
-                    <div class="large-4 columns">
+                    <div class="small-4 columns">
                       <span class="prefix">Username</span>
                     </div>
-                    <div class="large-8 columns">
+                    <div class="small-8 columns">
                       <input type="text" id='username' name='username'>
                     </div>
                   </div>
                 </div>
               </div>
               <div class="row">
-                <div class="large-12 columns">
+                <div class="small-12 columns">
                   <div class="row collapse prefix-radius">
-                    <div class="large-4 columns">
+                    <div class="small-4 columns">
                       <span class="prefix">Password</span>
                     </div>
-                    <div class="large-8 columns">
-                      <input type="password" id='username' name='username'>
+                    <div class="small-8 columns">
+                      <input type="password" id='passowrd' name='password'>
                     </div>
                   </div>
                 </div>
               </div>
+              <!--
               <div class="row">
-                <div class="large-12 columns">
+                <div class="small-12 columns">
                   <div class="row collapse prefix-radius">
-                    <div class="large-4 columns">
+                    <div class="small-4 columns">
                       <span class="prefix">confirm password</span>
                     </div>
-                    <div class="large-8 columns">
+                    <div class="small-8 columns">
                       <input type="password" id='retype-passowrd' name='retype-password'>
                     </div>
                   </div>
                 </div>
               </div>
+            -->
               <div class="row" style="margin-top:20px;">
-                <div class="large-3 columns">
-                  <button type="submit" class="button radius alert">Login</button>
+                <div class="small-3 columns">
+                  <a href="#" id="submit" class="button radius alert">Login</a>
                 </div>
-                <div class="large-9 columns">
-                    <div class="large-12 columns">
+                <div class="small-9 columns">
+                    <div class="small-12 columns">
                       <span>Return to <a href="/login">login</a></span>
                     </div>
-                    <div class="large-12 columns">
+                    <div class="small-12 columns">
                       <span>Forgot Password? <a href="/recover">Recover</a></span>
                     </div>
                 </div>
               </div>
               <div class="row">
-                <div class="large-5 columns">
+                <div class="small-5 columns">
                   <hr>
                 </div>
-                <div class="large-2 columns">
+                <div class="small-2 columns">
                   <h4>Or</h4>
                 </div>
-                <div class="large-5 columns">
+                <div class="small-5 columns">
                   <hr>
                 </div>
               </div>
               <div class="row">
-                <div class="large-10 columns large-centered">
-                  <div class="large-8 columns text-center" style>
+                <div class="small-10 columns large-centered">
+                  <div class="small-8 columns text-center" style>
                     <h5 class="subheader">Sign in with Google</h5>
                   </div>                  
-                  <div class="large-1 columns left">
+                  <div class="small-1 columns left">
                     <h5><a href="/auth/google"><i class="fa fa-google-plus-square fa-2x" style="color:#dd4b39;size:14pt"></i></a></h5>
                   </div>
                 </div>
@@ -157,5 +159,6 @@
 
     <!-- My Javascript -->
     <script src="js/frangipani.app.js"></script>
+    <script src="js/frangipani-signup.js"></script>
   </body>
 </html>
