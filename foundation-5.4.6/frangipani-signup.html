@@ -59,7 +59,7 @@
                 <div class="small-12 columns">
                   <div class="row collapse prefix-radius">
                     <div class="small-4 columns">
-                      <span class="prefix">Username</span>
+                      <span data-tooltip aria-haspopup="true" class="has-tip tip-left radius" title="Username Must be a valid email"><span class="prefix">Username</span></span>
                     </div>
                     <div class="small-8 columns">
                       <input type="text" id='username' name='username'>
@@ -69,22 +69,23 @@
               </div>
               <div class="row">
                 <div class="small-12 columns">
+
                   <div class="row collapse prefix-radius">
                     <div class="small-4 columns">
-                      <span class="prefix">Password</span>
+                      <span data-tooltip aria-haspopup="true" class="has-tip tip-left radius" title="Passwords must be at least 6 characters long"><span class="prefix">Password</span></span>
                     </div>
                     <div class="small-8 columns">
-                      <input type="password" id='passowrd' name='password'>
+                      <input type="password" id='password' name='password'>
                     </div>
                   </div>
                 </div>
               </div>
-              <!--
+
               <div class="row">
                 <div class="small-12 columns">
                   <div class="row collapse prefix-radius">
                     <div class="small-4 columns">
-                      <span class="prefix">confirm password</span>
+                      <span data-tooltip aria-haspopup="true" class="has-tip tip-left radius" title="Please retype your password. Both passwords must match"><span class="prefix">Confirm password</span></span>
                     </div>
                     <div class="small-8 columns">
                       <input type="password" id='retype-passowrd' name='retype-password'>
@@ -92,10 +93,9 @@
                   </div>
                 </div>
               </div>
-            -->
               <div class="row" style="margin-top:20px;">
                 <div class="small-3 columns">
-                  <a href="#" id="submit" class="button radius alert">Login</a>
+                  <a href='#' id="submit-signup" class="button radius alert">Login</a>
                 </div>
                 <div class="small-9 columns">
                     <div class="small-12 columns">

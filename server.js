@@ -5,7 +5,7 @@
  */
 
 var express= require("express");
-dbFunctions= require("./frangipani_node_modules/mongodb_functions");
+var dbFunctions= require("./frangipani_node_modules/mongodb_functions");
 var uploader= require("jquery-file-upload-middleware");
 var routes= require("./frangipani_node_modules/routes");
 var Promise= require("bluebird");
@@ -15,6 +15,7 @@ var passport = require('passport');
 var flash = require('connect-flash');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
+var bodyParser= require("body-parser");
 
 /* Command line options */
 var opts= require("nomnom")
@@ -49,14 +50,7 @@ var app= express();
 var configured= undefined;
 
 
-/* Connect to the DB. */
-dbFunctions.connectAndInitializeDB()
-	.catch(function(err) {
-		console.error(err.toString());
-		console.error(err.stack);
-		console.log("Exiting due to connection error with DB server.");
-		process.exit(1);
-	});
+
 
 
 /* Check if /upload and /tmp directories exist. If not, creates them. */
@@ -83,45 +77,62 @@ for (var i= 0; i < prerequisiteDirectories.length; ++i) {
 
 
 
+/* Connect to the DB. */
+dbFunctions.connectAndInitializeDB()
+.catch(function(err) {
+	console.error(err.toString());
+	console.error(err.stack);
+	console.log("Exiting due to connection error with DB server.");
+	process.exit(1);
+});
+
+
 
 /*Set up server to use authentication 
-*/
-require('./frangipani_node_modules/passport-config')(passport,dbFunctions);
+	*/
+
+
 app.use(cookieParser());
-app.use(session({secret:'testing'}));
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended:false}))
+
+require('./frangipani_node_modules/passport-config')(passport,dbFunctions)
+
+app.use(session({secret:'testing',
+				 resave:false,
+				 saveUninitialized:false}));
+
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
+require('./frangipani_node_modules/loginRoutes')(app,passport);
+
 /* Serve static content (css files, js files, templates, etc) from the
  * foundation directory. */
 app.use(express.static("foundation-5.4.6", {index: false}));
-require('./frangipani_node_modules/loginRoutes')(app,passport);
-app.get("/", function(request, response) {
+
+app.get("/", isLoggedIn, function(request, response) {
 	/* Check if the server has already been configured. 
 	 * Using a bit of promise voodoo to ensure we check the DB first, but only
-	 * when configured !== true, so as to reduce DB interactions. */	
-	if (request.isAuthenticated()){
-		var promise= new Promise.resolve(configured);
-		if (!configured) {
-			promise= dbFunctions.isConfigured();
-		}
-
-		/* If server is not configured redirect to the config page. Use a boolean
-		 * instead of checking the DB with each request. */
-		promise.then(function(resolved_config) {
-			if (resolved_config) {
-				response.sendFile("foundation-5.4.6/frangipani.html", {root: "."});
-				if (!configured) {
-					configured= resolved_config;
-				}
-			} else {
-				response.sendFile("foundation-5.4.6/config.html", {root: "."});
-			}
-		});
-	} else {
-		response.redirect("/login");
+	* when configured !== true, so as to reduce DB interactions. */	
+	var promise= new Promise.resolve(configured);
+	if (!configured) {
+		promise= dbFunctions.isConfigured();
 	}
+
+	/* If server is not configured redirect to the config page. Use a boolean
+	 * instead of checking the DB with each request. */
+	promise.then(function(resolved_config) {
+		if (resolved_config) {
+			response.sendFile("foundation-5.4.6/frangipani.html", {root: "."});
+			if (!configured) {
+				configured= resolved_config;
+			}
+		} else {
+			response.sendFile("foundation-5.4.6/config.html", {root: "."});
+		}
+	});
 });
 
 app.get("/datasets", isLoggedIn, routes.getRouter);

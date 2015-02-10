@@ -1,20 +1,48 @@
 (function(){
-	var submitSignup = function(){
-		$('#submit').on('click',function(){
-			var info = $('form').serialize();
-			console.log(info);
+	var submit = function(){
+		$('#submit-signup').on('click',function(){
+			var data = {
+				'username':$('#username').val(),
+				'password':$("#password").val()
+			}
 			var promise = Promise.resolve($.ajax({
 				url:'/signup',
 				type:'POST',
 				contentType:'application/json',
-				data:info
+				data:JSON.stringify(data),
+				dataType:"json"
 			}))
 
 			promise.then(function(result){
-				console.log(result);
+				if (result.redirectURL){
+					window.location.replace(result.redirectURL);
+				} else {
+					console.log(result);
+				}
+			})
+		})
+
+		$('#submit-login').on('click',function(){
+			var data = {
+				'username':$('#username').val(),
+				'password':$("#password").val()
+			}
+			var promise = Promise.resolve($.ajax({
+				url:'/login',
+				type:'POST',
+				contentType:'application/json',
+				data:JSON.stringify(data),
+				dataType:"json"
+			}))
+
+			promise.then(function(result){
+				if (result.redirectURL){
+					window.location.replace(result.redirectURL);
+				} else {
+					console.log(result);
+				}
 			})
 		})
 	}
-
-	$(document).ready(submitSignup)	
+	$(document).ready(submit)	
 })()

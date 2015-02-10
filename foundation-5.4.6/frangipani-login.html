@@ -59,7 +59,7 @@
                 <div class="large-12 columns">
                   <div class="row collapse prefix-radius">
                     <div class="large-3 columns">
-                      <span class="prefix">Username</span>
+                      <span data-tooltip aria-haspopup="true" class="has-tip tip-left radius" title="Please enter a valid email address"><span class="prefix">Username</span></span>
                     </div>
                     <div class="large-9 columns">
                       <input type="text" id='username' name='username'>
@@ -74,14 +74,14 @@
                       <span class="prefix">password</span>
                     </div>
                     <div class="large-9 columns">
-                      <input type="password" id='username' name='username'>
+                      <input type="password" id='password' name='password'>
                     </div>
                   </div>
                 </div>
               </div>
               <div class="row" style="margin-top:20px;">
                 <div class="large-3 columns">
-                  <button type="submit" class="button radius alert">Login</button>
+                  <a id="submit-login" class="button radius alert">Login</a>
                 </div>
                 <div class="large-9 columns">
                     <div class="large-12 columns">
@@ -145,5 +145,6 @@
 
     <!-- My Javascript -->
     <script src="js/frangipani.app.js"></script>
+    <script src="js/frangipani-signup.js"></script>
   </body>
 </html>
