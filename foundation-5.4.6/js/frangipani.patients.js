@@ -209,6 +209,7 @@ var processPGXResponse= function(selectedPatientAlias, selectedPatientID, server
 		// Store the list of unique markers in this object
 		pgxData["pgxGenes"][geneName]["geneMarkers"]= geneMarkers;
 	}
+
 	return Promise.resolve(pgxData);
 };
 
@@ -244,7 +245,7 @@ var addToDefinedDiplotype= function(marker, variant, diplotype) {
  		definedDiplotype= [[], []];
  	}
 
- 	// not using alleles directly, but this may come in handy later.
+ 	// not using alleles directly, but this may come in handy later:
  	//var alleles= [variant["ref"]].concat(variant["alt"]);
 
  	for (var i= 0; i < variant["gt"].length; ++i) {
@@ -299,6 +300,9 @@ var generateAllHaplotypes= function(pgxData) {
 	////////////////////TESTING
 	var geneNames= ["cyp2d6", "tpmt"];  ///// TESTING- ONLY with genes that dont have multiple alts
 	
+	// keep track of markers while iterating over variants
+	var markerByID= {};
+
 	for (var i= 0; i < geneNames.length; ++i) {
 		// see lab notebook for ideas here: - lists of hashes
 		var definedDiplotype= null;
@@ -316,9 +320,14 @@ var generateAllHaplotypes= function(pgxData) {
 
 			// Match with this patient's variants. Simplest to iterate through
 			// all patient variants and match coordinates for current marker
+			var found= false;
 			for (var k= 0; k < allVariants.length; ++k) {
 				var currentVariant= allVariants[k];
 				if (chrom === currentVariant["chr"] && pos === currentVariant["start"]) {  ///////////// START may turn into POS later - POTENTIAL BUG!
+					// marker found
+					found= true;
+					markerByID[m]= currentVariant;
+
 					if (currentVariant["phased_status"] || isHom(currentVariant)) {
 						definedDiplotype= addToDefinedDiplotype(m, currentVariant, definedDiplotype);
 					} else {
@@ -326,18 +335,103 @@ var generateAllHaplotypes= function(pgxData) {
 					}
 				}
 			}
+
+			// Keep track of markers that weren't found
+			if (!found) {
+				// arbitrary value, but false makes more sense because it's missing
+				markerByID[m]= false;
+			}
 		}
 
 		possibleHaplotypes= getPossibleHaplotypes(definedDiplotype, unphasedHets);
 
-		console.log(geneNames[i], definedDiplotype, unphasedHets); ///////////////////
-		console.log(possibleHaplotypes); ///////////////
-
 		// add the possible haplotypes to the main pgx
 		pgxData["possibleHaplotypes"][geneNames[i]]= possibleHaplotypes;
+		pgxData["markerByID"]= markerByID;
 	}
 
-	console.log(pgxData); ///////////////// TESTING
+	return Promise.resolve(pgxData);
+};
+
+
+/* Map haplotype representation to markers to create a format that can be used
+ * with the edit distance metric. For example (not showing missing marker 
+ * representation):
+ * 		patient haplotype = [rs1]
+ *		markers = [rs1, rs2, rs3, rs4, rs5]
+ *		output = "10000"
+ * OR
+ * 		patient haplotype = [] ; with rs4, rs5 missing
+ *		markers = [rs1, rs2, rs3, rs4, rs5]
+ *		output = "000mm"	
+ * OR
+ * 		patient haplotype = [rs3, rs5] ; with rs2 missing
+ *		markers = [rs1, rs2, rs3, rs4, rs5]
+ *		output = "0m101"
+ */	
+var haplotypeToString= function(markerByID, haplotype, markers) {
+	var output= "";
+
+	for (var i= 0; i < markers.length; ++i) {
+		if (markerByID !== null && !markerByID[markers[i]]) {
+			output += "m";  // missing
+		} else if (haplotype.indexOf(markers[i]) !== -1) {
+			output += "1";  // alt (marker found)
+		} else {
+			output += "0";  // ref (marker not missing and not found)
+		}
+	}
+
+	return output;
+};
+
+
+/* Translate haplotypes into star nomenclature (or similar) using edit distance
+ * allowing us to identify matches to known haplotypes and to indicate 
+ * haplotypes which are most similar to the patient's.
+ * Returns a promise. */
+var translateHaplotypes= function(pgxData) {
+	var knownHaplotypes= {};
+	var patientHaplotypes= {};
+
+	// Convert all haplotypes (from patient or predefined known ones) to a
+	// string representation that can be compared using edit distance.
+	var ph= Object.keys(pgxData["possibleHaplotypes"]);
+	for (var i= 0; i < ph.length; ++i) {
+		var currentGene= ph[i];
+		var currentGeneMarkers= pgxData["pgxGenes"][currentGene]["geneMarkers"];
+
+		var haplotypes= pgxData["possibleHaplotypes"][currentGene];
+		for (var j= 0; j < haplotypes.length; ++j) {
+			var currentHaplotype= haplotypes[j];
+			var stringRep= haplotypeToString(
+				pgxData["markerByID"], currentHaplotype, currentGeneMarkers);
+
+			console.log(currentGene, "translated:", currentHaplotype, stringRep); ////////////
+
+			/// STORE in patient haplotypes
+			///patientHaplotypes[]["h" + i]= stringRep;
+		}
+	}
+
+	var pg= Object.keys(pgxData["pgxGenes"]);
+	for (var i= 0; i < pg.length; ++i) {
+		var currentGene= pg[i];
+		var currentGeneMarkers= pgxData["pgxGenes"][currentGene]["geneMarkers"];
+
+		var haplotypeNames= Object.keys(pgxData["pgxGenes"][currentGene]);
+		for (var j= 0; j < haplotypeNames.length; ++j) {
+			var currentHaplotype= pgxData["pgxGenes"][currentGene][haplotypeNames[j]];
+			var stringRep= haplotypeToString(
+				null, currentHaplotype, currentGeneMarkers);
+
+			console.log(currentGene, haplotypeNames[j], "translated:", currentHaplotype, stringRep); ////////////
+
+		///// STORE in known haplotypes
+		}
+	}
+
+	////// Where in the pgxData var are we going to store these string representations?
 
 	return Promise.resolve(pgxData);
 };
@@ -413,8 +507,13 @@ var addEventListeners= function() {
 			return generateAllHaplotypes(result);
 		})
 		.then(function(result) {
-			globalPGXData= result;  // set the globally-scope PGX Data
+			return translateHaplotypes(result);
+		})
+		.then(function(result) {
+			globalPGXData= result;  // set the globally-scoped PGX Data
 			loadPGx(result);
+
+			console.log(globalPGXData); ////////////// TESTING
 		});
 	});
 };
