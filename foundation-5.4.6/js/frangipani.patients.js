@@ -87,7 +87,53 @@ var aux= {
 	        }
 	        throw message; // Fallback
 	    }
+	},
+
+	/*
+	 * Compute the Levenshtein distance (edit distance) between the two given strings.
+	 * Sources:
+	 * http://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance#JavaScript
+	 * or
+	 * http://gist.github.com/andrei-m/982927
+	 * Copyright (c) 2011 Andrei Mackenzie
+	 * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+	 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+	 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+	 */
+	getEditDistance: function(a, b){
+	  if(a.length == 0) return b.length; 
+	  if(b.length == 0) return a.length; 
+	 
+	  var matrix = [];
+	 
+	  // increment along the first column of each row
+	  var i;
+	  for(i = 0; i <= b.length; i++){
+	    matrix[i] = [i];
+	  }
+	 
+	  // increment each column in the first row
+	  var j;
+	  for(j = 0; j <= a.length; j++){
+	    matrix[0][j] = j;
+	  }
+	 
+	  // Fill in the rest of the matrix
+	  for(i = 1; i <= b.length; i++){
+	    for(j = 1; j <= a.length; j++){
+	      if(b.charAt(i-1) == a.charAt(j-1)){
+	        matrix[i][j] = matrix[i-1][j-1];
+	      } else {
+	        matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, // substitution
+	                                Math.min(matrix[i][j-1] + 1, // insertion
+	                                         matrix[i-1][j] + 1)); // deletion
+	      }
+	    }
+	  }
+	 
+	  return matrix[b.length][a.length];
 	}
+
 
 };  // End of aux methods
 
@@ -211,9 +257,33 @@ var addToDefinedDiplotype= function(marker, variant, diplotype) {
  };
 
 
-/* PLACEHOLDER TESTING */
+/* Return all possible haplotypes by combining already defined haplotypes
+ * (based on phased genotypes and unphased homozygous calls) with unphased
+ * heterozygous calls. */
 var getPossibleHaplotypes= function(definedDiplotype, unphasedHets) {
-	return null;  //////////////////////////////////
+	var possibleHaplotypes= [];
+	if (definedDiplotype !== null) {
+		possibleHaplotypes= definedDiplotype.slice();  // copy the array
+	}
+
+	var unphasedHetKeys= Object.keys(unphasedHets);
+	for (var i= 0; i < unphasedHetKeys.length; ++i) {
+
+		// For each defined haplotype, create a version with the het ref call
+		// and a version with the het alt call. 
+		// NOTE: potential source of inefficiency here - duplicate haplotypes
+		// can occur. By removing these, we shorten our computation. Not urgent.
+		var newPossibleHaplotypes= [];
+		for (var j= 0; j < possibleHaplotypes.length; ++j) {
+			newPossibleHaplotypes.push(possibleHaplotypes[j]);  // het REF call
+			newPossibleHaplotypes.push(
+				possibleHaplotypes[j].concat(unphasedHetKeys[i]));  // het ALT call
+		}
+
+		possibleHaplotypes= newPossibleHaplotypes;
+	}
+
+	return possibleHaplotypes;
 };
 
 
@@ -222,26 +292,17 @@ var getPossibleHaplotypes= function(definedDiplotype, unphasedHets) {
  * Returns a promise. */
 var generateAllHaplotypes= function(pgxData) {
 	var pgxData= pgxData;
-
-	/* ////////////////////////////// TESTING
-	 * NOTE:
-	 * METHOD IS CURRENTLY BEING TESTED.
-	 * UNTIL PATRICK HAS FIXED BUG WITH MULTIPLE ALTERNATE ALLELES AND GT FIELDS
-	 * ONLY USE CYP2D6 BECAUSE IT DOESNT HAVE ANY MARKERS WITH MULTIPLE ALTS.
-	 */
-
 	pgxData["possibleHaplotypes"]= {};
 
 	// Iterate through all genes
 	//var geneNames= Object.keys(pgxData["pgxGenes"]);  ///// UNBLOCK AFTER MERGED WITH NEW ANNOTATOR
-
 	////////////////////TESTING
-	var geneNames= ["cyp2d6", "tpmt"];  ///// Testing ONLY with genes that dont have multiple alts
+	var geneNames= ["cyp2d6", "tpmt"];  ///// TESTING- ONLY with genes that dont have multiple alts
 	
 	for (var i= 0; i < geneNames.length; ++i) {
 		// see lab notebook for ideas here: - lists of hashes
 		var definedDiplotype= null;
-		var unphasedHets= [];
+		var unphasedHets= {};
 		var possibleHaplotypes= [];
 
 		// Iterate through the markers for this gene, and match variants by
@@ -261,15 +322,17 @@ var generateAllHaplotypes= function(pgxData) {
 					if (currentVariant["phased_status"] || isHom(currentVariant)) {
 						definedDiplotype= addToDefinedDiplotype(m, currentVariant, definedDiplotype);
 					} else {
-						unphasedHets.push(currentVariant);
+						unphasedHets[m]= currentVariant;
 					}
-					possibleHaplotypes= getPossibleHaplotypes(definedDiplotype, unphasedHets);
 				}
 			}
 		}
 
-		console.log("here!", definedDiplotype, unphasedHets); /////////////////
-		
+		possibleHaplotypes= getPossibleHaplotypes(definedDiplotype, unphasedHets);
+
+		console.log(geneNames[i], definedDiplotype, unphasedHets); ///////////////////
+		console.log(possibleHaplotypes); ///////////////
+
 		// add the possible haplotypes to the main pgx
 		pgxData["possibleHaplotypes"][geneNames[i]]= possibleHaplotypes;
 	}
