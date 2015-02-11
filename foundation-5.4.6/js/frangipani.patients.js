@@ -298,7 +298,7 @@ var generateAllHaplotypes= function(pgxData) {
 	// Iterate through all genes
 	//var geneNames= Object.keys(pgxData["pgxGenes"]);  ///// UNBLOCK AFTER MERGED WITH NEW ANNOTATOR
 	////////////////////TESTING
-	var geneNames= ["cyp2d6", "tpmt"];  ///// TESTING- ONLY with genes that dont have multiple alts
+	var geneNames= ["cyp2d6", "tpmt", "cyp2c9", "cyp3a5", "dpyd"];  ///// TESTING- ONLY with genes that dont have multiple alts
 	
 	// keep track of markers while iterating over variants
 	var markerByID= {};
@@ -490,13 +490,11 @@ var findClosestHaplotypeMatches= function(pgxData) {
 			 	}  // if distance is greater than current min, ignore
 
 			 	/*
-			 	// TESTING
+			 	// TESTING output
 			 	console.log(patientHaplotypes[j], currentPatientHaplotypeString,
 			 		knownHaplotypes[k], currentKnownHaplotypeString, "Dist=", tempDistance);
 			 	*/
 			 }
-
-			 console.log(patientHaplotypes[j], "Matches=", closestMatch, "Dist=", minDistance); //////////////
 
 			 // Store results of this computation
 			 pgxData["possibleHaplotypesStringRep"][genes[i]][patientHaplotypes[j]]["minDistance"]=
@@ -514,6 +512,9 @@ var findClosestHaplotypeMatches= function(pgxData) {
 /* Displays the processed PGx data for this specific patient. */
 var loadPGx= function(pgxData) {
 	appMain.children().remove();  // clear the current page
+
+	// NOTE: rendering the handlebars template triggers the handlebars block
+	// helpers, which dynamically render the HTML.
 	aux.asyncRenderHbs('frangipani-pgx.hbs', pgxData)
 	.then(function(html) {
 		appMain.append(html);
@@ -534,7 +535,7 @@ Handlebars.registerHelper("isHaplotype", function(conditional, options) {
 });
 
 
-/* Handlebars block helper to output PGx variant details.
+/* Handlebars block helper to output PGx known haplotype genotypes.
  * This helper is going to be a little messy, but this particular task is a bit
  * complicated and I don't think can be acheived within the template itself. */
 Handlebars.registerHelper('haplotypeMarkers', function(context, options) {
@@ -543,6 +544,8 @@ Handlebars.registerHelper('haplotypeMarkers', function(context, options) {
 	var currentHaplotype= context;
 
 	var currentGeneMarkers= globalPGXData["pgxGenes"][currentGene]["geneMarkers"];
+
+
 	for (var i= 0; i < currentGeneMarkers.length; ++i) {
 		var m= currentGeneMarkers[i];
 
@@ -553,6 +556,55 @@ Handlebars.registerHelper('haplotypeMarkers', function(context, options) {
 		} else {
 			renderedHtml += "<td>" + globalPGXData["pgxCoordinates"][m]["ref"] + "</td>";
 		}
+	}
+
+	return renderedHtml;
+});
+
+
+/* Handlebars block helper to output PGx patient haplotype genotypes.
+ * This helper is going to be a little messy, but this particular task is a bit
+ * complicated and I don't think can be acheived within the template itself. */
+Handlebars.registerHelper('patientGenotypes', function(options) {
+	var renderedHtml= "";
+	var currentGene= options.data.key;
+
+	// If there are no haplotypes recorded for this individual, skip
+	if (globalPGXData["possibleHaplotypesStringRep"][currentGene] === undefined) {
+		return;
+	}
+
+	// Iterate over all patient possible haplotypes
+	var markerByID= globalPGXData["markerByID"];
+	var patientHaplotypes= Object.keys(globalPGXData["possibleHaplotypesStringRep"][currentGene]);
+	for (var i= 0; i < patientHaplotypes.length; ++i) {
+		var haplotypeName= patientHaplotypes[i];
+
+		// Output the haplotype name and haplotype matches
+		var hapNameAndMatches= haplotypeName + " (" +
+			globalPGXData["possibleHaplotypesStringRep"][currentGene][haplotypeName]["closestMatch"]
+			.toString() + ")";
+
+		renderedHtml += "<tr class='patient-genotype-row'><td><em>" + hapNameAndMatches + "<em></td>";
+	
+		var currentGeneMarkers= globalPGXData["pgxGenes"][currentGene]["geneMarkers"];
+		for (var j= 0; j < currentGeneMarkers.length; ++j) {
+			var m= currentGeneMarkers[j];
+
+			// if this marker isn't missing, check if patient is ref or alt
+			if (!markerByID[m]) {  // missing
+				renderedHtml += "<td class='variant-alt'>missing</td>";
+			} else if (globalPGXData["possibleHaplotypesStringRep"][currentGene][haplotypeName]["haplotype"].indexOf(m) !== -1) {  // alt
+				///// NOTE: BUG here - will need to grab alt out of an array after
+				// patrick's merge
+				var altGenotype= markerByID[m]["alt"];
+				renderedHtml += "<td class='variant-alt'>" + altGenotype + "</td>";
+			} else {  // ref
+				renderedHtml += "<td>" + markerByID[m]["ref"] + "</td>";
+			}
+		}
+
+		renderedHtml += "</tr>";
 	}
 
 	return renderedHtml;

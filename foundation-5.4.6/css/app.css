@@ -161,5 +161,10 @@ td.variant-alt {
   color: red;
 }
 
+/* This table row should be distinguished by a different background colour. */
+tr.patient-genotype-row {
+  /* override foundation table alternating row grey style using !important */
+  background-color: #EBFAFF !important;
+}
 
 
