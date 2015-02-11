@@ -396,6 +396,7 @@ var translateHaplotypes= function(pgxData) {
 
 	// Convert all haplotypes (from patient or predefined known ones) to a
 	// string representation that can be compared using edit distance.
+
 	var ph= Object.keys(pgxData["possibleHaplotypes"]);
 	for (var i= 0; i < ph.length; ++i) {
 		var currentGene= ph[i];
@@ -407,10 +408,18 @@ var translateHaplotypes= function(pgxData) {
 			var stringRep= haplotypeToString(
 				pgxData["markerByID"], currentHaplotype, currentGeneMarkers);
 
-			console.log(currentGene, "translated:", currentHaplotype, stringRep); ////////////
+			// Store patient haplotype, arbitrarily labeled "h1", "h2", etc.
+			var tempHaplotypeName= "h" + (j + 1);
+			// initialize
+			if (patientHaplotypes[currentGene] === undefined) {
+				patientHaplotypes[currentGene]= {};
+			}
+			if (patientHaplotypes[currentGene][tempHaplotypeName] === undefined) {
+				patientHaplotypes[currentGene][tempHaplotypeName]= {};
+			}
 
-			/// STORE in patient haplotypes
-			///patientHaplotypes[]["h" + i]= stringRep;
+			patientHaplotypes[currentGene][tempHaplotypeName]["haplotype"]= currentHaplotype;
+			patientHaplotypes[currentGene][tempHaplotypeName]["stringRep"]= stringRep;
 		}
 	}
 
@@ -425,13 +434,78 @@ var translateHaplotypes= function(pgxData) {
 			var stringRep= haplotypeToString(
 				null, currentHaplotype, currentGeneMarkers);
 
-			console.log(currentGene, haplotypeNames[j], "translated:", currentHaplotype, stringRep); ////////////
+			// Store known haplotype using standard names (e.g. star nomenclature)
+			// initialize
+			if (knownHaplotypes[currentGene] === undefined) {
+				knownHaplotypes[currentGene]= {};
+			}
+			if (knownHaplotypes[currentGene][haplotypeNames[j]] === undefined) {
+				knownHaplotypes[currentGene][haplotypeNames[j]]= {};
+			}
 
-		///// STORE in known haplotypes
+			knownHaplotypes[currentGene][haplotypeNames[j]]["haplotype"]= currentHaplotype;
+			knownHaplotypes[currentGene][haplotypeNames[j]]["stringRep"]= stringRep;
 		}
 	}
 
-	////// Where in the pgxData var are we going to store these string representations?
+	pgxData["pgxGenesStringRep"]= knownHaplotypes;
+	pgxData["possibleHaplotypesStringRep"]= patientHaplotypes;
+
+	return Promise.resolve(pgxData);
+};
+
+
+/* Find the closest matching known haplotypes to the observed patient 
+ * haplotypes. Stores the edit distance and all known haplotypes that are that
+ * edit distance from this haplotype.
+ * Returns a promise. */
+var findClosestHaplotypeMatches= function(pgxData) {
+	var genes= Object.keys(pgxData["possibleHaplotypesStringRep"]);
+	for (var i= 0; i < genes.length; ++i) {
+		
+		var patientHaplotypes= Object.keys(pgxData["possibleHaplotypesStringRep"][genes[i]]);
+		for (var j= 0; j < patientHaplotypes.length; ++j) {
+			
+			/* For each haplotype, compute the distance to each known haplotype
+			 * for this gene. Keep track of the distance and only store the
+			 * closest match. If more than one haplotype matches at the same
+			 * minimum distance, store all haplotypes. */
+			 var minDistance= null;
+			 var closestMatch= null;
+			 var currentPatientHaplotypeString= 
+			 	pgxData["possibleHaplotypesStringRep"][genes[i]][patientHaplotypes[j]]["stringRep"];
+
+			 var knownHaplotypes= Object.keys(pgxData["pgxGenesStringRep"][genes[i]]);
+			 for (var k= 0; k < knownHaplotypes.length; ++k) {
+			 	var currentKnownHaplotypeString= 
+			 		pgxData["pgxGenesStringRep"][genes[i]][knownHaplotypes[k]]["stringRep"];
+			 	var tempDistance= aux.getEditDistance(
+			 		currentPatientHaplotypeString, currentKnownHaplotypeString);
+
+			 	if (minDistance === null || tempDistance < minDistance) {
+			 		minDistance= tempDistance;
+			 		closestMatch= [knownHaplotypes[k]];
+			 	} else if (tempDistance === minDistance) {
+			 		closestMatch.push(knownHaplotypes[k]);
+			 	}  // if distance is greater than current min, ignore
+
+			 	/*
+			 	// TESTING
+			 	console.log(patientHaplotypes[j], currentPatientHaplotypeString,
+			 		knownHaplotypes[k], currentKnownHaplotypeString, "Dist=", tempDistance);
+			 	*/
+			 }
+
+			 console.log(patientHaplotypes[j], "Matches=", closestMatch, "Dist=", minDistance); //////////////
+
+			 // Store results of this computation
+			 pgxData["possibleHaplotypesStringRep"][genes[i]][patientHaplotypes[j]]["minDistance"]=
+			 	minDistance;
+			 pgxData["possibleHaplotypesStringRep"][genes[i]][patientHaplotypes[j]]["closestMatch"]=
+			 	closestMatch;
+
+		}
+	}
 
 	return Promise.resolve(pgxData);
 };
@@ -510,10 +584,13 @@ var addEventListeners= function() {
 			return translateHaplotypes(result);
 		})
 		.then(function(result) {
+			return findClosestHaplotypeMatches(result);
+		})
+		.then(function(result) {
 			globalPGXData= result;  // set the globally-scoped PGX Data
 			loadPGx(result);
 
-			console.log(globalPGXData); ////////////// TESTING
+			console.log("TESTING globalPGXData:", globalPGXData); ////////////// TESTING
 		});
 	});
 };
