@@ -255,7 +255,22 @@ var addToDefinedDiplotype= function(marker, variant, diplotype) {
  	}
 
  	return definedDiplotype;
- };
+};
+
+
+/* Remove duplicate haplotypes (lists of markers) from the input array. */
+var removeDuplicates= function(haplotypes) {
+	var alreadyObservedHaplotypes= {};
+	var uniqueHaplotypes= [];
+	for (var i= 0; i < haplotypes.length; ++i) {
+		var key= haplotypes[i].sort().toString();
+		if (alreadyObservedHaplotypes[key] === undefined) {
+			alreadyObservedHaplotypes[key]= true;
+			uniqueHaplotypes.push(haplotypes[i]);
+		}
+	}
+	return uniqueHaplotypes;
+};
 
 
 /* Return all possible haplotypes by combining already defined haplotypes
@@ -267,8 +282,18 @@ var getPossibleHaplotypes= function(definedDiplotype, unphasedHets) {
 		possibleHaplotypes= definedDiplotype.slice();  // copy the array
 	}
 
+	var alreadyObservedHaplotypes= {};
+
 	var unphasedHetKeys= Object.keys(unphasedHets);
 	for (var i= 0; i < unphasedHetKeys.length; ++i) {
+		// If we are entering this loop, we have unphased hets. This means we
+		// are going to have more than 2 possible haplotypes. I allow duplicate
+		// haplotypes if they are phased. But if unphased, I remove duplicates 
+		// because they have no biological significance. Therefore in the first
+		// iteration, remove duplicates from defined diplotype.
+		if (i === 0) {
+			possibleHaplotypes= removeDuplicates(possibleHaplotypes);
+		}
 
 		// For each defined haplotype, create a version with the het ref call
 		// and a version with the het alt call. 
@@ -276,12 +301,22 @@ var getPossibleHaplotypes= function(definedDiplotype, unphasedHets) {
 		// can occur. By removing these, we shorten our computation. Not urgent.
 		var newPossibleHaplotypes= [];
 		for (var j= 0; j < possibleHaplotypes.length; ++j) {
-			newPossibleHaplotypes.push(possibleHaplotypes[j]);  // het REF call
-			newPossibleHaplotypes.push(
-				possibleHaplotypes[j].concat(unphasedHetKeys[i]));  // het ALT call
+			var hetRefCall= possibleHaplotypes[j];
+			var hetAltCall= possibleHaplotypes[j].concat(unphasedHetKeys[i])
+
+			// Ensure list of computed/derived possible haplotypes is unique.
+			// Don't include duplicates.
+			var hetRefCallKey= hetRefCall.sort().toString();
+			alreadyObservedHaplotypes[hetRefCallKey]= true;
+
+			var hetAltCallKey= hetAltCall.sort().toString();
+			if (alreadyObservedHaplotypes[hetAltCallKey] === undefined) {
+				alreadyObservedHaplotypes[hetAltCallKey]= true;
+				newPossibleHaplotypes.push(hetAltCall);
+			}
 		}
 
-		possibleHaplotypes= newPossibleHaplotypes;
+		possibleHaplotypes= possibleHaplotypes.concat(newPossibleHaplotypes);
 	}
 
 	return possibleHaplotypes;
