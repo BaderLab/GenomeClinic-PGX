@@ -586,12 +586,18 @@ Handlebars.registerHelper('haplotypeMarkers', function(context, options) {
 	for (var i= 0; i < currentGeneMarkers.length; ++i) {
 		var m= currentGeneMarkers[i];
 
+		// Convert Alt genotypes to uppercase (Alts are in array, unlike Ref)
+		var uppercaseAlts= [];
+		for (var j= 0; j < globalPGXData["pgxCoordinates"][m]["alt"].length; ++j) {
+			uppercaseAlts.push(globalPGXData["pgxCoordinates"][m]["alt"][j].toUpperCase());
+		}
+
 		var haplotypeMarkers= globalPGXData["pgxGenes"][currentGene][currentHaplotype];
 		if (haplotypeMarkers.indexOf(m) !== -1) {  // haplotype is defined by this marker
 			renderedHtml += "<td class='variant-alt'>" + 
-				globalPGXData["pgxCoordinates"][m]["alt"].toString() + "</td>"; // alt is an array
+				uppercaseAlts.toString() + "</td>"; // alt is an array
 		} else {
-			renderedHtml += "<td>" + globalPGXData["pgxCoordinates"][m]["ref"] + "</td>";
+			renderedHtml += "<td>" + globalPGXData["pgxCoordinates"][m]["ref"].toUpperCase() + "</td>";
 		}
 	}
 
