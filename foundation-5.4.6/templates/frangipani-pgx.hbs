@@ -17,9 +17,8 @@
 			<thead>
 				<tr>
 					<th>Haplotype</th>
-					{{#each geneMarkers}}
-						<th>{{this}}</th>
-					{{/each}}
+					{{#markerHeader @key}}
+					{{/markerHeader}}
 				</tr>
 			</thead>
 			<tbody>
@@ -27,11 +26,9 @@
 				{{/patientGenotypes}}
 				{{#each this}}
 				<tr>
-					{{#isHaplotype @key}}
-						<td>{{@key}}</td>
-						{{#haplotypeMarkers @key}}
-						{{/haplotypeMarkers}}
-					{{/isHaplotype}}
+					<td>{{@key}}</td>
+					{{#haplotypeMarkers @key}}
+					{{/haplotypeMarkers}}
 				</tr>
 				{{/each}}
 			</tbody>

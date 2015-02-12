@@ -185,6 +185,7 @@ var processPGXResponse= function(selectedPatientAlias, selectedPatientID, server
 
 	var pgxData= serverResponse;
 	pgxData["patientAlias"]= selectedPatientAlias;  // add the patient alias
+	pgxData["geneMarkers"]= {}
 
 	// Create list of all marker IDs for each gene by iterating through all 
 	// haplotypes and store a unique list of markers
@@ -207,7 +208,7 @@ var processPGXResponse= function(selectedPatientAlias, selectedPatientID, server
 		}
 
 		// Store the list of unique markers in this object
-		pgxData["pgxGenes"][geneName]["geneMarkers"]= geneMarkers;
+		pgxData["geneMarkers"][geneName]= geneMarkers;
 	}
 
 	return Promise.resolve(pgxData);
@@ -333,7 +334,7 @@ var generateAllHaplotypes= function(pgxData) {
 	// Iterate through all genes
 	//var geneNames= Object.keys(pgxData["pgxGenes"]);  ///// UNBLOCK AFTER MERGED WITH NEW ANNOTATOR
 	////////////////////TESTING
-	var geneNames= ["cyp2d6", "tpmt", "cyp2c9", "cyp3a5", "dpyd"];  ///// TESTING- ONLY with genes that dont have multiple alts
+	var geneNames= ["cyp2d6", "tpmt", "cyp2c9", "cyp3a5", "dpyd", "grik4"];  ///// TESTING- ONLY with genes that dont have multiple alts
 	
 	// keep track of markers while iterating over variants
 	var markerByID= {};
@@ -346,7 +347,7 @@ var generateAllHaplotypes= function(pgxData) {
 
 		// Iterate through the markers for this gene, and match variants by
 		// coordinates not gene name (which is annotated by annovar)
-		var currentGeneMarkers= pgxData["pgxGenes"][geneNames[i]]["geneMarkers"];
+		var currentGeneMarkers= pgxData["geneMarkers"][geneNames[i]];
 		var allVariants= pgxData["variants"];
 		for (var j= 0; j < currentGeneMarkers.length; ++j) {
 			var m= currentGeneMarkers[j];
@@ -435,7 +436,7 @@ var translateHaplotypes= function(pgxData) {
 	var ph= Object.keys(pgxData["possibleHaplotypes"]);
 	for (var i= 0; i < ph.length; ++i) {
 		var currentGene= ph[i];
-		var currentGeneMarkers= pgxData["pgxGenes"][currentGene]["geneMarkers"];
+		var currentGeneMarkers= pgxData["geneMarkers"][currentGene];
 
 		var haplotypes= pgxData["possibleHaplotypes"][currentGene];
 		for (var j= 0; j < haplotypes.length; ++j) {
@@ -461,7 +462,7 @@ var translateHaplotypes= function(pgxData) {
 	var pg= Object.keys(pgxData["pgxGenes"]);
 	for (var i= 0; i < pg.length; ++i) {
 		var currentGene= pg[i];
-		var currentGeneMarkers= pgxData["pgxGenes"][currentGene]["geneMarkers"];
+		var currentGeneMarkers= pgxData["geneMarkers"][currentGene];
 
 		var haplotypeNames= Object.keys(pgxData["pgxGenes"][currentGene]);
 		for (var j= 0; j < haplotypeNames.length; ++j) {
@@ -558,15 +559,17 @@ var loadPGx= function(pgxData) {
 };
 
 
-/* Handlebars block helper to avoid outputting "geneMarkers" list as a
- * haplotype when rendering the table.
- * Only problem with this approach is if a haplotype with the key 
- * "geneMarkers" is ever created (case-sensitive). Based on current CPIC
- * guidelines, this is extremely unlikely, so should be safe. */
-Handlebars.registerHelper("isHaplotype", function(conditional, options) {
-	if (conditional != "geneMarkers") {
-		return options.fn(this);
+/* Handlebars block helper to output all PGx markers for this gene. */
+Handlebars.registerHelper('markerHeader', function(context, options) {
+	var renderedHtml= "";
+	var currentGene= context;
+
+	var currentGeneMarkers= globalPGXData["geneMarkers"][currentGene];
+	for (var i= 0; i < currentGeneMarkers.length; ++i) {
+		renderedHtml += "<th>" + currentGeneMarkers[i] + "</th>";
 	}
+
+	return renderedHtml;
 });
 
 
@@ -578,8 +581,7 @@ Handlebars.registerHelper('haplotypeMarkers', function(context, options) {
 	var currentGene= options.data._parent.key;
 	var currentHaplotype= context;
 
-	var currentGeneMarkers= globalPGXData["pgxGenes"][currentGene]["geneMarkers"];
-
+	var currentGeneMarkers= globalPGXData["geneMarkers"][currentGene];
 
 	for (var i= 0; i < currentGeneMarkers.length; ++i) {
 		var m= currentGeneMarkers[i];
@@ -622,7 +624,7 @@ Handlebars.registerHelper('patientGenotypes', function(options) {
 
 		renderedHtml += "<tr class='patient-genotype-row'><td><em>" + hapNameAndMatches + "<em></td>";
 	
-		var currentGeneMarkers= globalPGXData["pgxGenes"][currentGene]["geneMarkers"];
+		var currentGeneMarkers= globalPGXData["geneMarkers"][currentGene];
 		for (var j= 0; j < currentGeneMarkers.length; ++j) {
 			var m= currentGeneMarkers[j];
 
