@@ -617,8 +617,14 @@ Handlebars.registerHelper('patientGenotypes', function(options) {
 	for (var i= 0; i < patientHaplotypes.length; ++i) {
 		var haplotypeName= patientHaplotypes[i];
 
-		// Output the haplotype name and haplotype matches
-		var hapNameAndMatches= haplotypeName + " (" +
+		// Output the haplotype name and haplotype matches. If a the minimum
+		// distance to the nearest reference haplotype == 0, it's a match.
+		// Otherwise, we will consider it "similar to".
+		var similarString= "";
+		if (globalPGXData["possibleHaplotypesStringRep"][currentGene][haplotypeName]["minDistance"] > 0) {
+			similarString= "similar to ";
+		}
+		var hapNameAndMatches= haplotypeName + " (" + similarString +
 			globalPGXData["possibleHaplotypesStringRep"][currentGene][haplotypeName]["closestMatch"]
 			.toString() + ")";
 
