@@ -49,12 +49,23 @@
     </div>
     
     <!-- Main body of page -->
-    <div id="frangipani-login-page" style="min-height:100%;">
+    <div style="min-height:100%;">
       <div class="row">
         <div class="large-6 large-centered columns">
-          <form action="/login" method="post" style="margin-top:20%">
+          <form data-abide="ajax" id="frangipani-request-login" style="margin-top:20%">
             <fieldset>
               <h3 style="margin-bottom:60px;margin-top:10px;"><i class="fa fa-chevron-right"></i>&nbspLog In</h3>
+              <div class="row">
+                <div class="small-12 columns">
+                  <div data-alert class="alert-box radius alert" id="error-display-box"  style="display:none">
+                    <!-- Alert message goes here -->
+                    <div class="small-11 columns">
+                      <p id="error-display-message"></p>
+                    </div>
+                    <a href="#" class='close-box'><i class="fi-x size-16" style="color:#606060"></i></a>
+                  </div>
+                </div>
+              </div>
               <div class="row" >
                 <div class="large-12 columns">
                   <div class="row collapse prefix-radius">
@@ -62,7 +73,8 @@
                       <span data-tooltip aria-haspopup="true" class="has-tip tip-left radius" title="Please enter a valid email address"><span class="prefix">Username</span></span>
                     </div>
                     <div class="large-9 columns">
-                      <input type="text" id='username' name='username'>
+                      <input type="email" id='username' name='username' required>
+                      <small class="error">Your username must be a valid email</small>
                     </div>
                   </div>
                 </div>
@@ -74,14 +86,15 @@
                       <span class="prefix">password</span>
                     </div>
                     <div class="large-9 columns">
-                      <input type="password" id='password' name='password'>
+                      <input type="password" id='password' name='password' required pattern="lower">
+                      <small class="error">Passwords must be between 6 and 40 characters long</small>
                     </div>
                   </div>
                 </div>
               </div>
               <div class="row" style="margin-top:20px;">
                 <div class="large-3 columns">
-                  <a id="submit-login" class="button radius alert">Login</a>
+                  <button type="submit" id="submit-login" class="button radius alert">Login</button>
                 </div>
                 <div class="large-9 columns">
                     <div class="large-12 columns">
@@ -104,13 +117,8 @@
                 </div>
               </div>
               <div class="row">
-                <div class="large-10 columns large-centered">
-                  <div class="large-8 columns text-center" style>
-                    <h5 class="subheader">Sign in with Google</h5>
-                  </div>                  
-                  <div class="large-1 columns left">
-                    <h5><a href="/auth/google"><i class="fa fa-google-plus-square fa-2x" style="color:#dd4b39;size:14pt"></i></a></h5>
-                  </div>
+                <div class="small-12 columns small-centered text-center">
+                  <a href="/auth/google" ><img src="img/signin1.png" class="small-12 small-centered "style="width:60%;height:60%"></a>
                 </div>
               </div>
             </fieldset>

@@ -18,6 +18,8 @@
     "passport": "*",
     "passport-google-oauth": "*",
     "passport-local": "*",
-    "request": "*"
+    "request": "*",
+    "just.randomstring":"*",
+    "nodemailer":"*"
   }
 }

@@ -106,7 +106,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
-require('./frangipani_node_modules/loginRoutes')(app,passport);
+require('./frangipani_node_modules/loginRoutes')(app,passport,dbFunctions);
 
 /* Serve static content (css files, js files, templates, etc) from the
  * foundation directory. */
