@@ -359,7 +359,7 @@ var generateAllHaplotypes= function(pgxData) {
 			var found= false;
 			for (var k= 0; k < allVariants.length; ++k) {
 				var currentVariant= allVariants[k];
-				if (chrom === currentVariant["chr"] && pos === currentVariant["start"]) {  ///////////// START may turn into POS later - POTENTIAL BUG!
+				if (chrom === currentVariant["chrom"] && pos === currentVariant["pos"]) {
 					// marker found
 					found= true;
 					markerByID[m]= currentVariant;
@@ -646,10 +646,10 @@ Handlebars.registerHelper('patientGenotypes', function(options) {
 			} else if (globalPGXData["possibleHaplotypesStringRep"][currentGene][haplotypeName]["haplotype"].indexOf(m) !== -1) {  // alt
 				///// NOTE: BUG here - will need to grab alt out of an array after
 				// patrick's merge
-				var altGenotype= markerByID[m]["alt"];
+				var altGenotype= markerByID[m]["alt"].toUpperCase();
 				renderedHtml += "<td class='variant-alt'>" + altGenotype + "</td>";
 			} else {  // ref
-				renderedHtml += "<td>" + markerByID[m]["ref"] + "</td>";
+				renderedHtml += "<td>" + markerByID[m]["ref"].toUpperCase() + "</td>";
 			}
 		}
 
