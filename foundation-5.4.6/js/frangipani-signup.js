@@ -27,10 +27,17 @@
 			var data = {
 				'username':$('#username').val()
 			};
+			
+			if (window.location.pathname == '/setpassword'){
+				data['newpassword'] = $('#newpassword').val();
+			}
 
 			if (window.location.pathname != '/recover'){
 				data['password'] = $("#password").val()
+
 			}
+
+			
 			
 			var promise = Promise.resolve($.ajax({
 				url: window.location.pathname,
