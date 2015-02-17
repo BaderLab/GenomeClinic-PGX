@@ -31,6 +31,7 @@
 			if (window.location.pathname != '/recover'){
 				data['password'] = $("#password").val()
 			}
+			
 			var promise = Promise.resolve($.ajax({
 				url: window.location.pathname,
 				type:'POST',
