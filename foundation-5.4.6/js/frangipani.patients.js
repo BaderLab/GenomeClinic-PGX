@@ -357,7 +357,7 @@ var generateAllHaplotypes= function(pgxData) {
 			var found= false;
 			for (var k= 0; k < allVariants.length; ++k) {
 				var currentVariant= allVariants[k];
-				if (chrom === currentVariant["chrom"] && pos === currentVariant["pos"]) {
+				if (chrom === currentVariant["chr"] && pos === currentVariant["pos"]) {
 					// marker found
 					found= true;
 					markerByID[m]= currentVariant;
