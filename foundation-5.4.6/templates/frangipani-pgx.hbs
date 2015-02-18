@@ -1,0 +1,38 @@
+{{!-- NOTE: Put quotes around attributes that may have spaces, or handlebars
+	  will only output the first word. --}}
+<div class="row">	
+	<div class="large-12 columns">
+		{{#if patientAlias}}
+		<h2><i class="fi-torso"></i> {{patientAlias}} (<em>{{patientID}}</em>)</h2>
+		{{else}}
+		<h2><i class="fi-torso"></i> <em>{{patientID}}</em></h2>
+		{{/if}}
+	</div>
+</div>
+{{#each pgxGenes}}
+<div class="row">
+	<div class="large-12 columns">
+			<h3>{{@key}}</h3>
+		<table>
+			<thead>
+				<tr>
+					<th>Haplotype</th>
+					{{#markerHeader @key}}
+					{{/markerHeader}}
+				</tr>
+			</thead>
+			<tbody>
+				{{#patientGenotypes}}
+				{{/patientGenotypes}}
+				{{#each this}}
+				<tr>
+					<td>{{@key}}</td>
+					{{#haplotypeMarkers @key}}
+					{{/haplotypeMarkers}}
+				</tr>
+				{{/each}}
+			</tbody>
+		</table>
+	</div>	
+</div>
+{{/each}}

@@ -155,7 +155,16 @@ tr.patient-row:hover {
   background-color: #B2D1FF;
 }
 
+/* Different styling for alternate genotype calls (not reference). */
+td.variant-alt {
+  font-style: italic;
+  color: red;
+}
 
-
+/* This table row should be distinguished by a different background colour. */
+tr.patient-genotype-row {
+  /* override foundation table alternating row grey style using !important */
+  background-color: #EBFAFF !important;
+}
 
 
