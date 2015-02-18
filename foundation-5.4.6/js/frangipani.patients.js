@@ -332,9 +332,7 @@ var generateAllHaplotypes= function(pgxData) {
 	pgxData["possibleHaplotypes"]= {};
 
 	// Iterate through all genes
-	//var geneNames= Object.keys(pgxData["pgxGenes"]);  ///// UNBLOCK AFTER MERGED WITH NEW ANNOTATOR
-	////////////////////TESTING
-	var geneNames= ["cyp2d6", "tpmt", "cyp2c9", "cyp3a5", "dpyd", "grik4"];  ///// TESTING- ONLY with genes that dont have multiple alts
+	var geneNames= Object.keys(pgxData["pgxGenes"]);  ///// UNBLOCK AFTER MERGED WITH NEW ANNOTATOR
 	
 	// keep track of markers while iterating over variants
 	var markerByID= {};
@@ -644,10 +642,46 @@ Handlebars.registerHelper('patientGenotypes', function(options) {
 			if (!markerByID[m]) {  // missing
 				renderedHtml += "<td class='variant-alt'>missing</td>";
 			} else if (globalPGXData["possibleHaplotypesStringRep"][currentGene][haplotypeName]["haplotype"].indexOf(m) !== -1) {  // alt
-				///// NOTE: BUG here - will need to grab alt out of an array after
-				// patrick's merge
-				var altGenotype= markerByID[m]["alt"].toUpperCase();
-				renderedHtml += "<td class='variant-alt'>" + altGenotype + "</td>";
+
+				var altGenotype= markerByID[m]["alt"];
+
+				if (Object.prototype.toString.call(altGenotype) == "[object String]") {
+					renderedHtml += "<td class='variant-alt'>" + altGenotype.toUpperCase() + "</td>";
+				} else if (Object.prototype.toString.call(altGenotype) == "[object Array]") {
+				/* How to process GT alts into haplotypes:
+				 * NOTE: at this point, haplotypes have already been phased by
+				 * generateAllHaplotypes().
+				 * 1) If only one GT index > 0 (eg. 0/1, 1|0, 2/0) use the
+				 * index that is > 0.
+				 * 2) If there are 2 GT indexes > 0 (eg. 1/2, 2|1) output both
+				 * the corresponding genotypes.
+				 * 3) If the genotypes are phased, we run into a complication
+				 * for GT's like "2|1" because this appears as a heterozygous
+				 * call, even though the call is effectively homozygous for the
+				 * marker (using two different alt alleles). So in this case,
+				 * we ignore the phased status and output both alleles. It's
+				 * also hard to incorporate these phased exceptions if some
+				 * markers of this gene are unphased. Outputting both alts is
+				 * acceptable:
+				 * ex.	Ref= "A", Alt= "G,C,T", GT= 2|1
+				 * 		we output, "G,C"
+				 */
+					var indexes= [];
+					var gtArray= markerByID[m]["gt"];
+					for (var k= 0; k < gtArray.length; ++k) {
+						if (gtArray[k] > 0) {
+							indexes.push(gtArray[k]);
+						}
+					}
+
+					var possibleAltGenotypes= [];
+					for (var k= 0; k < indexes.length; ++k) {
+						// subtract 1 from index because 0 == ref and we're starting from alt #1
+						possibleAltGenotypes.push(altGenotype[indexes[k] - 1]);
+					}
+
+					renderedHtml += "<td class='variant-alt'>" + possibleAltGenotypes.toString().toUpperCase() + "</td>";
+				}
 			} else {  // ref
 				renderedHtml += "<td>" + markerByID[m]["ref"].toUpperCase() + "</td>";
 			}
