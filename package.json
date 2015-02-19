@@ -20,6 +20,7 @@
     "passport-local": "*",
     "request": "*",
     "just.randomstring":"*",
-    "nodemailer":"*"
+    "nodemailer":"*",
+    "connect-mongo":"*"
   }
 }

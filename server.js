@@ -13,6 +13,7 @@ var flash = require('connect-flash');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var bodyParser= require("body-parser");
+var mongoStore = require('connect-mongo')(session);
 var email,emailPassword;
 
 
@@ -123,12 +124,16 @@ app.use(bodyParser.urlencoded({extended:false}))
 
 require('./frangipani_node_modules/passport-config')(passport,dbFunctions)
 
+console.log('mongodb://' + dbConstants.DB_HOST + ':' + dbConstants.DB_PORT + '/sessionInfo');
 
 //=======================================================================
 // Initialize the session Session
 //=======================================================================
 //In the future use a redis session to configure the session information
 app.use(session({secret:'fragipani_app_server',
+				 store: new mongoStore({
+				 	url:'mongodb://' + dbConstants.DB_HOST + ':' + dbConstants.DB_PORT + '/sessionInfo'
+				 }),
 				 resave:false,
 				 saveUninitialized:false}));
 
