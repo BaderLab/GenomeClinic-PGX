@@ -1,19 +1,27 @@
 /*
  * Frangipani genome annotation server that connects to genome storage servers
- * via the GA4GH API.
- * @author Ron Ammar
+ * 
+ * @author Ron Ammar, Patrick Magee
  */
-
 var express= require("express");
 var dbFunctions= require("./frangipani_node_modules/mongodb_functions");
-var uploader= require("jquery-file-upload-middleware");
-var routes= require("./frangipani_node_modules/routes");
 var Promise= require("bluebird");
 var dbConstants= require("./frangipani_node_modules/mongodb_constants");
 var fs = Promise.promisifyAll(require('fs'));
+var passport = require('passport');
+var flash = require('connect-flash');
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
+var bodyParser= require("body-parser");
+var email,emailPassword;
 
 
-/* Command line options */
+//=======================================================================
+// Command Line Options
+//=======================================================================
+/* Control the behaviour of the server by modifying the defaul
+ * value of these command line options. They can be passed when
+ * the server is initially started */
 var opts= require("nomnom")
 	.option("portNumber", {
 		abbr: "p",
@@ -37,26 +45,38 @@ var opts= require("nomnom")
 			dbConstants.DB_PORT= parseInt(mongodbPortNumber);
 		}
 	})
+	.option("gmail",{
+		abr:'g',
+		full: "gmail-account",
+		default:undefined,
+		help:"gmail account name to use for sending password recoveries. This will not be permanately stored",
+		callback: function(gmail){
+			email = gmail;
+		}
+	})
+	.option('password',{
+		abr:'W',
+		full:'gmail-password',
+		default:undefined,
+		help:'please eneter gmail account password. This will not be permanately stored',
+		callback: function(password){
+			emailPassword = password
+		}
+	})
 	.parse();
+
 console.log("Server running on port " + opts.portNumber);
 
 
-/* Initialize the server. */
+//=======================================================================
+// Initialize Express Server
+//=======================================================================
 var app= express();
-var configured= undefined;
 
 
-/* Connect to the DB. */
-dbFunctions.connectAndInitializeDB()
-	.catch(function(err) {
-		console.error(err.toString());
-		console.error(err.stack);
-		console.log("Exiting due to connection error with DB server.");
-		process.exit(1);
-	});
-
-
-/* Check if /upload and /tmp directories exist. If not, creates them. */
+//=======================================================================
+// Check if prequisite directories are made, if not create them
+//=======================================================================
 var prerequisiteDirectories= ["upload", "tmp"];
 for (var i= 0; i < prerequisiteDirectories.length; ++i) {
 	// using an immediately-invoked function expression to keep scope across iterations
@@ -74,45 +94,77 @@ for (var i= 0; i < prerequisiteDirectories.length; ++i) {
 	})();
 }
 
-
-/* Serve static content (css files, js files, templates, etc) from the
- * foundation directory. */
-app.use(express.static("foundation-5.4.6", {index: false}));
-
-app.get("/", function(request, response) {
-	/* Check if the server has already been configured. 
-	 * Using a bit of promise voodoo to ensure we check the DB first, but only
-	 * when configured !== true, so as to reduce DB interactions. */
-	var promise= new Promise.resolve(configured);
-	if (!configured) {
-		promise= dbFunctions.isConfigured();
-	}
-
-	/* If server is not configured redirect to the config page. Use a boolean
-	 * instead of checking the DB with each request. */
-	promise.then(function(resolved_config) {
-		if (resolved_config) {
-			response.sendFile("foundation-5.4.6/frangipani.html", {root: "."});
-			if (!configured) {
-				configured= resolved_config;
-			}
-		} else {
-			response.sendFile("foundation-5.4.6/config.html", {root: "."});
-		}
-	});
+//=======================================================================
+// Connect and Initialzie the storage Database
+//=======================================================================
+dbFunctions.connectAndInitializeDB()
+.catch(function(err) {
+	console.error(err.toString());
+	console.error(err.stack);
+	console.log("Exiting due to connection error with DB server.");
+	process.exit(1);
 });
 
-app.use("/datasets", routes.getRouter);
-app.use("/callsets/search", routes.postRouter);
-app.use("/variants/search",routes.postRouter);
-app.use("/upload/vcf",routes.uploadRouter);
-app.use("/database/getPatients", routes.getPatients);
-app.use("/config", routes.postRouter);
-app.use('/database/find',routes.getPatients);
-app.use("/patients", routes.getRouter);
-app.use("/pgx", routes.postRouter);
 
+
+
+//=======================================================================
+// Add Parsers
+//=======================================================================
+app.use(cookieParser());
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended:false}))
+
+
+
+//=======================================================================
+// Set up Passport to use Authentication
+//=======================================================================
+
+require('./frangipani_node_modules/passport-config')(passport,dbFunctions)
+
+
+//=======================================================================
+// Initialize the session Session
+//=======================================================================
+//In the future use a redis session to configure the session information
+app.use(session({secret:'fragipani_app_server',
+				 resave:false,
+				 saveUninitialized:false}));
+
+
+//=======================================================================
+// Initialize Passport and session
+//=======================================================================
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(flash());
+
+//=======================================================================
+// Serve Static Public Content (ie, dont need to be logged in to access)
+//=======================================================================
+app.use(express.static("public/", {index: false}));
+
+
+
+
+//=======================================================================
+// Add routes
+//=======================================================================
+require('./frangipani_node_modules/routes')(app,passport,dbFunctions,email,emailPassword);
+
+
+
+
+//=======================================================================
+// Start Listening on the set port
+//=======================================================================
 app.listen(opts.portNumber);
+
+
+//=======================================================================
+// Exit Event
+//=======================================================================
 /* Listen for SIGINT events. These can be generated by typing CTRL + C in the 
  * terminal. */ 
 process.on("SIGINT", function(){

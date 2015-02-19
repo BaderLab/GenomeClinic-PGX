@@ -1,0 +1,88 @@
+<html class="no-js" lang="en">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Frangipani</title>
+    <link rel="stylesheet" href="css/foundation.css" />
+
+    <!-- Foundation vector graphic icon fonts -->
+    <link rel="stylesheet" href="foundation-icons/foundation-icons.css" />
+
+    <!-- Font awesome vector graphic icons -->
+    <link rel="stylesheet" href="font-awesome-4.2.0/css/font-awesome.min.css" />
+
+    <!-- Custom style sheet -->
+    <link rel="stylesheet" href="css/app.css">
+
+    <script src="js/vendor/modernizr.js"></script>
+
+    <link rel="icon" href="img/icon2.jpg" />
+    <link rel="author" href="humans.txt" />
+  </head>
+
+  <body>
+    <div class="sticky">
+      <nav class="top-bar" data-topbar role="navigation">
+      </nav>
+    </div>
+    
+    <!-- Main body of page -->
+    <div class="row">
+      <div class="large-12 columns">
+        <div class="row">
+          <div class="large-12 columns">
+            <h2>Recent Uploads</h2>
+            <h5 class="subheader">Displaying All Uploads</h5>
+            <p>Information on recent uploads, including the Patient Id, the original file name and the useability status. If a patient has been completely uploaded, annotated and is available for use in searching, a checkmark will be displayed. Otherwise the spinning icon denotes the file is not currently ready to use.</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="large-12 columns">
+            <table class='large-12'>
+              <thead>
+                <tr>
+                  <th>Patient</th>
+                  <th>File</th>
+                  <th>Added</th>
+                  <th>Completed</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="frangipani_patient_status">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>   
+    <!-- Footer - modified from the Foundation website -->
+    <div class="zurb-footer-bottom">
+      <div class="row">
+         <div class="large-12 columns">
+            <ul class="zurb-links">
+              <li><a href="http://www.baderlab.org" target="_blank">About</a></li>
+              <li><a href="http://www.baderlab.org" target="_blank">Contact</a></li>
+           </ul>
+           <p class="copyright">&copy; 2015 Bader &amp; Brudno Labs, University of Toronto. All rights reserved.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Foundation Javascript components -->
+    <script src="js/vendor/jquery.js"></script>
+    <script src="js/foundation.min.js"></script>
+
+    <script>
+      $(document).foundation();
+    </script>
+    <!-- Jquery File Uploader -->
+    
+    <!-- Handlebars template compiler -->
+    <script src="js/handlebars-v2.0.0.js"></script>
+
+    <!-- My Javascript -->
+    <script src="js/frangipani-utility.js"></script>
+    <script src="js/frangipani-status.js"></script>
+  </body>
+</html>
