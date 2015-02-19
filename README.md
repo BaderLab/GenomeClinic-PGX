@@ -62,20 +62,23 @@ perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar cg69 humandb/
 perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar esp6500_all humandb/
 perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar 1000g2014sep_all humandb/
 perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar clinvar_20140929 humandb/
+perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar snp138 humandb/
 ```
 
-## Google OAUTH Setup.
+These can be exceptionally large files so the download will take some time.
 
+
+## Google OAUTH Setup.
 This app is enabled to use google-OAUTH2, however in order for this to work you must activate it from the [google developers console](https://console.developers.google.com/).
 
-Once there click on the 'Create Project' tab, make a name for it, aggree to the terms then click accept. IT will take several moments for
+Once there click on the 'Create Project' tab, make a name for it, agree to the terms then click accept. IT will take several moments for
 a new project to be created
 
-once your project is created, click on 'APIS & auth' in the side bar and select "Create New Client Id" under the OAUTH. A new screen will pop up the default option 'Web apllication' selected. This is what we want, so click Configure Consent Screen. Here you can customize what people see when they attempt to authenticate with Google. It has several required fields, but most are options. Click save.
+once your project is created, click on 'APIS & auth' in the sidebar and select "Create New Client Id" under the OAUTH. A new screen will pop up the default option 'Web application' selected. This is what we want, so click Configure Consent Screen. Here you can customize what people see when they attempt to authenticate with Google. It has several required fields, but most are options. Click save.
 
 A new screen will pop up asking for you to create a client ID. This will ask for the Authorized Javascript origins and the Authorized Redirect URIS.
 
-For the Authorized Javascript origin, type in the http address of your server. ie the ip address or: localhost:8080 if you are running from you own computer. for example:
+For the Authorized Javascript origin, type in the http address of your server. ie the ip address or: localhost:8080 if you are running from your own computer. for example:
 
 `http://localhost:8080`
 
@@ -90,6 +93,5 @@ click save. This will generate A client ID that is registered with google. The n
 2. client ID
 3. client Secret
 
-to the api.js script located in frangipani_node_module/. Once this is done you should now have a perfectly functionin OAUTH system for google!
+to the api.js script located in frangipani_node_module/. Once this is done you should now have a perfectly functioning OAUTH system for google!
 
-These can be exceptionally large files so the download will take some time.
