@@ -77,11 +77,11 @@ A new screen will pop up asking for you to create a client ID. This will ask for
 
 For the Authorized Javascript origin, type in the http address of your server. ie the ip address or: localhost:8080 if you are running from you own computer. for example:
 
-```http://localhost:8080```
+`http://localhost:8080`
 
 Under the Authorized Redirect URIS type in
 
-```http://localhost:8080/auth/google/callback```
+`http://localhost:8080/auth/google/callback`
 
 
 click save. This will generate A client ID that is registered with google. The next thing you will want to do is copy and past the:
