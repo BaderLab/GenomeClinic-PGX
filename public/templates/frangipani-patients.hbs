@@ -1,0 +1,33 @@
+{{!-- Put quotes around attributes that may have spaces, or handlebars will 
+      only output the first word. --}}
+<div class="row">	
+	<div class="large-12 columns">
+		<h2><i class="fi-torsos-all"></i> All Patients (<strong><em>{{patients.length}}</em></strong>)</h2>
+	</div>
+</div>
+<div class="row">
+	<div class="large-12 large-centered columns">
+		<table class="large-12">
+			<thead>
+				<tr>
+					<th>Patient Alias</th>
+					<th>ID</th>
+					<th class="text-center">Sex</th>
+					<th class="text-center">Age</th>
+					<th class="text-center">Date Uploaded</th>
+				</tr>
+			</thead>
+			<tbody>
+				{{#each patients}}
+				<tr class="patient-row">
+					<td class="frangipani-patient-alias">{{patient_alias}}</a></td>
+					<td class="frangipani-patient-id">{{patient_id}}</td>
+					<td class="text-center">{{sex}}</td>
+					<td class="text-center">{{age}}</td>
+					<td class="text-center">{{completed}}</td>
+				</tr>
+				{{/each}}
+			</tbody>
+		</table>
+	</div>	
+</div>

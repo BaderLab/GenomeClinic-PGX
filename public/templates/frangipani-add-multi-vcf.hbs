@@ -1,0 +1,35 @@
+<div class="row">
+	<div class="large-12 columns new-file fileNum{{Id}}">
+		{{#each patient_ids}}
+		<div class="row">
+			<div class="large-12 columns new-patients">
+				<div class="large-3 columns data-fieled">
+					<input class='patient_id' type='text' value={{this}} placeholder="NA001" name="patient_id" required>
+					<small class="error" style="display:none;">Patient Identifier Already In use</small>
+				</div>
+				<div class="large-3 columns data-field">
+					<input name="patient_alias" type='text'>
+				</div>
+				<div class="large-2 columns data-field">
+					<input name="patient_phenotype" type='text'>
+				</div>
+				<div class="large-1 columns data-field">
+					<input class="age" name="age" type='text'>
+					<small class="error" style="display:none;">Must Be A number</small>
+				</div>
+				<div class="large-3 columns data-field">
+			      <div class="small-12 medium-12 columns right">  
+			        <input name="sex" style="display:none" type="text" value="">
+			        <ul class="button-group even-3 radius sex-switch">
+			          <li><a href="#" class="button secondary tiny">M</a></li>
+			          <li><a href="#" class="button secondary tiny">F</a></li>
+			          <li><a href="#" class="button tiny">N/A</a></li>
+			        </ul>
+			      </div>
+			    </div>
+			</div>
+		</div>
+		{{/each}}
+		<hr>
+	</div>
+</div>

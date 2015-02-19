@@ -1,0 +1,22 @@
+/* TEAM */
+	El Jefe: Gary Bader
+	Contact: gary.bader [at] utoronto.ca
+	From: Toronto, Canada
+
+	Chief: Michael Brudno
+	Contact: brudno [at] cs.toronto.edu
+	From: Toronto, Canada
+
+	Lead: Ron Ammar
+	Contact: ron.ammar [at] mail.utoronto.ca
+	Twitter: @ronammar
+	From: Toronto, Canada
+
+	Programmer: Patrick Magee
+	Contact: patrick.magee [at] mail.utoronto.ca
+	From: Toronto, Canada
+
+/* SITE */
+	Standards: HTML5, CSS3
+	Components: jQuery, Orbit, Reveal
+	Software: Sublime, Git
