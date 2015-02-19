@@ -168,6 +168,8 @@ var handler= function() {
 		}));
 		promise.then(function(result) {
 			window.location.replace("/");  //redirect to home page
+		}).catch(function(err){
+			console.log(err)
 		});
 	});
 
