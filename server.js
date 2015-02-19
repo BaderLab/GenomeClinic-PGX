@@ -1,7 +1,7 @@
 /*
  * Frangipani genome annotation server that connects to genome storage servers
- * via the GA4GH API.
- * @author Ron Ammar
+ * 
+ * @author Ron Ammar, Patrick Magee
  */
 var express= require("express");
 var dbFunctions= require("./frangipani_node_modules/mongodb_functions");
@@ -13,10 +13,15 @@ var flash = require('connect-flash');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var bodyParser= require("body-parser");
+var email,emailPassword;
 
 
-
-/* Command line options */
+//=======================================================================
+// Command Line Options
+//=======================================================================
+/* Control the behaviour of the server by modifying the defaul
+ * value of these command line options. They can be passed when
+ * the server is initially started */
 var opts= require("nomnom")
 	.option("portNumber", {
 		abbr: "p",
@@ -40,17 +45,38 @@ var opts= require("nomnom")
 			dbConstants.DB_PORT= parseInt(mongodbPortNumber);
 		}
 	})
+	.option("gmail",{
+		abr:'g',
+		full: "gmail-account",
+		default:undefined,
+		help:"gmail account name to use for sending password recoveries. This will not be permanately stored",
+		callback: function(gmail){
+			email = gmail;
+		}
+	})
+	.option('password',{
+		abr:'W',
+		full:'gmail-password',
+		default:undefined,
+		help:'please eneter gmail account password. This will not be permanately stored',
+		callback: function(password){
+			emailPassword = password
+		}
+	})
 	.parse();
 
 console.log("Server running on port " + opts.portNumber);
 
 
-/* Initialize the server. */
+//=======================================================================
+// Initialize Express Server
+//=======================================================================
 var app= express();
 
 
-
-/* Check if /upload and /tmp directories exist. If not, creates them. */
+//=======================================================================
+// Check if prequisite directories are made, if not create them
+//=======================================================================
 var prerequisiteDirectories= ["upload", "tmp"];
 for (var i= 0; i < prerequisiteDirectories.length; ++i) {
 	// using an immediately-invoked function expression to keep scope across iterations
@@ -68,7 +94,9 @@ for (var i= 0; i < prerequisiteDirectories.length; ++i) {
 	})();
 }
 
-/* Connect to the DB. */
+//=======================================================================
+// Connect and Initialzie the storage Database
+//=======================================================================
 dbFunctions.connectAndInitializeDB()
 .catch(function(err) {
 	console.error(err.toString());
@@ -77,70 +105,66 @@ dbFunctions.connectAndInitializeDB()
 	process.exit(1);
 });
 
-/*Set up server to use authentication 
-	*/
 
-//add parsers
+
+
+//=======================================================================
+// Add Parsers
+//=======================================================================
 app.use(cookieParser());
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:false}))
 
-//configure passport
+
+
+//=======================================================================
+// Set up Passport to use Authentication
+//=======================================================================
+
 require('./frangipani_node_modules/passport-config')(passport,dbFunctions)
 
+
+//=======================================================================
+// Initialize the session Session
+//=======================================================================
 //In the future use a redis session to configure the session information
-app.use(session({secret:'testing',
+app.use(session({secret:'fragipani_app_server',
 				 resave:false,
 				 saveUninitialized:false}));
-//initialize passport
+
+
+//=======================================================================
+// Initialize Passport and session
+//=======================================================================
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
-//serve static content and add routes
-app.use(express.static("foundation-5.4.6/public", {index: false}));
-require('./frangipani_node_modules/loginRoutes')(app,passport,dbFunctions);
+//=======================================================================
+// Serve Static Public Content (ie, dont need to be logged in to access)
+//=======================================================================
+app.use(express.static("public/", {index: false}));
 
-/* Serve static content (css files, js files, templates, etc) from the
- * foundation directory. */
 
-//app.get("/", isLoggedIn, function(request, response) {
-	/* Check if the server has already been configured. 
-	 * Using a bit of promise voodoo to ensure we check the DB first, but only
-	* when configured !== true, so as to reduce DB interactions. */	
-//	var promise= new Promise.resolve(configured);
-//	if (!configured) {
-//		promise= dbFunctions.isConfigured();
-//	}
 
-	/* If server is not configured redirect to the config page. Use a boolean
-	 * instead of checking the DB with each request. */
-//	promise.then(function(resolved_config) {
-//		if (resolved_config) {
-//			response.sendFile("foundation-5.4.6/frangipani.html", {root: "."});
-//			if (!configured) {
-//				configured= resolved_config;
-//			}
-//		} else {
-//			response.sendFile("foundation-5.4.6/config.html", {root: "."});
-//		}
-//	});
-//});
 
-//app.get("/datasets", isLoggedIn, routes.getRouter);
-//app.use("/callsets/search", isLoggedIn, routes.postRouter);
-//app.use("/variants/search", isLoggedIn, routes.postRouter);
-//app.use("/upload/vcf", isLoggedIn, routes.uploadRouter);
-//app.use("/database/getPatients", isLoggedIn, routes.getPatients);
-//app.use("/config", isLoggedIn, routes.postRouter);
-//app.use('/database/find',isLoggedIn, routes.getPatients);
-//app.use("/patients", isLoggedIn, routes.getRouter);
-//app.use("/pgx", isLoggedIn, routes.postRouter);
-//app.get('*', function(req,res){
-//	res.sendFile('foundation-5.4.6/public/404notfound.html',{root:'.'})
-//})
+//=======================================================================
+// Add routes
+//=======================================================================
+require('./frangipani_node_modules/routes')(app,passport,dbFunctions,email,emailPassword);
 
+
+
+
+//=======================================================================
+// Start Listening on the set port
+//=======================================================================
 app.listen(opts.portNumber);
+
+
+//=======================================================================
+// Exit Event
+//=======================================================================
 /* Listen for SIGINT events. These can be generated by typing CTRL + C in the 
  * terminal. */ 
 process.on("SIGINT", function(){
@@ -150,11 +174,3 @@ process.on("SIGINT", function(){
 		process.exit(0);
 	});
 });
-
-
-
-function isLoggedIn(req,res,next){
-	if (req.isAuthenticated())
-		return next();
-	res.redirect('/login');
-}

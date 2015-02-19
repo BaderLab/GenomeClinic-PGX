@@ -1,4 +1,17 @@
+/* Frangipani-utility.js
+ *
+ * Module containing utility functions that will be included in
+ * every page that is loaded. These functions are globally 
+ * accessible and are loaded prior to any additional app specific 
+ * javascript being loaded
 
+ * Written by: 
+ * Patrick Magee & Ron Ammar
+ */
+
+
+
+// Deprecated.. to be changed in later versions of the app
 var buttonClicked = false;
 
 
@@ -7,6 +20,9 @@ var buttonClicked = false;
  * Auxiliary helper functions:
  */
 
+//=======================================================================
+// RenderHBS DEBPRECATED USE asyncRenderHbs
+//======================================================================= 
 /* Function to retrieve and render a handlebars template. This function is
  * modified from the function provided by user koorchik on StackOverFlow:
  * http://stackoverflow.com/questions/8366733/external-template-in-underscore
@@ -42,7 +58,9 @@ function renderHbs(template_name, template_data) {
 	return renderHbs.template_cache[template_name](template_data);
 };
 
-
+//=======================================================================
+// Async Rendering of handlebars templates
+//=======================================================================
 /* Same as above, but returns a promise. */
 function asyncRenderHbs(template_name, template_data) {
 	if (!asyncRenderHbs.template_cache) { 
@@ -75,10 +93,14 @@ function asyncRenderHbs(template_name, template_data) {
 
 
 
-
+//=======================================================================
+// Add an event to a button
+//=======================================================================
 /* When a button is clicked, calls a function. While the function is 
  * executing, button displays some intermediate text. Upon completion, button
- * reverts to original text. */
+ * reverts to original text.
+ * requires the function to be in the form of a promise function
+ * for proper deferred activation */
 function clickAction(button, promiseFunction, options, useThis) {
 	var originalText;
 
@@ -108,8 +130,16 @@ function clickAction(button, promiseFunction, options, useThis) {
 	});
 };
 
-// add navbarwhenever the page is loaded
-var addNavBar = function(){
+
+//=======================================================================
+// Nav Bar
+//=======================================================================
+/* Whenever the page is loaded add the nav bar from the template. The nav
+ * Bar will change depending on whether the user loggin in is authenticated
+ * or not. If they are authenticated, then the user will see the full nav bar
+ * otherwise they will not get any additional options */
+
+function addNavBar() {
 	var promise;
 
 	promise = Promise.resolve($.ajax({

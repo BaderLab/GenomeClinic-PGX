@@ -1,6 +1,9 @@
 /* Jquery uploader moduke and event handlers for uploading a new
  * Patient to the server, annotating then inputting it into
- * the current database
+ * the current database. This module contains all the javascript for form
+ * Validation as well as file uploading. It can handle one, or many
+ * files at any given time, to be sequentially uploaded (this was done
+ * due to naming issues within the databse)
 
 
  * requires: 
@@ -18,6 +21,10 @@
 
 
 (function(){
+
+  //======================================================================================================
+  // HELPER FUNCTIONS
+  //======================================================================================================
   /* adding the endsWith functionallity to strings for cross platform compatibility
   */
   if (typeof String.prototype.startsWith != 'function') {
@@ -32,6 +39,10 @@
     };
   }
 
+
+  //======================================================================================================
+  // STATIC HANDLERS
+  //======================================================================================================
   /* Static handlers that loaded only once at the beginning of the page load. These are for
    * The submit-all button as well as the cancel-all and upload button event handlers.
    */
@@ -62,6 +73,9 @@
     });
   };
 
+  //======================================================================================================
+  // DYNAMIC EVENT HANDLERS
+  //======================================================================================================
 
   /* Dynamic event handlers. This collection of handlers must be reloaded each time  
    * new patient and file content is added to the page to ensure that the handlers are
@@ -153,7 +167,9 @@
   };
 
 
-
+  //======================================================================================================
+  // Validate form input
+  //======================================================================================================
   //Validate the input on the form and parse the form data
   //into and output object to give to the upload file handler
   //returns a promise.
@@ -201,7 +217,9 @@
   };
 
 
-
+  //======================================================================================================
+  // UPLOADER FUNCTION
+  //======================================================================================================
 
   /* Main uploader function that uses the jquery-file-upload plugin. This is an event listener that watches 
    * for files being added to the input fileList. this list is hidden and is readonly. 
@@ -250,31 +268,19 @@
             var foundSeq = false;
             var count  = 0;
             var previewData = atob(reader.result.split(',')[1]);
-            var tempString;
-            var tempArray;
+            var tempString,tempArray,options,patientIds,fileUploadHtml;
 
             previewData = previewData.split(/[\n\r]+/);
-              
             while (!foundSeq || count < previewData.length){
               tempString = previewData[count];
               if (tempString.startsWith('#CHROM')){
-
                 foundSeq = true;
                 tempArray = previewData[count].split(/[\s]+/);
-                var patientIds = tempArray.slice(tempArray.indexOf('FORMAT')+1);
-                
-                var options = {'patient_ids':patientIds,
-                               'Id': + Id,
-                               'size':(data.files[0].size/1000),
-                               'file-name':name}
-
-                //render page and add event handlers
-                var patientTableHtml = renderHbs('frangipani-add-multi-vcf.hbs',options);
-                var fileUploadHtml = renderHbs('frangipani-add-uploader-progress-bar.hbs', options);
-                $('#patient_information').append(patientTableHtml).closest('fieldset').show();
-                $('#patient_vcf').append(fileUploadHtml).closest('fieldset').show();
-                dynamicHandlers();
-                $('.patient_id').trigger('keyup');
+                patientIds = tempArray.slice(tempArray.indexOf('FORMAT')+1);
+                options = {'patient_ids':patientIds,
+                            'Id': + Id,
+                            'size':(data.files[0].size/1000),
+                            'file-name':name}
               }
               count++;
             }
@@ -283,44 +289,58 @@
               throw new Error('Input File not in proper Format');
             } else {
 
+              //Render the html async to add it to the page
+              asyncRenderHbs('frangipani-add-multi-vcf.hbs',options)
+              .then(function(result){
+                patientTableHtml = result;
+                return asyncRenderHbs('frangipani-add-uploader-progress-bar.hbs',options);
+              }).then(function(result){
+                fileUploadHtml = result
+                $('#patient_information').append(patientTableHtml).closest('fieldset').show();
+                $('#patient_vcf').append(fileUploadHtml).closest('fieldset').show();
+                dynamicHandlers();
+                $('.patient_id').trigger('keyup');
+
+              }).then(function(){
 
               //set contect for latter referal
-              data.context = $(document).find('#fileNum' + Id);
+                data.context = $(document).find('#fileNum' + Id);
 
-              //add event listeners to the internal cancel
-              data.context.find('.cancel-button').on('click',function(event){
-                event.preventDefault();
-                if (jqXHR) {
-                  jqXHR.abort();
-                  data.context.find('.progress').hide().children('span').css({'width':'0%'});
-                  data.context.find('p').removeClass('working').addClass('canceled').append("&nbsp&nbsp<span class='error'><i>Upload Canceled</i></span>");
+                //add event listeners to the internal cancel
+                data.context.find('.cancel-button').on('click',function(event){
+                  event.preventDefault();
+                  if (jqXHR) {
+                    jqXHR.abort();
+                    data.context.find('.progress').hide().children('span').css({'width':'0%'});
+                    data.context.find('p').removeClass('working').addClass('canceled').append("&nbsp&nbsp<span class='error'><i>Upload Canceled</i></span>");
 
-                }
-                $(document).find('.fileNum' + Id).parent().remove();
-                $(this).closest('#fileNum' + Id).parent().remove();
-                $(document).find('.patient_id').trigger('keyup');
-                
+                  }
+                  $(document).find('.fileNum' + Id).parent().remove();
+                  $(this).closest('#fileNum' + Id).parent().remove();
+                  $(document).find('.patient_id').trigger('keyup');
+                  
 
-              });
+                });
 
-              //add event listener to the hidden submit button
-              data.context.find('.submit-button').on('click',function(event){
-                event.preventDefault();
-                //validate the form and return a promise
-                var status = validateForm(data,Id);
+                //add event listener to the hidden submit button
+                data.context.find('.submit-button').on('click',function(event){
+                  event.preventDefault();
+                  //validate the form and return a promise
+                  var status = validateForm(data,Id);
 
-                status.then(function(uploadData){
-                  //submit the form with the validated data for the specific file.
-                  data.formData = uploadData;
-                  data.context.find('p').addClass('working');
-                  $(document).find('#info-fields').hide();
-                  $('#upload-button').hide(200);
-                  $('submit-all-button').off('click');
+                  status.then(function(uploadData){
+                    //submit the form with the validated data for the specific file.
+                    data.formData = uploadData;
+                    data.context.find('p').addClass('working');
+                    $(document).find('#info-fields').hide();
+                    $('#upload-button').hide(200);
+                    $('submit-all-button').off('click');
 
-                  jqXHR = data.submit();
+                    jqXHR = data.submit();
 
-                }).catch(function(err){
-                  console.log(err)})
+                  }).catch(function(err){
+                    console.log(err)})
+                });
               });
             }
           }
@@ -354,17 +374,19 @@
         .off('click').text('Add More Files').on('click',function(event){
           event.preventDefault();
           window.location.reload();
-          //$('#frangipani-add-new-patient').trigger('click');
         })
       }
     });
   }
 
+
+  //======================================================================================================
+  // Add event Listeners
+  //======================================================================================================
   var addAllEventListeners = function(){
     staticHandlers();
     dynamicHandlers();
-    uploader();
-    //clickAction($('#frangipani-add-new-patient'), addPatientHtml); 
+    uploader(); 
   }
 
   $(document).ready(addAllEventListeners);

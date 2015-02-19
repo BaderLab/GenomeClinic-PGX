@@ -1,24 +1,25 @@
+
 /* event handlers for updating and controlling the Frangipani
  * Status page. The page will display the current status of all
  * patients (for the moment). In the future it will only show
  * the files uploaded by the specific user
+ *
+ * Written by:
+ * Patrick Magee
  */
+
 (function(){
 
-	/* event handler to update the status table, listening for any changes
-	 * made to the connected database. It is triggered whenever the mouse
-	 * enters into the table.
-	 */
-/*	var removeTimer = function(){
-		$('.top-bar-section').find('a').on('mouseup',function(){
-						clearInterval(timer);
-		}).closest(document).find('.top-bar-section').find('a').off('mouseup');
-	};*/
 
+	//=======================================================================
+	// Refresh The Status Table and search for changes
+	//=======================================================================
+	/* event handler to update the status table, listening for any changes
+	 * made to the connected database. The table refreshes every 5 seconds.
+	 */
 	var refresh = function(){
 		var timer = window.setInterval(function(){
-		//$('#frangipani_patient_status').closest('div').setInterval(function(){//on('mouseenter',function()
-				var promise = new Promise(function(resolve,reject){
+			var promise = new Promise(function(resolve,reject){
 				var patientArray;
 				var promise = Promise.resolve($.ajax({
 					url:'database/find',
@@ -87,9 +88,9 @@
 		
 	};
 
-	/* Add the html to the page, populating the table and adding event
-	 * handlers
-	 */
+	//=======================================================================
+	// Initially Populate the Table with Users and Add Handlers
+	//=======================================================================
 	var checkStatusHtml = function(){
 		var promise = new Promise(function(resolve,reject){
 			var patientArray;
@@ -117,18 +118,15 @@
 					}	
 				}
 				patientArray = {patients:result.reverse()};
-				//return asyncRenderHbs('frangipani-patient-status.hbs',{});
-			//}).then(function(result){
-				//pageTemplate = result;
 				return asyncRenderHbs('frangipani-add-status-row.hbs',patientArray);
 			}).then(function(result){
 				rowTemplates = result;
-				//settings.applicationMain.html(pageTemplate);
+
 				$("#frangipani_patient_status").append(rowTemplates);
 			}).then(function(){
 				$(document).foundation();
 				refresh();
-				//removeTimer();
+
 				resolve("done");
 			})
 		})
@@ -139,7 +137,6 @@
 	 */
 	var main = function(){
 		checkStatusHtml();
-		//clickAction($('#frangipani-status-page'), checkStatusHtml)
 	}
 
 	$(document).ready(main);

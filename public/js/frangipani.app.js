@@ -1,3 +1,4 @@
+//DEPRECATED
 (function(){	
 	/*
 	 * Frangipani app Javascript.
