@@ -149,7 +149,7 @@ function addNavBar() {
 	}))
 
 	return promise.then(function(result){
-		console.log(result);
+		//console.log(result);  // Was this here for Testing? (comment by Ron)
 		var options={authenticated:result}
 		return asyncRenderHbs('navbar.hbs',options).then(function(html){
 			$(document).find('nav').html(html);
