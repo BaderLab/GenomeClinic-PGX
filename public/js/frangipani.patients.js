@@ -164,6 +164,7 @@ var loadPatients= function() {
 	.then(function(result) {
 		appMain.children().remove();  // clear the current page
 		var context= result;
+		context['useFull'] = true
 		return asyncRenderHbs('frangipani-patients.hbs', context);
 	})
 	.then(function(html) {

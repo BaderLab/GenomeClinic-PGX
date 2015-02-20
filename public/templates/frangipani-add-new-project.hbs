@@ -1,15 +1,94 @@
 <div class="row">
-    <div class="large-12 columns">
-      	<h2>Add New Project</h2>
-      	
-        <form>
-          <fieldset>
-            <div class="row">
-              <div class="large-12 columns">
-        	      <p>TEST</p>
+    <div class="large-12 columns" style="margin-top:20px">
+      	<h2><i class="fi-page-multiple"></i>&nbsp&nbspAdd New Project</h2>
+        <div class="row">
+          <div class="large-12 columns">
+            <form data-abide id="frangipani-add-new-project" style="margin-top:40px">
+              <fieldset>
+                <legend>Project Information </legend>
+                <div class="row">
+                  <div class="large-12 columns">
+            	      <div class="row collapse prefix-radius">
+                      <div class="large-3 columns">
+                        <span class="prefix">Project Name</span></span>
+                      </div>
+                      <div class="large-9 columns">
+                        <input type="text" id='project_id' name='project_id' required data-abide-validator="inArray">
+                        <small class="error">That project Id alredy exists</small>
+                      </div>
+                    </div>
+                    <div class="row collapse prefix-radius">
+                      <div class="large-3 columns">
+                        <span class="prefix">Project Details</span>
+                      </div>
+                      <div class="large-9 columns">
+                        <input type="text" id='details' name='details'>
+                      </div>
+                    </div>
+                    <div class="row collapse prefix-radius postfix-radius">
+                      <div class="large-3 columns">
+                        <span class="prefix">Add Authorized User</span>
+                      </div>
+                      <div class="large-8 columns">
+                        <input type="text" id='new-user' name='new-user' pattern="email">
+                        <small class="error">The username must be a valid email</small>
+                      </div>
+                      <div class="large-1 columns">
+                        <a href="#" class="postfix button secondary" id="add-auth-user"><i class="fi-plus"></i></a>
+                      </div>
+                    </div>
+                    <div class="row collapse prefix-radius">
+                      <div class="large-3 columns">
+                        <span class="prefix">Authorized Users</span></span>
+                      </div>
+                      <div class="large-9 columns">
+                        <table class="large-12">
+                          <thead>
+                            <tr>
+                              <th class="large-9">Email</th>
+                              <th class="large-3 text-center">Remove</th>
+                            </tr>
+                          <tbody id='auth-users'>
+                            <tr>
+                              <td>You</td>
+                              <td class='text-center'>Cannot Remove</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <small class="error">Your username must be a valid email</small>
+                      </div>
+                    </div>
+                  </div>
+          	    </div>
+                <div class="row">
+                  <div class="large-12 columns" id='patient_id_links' style="min-height:150px;">
+                  <h4>Patients to add to project (click to remove)</h4>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="large-4 columns">
+                    <a href="#" class="button alert round large-12" id="submit-new-project">Submit</a>
+                  </div>
+                </div>
+              </fieldset>
+            </form>
+          </div>
+        </div>
+        <hr>
+        <div  class="row">
+          <div class="large-12 columns">
+            <p>Search through the available patients and select those that you would like to add to your new project. To add a patient simply click on them in the table!</p> 
+            <div class="row collapse prefix-radius">
+              <div class="large-2 columns">
+                <span class="prefix">Search</span>
               </div>
-      	    </div>
-          </fieldset>
-        </form> 
+              <div class="large-6 columns left">
+                <input type="text" id="searchBox" name="searchBox">
+              </div>
+            </div>
+            <div class="large-12 columns" id="patient-information">
+            </div>
+          </div>
+        </div>
     </div>
 </div>
