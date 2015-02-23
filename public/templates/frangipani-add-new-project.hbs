@@ -1,11 +1,26 @@
 <div class="row">
     <div class="large-12 columns" style="margin-top:20px">
+        <a href="/projects" class="button radius"><i class="fa fa-arrow-left"></i>&nbspBack</a>
       	<h2><i class="fi-page-multiple"></i>&nbsp&nbspAdd New Project</h2>
         <div class="row">
           <div class="large-12 columns">
-            <form data-abide id="frangipani-add-new-project" style="margin-top:40px">
+            <form id="frangipani-add-new-project" style="margin-top:40px">
               <fieldset>
                 <legend>Project Information </legend>
+                <div class="row">
+                <div class="small-12 columns">
+                  <div data-alert class="alert-box radius alert" id="error-display-box"  style="display:none">
+                    <!-- Alert message goes here -->
+                    <div class="row">
+                      <div class="small-11 columns">
+                        <p id="error-display-message"></p>
+                      </div>
+                      <div class="small-1 columns">
+                        <a href="#" class='close-box'><i class="fi-x size-16" style="color:#606060"></i></a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <div class="row">
                   <div class="large-12 columns">
             	      <div class="row collapse prefix-radius">
@@ -13,8 +28,8 @@
                         <span class="prefix">Project Name</span></span>
                       </div>
                       <div class="large-9 columns">
-                        <input type="text" id='project_id' name='project_id' required data-abide-validator="inArray">
-                        <small class="error">That project Id alredy exists</small>
+                        <input type="text" id='project_id' name='project_id'> 
+                        <small class="error" style="display:none;">That project Id alredy exists</small>
                       </div>
                     </div>
                     <div class="row collapse prefix-radius">
@@ -30,8 +45,8 @@
                         <span class="prefix">Add Authorized User</span>
                       </div>
                       <div class="large-8 columns">
-                        <input type="text" id='new-user' name='new-user' pattern="email">
-                        <small class="error">The username must be a valid email</small>
+                        <input type="text" id='new-user' name='new-user'>
+                        <small class="error" style="display:none">That user does not exist</small>
                       </div>
                       <div class="large-1 columns">
                         <a href="#" class="postfix button secondary" id="add-auth-user"><i class="fi-plus"></i></a>
@@ -55,7 +70,6 @@
                             </tr>
                           </tbody>
                         </table>
-                        <small class="error">Your username must be a valid email</small>
                       </div>
                     </div>
                   </div>
@@ -92,3 +106,4 @@
         </div>
     </div>
 </div>
+{{/if}}

@@ -125,23 +125,16 @@
       var valueCounts = {};
 
       //ajax request to server
-      promise = Promise.resolve($.ajax({
-        url:'database/getPatients',
-        type:'GET',
-        contentType:'application/json',
-        dataType:'json'
-      }));
-
-      promise.then(function(result){
-        var error = false;
-        //search for item existing in the current list
-        for (var i=0; i<result.length; i++){
-          if (result[i]['patient_id'] == keyValue && !error){
-            self.addClass('error').addClass('db-error').siblings('small').text("PatientID already exists!").show();
-            error=true;
-          }
+      existsInDB('patients', 'patient_id', keyValue)
+      .then(function(result){
+        if (result){
+          self.addClass('error').addClass('db-error').siblings('small').text("PatientID already exists!").show();
+          return true;
         }
+        return false;
 
+      }).then(function(error){
+        //search for item existing in the current list
         if (!error)
           self.removeClass('error').removeClass('db-error').siblings('small').hide();
 

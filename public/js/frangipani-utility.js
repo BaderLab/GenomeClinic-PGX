@@ -131,6 +131,26 @@ function clickAction(button, promiseFunction, options, useThis) {
 };
 
 
+function existsInDB(collection,field,value){
+	var promise = new Promise(function(resolve,reject){
+		var options = {
+				collection:collection,
+				field:field,
+				value:value
+			};
+		var promise = Promise.resolve($.ajax({
+			url:'/database/checkInDatabase',
+			contentType:'application/json',
+			type:'POST',
+			dataType:'json',
+			data:JSON.stringify(options)
+		}))
+		promise.then(function(result){
+			resolve(result);
+		});
+	});
+	return promise;
+};
 //=======================================================================
 // Nav Bar
 //=======================================================================
@@ -154,9 +174,9 @@ function addNavBar() {
 		return asyncRenderHbs('navbar.hbs',options).then(function(html){
 			$(document).find('nav').html(html);
 			$(document).foundation();
-		})
-	})
-}
+		});
+	});
+};
 
 $(document).ready(addNavBar)
 

@@ -24,6 +24,9 @@
 					<th class="text-center">Sex</th>
 					<th class="text-center">Age</th>
 					<th class="text-center">Date Uploaded</th>
+					{{#	if project}}
+					<th class="text-center">Remove</th>
+					{{/if}}
 				</tr>
 			</thead>
 			<tbody>
@@ -34,6 +37,14 @@
 					<td class="text-center">{{sex}}</td>
 					<td class="text-center">{{age}}</td>
 					<td class="text-center">{{completed}}</td>
+					{{#if @root.project}}
+					<td class="text-center">
+						<div class="switch radius tiny">
+  							<input id="removeSwitch-{{@index}}" type="checkbox" name="remove-{{@index}}" data-id="{{patient_id}}">
+  							<label for="removeSwitch-{{@index}}"></label>
+						</div> 
+					</td>
+					{{/if}}
 				</tr>
 				{{/each}}
 			</tbody>

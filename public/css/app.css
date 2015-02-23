@@ -155,6 +155,11 @@ tr.patient-row:hover {
   background-color: #B2D1FF;
 }
 
+tr.project-row:hover {
+  cursor: pointer;
+  background-color: #B2D1FF;
+}
+
 /* Different styling for alternate genotype calls (not reference). */
 td.variant-alt {
   font-style: italic;
@@ -165,6 +170,11 @@ td.variant-alt {
 tr.patient-genotype-row {
   /* override foundation table alternating row grey style using !important */
   background-color: #EBFAFF !important;
+}
+
+.scrollit {
+  overflow: scroll;
+  height:250px;
 }
 
 
