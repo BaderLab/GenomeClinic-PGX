@@ -165,8 +165,17 @@
 {{#if projectInfoPage}}
 	<div class="row">
     	<div class="large-12 columns" style="margin-top:20px">
+
     	<a href="/projects" class="button radius"><i class="fa fa-arrow-left"></i>&nbspBack</a>
-    	<h2><i class="fi-book"></i>&nbsp{{project_id}}</h2>
+    	<div class="row">
+	    	<div class="large-9 columns">
+	    		<h2><i class="fi-book"></i>&nbsp{{project_id}}</h2>
+	    	</div>
+	    	<div class="large-3 columns">
+	    		<a href="#" class="button radius right" id='delete-project'>Delete Project</a>
+	    	</div>
+	    </div>
+	    
     	<fieldset>
     		<legend>Project Information</legend>
     		<h4>Created on: {{date}}</h4>
