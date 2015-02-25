@@ -261,7 +261,7 @@
             var foundSeq = false;
             var count  = 0;
             var previewData = atob(reader.result.split(',')[1]);
-            var tempString,tempArray,options,patientIds,fileUploadHtml;
+            var tempString,tempArray,options,patientIds,fileUploadHtml,patientTableHtml,fileUploadHtml;
 
             previewData = previewData.split(/[\n\r]+/);
             while (!foundSeq || count < previewData.length){

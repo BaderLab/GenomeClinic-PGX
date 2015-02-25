@@ -563,9 +563,18 @@ Handlebars.registerHelper('markerHeader', function(context, options) {
 	var renderedHtml= "";
 	var currentGene= context;
 
+	// Match dbSNP rs IDs and capture the number
+	var rsPattern= /rs(\d+)/;
+
 	var currentGeneMarkers= globalPGXData["geneMarkers"][currentGene];
 	for (var i= 0; i < currentGeneMarkers.length; ++i) {
-		renderedHtml += "<th>" + currentGeneMarkers[i] + "</th>";
+		var rsMatch= rsPattern.exec(currentGeneMarkers[i])
+		if (rsMatch !== null) {
+			var url= "http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=" + rsMatch[1];
+			renderedHtml += "<th><a target='_blank' href='" + url + "'>" + currentGeneMarkers[i] + "</a></th>";
+		} else {
+			renderedHtml += "<th>" + currentGeneMarkers[i] + "</th>";
+		}
 	}
 
 	return renderedHtml;
