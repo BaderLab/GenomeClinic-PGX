@@ -11,6 +11,10 @@
       <a href="http://cloud.google.com/genomics/v1beta2/reference/" target="_blank" class="button radius">GA4GH API</a>
     </li>
     -->
+    {{#if authenticated}}
+    <!-- eventually will be a link to their profile -->
+    <li><a href="#" id="logged-in" class="button radius secondary">Logged in as: {{user}}</a></li>
+    {{/if}}
   </ul>
 </section>
 {{#if authenticated}}

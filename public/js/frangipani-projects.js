@@ -9,7 +9,7 @@
  */
 
 (function(){
-	var patientInformation, projectInfo, projectName;
+	var patientInformation, projectInfo, projectName, owner,user;
 	var selected = [];
 
 	//=========================================================
@@ -66,7 +66,7 @@
 	 * to the table.
 	 * returns a promise
 	 */
-	var renderPatientInformation = function(project,excluded,ele,handlers,callback){
+	var renderPatientInformation = function(project,excluded,remove,ele,handlers,callback){
 		return getPatientInformation(project,excluded)
 		.then(function(result){
 			patientInformation = result.map(function(item){
@@ -75,7 +75,7 @@
 			var options = {
 				patients:result,
 			}
-			 if (!excluded){
+			 if (remove){
 			 	options['project'] = true;
 			 }
 			return asyncRenderHbs('frangipani-patients.hbs',options)
@@ -116,7 +116,7 @@
 	/* Add handlers to the patient links and refresh the rest of
 	 * the content
 	 */
-	var patientLinkHandler = function(id){
+	var patientLinkHandler = function(id,ele){
 		$(id).on('click',function(e){
 			e.preventDefault();
 			var text = $(this).text();
@@ -127,7 +127,7 @@
 				$('#row-' + index).show();
 
 			$(this).remove();
-			refreshNum();
+			refreshNum(ele);
 		})
 	}
 
@@ -143,7 +143,7 @@
 			//var html = '<a href="#" class="small-2 button radius" style="margin-left:5px">test</a>'
 			var html = "<a href='#' class='button radius patient-link' style='margin-left:2px;margin-right;2px' id='link-" + val + "'>"+ patientInformation[val] + '</a>';
 			$('#patient_id_links').append(html)
-			patientLinkHandler('#link-' + val);
+			patientLinkHandler('#link-' + val,ele);
 
 			refreshNum(ele);
 		});
@@ -173,33 +173,93 @@
 	 * confirm and cancel buttons. WHen one of the buttons is clicked
 	 * execute the callback, then hide the modal
 	 */
-	var confirm = function(ele, modal, clickFunction, callback){
+	var confirm = function(ele, secEle, useModal, clickFunction, callback){
 		$(ele).on('click',function(e){
 			e.preventDefault();
 			var clickFunctionPromise = Promise.resolve();
 			if (clickFunction)
-				clickFunctionPromise = Promise.resolve().then(function(){ return clickFunction(modal);})
+				clickFunctionPromise = Promise.resolve().then(function(){ return clickFunction(secEle);})
 
 			clickFunctionPromise.then(function(result){
-				$(modal).find('.confirm').on('click',function(e){
+				$(secEle).find('.confirm').on('click',function(e){
 					e.preventDefault();
 					$(this).off('click');
-					$(modal).foundation('reveal','close');
-					return callback(true,result,modal)					
+					if (useModal)
+						$(secEle).foundation('reveal','close');
+					return callback(true,result,secEle)					
 				});
 
-				$(modal).find('.cancel').on('click',function(e){
+				$(secEle).find('.cancel').on('click',function(e){
 					e.preventDefault();
 					$(this).off('click');
-					$(modal).foundation('reveal','close');
-					callback(undefined,result,modal);
+					if (useModal)
+						$(secEle).foundation('reveal','close');
+					callback(undefined,result,secEle);
 					
 				});
-				$(modal).foundation('reveal','open');
+				if(useModal)
+					$(secEle).foundation('reveal','open');
 			});
 		});
 	}
 
+	var addNewAuthUser = function(){
+		$('#new-user').on('keyup',function(e){
+			if (e.keyCode == 13){
+				$('#add-auth-user').trigger('click');
+			}
+		});
+
+		$('#add-auth-user').on('click',function(e){
+			e.preventDefault();
+			var val = $('#new-user').val();
+			var inputEmails = $('.auth-user-email');
+			var emails = [];
+			for( var i=0; i< inputEmails.length; i++){
+				var text = $(inputEmails[i]).text();
+				if (emails.indexOf(text) == -1){
+					emails.push(text);
+				}
+			}
+			if (emails.indexOf(val) != -1) {
+				$("#new-user").addClass('error').siblings('small').text('That user already has authorization').show()
+			} else if (val != ''){
+				//submit ajax requst to check to see if the username exists in the db
+				existsInDB('users','username',val)
+				.then(function(result){
+					//user exists so add to Auth user table
+					if (result){
+						var currentUsers = 
+
+						$('#new-user').val("");
+						var options = {
+							addAuthUser:true,
+							user:val
+						}
+						return asyncRenderHbs('frangipani-projects.hbs',options)
+							.then(function(renderedHtml){
+								$('#auth-users').append(renderedHtml).last('tr').find('a').on('click',function(e){
+									e.preventDefault();
+									$(this).closest('tr').remove();
+								}).find(document).foundation();
+					
+							});
+					} else {
+						//user does not exists, activate error
+						$("#new-user").addClass('error').siblings('small').show();
+					}
+				});
+			}
+		});
+	}
+
+	var removeInputErrors = function(){
+		$('input').on('keydown',function(){
+			if ($(this).hasClass('error')){
+				$(this).removeClass('error').siblings('small').hide();
+			}
+		})
+	}
 	/* New Project Handlers
 	 * add all the page handlers for facilitating the addition of a new project
 	 * to the database. This is a rendered page from frangipani-projects.hbs'.
@@ -208,44 +268,12 @@
 		//generic handlers
 		patientRowHandler('#patient-information');
 		searchBoxHandler('#patient-information');
+		addNewAuthUser();
+		removeInputErrors();
 		//add a new authorized user
-		$('#add-auth-user').on('click',function(e){
-			e.preventDefault();
-			var val = $('#new-user').val();
-			if (val != ''){
-				//submit ajax requst to check to see if the username exists in the db
-				existsInDB('users','username',val)
-				.then(function(result){
-					//user exists so add to Auth user table
-					if (result){
-						$('#new-user').val("");
-						var options = {
-							addAuthUser:true,
-							user:val
-						}
-
-						return asyncRenderHbs('frangipani-projects.hbs',options)
-							.then(function(renderedHtml){
-								$('#auth-users').append(renderedHtml).last('tr').find('a').on('click',function(e){
-								e.preventDefault();
-								$(this).closest('tr').remove();
-								}).find(document).foundation();
-					
-							});
-					} else {
-						//user does not exists, activate error
-						$("#new-user").addClass('error').siblings('small').show()
-					}
-				});
-			}
-		})
 
 		//Clear the error whenever you start typing within an input
-		$('input').on('keydown',function(){
-			if ($(this).hasClass('error')){
-				$(this).removeClass('error').siblings('small').hide();
-			}
-		})
+		
 
 		//Check to see if the currnent input field for the project id exists within the database
 		$('#project_id').on('keyup',function(){
@@ -324,8 +352,69 @@
 	var projectPageHandlers = function(){
 		//generic handlers
 		closeBox();
+		addNewAuthUser();
+		removeInputErrors();
+		$('.auth-user-email').closest('tr').find('a').on('click',function(e){
+			e.preventDefault();
+			$(this).closest('tr').hide();
+		})
+
+		var remove = (user==owner);
+		confirm('#edit-page','#change-details',false,function(ele){
+			$(ele).show().closest('fieldset').find('#fixed-details').hide(0);
+			var _default = {
+				details:$('#details').val(),
+				description:$('#description').val()
+			}
+			return _default;
+		},function(confirm,_default,content){
+			if (confirm){
+				var inputEmails = $('.auth-user-email:visible')
+				var emails = []
+				for( var i=0; i< inputEmails.length; i++){
+					var text = $(inputEmails[i]).text();
+					if (emails.indexOf(text) == -1){
+						emails.push(text);
+					}
+				}
+				var projectId = projectName;
+				var description = $('#description').val();
+				var details = $('#details').val();
+				var _o = {
+					project:projectId,
+					update:{
+						description:description,
+						details:details,
+						users:emails
+					}};
+				Promise.resolve($.ajax({
+					url:'/database/project/update',
+					type:'POST',
+					contentType:'application/json',
+					dataType:'json',
+					data:JSON.stringify(_o)
+				})).then(function(result){
+					if (result.statusCode == "200"){
+						window.location.replace(result.redirectURL);
+					} else {
+						$('#error-display-message').text(result.error)
+						.parents().find("#error-display-box").show();
+					}
+				})
+			} else {
+				$('.auth-user-email').closest('tr').find('a').show();
+				$('#details').val(_default.details);
+				$('#description').val(_default.description);
+				$(content).hide().parents().find('#fixed-details').show();
+			}
+
+		})
+
+
 		//add handlers to remove patients
-		confirm('#remove-patients','#confirm-removal',function(modal){
+		//
+
+		confirm('#remove-patients','#confirm-removal',true,function(modal){
 			var checked = $('input:checked').map(function(){
 				return $(this).data('id').toString();
 			}).toArray();
@@ -356,9 +445,10 @@
 		})
 		
 		//add handlers to add-patients
-		confirm('#add-patients','#add-patients-modal',function(modal){
+		confirm('#add-patients','#add-patients-modal',true,function(modal){
 			selected = [];
-			return renderPatientInformation(projectName,true,'#patient-information',function(){
+			
+			return renderPatientInformation(projectName,true,false,'#patient-information',function(){
 				patientRowHandler('#patient-information');
 				searchBoxHandler('#patient-information');
 				$('.patient-row').on('click.resize', function(){
@@ -384,7 +474,6 @@
 					dataType:'json',
 					data:JSON.stringify(options)
 				})).then(function(result){
-					console.log('here');
 					$(modal).find('#patient_id_links').empty();
 					$(modal).find('#patient-information').empty();
 					$('#error-display-message').text("Successfully added " + selected.length + " patients to " + projectName)
@@ -393,7 +482,7 @@
 					$(modal).find('#patient_id_links').empty().removeClass('scrollit');
 					$(modal).find('#patient-information').empty();
 				}).then(function(){
-					return renderPatientInformation(projectName,undefined,'#patients-table',function(){
+					return renderPatientInformation(projectName,undefined,remove,'#patients-table',function(){
 						$('.patient-row').off('click')
 					})
 				});
@@ -406,7 +495,7 @@
 		});
 		
 		//Add handlers to delete project
-		confirm('#delete-project','#confirm-removal',function(modal){
+		confirm('#delete-project','#confirm-removal',true,function(modal){
 			$(modal).find('h3').text("Are you sure you want to delete this project? the operation is permanent and you will not be able to recover it afterwards. You will be redirected if the request is successful")
 			return true;
 		}, function(confirm,result,modal){
@@ -440,11 +529,12 @@
 			asyncRenderHbs('frangipani-projects.hbs',{addProjectPage:true})
 			.then(function(renderedHtml){
 				$('#page-content').html(renderedHtml);
-				return renderPatientInformation(undefined,false,'#patient-information',addNewProjectHandlers);
+				return renderPatientInformation(undefined,false,false,'#patient-information',addNewProjectHandlers);
 			});
 		});
 
 		$('.project-row').on('click',function(){
+			var remove;
 			projectName = $(this).find('.frangipani-project-name').text();
 			var promise = Promise.resolve($.ajax({
 				url:'/database/projects',
@@ -457,12 +547,16 @@
 			}))
 
 			promise.then(function(result){
+				console.log(result);
+				owner = result[0].owner;
+				remove = (owner == user);
 				var options = result[0];
 				options['projectInfoPage'] = true;
-				return asyncRenderHbs('frangipani-projects.hbs',options)
+				options['isOwner'] = remove;
+				return asyncRenderHbs('frangipani-projects.hbs',options);
 			}).then(function(renderedHtml){
 				$("#page-content").html(renderedHtml);
-				return renderPatientInformation(projectName,undefined,'#patients-table',function(){
+				return renderPatientInformation(projectName,undefined,remove,'#patients-table',function(){
 					projectPageHandlers();
 				});
 			}).then(function(){
@@ -500,7 +594,11 @@
 	}
 
 	var main = function(){
-		loadhtml();
+		getUserInfo().then(function(result){
+			user = result.user;
+		}).then(function(){
+			return loadhtml();
+		});
 	};
 
 	$(document).ready(main);

@@ -171,27 +171,96 @@
 	    	<div class="large-9 columns">
 	    		<h2><i class="fi-book"></i>&nbsp{{project_id}}</h2>
 	    	</div>
+        {{#if isOwner}}
 	    	<div class="large-3 columns">
 	    		<a href="#" class="button radius right" id='delete-project'>Delete Project</a>
 	    	</div>
+        {{/if}}
 	    </div>
 	    
     	<fieldset>
     		<legend>Project Information</legend>
-    		<h4>Created on: {{date}}</h4>
-    		{{#if details}}
-    		<h4>Quick Project Details</h4>
-    		<p>{{details}}</p>
-    		{{/if}}
-    		{{#if description}}
-    		<h4>Project Description</h4>
-    		<p>{{description}}</p>
-    		{{/if}}
-    		<h4>Authorized Users</h4>
-	    	{{#each users}}
-	    		<span class="button radius secondary">{{this}}</span>
-	    	{{/each}}
-    	</fieldset>
+        <div class="row">
+          <div class="large-10 columns">
+    		    <h4>Created on: {{date}}</h4>
+          </div>
+          {{#if isOwner}}
+          <div class="large-2 columns text-center">
+            <a href="#" id="edit-page"><i class="fi-pencil size-24" style="color:#A2A2A2"></i></a>
+          </div>
+          {{/if}}
+        </div>
+        <div class="row">
+          <div class="large-12 columns" id="fixed-details">
+        		{{#if details}}
+
+        		<h4>Quick Project Details</h4>
+        		<p>{{details}}</p>
+        		{{/if}}
+        		{{#if description}}
+        		<h4>Project Description</h4>
+        		<p>{{description}}</p>
+        		{{/if}}
+        		<h4>Authorized Users</h4>
+            <span class="button radius secondary" data-id="{{owner}}">{{owner}}</span>
+    	    	{{#each users}}
+    	    		<span class="button radius secondary" data-id="{{this}}">{{this}}</span>
+    	    	{{/each}}
+          </div>
+        </div>
+        {{#if isOwner}}
+        <div class="row">
+          <div class="large-12 columns" style="display:none;" id="change-details">
+            <h4>Quick Project Details</h4>
+            <input type="text" id="details" value="{{details}}">
+            <h4>Project Description</h4>
+            <textarea id="description" rows=5 maxlength=1000>{{description}}</textarea>
+            <div class="row collapse prefix-radius postfix-radius">
+              <div class="large-3 columns">
+                <span class="prefix">Add Authorized User</span>
+              </div>
+              <div class="large-8 columns">
+                <input type="text" id='new-user' name='new-user'>
+                <small class="error" style="display:none">That user does not exist</small>
+              </div>
+              <div class="large-1 columns">
+                <a href="#" class="postfix button secondary" id="add-auth-user"><i class="fi-plus"></i></a>
+              </div>
+            </div>
+
+            <div class="large-12 columns">
+              <table class="large-12">
+                <thead>
+                  <tr>
+                    <th class="large-9">Email</th>
+                    <th class="large-3 text-center">Remove</th>
+                  </tr>
+                <tbody id='auth-users'>
+                  <tr>
+                    <td>Owner</td>
+                    <td class="text-center">Cannot Remove</td>
+                  </tr>
+                  {{#each users}}
+                  <tr>
+                    <td class="auth-user-email" data-id="{{this}}">{{this}}</td>
+                    <td class='text-center'><a href="#"><i class="fi-x size-16"></i></td>
+                  </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+            <div class="row">
+              <div class='large-6 columns' style="margin-top:40px">
+                <a href="#" class="button radius large-12 left confirm success">Submit</a>
+              </div>
+              <div class='large-6 columns' style="margin-top:40px">
+                <a href="#" class="button radius alert large-12 right cancel">cancel</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {{/if}}
+      </fieldset>
+      {{#if isOwner}}
     	<div class="row">
     		<div class="large-4 columns">
     			<a href="#" class="button alert radius" id="add-patients">Add Patients to Project</a>
@@ -245,6 +314,7 @@
 		  </div>
 		  <a class="close-reveal-modal">&#215;</a>
 		</div>
+    {{/if}}
 		<div class="row">
             <div class="small-12 columns">
                 <div data-alert class="alert-box radius secondary" id="error-display-box"  style="display:none">
