@@ -132,7 +132,10 @@ var aux= {
 	  }
 	 
 	  return matrix[b.length][a.length];
-	}
+	},
+
+	// Original colour of the haplotype variant table collapse button
+	originalCollapseButtonColor: "rgb(0, 123, 164)"
 
 
 };  // End of aux methods
@@ -734,9 +737,67 @@ var addEventListeners= function() {
 			globalPGXData= result;  // set the globally-scoped PGX Data
 			loadPGx(result);
 
-			console.log("TESTING globalPGXData:", globalPGXData); ////////////// TESTING
+			//console.log("TESTING globalPGXData:", globalPGXData); ////////////// TESTING
 		});
 	});
+
+
+	// Animate haplotype variant tables with buttons and sliding tables
+	var expand= function(element) {
+		$(element).attr("expanded", "yes");
+		$(element).css("color", "#FFAD99");
+		$(element).css("transform", "rotate(45deg)");
+	}
+
+	var collapse= function(element) {
+		$(element).attr("expanded", "no");
+		$(element).css("color", aux.originalCollapseButtonColor);
+		$(element).css("transform", "rotate(0deg)");
+	}
+
+	$("i.haplotype-expand").on("click", function(event) {
+		// prevent default <a href="#"> click event (jumps to top of page)
+		event.preventDefault();
+
+		// set the original colour for the collapse/expand toggle button
+		if (aux.originalCollapseButtonColor === undefined) {
+			aux.originalCollapseButtonColor= $(this).css("color");
+		}
+
+		// toggle expand/collapse
+		if ($(this).attr("expanded") === "no") {
+			expand($(this));
+		} else if ($(this).attr("expanded") === "yes") {
+			collapse($(this));
+		}
+
+		var currentTable= "#table" + $(this).attr("gene");
+		$(currentTable).slideToggle();
+	});
+
+	// Collapse all haplotype variant tables
+	$("#collapse-all-haplotypes").click(function(event) {
+		event.preventDefault();
+
+		var collapseText= "Show less";
+		var expandText= "Show more";
+		var allCollapseButtons= $("i.haplotype-expand");
+
+		// Toggle collapse/expand
+		if ($("#collapse-all-haplotypes").text() === collapseText) {
+			$("#collapse-all-haplotypes").text(expandText);
+			for (var i= 0; i < allCollapseButtons.length; ++i) {
+				collapse(allCollapseButtons[i]);
+			}
+			$(".haplotype-expand-div").slideUp();
+		} else {
+			$("#collapse-all-haplotypes").text(collapseText);
+			for (var i= 0; i < allCollapseButtons.length; ++i) {
+				expand(allCollapseButtons[i]);
+			}
+			$(".haplotype-expand-div").slideDown();
+		}
+	})
 };
 
 

@@ -7,32 +7,39 @@
 		{{else}}
 		<h2><i class="fi-torso"></i> <em>{{patientID}}</em></h2>
 		{{/if}}
+
+		<p><a href="#" id="collapse-all-haplotypes">Show less</a></p>
 	</div>
 </div>
 {{#each pgxGenes}}
 <div class="row">
 	<div class="large-12 columns">
-			<h3>{{@key}}</h3>
-		<table>
-			<thead>
-				<tr>
-					<th>Haplotype</th>
-					{{#markerHeader @key}}
-					{{/markerHeader}}
-				</tr>
-			</thead>
-			<tbody>
-				{{#patientGenotypes}}
-				{{/patientGenotypes}}
-				{{#each this}}
-				<tr>
-					<td>{{@key}}</td>
-					{{#haplotypeMarkers @key}}
-					{{/haplotypeMarkers}}
-				</tr>
-				{{/each}}
-			</tbody>
-		</table>
+			<h3>{{@key}}&nbsp<a href="#"><i class="fa fa-plus haplotype-expand" gene="{{@key}}" expanded="yes"></i></a></h3>
+			
+			{{!-- The next div is for sliding. Tables cannot slide using JQuery. See http://stackoverflow.com/questions/467336/how-to-use-slidedown-or-show-function-on-a-table-row --}}
+			
+			<div id="table{{@key}}" class="haplotype-expand-div">
+				<table>
+					<thead>
+						<tr>
+							<th>Haplotype</th>
+							{{#markerHeader @key}}
+							{{/markerHeader}}
+						</tr>
+					</thead>
+					<tbody>
+						{{#patientGenotypes}}
+						{{/patientGenotypes}}
+						{{#each this}}
+						<tr>
+							<td>{{@key}}</td>
+							{{#haplotypeMarkers @key}}
+							{{/haplotypeMarkers}}
+						</tr>
+						{{/each}}
+					</tbody>
+				</table>
+			</div>
 	</div>	
 </div>
 {{/each}}

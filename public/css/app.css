@@ -167,4 +167,11 @@ tr.patient-genotype-row {
   background-color: #EBFAFF !important;
 }
 
+/* Formatting for haplotype expansion "+" buttons. */
+.haplotype-expand {
+  color: #FFAD99;
+  font-size: 18pt;
+  transition: 0.3s ease-in-out;
+  transform: rotate(45deg);
+}
 
