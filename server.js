@@ -14,6 +14,9 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var bodyParser= require("body-parser");
 var mongoStore = require('connect-mongo')(session);
+var https = require('https');
+var http = require('http');
+
 
 
 //=======================================================================
@@ -53,7 +56,7 @@ var opts= require("nomnom")
 	})
 	.option('password',{
 		abr:'W',
-		full:'gmail-password',
+		full:'gmail-password',	
 		default:undefined,
 		help:'please eneter gmail account password. This will not be permanately stored',
 
@@ -71,6 +74,10 @@ var opts= require("nomnom")
 		flag:true,
 		help:'Use recover form'
 	})
+	.option('https',{
+		flag:true,
+		help:"Use secure https connection"
+	})
 	.parse();
 opts.signup =  !opts.nosignup;
 opts.recover = !opts.norecover;
@@ -82,7 +89,20 @@ console.log("Server running on port " + opts.portNumber);
 //=======================================================================
 // Initialize Express Server
 //=======================================================================
-var app= express();
+var app = express();
+if (opts.https){
+	app.use(function (req, res, next) {
+		if (req.secure) {
+			// request was via https, so do no special handling
+			next();
+		} else {
+			// request was via http, so redirect to https
+			console.log(req.headers.host);
+			console.log(req.url);
+			res.redirect('https://' + req.headers.host + ':' + opts.portNumber + req.url);
+		}
+	});
+}
 
 
 //=======================================================================
@@ -145,6 +165,7 @@ app.use(session({secret:'fragipani_app_server',
 				 	url:'mongodb://' + dbConstants.DB_HOST + ':' + dbConstants.DB_PORT + '/sessionInfo'
 				 }),
 				 resave:false,
+				 secure:true,
 				 saveUninitialized:false}));
 
 
@@ -174,7 +195,16 @@ require('./frangipani_node_modules/routes')(app,passport,dbFunctions,opts);
 //=======================================================================
 // Start Listening on the set port
 //=======================================================================
-app.listen(opts.portNumber);
+if (opts.https){
+
+	var privateKey = fs.readFileSync('ssl/frangipani.key');
+	var certificate = fs.readFileSync('ssl/frangipani.crt');
+	var credentials = {key:privateKey,cert:certificate};
+	https.createServer(credentials,app).listen(opts.portNumber)
+	http.createServer(app).listen(80);
+} else {
+	app.listen(opts.portNumber);
+}
 
 
 //=======================================================================
