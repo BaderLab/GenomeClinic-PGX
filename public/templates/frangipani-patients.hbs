@@ -1,10 +1,19 @@
 {{!-- Put quotes around attributes that may have spaces, or handlebars will 
       only output the first word. --}}
+{{#if useFull}}
 <div class="row">	
 	<div class="large-12 columns">
 		<h2><i class="fi-torsos-all"></i> All Patients (<strong><em>{{patients.length}}</em></strong>)</h2>
 	</div>
 </div>
+{{else}}
+<div class="row">	
+	<div class="large-12 columns">
+		<h4><i class="fi-torsos-all"></i>Patients(<strong><em id='number-of-patients'>{{patients.length}}</em></strong>)</h4>
+	</div>
+</div>
+{{/if}}
+
 <div class="row">
 	<div class="large-12 large-centered columns">
 		<table class="large-12">
@@ -15,16 +24,27 @@
 					<th class="text-center">Sex</th>
 					<th class="text-center">Age</th>
 					<th class="text-center">Date Uploaded</th>
+					{{#	if project}}
+					<th class="text-center">Remove</th>
+					{{/if}}
 				</tr>
 			</thead>
 			<tbody>
 				{{#each patients}}
-				<tr class="patient-row">
+				<tr class="patient-row" id="row-{{@index}}"	>
 					<td class="frangipani-patient-alias">{{patient_alias}}</a></td>
 					<td class="frangipani-patient-id">{{patient_id}}</td>
 					<td class="text-center">{{sex}}</td>
 					<td class="text-center">{{age}}</td>
 					<td class="text-center">{{completed}}</td>
+					{{#if @root.project}}
+					<td class="text-center">
+						<div class="switch radius tiny">
+  							<input id="removeSwitch-{{@index}}" type="checkbox" name="remove-{{@index}}" data-id="{{patient_id}}">
+  							<label for="removeSwitch-{{@index}}"></label>
+						</div> 
+					</td>
+					{{/if}}
 				</tr>
 				{{/each}}
 			</tbody>

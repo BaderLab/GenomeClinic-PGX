@@ -44,6 +44,39 @@
 			})
 	}
 
+
+	var checkAuth = function(){
+		var opts;
+		Promise.resolve($.ajax({
+			url:'/auth/check',
+			type:'GET',
+			contentType:'application/json'	
+		})).then(function(result){
+			var options = []
+			var location = window.location.pathname
+			if (location == '/signup'){
+				options.push(['login',1]);
+				options.push(['recover',2]);
+			} else if (location =='/recover') {
+				options.push(['login',1]);
+				options.push(['signup',2]);
+			} else if (location == '/login'){
+				options.push(['signup',1]);
+				options.push(['recover',2]);
+			}
+			if (result.oauth)
+				options.push(['oauth',3]);
+			return $.each(options,function(index,item){
+				var opt = {}
+				opt[item[0]] = result[item[0]];
+				return asyncRenderHbs('frangipani-generic-templates.hbs',opt).then(function(renderedHtml){
+					if (renderedHtml)
+						$("#extra-field-" + item[1]).html(renderedHtml);
+				})
+			});
+		})
+	}
+
 	//=======================================================================
   	// Submit the form, and add handlers
   	//=======================================================================
@@ -113,8 +146,9 @@
 
 	//add handlers
 	var main = function(){
-		submit()
+		checkAuth();
 		abideVal();
+		submit()
 	}
 	$(document).ready(main)	
 })()

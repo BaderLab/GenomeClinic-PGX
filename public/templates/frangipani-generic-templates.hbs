@@ -1,0 +1,31 @@
+{{#if oauth}}
+	  <div class="row">
+	    <div class="small-5 columns">
+	      <hr>
+	    </div>
+	    <div class="small-2 columns">
+	      <h4>Or</h4>
+	    </div>
+	    <div class="small-5 columns">
+	      <hr>
+	    </div>
+	  </div>
+	  <div class="row">
+	    <div class="small-12 columns small-centered text-center">
+	      <a href="/auth/google" ><img src="img/signin1.png" class="small-12 small-centered "style="width:60%;height:60%"></a>
+	    </div>
+	  </div>
+{{/if}}
+
+{{#if signup}}
+	<span>First time Here? <a href="/signup">Signup</a></span>
+{{/if}}
+
+{{#if recover}}
+	<span>Forgot Password? <a href="/recover">Recover</a></span>
+{{/if}}
+
+
+{{#if login}}
+	<span>Return to <a href="/login">login</a></span>
+{{/if}}

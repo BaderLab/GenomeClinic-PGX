@@ -131,6 +131,26 @@ function clickAction(button, promiseFunction, options, useThis) {
 };
 
 
+function existsInDB(collection,field,value){
+	var promise = new Promise(function(resolve,reject){
+		var options = {
+				collection:collection,
+				field:field,
+				value:value
+			};
+		var promise = Promise.resolve($.ajax({
+			url:'/database/checkInDatabase',
+			contentType:'application/json',
+			type:'POST',
+			dataType:'json',
+			data:JSON.stringify(options)
+		}))
+		promise.then(function(result){
+			resolve(result);
+		});
+	});
+	return promise;
+};
 //=======================================================================
 // Nav Bar
 //=======================================================================
@@ -141,7 +161,7 @@ function clickAction(button, promiseFunction, options, useThis) {
 
 function addNavBar() {
 	var promise;
-
+	var options;
 	promise = Promise.resolve($.ajax({
 		url:'/authenticated',
 		type:'GET',
@@ -149,14 +169,29 @@ function addNavBar() {
 	}))
 
 	return promise.then(function(result){
-		console.log(result);
-		var options={authenticated:result}
+		options={authenticated:result}
+		return getUserInfo()
+	}).then(function(user){
+		options['user'] = user.user;
+		console.log(options);
 		return asyncRenderHbs('navbar.hbs',options).then(function(html){
 			$(document).find('nav').html(html);
 			$(document).foundation();
-		})
-	})
-}
+		});
+	});
+};
+
+
+
+function getUserInfo() {
+	return Promise.resolve($.ajax({
+		url:'/auth/user',
+		type:'GET',
+		contentType:'application/json'
+	})).then(function(result){
+		return result;
+	});
+};
 
 $(document).ready(addNavBar)
 

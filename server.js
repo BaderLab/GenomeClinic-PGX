@@ -14,7 +14,6 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var bodyParser= require("body-parser");
 var mongoStore = require('connect-mongo')(session);
-var email,emailPassword;
 
 
 //=======================================================================
@@ -51,22 +50,33 @@ var opts= require("nomnom")
 		full: "gmail-account",
 		default:undefined,
 		help:"gmail account name to use for sending password recoveries. This will not be permanately stored",
-		callback: function(gmail){
-			email = gmail;
-		}
 	})
 	.option('password',{
 		abr:'W',
 		full:'gmail-password',
 		default:undefined,
 		help:'please eneter gmail account password. This will not be permanately stored',
-		callback: function(password){
-			emailPassword = password
-		}
+
+	})
+	.option('oauth',{
+		flag:true,
+		abr:'O',
+		help:'Use Google Oauth for authentication',
+	})
+	.option('nosignup',{
+		flag:true,
+		help:'Use signup form'
+	})
+	.option('norecover',{
+		flag:true,
+		help:'Use recover form'
 	})
 	.parse();
+opts.signup =  !opts.nosignup;
+opts.recover = !opts.norecover;
 
 console.log("Server running on port " + opts.portNumber);
+
 
 
 //=======================================================================
@@ -156,7 +166,7 @@ app.use(express.static("public/", {index: false}));
 //=======================================================================
 // Add routes
 //=======================================================================
-require('./frangipani_node_modules/routes')(app,passport,dbFunctions,email,emailPassword);
+require('./frangipani_node_modules/routes')(app,passport,dbFunctions,opts);
 
 
 
