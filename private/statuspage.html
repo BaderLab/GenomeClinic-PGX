@@ -22,36 +22,23 @@
   </head>
 
   <body>
-    <div class="sticky">
+    <div class="sticky contain-to-grid">
       <nav class="top-bar" data-topbar role="navigation">
       </nav>
     </div>
     
     <!-- Main body of page -->
     <div class="row">
-      <div class="large-12 columns">
+      <div class="small-12 large-12 columns">
         <div class="row">
-          <div class="large-12 columns">
+          <div class="small-12 large-12 columns">
             <h2>Recent Uploads</h2>
             <h5 class="subheader">Displaying All Uploads</h5>
             <p>Information on recent uploads, including the Patient Id, the original file name and the useability status. If a patient has been completely uploaded, annotated and is available for use in searching, a checkmark will be displayed. Otherwise the spinning icon denotes the file is not currently ready to use.</p>
           </div>
         </div>
         <div class="row">
-          <div class="large-12 columns">
-            <table class='large-12'>
-              <thead>
-                <tr>
-                  <th>Patient</th>
-                  <th>File</th>
-                  <th>Added</th>
-                  <th>Completed</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody id="frangipani_patient_status">
-              </tbody>
-            </table>
+          <div class="small-12 medium-12 large-12 columns" id="frangipani_patient_status">
           </div>
         </div>
       </div>

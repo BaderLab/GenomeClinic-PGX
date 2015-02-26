@@ -1,51 +1,50 @@
 <ul class="title-area">
   <li class="name"><h1><a href="/">Frangipani</a></h1></li>
 </ul>
-<section class="top-bar-section">
-  <ul class="left">
-    <li>
-      <a href="http://github.com/BaderLab/Frangipani" id="frangipani-github-icon" target="_blank"><i class="fi-social-github size-36"></i></a>
-    </li>
-    <!-- 
-    <li data-tooltip aria-haspopup="true" title="Google Genomics API v0.5.1" class="has-form">
-      <a href="http://cloud.google.com/genomics/v1beta2/reference/" target="_blank" class="button radius">GA4GH API</a>
-    </li>
-    -->
-    {{#if authenticated}}
-    <!-- eventually will be a link to their profile -->
-    <li><a href="#" id="logged-in" class="button radius secondary">Logged in as: {{user}}</a></li>
-    {{/if}}
-  </ul>
-</section>
 {{#if authenticated}}
   <section class="top-bar-section">
-    <ul class="right">
+    <!-- Right Nav Section -->
+    <ul class="right show-for-medium-up">
       <li class="has-dropdown">
         <a href="#" class="button radius alert" id="frangipani-plus-icon"><i class="fi-plus size-16"></i></a>
         <ul class="dropdown">
           <li><a href="/upload" id="frangipani-add-new-patient"><i class="fi-torso size-24"></i>&nbsp&nbsp&nbsp Add Patient</a></li>
           <li><a href="/projects" id="frangipani-add-new-project"><i class="fi-page-multiple size-24"></i>&nbsp&nbsp&nbsp My Projects</a></li>
           <li><a href="/construction.html" id="frangipani-add-new-panel"><i class="fa fa-stethoscope fa-2x"></i>&nbsp&nbsp&nbsp Gene Panel</a></li>
-          <li><a href='/statuspage' id='frangipani-status-page'><i class='fi-widget size-24'></i>&nbsp&nbsp Check Status</a></li>
-          <li><a href="/setpassword"><i class="fi-lock size-24"></i>&nbsp&nbsp Change Password</a></li>
         </ul>
-      </li>
-
-      <li class="has-form">
-        <div class="row collapse">
-          <div class="large-8 columns">
-            <input type="text" id="frangipani-search-field" placeholder="Find Patient...">
-          </div>
-          <div class="large-4 columns">
-            <a href="/construction.html" class="button expand alert" id="frangipani-search-button">Search</a>
-          </div>
-        </div>
       </li>
       <li class="has-form">
         <a href="/browsepatients" class="button radius alert" id="frangipani-browse-button">Browse</a>
       </li>
       <li class="has-form">
-        <a href="/logout" class="button radius">Logout</a>
+        <span data-tooltip aria-haspopup="true" class="has-tip tip-bottom radius" title="Check the status of all your uploads to see which ones are available for use"><a href='/statuspage' class="button radius alert" id='frangipani-status-page'><i class='fi-widget' style="size:15;"></i></a></span>
+      </li>
+      <li class="divider"></li>
+      <li class="has-dropdown">
+        <a href="#" id="frangipani-user-icon"><i class="fi-torso size-14"></i>&nbsp&nbsp{{user}}</a>
+        <ul class="dropdown">
+          <li><label>Account Actions</li></label>
+          <li><a href="/setpassword"><i class="fi-lock size-16"></i>&nbsp&nbsp Change Password</a></li>
+          <li><a href="/logout"><i class="fa fa-sign-out" style="size:16;"></i>&nbsp&nbspLog Out</a></li>
+        </ul> 
+      </li>
+      <li class="divider"></li>
+    </ul>
+    <ul class="left show-for-small-only">
+      <li class="has-dropdown">
+        <a href="#" class="button radius alert"><i class="fi-list size-16"></i></a>
+        <ul class="dropdown">
+          <li><label>Navigation</label></li>
+          <li><a href="/upload" id="frangipani-add-new-patient">Add Patient</a></li>
+          <li><a href="/projects" id="frangipani-add-new-project">My Projects</a></li>
+          <li><a href="/construction.html" id="frangipani-add-new-panel">Gene Panel</a></li>
+          <li><a href="/browsepatients" id="frangipani-browse-button">Browse</a></li>
+          <li class="divider"></li>
+          <li><label>Account Actions</li>
+          <li><label>{{user}}</li>
+          <li><a href="/setpassword">Change Password</a></li>
+          <li><a href="/logout">Log Out</a></li>
+        </ul>
       </li>
     </ul>
   </section>

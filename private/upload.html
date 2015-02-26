@@ -22,7 +22,7 @@
   </head>
 
   <body>
-    <div class="sticky">
+    <div class="sticky contain-to-grid">
       <nav class="top-bar" data-topbar role="navigation">
       </nav>
     </div>
@@ -42,34 +42,34 @@
           <p>Once you have all of your files selected, click “Submit”. Each files progress will be monitored in the upload bar. Once they are uploaded, give the file some time as it needs to be annotated. Check out the upload status bar to see if it is available for viewing yet!</p>
           <h6 class="subheader spacer"><i>NOTICE: Leaving this page prior to upload completion will cancel the upload and the file will not be processed</i></h6>
         </div>
-        <div class="large-12 columns">
+        <div class="small-12 large-12 columns">
           <form id="jquery-new-patient-form" data-abide>
             <div class="row">
-              <div class="large-12 columns">
+              <div class="small-12 large-12 columns">
                 <fieldset style="display:none" id="info-fields">
                   <legend>Patient Information</legend>
                   <div class="row">
-                    <div class="large-12 columns">
-                      <div class="large-3 columns" style="text-align:center;">
+                    <div class="small-12 large-12 columns">
+                      <div class="small-2 large-3 columns" style="text-align:center;">
                         <h6>Patient Id</h6>
                       </div>
-                      <div class="large-3 columns" style="text-align:center;">
+                      <div class="small-2 large-3 columns" style="text-align:center;">
                         <h6>Patient Alias</h6>
                       </div>
-                      <div class="large-2 columns" style="text-align:center;">
+                      <div class="small-2 large-2 columns" style="text-align:center;">
                         <h6>Phenotype</h6>
                       </div>
-                      <div class="large-1 columns" style="text-align:center;">
+                      <div class="small-2 large-1 columns" style="text-align:center;">
                         <h6>Age</h6>
                       </div>
-                      <div class="large-3 columns" style="text-align:center;">
+                      <div class="small-4 large-3 columns" style="text-align:center;">
                         <h6 style="text-align:center;">Sex</h6>
                       </div>
                       <hr>
                     </div>
                   </div>
                   <div class="row">
-                    <div class="large-12 columns" id="patient_information">
+                    <div class="small-12 large-12 columns" id="patient_information">
                     </div>
                   </div>
                 </fieldset>
@@ -83,12 +83,12 @@
               </div>
             </div<
             <div class="row">
-              <div class="large-4 columns left">
+              <div class="small-6 large-4 columns left">
                 <input id="fileselect" type="file" name="files[]" style="display:none" multiple></input>
                 <a href="#" class="button alert round large-12" id="upload-button"><i class="fi-plus size-16"></i>&nbsp&nbspAdd File</a></li>
               </div>
-              <div class="large-4 columns right">
-                <a href='/statuspage' class="large-12 button round alert" id="go-to-status" style="display:none;">Check Status</a>
+              <div class="small-6 large-4 columns right">
+                <a href='/statuspage' class="small-12 large-12 button round alert" id="go-to-status" style="display:none;">Check Status</a>
                 <ul class="button-group even-2 round">
                   <li><a href="#" class="button alert" id="cancel-all-button"><i class="fi-x size-16"></i>&nbsp&nbspCancel</a></li>
                   <li><a href="#" class="button alert" id="submit-all-button"><i class="fi-upload size-16"></i>&nbsp&nbspSumbit</a></li>
