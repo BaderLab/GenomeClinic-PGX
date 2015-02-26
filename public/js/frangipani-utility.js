@@ -173,7 +173,6 @@ function addNavBar() {
 		return getUserInfo()
 	}).then(function(user){
 		options['user'] = user.user;
-		console.log(options);
 		return asyncRenderHbs('navbar.hbs',options).then(function(html){
 			$(document).find('nav').html(html);
 			$(document).foundation();
