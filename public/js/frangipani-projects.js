@@ -181,24 +181,28 @@
 				clickFunctionPromise = Promise.resolve().then(function(){ return clickFunction(secEle);})
 
 			clickFunctionPromise.then(function(result){
-				$(secEle).find('.confirm').on('click',function(e){
-					e.preventDefault();
-					$(this).off('click');
-					if (useModal)
-						$(secEle).foundation('reveal','close');
-					return callback(true,result,secEle)					
-				});
+				if (result){
+						$(secEle).find('.confirm').on('click',function(e){
+							e.preventDefault();
+							$(this).off('click');
+							if (useModal)
+								$(secEle).foundation('reveal','close');
+							return callback(true,result,secEle)					
+						});
 
-				$(secEle).find('.cancel').on('click',function(e){
-					e.preventDefault();
-					$(this).off('click');
-					if (useModal)
-						$(secEle).foundation('reveal','close');
-					callback(undefined,result,secEle);
-					
-				});
-				if(useModal)
-					$(secEle).foundation('reveal','open');
+					$(secEle).find('.cancel').on('click',function(e){
+						e.preventDefault();
+						$(this).off('click');
+						if (useModal)
+							$(secEle).foundation('reveal','close');
+						callback(undefined,result,secEle);
+
+						
+					});
+
+					if(useModal)
+						$(secEle).foundation('reveal','open');
+				}
 			});
 		});
 	}
@@ -308,11 +312,11 @@
 					}
 				}
 				var projectId = $('#project_id').val();
-				var details = $('#details').val();
+				var keywords = $('#keywords').val();
 				var options = {
 					'project':{
 						'project_id':projectId,
-						'details':details,
+						'keywords':keywords,
 						'description':description
 					},
 					'patients':selected,
@@ -363,7 +367,7 @@
 		confirm('#edit-page','#change-details',false,function(ele){
 			$(ele).show().closest('fieldset').find('#fixed-details').hide(0);
 			var _default = {
-				details:$('#details').val(),
+				keywords:$('#keywords').val(),
 				description:$('#description').val()
 			}
 			return _default;
@@ -379,12 +383,12 @@
 				}
 				var projectId = projectName;
 				var description = $('#description').val();
-				var details = $('#details').val();
+				var keywords = $('#keywords').val();
 				var _o = {
 					project:projectId,
 					update:{
 						description:description,
-						details:details,
+						keywords:keywords,
 						users:emails
 					}};
 				Promise.resolve($.ajax({
@@ -403,7 +407,7 @@
 				})
 			} else {
 				$('.auth-user-email').closest('tr').find('a').show();
-				$('#details').val(_default.details);
+				$('#keywords').val(_default.keywords);
 				$('#description').val(_default.description);
 				$(content).hide().parents().find('#fixed-details').show();
 			}
@@ -458,8 +462,7 @@
 						$('#patient_id_links').removeClass('scrollit');
 					}
 				});
-				return true;
-			})
+			}).then(function(result){return true})
 		},function(confirm,result,modal){
 			if (confirm){
 				var options = {
@@ -547,7 +550,6 @@
 			}))
 
 			promise.then(function(result){
-				console.log(result);
 				owner = result[0].owner;
 				remove = (owner == user);
 				var options = result[0];

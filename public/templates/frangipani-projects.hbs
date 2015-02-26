@@ -15,26 +15,37 @@
 <div class="row">
 	<div class="large-12 columns">     
 		{{!-- Add the project table --}}
-		<table class="large-12">
-			<thead>
-				<tr>
-					<th>Project Name</th>
-					<th>Date Created</th>
-					<th class="text-center">Number Of Patients</th>
-					<th class="text-center">Details</th>
-				</tr>
-			</thead>
-			<tbody>
-				{{#each projects}}
-				<tr class="project-row">
-					<td class="frangipani-project-name">{{project_id}}</a></td>
-					<td>{{date}}</td>
-					<td class="text-center">{{numPatients}}</td>
-					<td class="text-center">{{details}}</td>
-				</tr>
-				{{/each}}
-			</tbody>
-		</table>
+    {{#if projects}}
+  		<table class="large-12">
+  			<thead>
+  				<tr>
+  					<th>Project Name</th>
+  					<th>Date Created</th>
+  					<th class="text-center">Number Of Patients</th>
+  					<th class="text-center">Keywords</th>
+  				</tr>
+  			</thead>
+  			<tbody>
+  				{{#each projects}}
+  				<tr class="project-row">
+  					<td class="frangipani-project-name">{{project_id}}</a></td>
+  					<td>{{date}}</td>
+  					<td class="text-center">{{numPatients}}</td>
+  					<td class="text-center">{{keywords}}</td>
+  				</tr>
+  				{{/each}}
+  			</tbody>
+  		</table>
+    {{else}}
+    <div data-alert class="alert-box radius secondary" id="error-display-box">
+      <!-- Alert message goes here -->
+      <div class="row">
+          <div class="small-11 columns">
+              <p id="error-display-message">There does not appear to be anyhting here</p>
+          </div>
+        </div>
+    </div>
+    {{/if}}
 	</div>
 </div>
 {{/if}}
@@ -79,10 +90,10 @@
                     </div>
                     <div class="row collapse prefix-radius">
                       <div class="large-3 columns">
-                        <span class="prefix">Quick Details</span>
+                        <span class="prefix">Keywords</span>
                       </div>
                       <div class="large-9 columns">
-                        <input type="text" id='details' name='details'>
+                        <input type="text" id='keywords' name='keywords'>
                       </div>
                     </div>
                     <div class="row collapse prefix-radius">
@@ -90,7 +101,7 @@
                         <span class="prefix">Project Description</span>
                       </div>
                       <div class="large-9 columns">
-                        <textarea id="description" rows=5 maxlength=1000></textarea>
+                        <textarea id="description" rows=5></textarea>
                       </div>
                     </div>
                     <div class="row collapse prefix-radius postfix-radius">
@@ -192,10 +203,10 @@
         </div>
         <div class="row">
           <div class="large-12 columns" id="fixed-details">
-        		{{#if details}}
+        		{{#if keywords}}
 
-        		<h4>Quick Project Details</h4>
-        		<p>{{details}}</p>
+        		<h4>Project Keywords</h4>
+        		<p>{{keywords}}</p>
         		{{/if}}
         		{{#if description}}
         		<h4>Project Description</h4>
@@ -211,10 +222,10 @@
         {{#if isOwner}}
         <div class="row">
           <div class="large-12 columns" style="display:none;" id="change-details">
-            <h4>Quick Project Details</h4>
-            <input type="text" id="details" value="{{details}}">
+            <h4>Project Keywords</h4>
+            <input type="text" id="keywords" value="{{keywords}}">
             <h4>Project Description</h4>
-            <textarea id="description" rows=5 maxlength=1000>{{description}}</textarea>
+            <textarea id="description" rows=5>{{description}}</textarea>
             <div class="row collapse prefix-radius postfix-radius">
               <div class="large-3 columns">
                 <span class="prefix">Add Authorized User</span>
