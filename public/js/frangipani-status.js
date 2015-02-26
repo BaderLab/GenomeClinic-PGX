@@ -10,7 +10,15 @@
 
 (function(){
 
-
+	var arraysEqual = function(arr1, arr2) {
+	    if(arr1.length !== arr2.length)
+	        return false;
+	    for(var i = arr1.length; i--;) {
+	        if(arr1[i] !== arr2[i])
+	            return false;
+	    }
+	    return true;
+	};
 	//=======================================================================
 	// Refresh The Status Table and search for changes
 	//=======================================================================
@@ -18,6 +26,7 @@
 	 * made to the connected database. The table refreshes every 5 seconds.
 	 */
 	var refresh = function(){
+		var location = window.location.pathname
 		var timer = window.setInterval(function(){
 			var promise = new Promise(function(resolve,reject){
 				var patientArray;
@@ -34,34 +43,44 @@
 				promise.then(function(result){
 					result.reverse();
 					patientArray = result;
-					var currentRows = $('#frangipani_patient_status').children();
-					//New files have been added or removed
-					if (currentRows.length != result.length){
-						for (var i=0;i<patientArray.length;i++){
-							if (patientArray[i]['ready']){
-								patientArray[i]['icon'] = 'fi-check size-24'
-								patientArray[i]['style'] = "color:#66CD00;"
-							} else {
-								patientArray[i]['icon'] = "fa fa-spinner fa-spin"	
-								patientArray[i]['style'] = "color:#3399FF;font-size:1.5em;"
-							}	
-						}
-						//If new file added
-						if (currentRows.length < patientArray.length){
+					patientNameArray = patientArray.map(function(item){return item['patient_id']});
+					var currentRows =  $('#frangipani-status-row').children()
+					var currentRowNames = currentRows.map(function(){
+						return $(this).data('id').toString();
+					}).toArray();
+					var patientRowsOnPage = patientArray.map(function(item){
+						return currentRowNames.indexOf(item['patient_id']);
+					});
+					var currentRowsInPatients = currentRowNames.map(function(item){
+						return patientNameArray.indexOf(item);
+					}); 
 
-							var diff = patientArray.slice(0,result.length-currentRows.length);
-							return asyncRenderHbs('frangipani-add-status-row.hbs',{patients:diff}).then(function(html){
-								$('#frangipani_patient_status').prepend(html);
-							});
-						} else { // new file removed
-							return asyncRenderHbs('frangipani-add-status-row.hbs',{patients:patientArray}).then(function(html){
-								$('#frangipani_patient_status').empty().html(html);
+					if (!arraysEqual(patientRowsOnPage,currentRowsInPatients)){
+						var toAdd = [];
+						if (patientRowsOnPage.indexOf(-1) != -1 ){
+							
+							for (var i=0; i<patientRowsOnPage.length; i++ ){
+								if (patientRowsOnPage[i] == -1){
+									toAdd.push(patientArray[i])
+								}
+							}
+						}
+						if (currentRowsInPatients.indexOf(-1) != -1){
+							for (var i=0; i<currentRowsInPatients.length; i++ ){
+								if (currentRowsInPatients[i] == -1){
+									$(currentRows[i]).remove();
+								}
+							}
+						}	
+						if (toAdd.length > 0){
+							return asyncRenderHbs('frangipani-add-status-row.hbs',{patients:toAdd}).then(function(renderedHtml){
+								$('#frangipani-status-row').prepend(renderedHtml);
 							})
 						}
 					}
 				}).then(function(){
 					//listen for any changes made to the status of each item
-					var currentRows = $("#frangipani_patient_status").children();
+					var currentRows = $("#frangipani-status-row").children();
 					for (var i=0;i<patientArray.length;i++){
 						if (patientArray[i]['ready']){
 							if(!$(currentRows[i]).find('i').hasClass('fi-check'))
@@ -79,12 +98,21 @@
 			return promise;
 		},5000);
 		
+		var newTimer  = window.setInterval(function(){
+			var newPath =window.location.pathname.replace('#','');
+			if (newPath != location){
+				clearInterval(timer);
+				clearInterval(this);
+			}
+		},1000);
 
+		/*
 		// remove the click timer and remove the event handler
 		$('.top-bar-section').find('a').on('click.one',function(){
 			clearInterval(timer);
 			$(this).closest(document).find('.top-bar-section').find('a').off('click.one');
 		});
+*/
 		
 	};
 
@@ -108,17 +136,8 @@
 			}));
 
 			promise.then(function(result){
-				for (var i=0;i<result.length;i++){
-					if (result[i]['ready']){
-						result[i]['icon'] = 'fi-check size-24'
-						result[i]['style'] = "color:#66CD00;"
-					} else {
-						result[i]['icon'] = "fa fa-spinner fa-spin"	
-						result[i]['style'] = "color:#3399FF;font-size:1.5em;"
-					}	
-				}
 				patientArray = {patients:result.reverse()};
-				return asyncRenderHbs('frangipani-add-status-row.hbs',patientArray);
+				return asyncRenderHbs('frangipani-status.hbs',patientArray);
 			}).then(function(result){
 				rowTemplates = result;
 
