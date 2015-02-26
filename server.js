@@ -32,6 +32,12 @@ var opts= require("nomnom")
 		default: 8080,
 		help: "User-specifed port number"
 	})
+	.option('secondaryPortNumber',{
+		abbr:'P',
+		full:"port2",
+		default:80,
+		help:'specify the default port for incoming http connection'
+	})
 	.option("mongodbHost", {
 		full: "mongodb-host",
 		default: dbConstants.DB_HOST,
@@ -78,6 +84,12 @@ var opts= require("nomnom")
 		flag:true,
 		help:"Use secure https connection"
 	})
+	.option('development',{
+		abbr:'d',
+		full:'dev',
+		flag:true,
+		help:'Set development environment to true and use localhost ports'
+	})
 	.parse();
 opts.signup =  !opts.nosignup;
 opts.recover = !opts.norecover;
@@ -97,9 +109,11 @@ if (opts.https){
 			next();
 		} else {
 			// request was via http, so redirect to https
-			console.log(req.headers.host);
-			console.log(req.url);
-			res.redirect('https://' + req.headers.host + ':' + opts.portNumber + req.url);
+			if (!opts.development)
+				res.redirect('https://' + req.headers.host + req.url); //
+			else
+				res.redirect('https://' + req.headers.host + ':' + opts.portNumber + req.url);
+
 		}
 	});
 }
@@ -196,12 +210,11 @@ require('./frangipani_node_modules/routes')(app,passport,dbFunctions,opts);
 // Start Listening on the set port
 //=======================================================================
 if (opts.https){
-
 	var privateKey = fs.readFileSync('ssl/frangipani.key');
 	var certificate = fs.readFileSync('ssl/frangipani.crt');
 	var credentials = {key:privateKey,cert:certificate};
+	http.createServer(app).listen(opts.secondaryPortNumber)
 	https.createServer(credentials,app).listen(opts.portNumber)
-	http.createServer(app).listen(80);
 } else {
 	app.listen(opts.portNumber);
 }
