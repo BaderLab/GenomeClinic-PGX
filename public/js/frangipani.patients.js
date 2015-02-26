@@ -560,6 +560,36 @@ var loadPGx= function(pgxData) {
 };
 
 
+/* Handlebars block helper to output PGx known haplotype genotypes.
+ * This helper is going to be a little messy, but this particular task is a bit
+ * complicated and I don't think can be acheived within the template itself. */
+Handlebars.registerHelper("listPossibleHaplotypes", function(context, options) {
+	var renderedHtml= "<em style='color: red;'>No haplotypes identified</em>";
+	var currentGene= context;
+
+	// Iterate through all haplotype names and add them
+	var possibleHaplotypeKeys= [];
+	var possibleHaplotypeStrings= [];
+
+	if (globalPGXData["possibleHaplotypesStringRep"][currentGene] !== undefined) {
+		possibleHaplotypeKeys= Object.keys(globalPGXData["possibleHaplotypesStringRep"][currentGene]);
+	}
+
+	for (var i= 0; i < possibleHaplotypeKeys.length; ++i) {
+		var currentHaplotypeStrings= 
+			globalPGXData["possibleHaplotypesStringRep"][currentGene][possibleHaplotypeKeys[i]]["closestMatch"];
+		possibleHaplotypeStrings= possibleHaplotypeStrings.concat(currentHaplotypeStrings);
+	}
+
+	// Generate rendered html
+	if (possibleHaplotypeStrings.length > 0) {
+		renderedHtml= "<em>" + possibleHaplotypeStrings.toString() + "</em>"
+	}
+
+	return renderedHtml;
+});
+
+
 /* Handlebars block helper to output all PGx markers for this gene. */
 Handlebars.registerHelper('markerHeader', function(context, options) {
 	var renderedHtml= "";
@@ -737,7 +767,7 @@ var addEventListeners= function() {
 			globalPGXData= result;  // set the globally-scoped PGX Data
 			loadPGx(result);
 
-			//console.log("TESTING globalPGXData:", globalPGXData); ////////////// TESTING
+			//console.log("TESTING globalPGXData:", globalPGXData); ////////////// TESTING OUTPUT
 		});
 	});
 
