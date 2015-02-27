@@ -41,7 +41,6 @@
 					})
 				}));
 				promise.then(function(result){
-					result.reverse();
 					patientArray = result;
 					patientNameArray = patientArray.map(function(item){return item['patient_id']});
 					var currentRows =  $('#frangipani-status-row').children()
@@ -136,7 +135,7 @@
 			}));
 
 			promise.then(function(result){
-				patientArray = {patients:result.reverse()};
+				patientArray = {patients:result};
 				return asyncRenderHbs('frangipani-status.hbs',patientArray);
 			}).then(function(result){
 				rowTemplates = result;
