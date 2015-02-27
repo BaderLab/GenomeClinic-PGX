@@ -14,12 +14,13 @@
         </ul>
       </li>
       <li class="has-form">
-        <a href="/browsepatients" class="button radius alert" id="frangipani-browse-button">Browse</a>
+        <span data-tooltip data-options="show_on:large" aria-haspopup="true" class="has-tip tip-bottom radius" title="Check annotation status"><a href='/statuspage' class="button radius alert" id='frangipani-status-page'><i class='fi-annotate size-16'></i></a></span>
       </li>
       <li class="has-form">
-        <span data-tooltip aria-haspopup="true" class="has-tip tip-bottom radius" title="Check the status of all your uploads to see which ones are available for use"><a href='/statuspage' class="button radius alert" id='frangipani-status-page'><i class='fi-widget' style="size:15;"></i></a></span>
+        <a href="/browsepatients" class="button radius alert" id="frangipani-browse-button">Browse</a>
       </li>
-      <li class="divider"></li>
+      <li class="divider hide-for-small">
+      </li>
       <li class="has-dropdown">
         <a href="#" id="frangipani-user-icon"><i class="fi-torso size-14"></i>&nbsp&nbsp{{user}}</a>
         <ul class="dropdown">
@@ -28,7 +29,6 @@
           <li><a href="/logout"><i class="fa fa-sign-out" style="size:16;"></i>&nbsp&nbspLog Out</a></li>
         </ul> 
       </li>
-      <li class="divider"></li>
     </ul>
     <ul class="left show-for-small-only">
       <li class="has-dropdown">

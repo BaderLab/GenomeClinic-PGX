@@ -22,6 +22,8 @@
 
 .size-96 { font-size: 96px; }
 
+.size-200 { font-size: 200px; }
+
 
 .spacer {
   margin-top: 10px;
@@ -61,6 +63,14 @@
 /* Remove the caret from the Foundation dropdown style */
 #frangipani-plus-icon::after {
   display: none;
+}
+
+/* Adjust the button padding to match other "has-form" buttons. */
+#frangipani-status-page {
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 
 #frangipani-search-field {
@@ -184,4 +194,8 @@ tr.patient-genotype-row {
   transform: rotate(45deg);
 }
 
-
+/* Set standard spacing for the horizontal rule. */
+hr {
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
