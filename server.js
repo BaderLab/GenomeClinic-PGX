@@ -166,7 +166,7 @@ app.use(bodyParser.urlencoded({extended:false}))
 // Set up Passport to use Authentication
 //=======================================================================
 
-require('./frangipani_node_modules/passport-config')(passport,dbFunctions)
+require('./frangipani_node_modules/passport-config')(passport,dbFunctions,opts)
 
 console.log('mongodb://' + dbConstants.DB_HOST + ':' + dbConstants.DB_PORT + '/sessionInfo');
 
