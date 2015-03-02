@@ -140,7 +140,12 @@
           	    </div>
                 <div class="row">
                   <div class="large-12 columns" id='patient_id_links' style="min-height:150px;">
-                  <h4>Patients to add to project (click to remove)</h4>
+                    <div class="large-8 columns">
+                      <h4>Patients to add to project</h4>
+                    </div>
+                    <div class="large-3 columns right">
+                      <a href="#" id="remove-all-visible" class="tiny button radius alert right">Remove All Patients</a>
+                    </div>
                   </div>
                 </div>
                 <div class="row">
@@ -160,8 +165,11 @@
               <div class="large-2 columns">
                 <span class="prefix">Search</span>
               </div>
-              <div class="large-6 columns left">
+              <div class="large-6 small-8 columns left">
                 <input type="text" id="searchBox" name="searchBox">
+              </div>
+              <div class="large-3 small-2 columns right">
+                <a href="#" id="add-all-visible" class="right tiny button alert radius">Add All Active Patients</a>
               </div>
             </div>
             <div class="large-12 columns" id="patient-information">

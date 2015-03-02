@@ -277,6 +277,19 @@
 		//add a new authorized user
 
 		//Clear the error whenever you start typing within an input
+		$('#add-all-visible').on('click',function(e){
+			e.preventDefault();
+			$('tr:visible').each(function(ind,item){
+				$(item).trigger('click');
+			});
+		});
+
+		$("#remove-all-visible").on('click',function(e){
+			e.preventDefault();
+			$('#patient_id_links').children('.patient-link').each(function(ind,item){
+				$(item).trigger('click');
+			});
+		});
 		
 
 		//Check to see if the currnent input field for the project id exists within the database
