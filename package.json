@@ -22,6 +22,7 @@
     "just.randomstring":"*",
     "nodemailer":"*",
     "connect-mongo":"*",
-    "morgan":"*"
+    "morgan":"*",
+    "winston":"*"
   }
 }
