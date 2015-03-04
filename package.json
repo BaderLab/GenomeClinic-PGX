@@ -21,6 +21,7 @@
     "request": "*",
     "just.randomstring":"*",
     "nodemailer":"*",
-    "connect-mongo":"*"
+    "connect-mongo":"*",
+    "morgan":"*"
   }
 }
