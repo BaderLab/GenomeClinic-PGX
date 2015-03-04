@@ -3,19 +3,21 @@
  * 
  * @author Ron Ammar, Patrick Magee
  */
-var express= require("express");
-var dbFunctions= require("./frangipani_node_modules/mongodb_functions");
-var Promise= require("bluebird");
-var dbConstants= require("./frangipani_node_modules/mongodb_constants");
-var fs = Promise.promisifyAll(require('fs'));
-var passport = require('passport');
-var flash = require('connect-flash');
-var cookieParser = require('cookie-parser');
-var session = require('express-session');
-var bodyParser= require("body-parser");
-var mongoStore = require('connect-mongo')(session);
-var https = require('https');
-var http = require('http');
+var express= require("express"),
+	dbFunctions= require("./frangipani_node_modules/mongodb_functions"),
+	Promise= require("bluebird"),
+	dbConstants= require("./frangipani_node_modules/mongodb_constants"),
+	fs = Promise.promisifyAll(require('fs')),
+	passport = require('passport'),
+	flash = require('connect-flash'),
+	cookieParser = require('cookie-parser'),
+	session = require('express-session'),
+	bodyParser= require("body-parser"),
+	mongoStore = require('connect-mongo')(session),
+	https = require('https'),
+	http = require('http'),
+	morgan = require('morgan'),
+	nodeConstants = require("./frangipani_node_modules/node_constants");
 
 
 
@@ -101,7 +103,28 @@ console.log("Server running on port " + opts.portNumber);
 //=======================================================================
 // Initialize Express Server
 //=======================================================================
+//Create Log Directory in order to open read stream
+try {
+	fs.statSync(nodeConstants.LOG_DIR);
+} catch (err) {
+	fs.mkdirSync(nodeConstants.LOG_DIR);
+};
+
+//configure morgan to add the user to the logged file info:
+
+morgan.token('user',function getUser(req){
+		if (req.user)
+			return req.user[dbConstants.USER_ID_FIELD];
+		else
+			return "";
+	});
+
+//Open write stream for log files
+var comLog = fs.createWriteStream(__dirname + "/" + nodeConstants.LOG_DIR + "/" + nodeConstants.COM_LOG_PATH);
 var app = express();
+app.use(morgan(':remote-addr - :user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', {stream:comLog}));
+
+//If using https then add redirect callback for all incoming http calls.
 if (opts.https){
 	app.use(function (req, res, next) {
 		if (req.secure) {
@@ -162,7 +185,7 @@ app.use(bodyParser.urlencoded({extended:false}))
 
 
 
-//=======================================================================
+//=======================================================================	
 // Set up Passport to use Authentication
 //=======================================================================
 
