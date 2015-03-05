@@ -3,19 +3,31 @@
  * 
  * @author Ron Ammar, Patrick Magee
  */
-var express= require("express");
-var dbFunctions= require("./frangipani_node_modules/mongodb_functions");
-var Promise= require("bluebird");
-var dbConstants= require("./frangipani_node_modules/mongodb_constants");
-var fs = Promise.promisifyAll(require('fs'));
-var passport = require('passport');
-var flash = require('connect-flash');
-var cookieParser = require('cookie-parser');
-var session = require('express-session');
-var bodyParser= require("body-parser");
-var mongoStore = require('connect-mongo')(session);
-var https = require('https');
-var http = require('http');
+var express= require("express"),
+	dbConstants= require("./frangipani_node_modules/mongodb_constants"),
+	Promise= require("bluebird"),
+	fs = Promise.promisifyAll(require('fs')),
+	passport = require('passport'),
+	flash = require('connect-flash'),
+	cookieParser = require('cookie-parser'),
+	session = require('express-session'),
+	bodyParser= require("body-parser"),
+	mongoStore = require('connect-mongo')(session),
+	https = require('https'),
+	http = require('http'),
+	morgan = require('morgan'),
+	nodeConstants = require("./frangipani_node_modules/node_constants");
+
+
+
+try {
+	fs.statSync(nodeConstants.LOG_DIR);
+} catch (err) {
+	fs.mkdirSync(nodeConstants.LOG_DIR);
+};	
+
+var logger = require('./frangipani_node_modules/logger')('node');
+var dbFunctions = require("./frangipani_node_modules/mongodb_functions");
 
 
 
@@ -94,14 +106,30 @@ var opts= require("nomnom")
 opts.signup =  !opts.nosignup;
 opts.recover = !opts.norecover;
 
-console.log("Server running on port " + opts.portNumber);
+
 
 
 
 //=======================================================================
-// Initialize Express Server
+// Initialize Express Server And Initialize Loggers
 //=======================================================================
+
+
+
+//configure morgan to add the user to the logged file info:
+morgan.token('user',function getUser(req){
+		if (req.user)
+			return req.user[dbConstants.USER_ID_FIELD];
+		else
+			return "";
+	});
+
+//Open write stream for log files
+var comLog = fs.createWriteStream(__dirname + "/" + nodeConstants.LOG_DIR + "/" + nodeConstants.COM_LOG_PATH);
 var app = express();
+app.use(morgan(':remote-addr - :user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', {stream:comLog}));
+
+//If using https then add redirect callback for all incoming http calls.
 if (opts.https){
 	app.use(function (req, res, next) {
 		if (req.secure) {
@@ -130,23 +158,25 @@ for (var i= 0; i < prerequisiteDirectories.length; ++i) {
 		fs.statAsync(currentDirectory).then(function(result){
 			// directory already exists
 		}).catch(function(err){
-			console.log(currentDirectory + ' directory does not exist. Created.');
+			logger.info(currentDirectory + ' directory does not exist. Created.');
 			return fs.mkdirAsync(currentDirectory);
 		}).catch(function(err){
-			console.log("Cannot create " + currentDirectory + " folder");
-			console.log(err);
+			logger.error("Cannot create " + currentDirectory + " folder");
+			logger.error(err);
 		});
 	})();
 }
 
+
+logger.info("Server running on port " + opts.portNumber);
 //=======================================================================
 // Connect and Initialzie the storage Database
 //=======================================================================
 dbFunctions.connectAndInitializeDB()
 .catch(function(err) {
-	console.error(err.toString());
-	console.error(err.stack);
-	console.log("Exiting due to connection error with DB server.");
+	logger.error(err.toString());
+	logger.error(err.stack);
+	logger.error("Exiting due to connection error with DB server.");
 	process.exit(1);
 });
 
@@ -162,25 +192,25 @@ app.use(bodyParser.urlencoded({extended:false}))
 
 
 
-//=======================================================================
+//=======================================================================	
 // Set up Passport to use Authentication
 //=======================================================================
 
 require('./frangipani_node_modules/passport-config')(passport,dbFunctions,opts)
 
-console.log('mongodb://' + dbConstants.DB_HOST + ':' + dbConstants.DB_PORT + '/sessionInfo');
+logger.info('mongodb://' + dbConstants.DB_HOST + ':' + dbConstants.DB_PORT + '/sessionInfo');
 
 //=======================================================================
 // Initialize the session Session
 //=======================================================================
 //In the future use a redis session to configure the session information
-app.use(session({secret:'fragipani_app_server',
+	app.use(session({secret:'fragipani_app_server',
 				 store: new mongoStore({
 				 	url:'mongodb://' + dbConstants.DB_HOST + ':' + dbConstants.DB_PORT + '/sessionInfo'
 				 }),
 				 resave:false,
 				 secure:true,
-				 saveUninitialized:false}));
+				 saveUninitialized:false}))
 
 
 //=======================================================================
@@ -201,7 +231,7 @@ app.use(express.static("public/", {index: false}));
 //=======================================================================
 // Add routes
 //=======================================================================
-require('./frangipani_node_modules/routes')(app,passport,dbFunctions,opts);
+require('./frangipani_node_modules/routes')(app,passport,dbFunctions,opts,logger);
 
 
 
@@ -226,9 +256,9 @@ if (opts.https){
 /* Listen for SIGINT events. These can be generated by typing CTRL + C in the 
  * terminal. */ 
 process.on("SIGINT", function(){
-	console.log("\nReceived interrupt signal. Closing connections to DB...");
+	logger.info("\nReceived interrupt signal. Closing connections to DB...");
 	dbFunctions.closeConnection(function() {
-		console.log("Bye!");
+		logger.info("Bye!");
 		process.exit(0);
 	});
 });
