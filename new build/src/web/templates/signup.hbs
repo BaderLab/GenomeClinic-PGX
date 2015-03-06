@@ -1,0 +1,107 @@
+<div style="min-height:100%;">
+  <div class="row">
+    <div class="small-12 medium-8 large-6 medium-centered large-centered columns">
+      <form data-abide="ajax" id="frangipani-request-login" style="margin-top:20%">
+        <fieldset>
+          <h3 style="margin-bottom:60px;margin-top:10px;"><i class="fa fa-chevron-right"></i>&nbspSign Up</h3>
+          <div class="row">
+            <div class="small-12 columns">
+              <div data-alert class="alert-box radius alert" id="error-display-box"  style="display:none">
+                <!-- Alert message goes here -->
+                <div class="row">
+                  <div class="small-11 columns">
+                    <p id="error-display-message"></p>
+                  </div>
+                  <div class="small-1 columns">
+                    <a href="#" class='close-box'><i class="fi-x size-16" style="color:#606060"></i></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row" >
+            <div class="small-12 columns">
+              <div class="row collapse prefix-radius">
+                <div class="small-4 columns">
+                  <span data-tooltip aria-haspopup="true" class="has-tip tip-left radius" title="Username Must be a valid email"><span class="prefix"><i class="fa fa-envelope-o fa-lg"></i></span></span>
+                </div>
+                <div class="small-8 columns">
+                  <input type="email" id='username' name='username' required>
+                  <small class='error'>Your username must be a valid email</small>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="small-12 columns">
+
+              <div class="row collapse prefix-radius">
+                <div class="small-4 columns">
+                  <span data-tooltip aria-haspopup="true" class="has-tip tip-left radius" title="Passwords must be between 6 and 40 characters long"><span class="prefix"><i class="fa fa-key fa-lg"></i></span></span>
+                </div>
+                <div class="small-8 columns">
+                  <input type="password" id='password' name='password' required pattern='lower'>
+                  <small class="error">Password must be at least 6 characters long</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="small-12 columns">
+              <div class="row collapse prefix-radius">
+                <div class="small-4 columns">
+                  <span data-tooltip aria-haspopup="true" class="has-tip tip-left radius" title="Please retype your password. Both passwords must match"><span class="prefix">Confirm&nbsp&nbsp<i class="fa fa-key fa-lg"></i></span></span>
+                </div>
+                <div class="small-8 columns">
+                  <input type="password" id='confirmPassword' name='confirmPassword' required pattern="lower" data-equalto="password">
+                  <small class="error">Passwords do not match</small>
+
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row" style="margin-top:20px;">
+            <div class="small-3 columns">
+              <button id="submit-signup" class="button radius alert" type='submit'>Login</button>
+            </div>
+            <div class="small-9 columns">
+                <div class="small-12 columns" id="extra-field-1">
+                  {{#if login}}
+                    <span>Return to <a href="/login">login</a></span>
+                  {{/if}}
+                </div>
+                <div class="small-12 columns" id="extra-field-2">
+                  {{#if recover}}
+                    <span>Forgot Password? <a href="/recover">Recover</a></span>
+                  {{/if}}
+                </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="small-12 large-12 columns" id="extra-field-3">
+              {{#if oauth}}
+                <div class="row">
+                  <div class="small-5 columns">
+                    <hr>
+                  </div>
+                  <div class="small-2 columns">
+                    <h4>Or</h4>
+                  </div>
+                  <div class="small-5 columns">
+                    <hr>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="small-12 columns small-centered text-center">
+                    <a href="/auth/google" ><img src="img/signin1.png" class="small-12 small-centered "style="width:60%;height:60%"></a>
+                  </div>
+                </div>
+             {{/if}}
+            </div>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+</div>

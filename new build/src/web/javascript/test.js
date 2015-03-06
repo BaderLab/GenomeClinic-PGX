@@ -1,0 +1,2 @@
+templates = require('./templates')
+

@@ -1,0 +1,60 @@
+- Look at Gulp and use browserify;
+- Html should be independant of the assest of the application
+- split up routes file into independant sections.
+
+
+
+public/
+	|- only have the output for gulp builds
+
+everything accessible to the browser should be public
+
+routes/ -- list of endpoints
+ 
+run expresss init.
+
+biggest issue private/public
+
+
+js-hint
+
+
+-----------------------------------------
+app
+	|
+	|-bin/ 
+		|- this houses the main executable, mainly the srever.js
+
+	|-public/   -- holds the publically serverd content
+		|- images
+		|- css
+		|- js
+	|-routes/
+		|-index
+		|-users
+	|-view/ -- holds thee templates to use
+
+
+
+
+
+I need to map out how this will look>
+
+first of all
+
+1> index.js > 
+		| - require utility.js
+		| - require templates.js
+		| - require 
+		|
+		|
+
+
+
+
+
+
+
+
+
+
