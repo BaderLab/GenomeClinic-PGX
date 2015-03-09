@@ -10,15 +10,12 @@ var Promise = require('bluebird');
 var nodeConstant= require("./lib/constants.json").nodeConstants; 
 var annotateFile = require('./annotateAndAddVariants');
 var fs = Promise.promisifyAll(require('fs'));
-var dbFunctions = require('./mongodb_functions');
 
 
 
 function queue(logger,dbFunctions){
-	this.logger = logger;
-
-
-	
+	this.logger = (logger || require('./logger')('node'));
+	var dbFunctions = (dbFunctions || require('./mongodb_functions'));
 }
 
 //=======================================================================================

@@ -22,20 +22,6 @@ var express= require("express"),
 var dbConstants = constants.dbConstants;
 var nodeConstants = constants.nodeConstants;
 
-
-
-
-try {
-	fs.statSync(nodeConstants.LOG_DIR);
-} catch (err) {
-	fs.mkdirSync(nodeConstants.LOG_DIR);
-};	
-
-var logger = require('./frangipani_node_modules/logger')('node');
-var dbFunctions = require("./frangipani_node_modules/mongodb_functions");
-
-
-
 //=======================================================================
 // Command Line Options
 //=======================================================================
@@ -43,15 +29,15 @@ var dbFunctions = require("./frangipani_node_modules/mongodb_functions");
  * value of these command line options. They can be passed when
  * the server is initially started */
 var opts= require("nomnom")
-	.option("portNumber", {
-		abbr: "p",
-		full: "port",
-		default: 8080,
-		help: "User-specifed port number"
+	.option("httpsPortNumber", {
+		abbr: "S",
+		full: "httpsport",
+		default: 443,
+		help: "User-specifed port number for https connection"
 	})
-	.option('secondaryPortNumber',{
-		abbr:'P',
-		full:"port2",
+	.option('httpPortNumber',{
+		abbr:'p',
+		full:"httpport",
 		default:80,
 		help:'specify the default port for incoming http connection'
 	})
@@ -107,23 +93,39 @@ var opts= require("nomnom")
 		flag:true,
 		help:'Set development environment to true and use localhost ports'
 	})
+	.option('crt',{
+		help:'Path to the crt file for https usage. Required if -https is used',
+		default:undefined
+	})
+	.option('key',{
+		help:'Pass in the key file for https usage. Required if -https is used',
+		default:undefined
+	})
 	.parse();
 opts.signup =  !opts.nosignup;
 opts.recover = !opts.norecover;
 
+if (opts.https && (!opts.crt || opts.key)){
+	console.log("--https opton provided, please provide a crt file and a key file");
+	process.exit(1);
+};
 
-//=======================================================================
-// Set the app to use handlebars as the rendering engine for rendering 
-// templates. this will not be done to render ALL the html, only render 
-// the navbar 
-//=======================================================================
-app.set('views','./views')
-app.engine('hbs',consolidate.hbs);
+
+
+//Make log Directories
+try {
+	fs.statSync(nodeConstants.LOG_DIR);
+} catch (err) {
+	fs.mkdirSync(nodeConstants.LOG_DIR);
+};	
+
+var logger = require('./frangipani_node_modules/logger')('node');
+var dbFunctions = require("./frangipani_node_modules/mongodb_functions");
+
+
 //=======================================================================
 // Initialize Express Server And Initialize Loggers
 //=======================================================================
-
-
 
 //configure morgan to add the user to the logged file info:
 morgan.token('user',function getUser(req){
@@ -138,7 +140,12 @@ var comLog = fs.createWriteStream(__dirname + "/" + nodeConstants.LOG_DIR + "/" 
 var app = express();
 app.use(morgan(':remote-addr - :user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', {stream:comLog}));
 
+
+
+//=======================================================================
 //If using https then add redirect callback for all incoming http calls.
+//=======================================================================
+
 if (opts.https){
 	app.use(function (req, res, next) {
 		if (req.secure) {
@@ -149,7 +156,7 @@ if (opts.https){
 			if (!opts.development)
 				res.redirect('https://' + req.headers.host + req.url); //
 			else
-				res.redirect('https://' + req.headers.host + ':' + opts.portNumber + req.url);
+				res.redirect('https://' + req.headers.host + ':' + opts.httpsPortNumber + req.url);
 
 		}
 	});
@@ -177,17 +184,6 @@ for (var i= 0; i < prerequisiteDirectories.length; ++i) {
 }
 
 
-logger.info("Server running on port " + opts.portNumber);
-//=======================================================================
-// Connect and Initialzie the storage Database
-//=======================================================================
-dbFunctions.connectAndInitializeDB()
-.catch(function(err) {
-	logger.error(err.toString());
-	logger.error(err.stack);
-	logger.error("Exiting due to connection error with DB server.");
-	process.exit(1);
-});
 
 
 
@@ -213,15 +209,14 @@ logger.info('mongodb://' + dbConstants.DB_HOST + ':' + dbConstants.DB_PORT + '/s
 // Initialize the session Session
 //=======================================================================
 //In the future use a redis session to configure the session information
-	app.use(session({secret:'fragipani_app_server',
-				 store: new mongoStore({
-				 	url:'mongodb://' + dbConstants.DB_HOST + ':' + dbConstants.DB_PORT + '/sessionInfo'
-				 }),
-				 resave:false,
-				 secure:true,
-				 saveUninitialized:false}))
-
-
+app.use(session({secret:'webb_app_server',
+	store: new mongoStore({
+		url:'mongodb://' + dbConstants.DB_HOST + ':' + dbConstants.DB_PORT + '/sessionInfo'
+	}),
+	resave:false,
+	secure:true,
+	saveUninitialized:false
+}))
 //=======================================================================
 // Initialize Passport and session
 //=======================================================================
@@ -242,20 +237,30 @@ app.use(express.static("public/", {index: false}));
 //=======================================================================
 require('./frangipani_node_modules/routes')(app,passport,dbFunctions,opts,logger);
 
-
-
+//=======================================================================
+// Connect and Initialzie the storage Database
+//=======================================================================
+dbFunctions.connectAndInitializeDB()
+.catch(function(err) {
+	logger.error(err.toString());
+	logger.error(err.stack);
+	logger.error("Exiting due to connection error with DB server.");
+	process.exit(1);
+});
 
 //=======================================================================
 // Start Listening on the set port
 //=======================================================================
 if (opts.https){
-	var privateKey = fs.readFileSync('ssl/frangipani.key');
-	var certificate = fs.readFileSync('ssl/frangipani.crt');
+	var privateKey = fs.readFileSync(opts.key);
+	var certificate = fs.readFileSync(opts.crt);
 	var credentials = {key:privateKey,cert:certificate};
-	http.createServer(app).listen(opts.secondaryPortNumber)
-	https.createServer(credentials,app).listen(opts.portNumber)
+	http.createServer(app).listen(opts.httpPortNumber)
+	https.createServer(credentials,app).listen(opts.httpsPortNumber)
+	logger.info("Server running on https port: " + opts.httpsPortNumber + " http port:" + opts.httpPortNumber);
 } else {
-	app.listen(opts.portNumber);
+	logger.info("Server runnong on http port: " + opts.httpPortNumber);
+	app.listen(opts.httpsPortNumber);
 }
 
 
