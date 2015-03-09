@@ -1,23 +1,23 @@
-var $ = require('jquery');
-var foundation = require('./vendor/foundation.min');
+var $ = require('Jquery');
+require('./vendor/foundation.min');
+
 var templates = require('./templates')
 var projects = require('./projects'),
-	status = require('./status'),
+	status = require('./status-page'),
 	uploader = require('./uploader'),
 	utility = require('./utility'),
 	config = require('./config'),
-	login = require('./login-events'),
-	patients = require('./patients'),
-	pgx = require('./pgx'),
+	authentication = require('./authentication'),
+	patients = require('./patients');
 
 
 (function(){
 	var location = window.location.pathname;
-	utility.addNavBar().then(function(){
+	Promise.resovel().then(function(){
 		if (location == '/'){
 			$('#main').html(templates.index({title:'Frangipani'}));
 		} else if (location.indexOf(['/login','/setpassword','/recover','/signup']) != -1){
-			login(location);
+			authentication(location);
 		} else if (location == '/upload'){
 			uploader();
 		} else if (locaton == '/projects'){
@@ -28,11 +28,12 @@ var projects = require('./projects'),
 			config();
 		} else if (location == '/panel'){
 			$('#main').html(templates.construction())
-		} else of (location == '/statuspage'){
+		} else if (location == '/statuspage'){
 			status()
 		} else {
 			$('#main').html(templates.notfound());
 		}
+	}).then(function(){
+		utility.refresh();
 	})
-	$(document).foundation();
 })()

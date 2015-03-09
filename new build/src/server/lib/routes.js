@@ -1,10 +1,29 @@
 var nodemailer = require('nodemailer');
-var dbConstants = require('./mongodb_constants');
+var constants = require("./lib/constants.json");
 var uploader= require("jquery-file-upload-middleware");
 var Queue = require('./queue');
-var nodeConstant= require("./node_constants");
 var Promise= require("bluebird");
 var pgx = require('./pgx/pgx_haplotypes');
+
+var render = function(req,res,scripts){
+	if (req.isAuthenticated()){
+		var _o = {
+			title:'PGX webapp',
+			'authenticated':true,
+			'user':req.user.username,
+			'cache':true
+		}
+		if (scripts){
+			_o['scripts'] = scripts;
+
+		res.render('layout',_o);
+	} else {
+		res.render('layout');
+	}
+}
+
+var nodeConstant = constants.nodeConstants,
+	dbConstants = constants.dbConstants;
 
 module.exports = function(app,passport,dbFunctions,opts,logger){
 	
@@ -31,7 +50,10 @@ module.exports = function(app,passport,dbFunctions,opts,logger){
 	//LOGIN Request
 	//==================================================================
 	app.get('/login',function(req,res){
-		res.sendFile('public/frangipani-login.html',{root:'.'})
+		if(req.isAuthenticated())
+			res.redirect('/');
+		else 
+			render(req,res)
 	})
 	//urlencodedParser
 	app.post('/login',passport.authenticate('local-login',{
@@ -71,7 +93,10 @@ module.exports = function(app,passport,dbFunctions,opts,logger){
 	if (opts.signup){
 		logger.info('Using account signup');
 		app.get('/signup',function(req,res){
-			res.sendFile('private/frangipani-signup.html',{root:'.'})
+			if (req.isAuthenticated())
+				res.redirect('/');
+			else
+				render(req,res);
 		});
 		//urlencodedParser
 		//parse signup information
@@ -91,7 +116,7 @@ module.exports = function(app,passport,dbFunctions,opts,logger){
 		app.get('/recover', function(req,res){
 			if (req.isAuthenticated())
 				res.redirect('/');
-			res.sendFile('private/frangipani-recover.html',{root:'.'});
+			res.render(req,res);
 		});
 
 		app.post('/recover',function(req,res){
@@ -138,7 +163,7 @@ module.exports = function(app,passport,dbFunctions,opts,logger){
 	}
 
 	app.get('/setpassword',isLoggedIn, function(req,res){
-		res.sendFile('private/frangipani-set-password.html',{root:'.'});
+		render(req,res);
 	})
 
 	app.post('/setpassword',function(req,res){
@@ -214,7 +239,7 @@ module.exports = function(app,passport,dbFunctions,opts,logger){
 	//Route to the home page, or the config page if it is not set
 	//==================================================================
 	var configured = undefined;
-	app.get("/", isLoggedIn, function(request, response) {
+	app.get("/", isLoggedIn, function(req, res) {
 		/* Check if the server has already been configured. 
 		 * Using a bit of promise voodoo to ensure we check the DB first, but only
 		* when configured !== true, so as to reduce DB interactions. */	
@@ -227,13 +252,43 @@ module.exports = function(app,passport,dbFunctions,opts,logger){
 		 * instead of checking the DB with each request. */
 		promise.then(function(resolved_config) {
 			if (resolved_config) {
-				response.sendFile("private/frangipani.html", {root: "."});
 				if (!configured) {
 					configured= resolved_config;
 				}
+				render(req,res);
 			} else {
-				response.sendFile("private/config.html", {root: "."});
+				res.redirect('/config');
 			}
+		});
+	});
+
+
+	//==================================================================
+	//config form
+	//==================================================================
+	app.post("/config", isLoggedIn, function(req,res){
+		var promise = new Promise.resolve(configured);
+		if (! configured) {
+			promise = dbFunctions.isConfigured();
+		}
+		promise.then(function(resolved_config){
+			if (resolved_config){
+				if(!configured)
+					configured = resolved_config;
+				res.redirect('/');
+			} else {
+				render(req,res);
+			}
+		});
+	});
+
+	app.post("/config", isLoggedIn, function(req,res){
+		var configSettings= req.body;
+		dbFunctions.update(dbConstants.ADMIN_COLLECTION_ID, {}, {$set: configSettings})
+		.then(function(result){
+			dbFunctions.isConfigured(true);
+		}).then(function(result){
+			res.send(JSON.stringify(true));
 		});
 	});
 
@@ -243,21 +298,21 @@ module.exports = function(app,passport,dbFunctions,opts,logger){
 
 	//Upload page routes
 	app.get('/upload',isLoggedIn, function(req,res){
-		res.sendFile('private/upload.html',{root:'.'});
+		render(req,res);
 	});
 
 	//new projects
 	app.get('/projects', isLoggedIn, function(req,res){
-		res.sendFile('private/projects.html',{root:'.'});
+		render(req,res);
 	})
 	//statusPage routes
 	app.get('/statuspage',isLoggedIn,function(req,res){
-		res.sendFile('private/statuspage.html',{root:'.'});
+		render(req,res);
 	})
 
 	//browse all patients and serve patient page
 	app.get('/browsepatients',isLoggedIn,function(req,res){
-		res.sendFile('private/patients.html',{root:'.'});
+		render(req,res);
 	})
 
 
@@ -278,18 +333,7 @@ module.exports = function(app,passport,dbFunctions,opts,logger){
 
 
 
-	//==================================================================
-	//config form
-	//==================================================================
-	app.post("/config", isLoggedIn, function(req,res){
-		var configSettings= req.body;
-		dbFunctions.update(dbConstants.ADMIN_COLLECTION_ID, {}, {$set: configSettings})
-		.then(function(result){
-			dbFunctions.isConfigured(true);
-		}).then(function(result){
-			res.send(JSON.stringify(true));
-		});
-	});
+
 
 
 
@@ -599,15 +643,15 @@ module.exports = function(app,passport,dbFunctions,opts,logger){
 	//DEPRECATED GA4G REQUESTS
 	//==================================================================
 	app.get("/datasets", isLoggedIn, function(req,res){
-		res.redirect('construction.html');
+		render(req,res);
 	});
 
 	app.use("/callsets/search", isLoggedIn, function(req,res){
-		res.redirect('construction.html');
+		render(req,res);
 	});
 
 	app.use("/variants/search", isLoggedIn, function(req,res){
-		res.redirect('construction.html');
+		render(req,res);
 	});
 
 
@@ -619,7 +663,7 @@ module.exports = function(app,passport,dbFunctions,opts,logger){
 	 * Essentially its sayin, anything coming in will be sent to 404notfound
 	 */
 	app.get('*', function(req,res){
-		res.redirect('404notfound.html')
+		render(req,res);
 	})
 }
 

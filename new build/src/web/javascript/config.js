@@ -5,12 +5,11 @@
 
 /* Wrap all code in an immediately-invoked function expressions to avoid 
  * global variables. */
-var $ = require("jquery");
-var foundation = require('./foundation');
-var template = require('/templates').config
-var aux = require('../lib/config.json');
+var $ = require("Jquery"),
+	template = require('./templates').config
+	aux = require('../lib/config.json');
 
-module.export = function() {
+module.exports = function() {
 //=======================================================================
 // Auxiliary helper functions
 //=======================================================================
@@ -76,7 +75,6 @@ module.export = function() {
 		$("#frangipani-config-form").on('invalid.fndtn.abide', function () {
 			// Invalid form input
 			var invalid_fields = $(this).find('[data-invalid]');
-			console.log(invalid_fields);
 		})
 		$("#frangipani-config-form").on('valid.fndtn.abide', function () {
 			// Tell user we are submitting
@@ -131,11 +129,15 @@ module.export = function() {
 		var options = {
 			'annotations':Object.keys(aux.ANNOVAR_ANNOTATIONS)
 		};
-		$('#main').html(template(options))
-		handler();
+		template(options).then(function(renderedHtml){
+			$('#main').html(renderedHtml);
+		}).then(function(){
+			handler();
+		});
 	};
+	console.log('here');
 	render();
-});
+};
 
 
 

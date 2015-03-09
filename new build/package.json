@@ -3,7 +3,7 @@
   "description": "Web-based Clinical Genome Interpretation",
   "version": "0.0.1",
   "browserify-shim": {
-    "jquery": "global:$"
+    "Jquery": "global:$"
   },
   "browserify": {
     "transform": [

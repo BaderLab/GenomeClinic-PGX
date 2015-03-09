@@ -13,10 +13,7 @@
 
 // Deprecated.. to be changed in later versions of the app
 var buttonClicked = false;
-var $ = require('jquery');
-var foundation = require('./vendor/foundation.min');
-var templates = require('./templates');
-
+var $ = require('Jquery');
 
 module.exports = {
 
@@ -83,7 +80,8 @@ module.exports = {
 	 * Bar will change depending on whether the user loggin in is authenticated
 	 * or not. If they are authenticated, then the user will see the full nav bar
 	 * otherwise they will not get any additional options */
-	addNavBar : function(){
+	 // this is now added during sending the layout.hbs
+	/*addNavBar : function(){
 		var self = this;
 		var promise;
 		var options;
@@ -101,7 +99,7 @@ module.exports = {
 			$(document).find('nav').html(template.navbar(options));
 			});
 		});
-	},
+	},*/
 	refresh : function(){
 		$(document).foundation();
 	},
@@ -113,7 +111,17 @@ module.exports = {
 		})).then(function(result){
 			return result;
 		});
-	}
+	},
+
+	assert: function(condition, message) {
+	    if (!condition) {
+	        message = message || "Assertion failed";
+	        if (typeof Error !== "undefined") {
+	            throw new Error(message);
+	        }
+	        throw message; // Fallback
+	    }
+	},
 };
 
 

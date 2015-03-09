@@ -6,7 +6,7 @@
 var MongoClient= require("mongodb").MongoClient;
 var Promise = require("bluebird");
 var assert= require("assert");
-var dbConstants = require("./mongodb_constants");
+var dbConstants = require("./lib/constants.json").dbConstants;
 var bcrypt = require("bcrypt-nodejs");
 var randomstring = require("just.randomstring");
 var pgx= require("./pgx/pgx_haplotypes");

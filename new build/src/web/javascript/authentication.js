@@ -12,9 +12,10 @@
  * written by:
  * Patrick Magee
  */
+var $ = require('Jquery'),
+	templates = require('./templates');
 
-
-(function(){
+module.exports = function(location){
 
 	
 	//=======================================================================
@@ -45,34 +46,34 @@
 	}
 
 
-	var checkAuth = function(){
+	var checkAuthAndRender = function(){
 		var opts;
+		var template
 		Promise.resolve($.ajax({
 			url:'/auth/check',
 			type:'GET',
 			contentType:'application/json'	
 		})).then(function(result){
-			var options = []
-			var location = window.location.pathname
+			opts = {};
 			if (location == '/signup'){
-				options.push(['login',1]);
-				options.push(['recover',2]);
+				opts['login'] = true;
+				opts['recover'] = true;
+				t = template.signup;
 			} else if (location =='/recover') {
-				options.push(['login',1]);
-				options.push(['signup',2]);
+				opts['login'] = true;
+				opts['signup'] = true;
+				t = template.recover;
 			} else if (location == '/login'){
-				options.push(['signup',1]);
-				options.push(['recover',2]);
+				opts['signup'] = true;
+				opts['recover'] = true;
+				t = template.login;
+			} else if (location == '/setpassword'){
+				t = template.setpassword;
 			}
 			if (result.oauth)
-				options.push(['oauth',3]);
-			return $.each(options,function(index,item){
-				var opt = {}
-				opt[item[0]] = result[item[0]];
-				return asyncRenderHbs('frangipani-generic-templates.hbs',opt).then(function(renderedHtml){
-					if (renderedHtml)
-						$("#extra-field-" + item[1]).html(renderedHtml);
-				})
+				opts['oauth'] = true;
+			t(opts).then(function(renderedHtml){
+				$('#main').html(renderedHtml);
 			});
 		})
 	}
@@ -108,19 +109,17 @@
 				'username':$('#username').val()
 			};
 			
-			if (window.location.pathname == '/setpassword'){
+			if (location == '/setpassword'){
 				data['newpassword'] = $('#newpassword').val();
 			}
 
-			if (window.location.pathname != '/recover'){
+			if (location != '/recover'){
 				data['password'] = $("#password").val()
 
-			}
-
-			
+			}			
 			//send ajax request with form data and listen for response
 			var promise = Promise.resolve($.ajax({
-				url: window.location.pathname,
+				url: location,
 				type:'POST',
 				contentType:'application/json',
 				data:JSON.stringify(data),
@@ -143,12 +142,14 @@
 			
 		})
 	}
-
 	//add handlers
 	var main = function(){
-		checkAuth();
-		abideVal();
-		submit()
-	}
-	$(document).ready(main)	
-})()
+		checkAuthAndRender().then(function(){
+			abideVal();
+			submit()
+		});
+	};
+
+
+	main();
+};

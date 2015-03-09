@@ -15,7 +15,7 @@ var fs = Promise.promisifyAll(require('fs'));
 var path = require("path");
 var glob = Promise.promisifyAll(require("glob"));
 var child_process=Promise.promisifyAll(require('child_process'));
-var dbConstants = require('./mongodb_constants');
+var dbConstants = require('./lib/constants.json').dbConstants;
 var logger = require('./anno_logger');
 var dbFunctions = require('./mongodb_functions');
 

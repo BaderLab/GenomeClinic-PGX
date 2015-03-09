@@ -7,7 +7,7 @@
  * written by Patrick Magee
  */
 var Promise = require('bluebird');
-var nodeConstant= require("./node_constants"); 
+var nodeConstant= require("./lib/constants.json").nodeConstants; 
 var annotateFile = require('./annotateAndAddVariants');
 var fs = Promise.promisifyAll(require('fs'));
 var dbFunctions = require('./mongodb_functions');

@@ -7,11 +7,11 @@
  * writeen by:
  *  Patrick Magee
  */
-var $ = require('jquery');
-var templates = require('./templates');
-var utility = requite('./utility');
+var $ = require('Jquery'),
+	templates = require('./templates'),
+	utility = requite('./utility');
 
-(function(){
+module.exports = function(){
 	var patientInformation, projectInfo, projectName, owner,user;
 	var selected = [];
 
@@ -78,10 +78,12 @@ var utility = requite('./utility');
 			var options = {
 				patients:result,
 			}
-			 if (remove){
-			 	options['project'] = true;
-			 }
-			$(ele).html(templates.patient(options))
+			if (remove){
+		 		options['project'] = true;
+			}
+			return templates.patient(options)
+		}).then(function(renderedHtml){
+			$(ele).html(renderedHtml);
 		}).then(function(){
 			if (handlers)
 				return handlers(ele);
@@ -232,11 +234,15 @@ var utility = requite('./utility');
 							addAuthUser:true,
 							user:val
 						}
-						$('#auth-users').append(templates.project.auth(options)).last('tr').find('a').on('click',function(e){
-							e.preventDefault();
-							$(this).closest('tr').remove();
-						})
-						utility.refresh();
+						templates.project.user(options)
+						.then(function(renderedHtml){
+							$('#auth-users').append(renderedHtml).last('tr').find('a').on('click',function(e){
+								e.preventDefault();
+								$(this).closest('tr').remove();
+							})
+						}).then(function(){
+							utility.refresh();
+						});
 					} else {
 						//user does not exists, activate error
 						$("#new-user").addClass('error').siblings('small').show();
@@ -399,7 +405,7 @@ var utility = requite('./utility');
 					data:JSON.stringify(_o)
 				})).then(function(result){
 					if (result.statusCode == "200"){
-						window.location.replace(result.redirectURL);
+						return renderProjectInfo(projectName);
 					} else {
 						$('#error-display-message').text(result.error)
 						.parents().find("#error-display-box").show();
@@ -529,48 +535,49 @@ var utility = requite('./utility');
 	var allProjectPageHandlers = function(){
 		$('#add-new-project').on('click',function(e){
 			e.preventDefault();
-			asyncRenderHbs('frangipani-projects.hbs',{addProjectPage:true})
+			templates.project.new()
 			.then(function(renderedHtml){
-				$('#page-content').html(renderedHtml);
+				$('#main').html(renderedHtml);
 				return renderPatientInformation(undefined,false,false,'#patient-information',addNewProjectHandlers);
 			});
 		});
 
 		$('.project-row').on('click',function(){
-			var remove;
-			projectName = $(this).find('.frangipani-project-name').text();
-			var promise = Promise.resolve($.ajax({
-				url:'/database/projects',
-				type:'POST',
-				contentType:'application/json',
-				dataType:'json',
-				data:JSON.stringify({
-					'project_id':projectName
-					})
-			}))
-
-			promise.then(function(result){
-				owner = result[0].owner;
-				remove = (owner == user);
-				var options = result[0];
-				options['projectInfoPage'] = true;
-				options['isOwner'] = remove;
-				return asyncRenderHbs('frangipani-projects.hbs',options);
-			}).then(function(renderedHtml){
-				$("#page-content").html(renderedHtml);
-				return renderPatientInformation(projectName,undefined,remove,'#patients-table',function(){
-					projectPageHandlers();
-				});
-			}).then(function(){
-				$(document).foundation();
-			}).catch(function(err){
-				console.log(err);
-			});
+			project = $(this).find('.frangipani-project-name').text();
+			renderProjectInfo(project);
 		});
-
 	};
 
 	
+
+	var renderProjectInfo = function(project){
+		var remove;
+		projectName = project;
+		Promise.resolve($.ajax({
+			url:'/database/projects',
+			type:'POST',
+			contentType:'application/json',
+			dataType:'json',
+			data:JSON.stringify({
+				'project_id':projectName
+			})
+		})).then(function(result){
+			owner = result[0].owner;
+			remove = (owner == user);
+			var options = result[0];
+			options['isOwner'] = remove;
+			return templates.project.info(options);	
+		}).then(function(renderedHtml){
+			$('#main').html(renderedHtml);
+			return renderPatientInformation(projectName,undefined,remove,'#patients-table',function(){
+				projectPageHandlers();
+			});	
+		}).then(function(){
+			utility.refresh();
+		}).catch(function(err){
+			console.log(err);
+		});
+	};
 
 	var loadhtml = function(){
 		var promise = Promise.resolve($.ajax({
@@ -586,21 +593,24 @@ var utility = requite('./utility');
 
 			var options = {projects:result,projectPage:true};
 
-			return asyncRenderHbs('frangipani-projects.hbs',options)
+			return templates.project.index(options);
 		}).then(function(renderedHtml){
-			$('#page-content').html(renderedHtml);
+			$('#main').html(renderedHtml);
 		}).then(function(){
 			allProjectPageHandlers();
-			$(document).foundation();
+		}).then(function(){
+			utility.refresh();
 		});
 	}
 
 	var main = function(){
-		getUserInfo().then(function(result){
+		utility.getUserInfo().then(function(result){
 			user = result.user;
 		}).then(function(){
 			return loadhtml();
 		});
 	};
 
-})()
+	main();
+
+};

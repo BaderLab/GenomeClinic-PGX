@@ -18,9 +18,16 @@
 
  *written by Patrick Magee
 */
+var $ = require('Jquery'),
+    templates = require('./templates'),
+    utility = require('./utility');
 
+//add the appropriate handlers to the window for handling the transport
+require("./vendor/vendor/jquery.ui.widget");
+require("./vendor/jquery.iframe-transport");
+require("./vendor/jquery.fileupload");
 
-(function(){
+module.exports = function(){
 
   //======================================================================================================
   // HELPER FUNCTIONS
@@ -69,7 +76,7 @@
 
     //Go to the status page to check current status
     $('#go-to-status').on('click',function(event){
-      $("#frangipani-status-page").trigger('click');
+      window.location.replace('/status');
     });
   };
 
@@ -125,7 +132,7 @@
       var valueCounts = {};
 
       //ajax request to server
-      existsInDB('patients', 'patient_id', keyValue)
+      utility.existsInDB('patients', 'patient_id', keyValue)
       .then(function(result){
         if (result){
           self.addClass('error').addClass('db-error').siblings('small').text("PatientID already exists!").show();
@@ -261,7 +268,7 @@
             var foundSeq = false;
             var count  = 0;
             var previewData = atob(reader.result.split(',')[1]);
-            var tempString,tempArray,options,patientIds,fileUploadHtml,patientTableHtml,fileUploadHtml;
+            var tempString,tempArray,options,patientIds;
 
             previewData = previewData.split(/[\n\r]+/);
             while (!foundSeq || count < previewData.length){
@@ -283,22 +290,19 @@
             } else {
 
               //Render the html async to add it to the page
-              asyncRenderHbs('frangipani-add-multi-vcf.hbs',options)
+              templates.uploadpage.vcf(options)
               .then(function(result){
-                patientTableHtml = result;
-                return asyncRenderHbs('frangipani-add-uploader-progress-bar.hbs',options);
-              }).then(function(result){
-                fileUploadHtml = result
-                $('#patient_information').append(patientTableHtml).closest('fieldset').show();
-                $('#patient_vcf').append(fileUploadHtml).closest('fieldset').show();
-                dynamicHandlers();
-                $('.patient_id').trigger('keyup');
-
+                $('#patient_information').append(renderedHtml).closest('fieldset').show();
+                return templates.uploadpage.progress(options);
+              }).then(function(renderedHtml){
+                $('#patient_vcf').append(renderedHtml).closest('fieldset').show();
               }).then(function(){
-
+                dynamicHandlers();
+              }).then(function(){
+                $('.patient_id').trigger('keyup');
+              }).then(function(){
               //set contect for latter referal
                 data.context = $(document).find('#fileNum' + Id);
-
                 //add event listeners to the internal cancel
                 data.context.find('.cancel-button').on('click',function(event){
                   event.preventDefault();
@@ -319,9 +323,8 @@
                 data.context.find('.submit-button').on('click',function(event){
                   event.preventDefault();
                   //validate the form and return a promise
-                  var status = validateForm(data,Id);
-
-                  status.then(function(uploadData){
+                  validateForm(data,Id)
+                  .then(function(uploadData){
                     //submit the form with the validated data for the specific file.
                     data.formData = uploadData;
                     data.context.find('p').addClass('working');
@@ -382,5 +385,11 @@
     uploader(); 
   }
 
-  $(document).ready(addAllEventListeners);
-})();
+  //render main page html
+  templates.uploadpage.index()
+  .then(function(renderedHtml){
+    $('main').html(renderedHtml);
+  }).then(function(){
+    addAllEventListeners();
+  })
+};

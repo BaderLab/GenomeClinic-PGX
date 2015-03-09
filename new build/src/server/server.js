@@ -4,7 +4,6 @@
  * @author Ron Ammar, Patrick Magee
  */
 var express= require("express"),
-	dbConstants= require("./frangipani_node_modules/mongodb_constants"),
 	Promise= require("bluebird"),
 	fs = Promise.promisifyAll(require('fs')),
 	passport = require('passport'),
@@ -16,7 +15,13 @@ var express= require("express"),
 	https = require('https'),
 	http = require('http'),
 	morgan = require('morgan'),
-	nodeConstants = require("./frangipani_node_modules/node_constants");
+	cons = require('consolidate'),
+	constants = require('./lib/constants.json');
+
+
+var dbConstants = constants.dbConstants;
+var nodeConstants = constants.nodeConstants;
+
 
 
 
@@ -107,9 +112,13 @@ opts.signup =  !opts.nosignup;
 opts.recover = !opts.norecover;
 
 
-
-
-
+//=======================================================================
+// Set the app to use handlebars as the rendering engine for rendering 
+// templates. this will not be done to render ALL the html, only render 
+// the navbar 
+//=======================================================================
+app.set('views','./views')
+app.engine('hbs',consolidate.hbs);
 //=======================================================================
 // Initialize Express Server And Initialize Loggers
 //=======================================================================

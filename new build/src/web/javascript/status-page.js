@@ -7,8 +7,12 @@
  * Written by:
  * Patrick Magee
  */
+var $ = require("Jquery"),
+	templates = require('./templates.js'),
+	utility = require('./utility');
 
-(function(){
+
+module.exports = function(){
 
 	var arraysEqual = function(arr1, arr2) {
 	    if(arr1.length !== arr2.length)
@@ -30,17 +34,16 @@
 		var timer = window.setInterval(function(){
 			var promise = new Promise(function(resolve,reject){
 				var patientArray;
-				var promise = Promise.resolve($.ajax({
+				Promise.resolve($.ajax({
 					url:'database/find',
 					type:'GET',
 					contentType:'application/json',
 					dataType:'json',
 					data:JSON.stringify({
-					'collection':'patients',
-					'query':{}
+						'collection':'patients',
+						'query':{}
 					})
-				}));
-				promise.then(function(result){
+				})).then(function(result){
 					patientArray = result;
 					patientNameArray = patientArray.map(function(item){return item['patient_id']});
 					var currentRows =  $('#frangipani-status-row').children()
@@ -72,7 +75,7 @@
 							}
 						}	
 						if (toAdd.length > 0){
-							return asyncRenderHbs('frangipani-add-status-row.hbs',{patients:toAdd}).then(function(renderedHtml){
+							return templates.statuspage.row({patients:toAdd}).then(function(renderedHtml){
 								$('#frangipani-status-row').prepend(renderedHtml);
 							})
 						}
@@ -104,14 +107,6 @@
 				clearInterval(this);
 			}
 		},1000);
-
-		/*
-		// remove the click timer and remove the event handler
-		$('.top-bar-section').find('a').on('click.one',function(){
-			clearInterval(timer);
-			$(this).closest(document).find('.top-bar-section').find('a').off('click.one');
-		});
-*/
 		
 	};
 
@@ -121,8 +116,6 @@
 	var checkStatusHtml = function(){
 		var promise = new Promise(function(resolve,reject){
 			var patientArray;
-			var pageTemplate;
-			var rowTemplates;
 			var promise = Promise.resolve($.ajax({
 				url:'database/find',
 				type:'GET',
@@ -133,29 +126,27 @@
 					'query':{}
 				})
 			}));
-
 			promise.then(function(result){
 				patientArray = {patients:result};
-				return asyncRenderHbs('frangipani-status.hbs',patientArray);
-			}).then(function(result){
-				rowTemplates = result;
-
-				$("#frangipani_patient_status").append(rowTemplates);
+				return templates.statuspage.index(patientArray);
+			}).then(function(renderedHtml){			
+				$("#frangipani_patient_status").append(renderedHtml);
 			}).then(function(){
-				$(document).foundation();
 				refresh();
-
+			}).then(function(){
+				utility.refresh();
+			}).then(function(){
 				resolve("done");
-			})
+			});
 		})
 		return promise;
 	}
 
 	/* Add to the button the action of rendering this page
 	 */
-	var main = function(){
-		checkStatusHtml();
-	}
-
-	$(document).ready(main);
-})()
+	//var main = function(){
+	//	checkStatusHtml();
+	//}
+	checkStatusHtml()
+	
+};
