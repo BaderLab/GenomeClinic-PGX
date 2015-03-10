@@ -1,7 +1,7 @@
 {
   "name": "WebApp",
   "description": "Web-based Clinical Genome Interpretation",
-  "version": "0.0.2x`",
+  "version": "0.0.2",
   "browserify":{
   	"transform":[
   	"hbsfy",
