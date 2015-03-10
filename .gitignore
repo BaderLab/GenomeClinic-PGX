@@ -1,12 +1,9 @@
 node_modules/
-npm-debug.log
+*.log
 upload/
 tmp/
 mongodb_data/
-old/
 annovar/
-TEST/
-Lorem ipsum dolor.txt
-foundation-5.4.6/
 logs/
-bower_components/
+ssl/
+test.*
