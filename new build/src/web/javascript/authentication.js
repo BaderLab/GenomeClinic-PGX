@@ -14,6 +14,7 @@
  */
 var $ = require('Jquery'),
 	templates = require('./templates');
+	constants = require('../../server/lib/constants.json').dbConstants.USERS
 
 module.exports = function(location){
 
@@ -105,16 +106,14 @@ module.exports = function(location){
 		
 		//listen on form for valid abide ajax request
 		$("#frangipani-request-login").on('valid.fndtn.abide', function () {
-			var data = {
-				'username':$('#username').val()
-			};
-			
+			var data = {}
+			data[constants.ID_FIELD]:$('#username').val()			
 			if (location == '/setpassword'){
 				data['newpassword'] = $('#newpassword').val();
 			}
 
 			if (location != '/recover'){
-				data['password'] = $("#password").val()
+				data[constants.PASSWORD_FIELD] = $("#password").val()
 
 			}			
 			//send ajax request with form data and listen for response

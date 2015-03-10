@@ -1,15 +1,15 @@
-var utils = require('./lib/utils');
+var utils = require('../lib/utils');
 var Promise= require("bluebird");
-var constants = require('./lib/constants.json');
+var constants = require('../lib/constants.json');
 
 var nodeConstant = constants.nodeConstants,
 	dbConstants = constants.dbConstants;
 
 module.exports = function(app,dbFunctions,queue)
 	if (!dbFunctions)
-		var dbFunctions = require("./mongodb_functions");
+		var dbFunctions = require("../bin/mongodb_functions");
 	if (!queue){
-		var Queue = require("./queue");
+		var Queue = require("../bin/queue");
 		var queue = new Queue(null,dbFunctions);
 	}
 
@@ -18,7 +18,7 @@ module.exports = function(app,dbFunctions,queue)
 	//==================================================================
 
 	app.use("/database/getPatients", utils.isLoggedIn, function(req,res){
-		var username = req.user[dbConstants.USER_ID_FIELD];
+		var username = req.user[dbConstants.USERS.ID_FIELD];
 		dbFunctions.findAllPatientIds(username)
 		.then(function(result){
 			var fieldsArray = []
@@ -34,13 +34,13 @@ module.exports = function(app,dbFunctions,queue)
 
 	/* Find ALL patients including those in the queue */
 	app.use('/database/find',utils.isLoggedIn, function(req,res){
-		var username = req.user[dbConstants.USER_ID_FIELD];
+		var username = req.user[dbConstants.USERS.ID_FIELD];
 		dbFunctions.findAllPatients(undefined, undefined, {sort:{'completed':-1}}, username)
 		.then(function(result){
 			var fieldsArray = [];
 			for (var i=queue.queue.length-1; i>= 0; i--){
 				for ( var j=0; j < queue.queue[i]['fields'].length; j++){
-					if (queue.queue[i]['fields'][j]['owner'] == username)
+					if (queue.queue[i]['fields'][j][dbConstants.DB.OWNER_ID] == username)
 						fieldsArray.push(queue.queue[i]['fields'][j])
 				}
 			}
@@ -71,7 +71,7 @@ module.exports = function(app,dbFunctions,queue)
 
 	/* retrieve ALl projects for a given user */
 	app.get('/database/projects',utils.isLoggedIn, function(req,res){
-		var username = req.user[dbConstants.USER_ID_FIELD];
+		var username = req.user[dbConstants.USERS.ID_FIELD];
 
 		dbFunctions.findProjects(undefined,username)
 		.then(function(result){
@@ -81,10 +81,10 @@ module.exports = function(app,dbFunctions,queue)
 
 	/* find information on a specific project */
 	app.post('/database/projects',utils.isLoggedIn,function(req,res){
-		var username = req.user[dbConstants.USER_ID_FIELD];
+		var username = req.user[dbConstants.USERS.ID_FIELD];
 		var project = undefined;
 		if (req.body){
-			project = req.body['project_id'];
+			project = req.body[dbConstants.PROJECTS.ID_FIELD];
 		}
 
 		dbFunctions.findProjects(project,username)
@@ -96,7 +96,7 @@ module.exports = function(app,dbFunctions,queue)
 	/* remove patients from a  project */
 	app.post('/database/projects/removepatients',utils.isLoggedIn,function(req,res){
 		var project = req.body.project;
-		var patients = req.body.patients
+		var patients = req.body.patients;
 		dbFunctions.removePatientsFromProject(project,patients)
 		.then(function(success){
 			if (success){
@@ -133,7 +133,7 @@ module.exports = function(app,dbFunctions,queue)
 	/* add a project
 	 */
 	app.post('/database/projects/add',utils.isLoggedIn,function(req,res){
-		req.body.project.owner = req.user[dbConstants.USER_ID_FIELD];
+		req.body.project[dbConstants.DB.OWNER_ID] = req.user[dbConstants.USERS.ID_FIELD];
 			dbFunctions.addProject(req.body)
 			.then(function(){
 				req.flash('redirectURL','/projects');
@@ -150,10 +150,10 @@ module.exports = function(app,dbFunctions,queue)
 	 * the owner of the project */
 	app.post('/database/projects/delete',utils.isLoggedIn,function(req,res){
 		var query = {}
-		query[dbConstants.PROJECT_ID_FIELD] = req.body.project
-		dbFunctions.findOne(dbConstants.PROJECT_COLLECTION_ID,query)
+		query[dbConstants.PROJECTS.ID_FIELD] = req.body.project
+		dbFunctions.findOne(dbConstants.PROJECTS.COLLECTION,query)
 		.then(function(result){
-			if (result.owner == req.user[dbConstants.USER_ID_FIELD]){
+			if (result.owner == req.user[dbConstants.USERS.ID_FIELD]){
 				dbFunctions.removeProject(req.body.project).then(function(result){
 					req.flash('redirectURL','/projects');
 					req.flash('statusCode','200');
@@ -172,11 +172,11 @@ module.exports = function(app,dbFunctions,queue)
 	/* update a project */
 	app.post('/database/project/update',utils.isLoggedIn,function(req,res){
 		var query = {}
-		query[dbConstants.PROJECT_ID_FIELD] = req.body.project
-		dbFunctions.findOne(dbConstants.PROJECT_COLLECTION_ID,query)
+		query[dbConstants.PROJECTS.ID_FIELD] = req.body.project
+		dbFunctions.findOne(dbConstants.PROJECT.COLLECTION,query)
 		.then(function(result){
-			if (result.owner == req.user[dbConstants.USER_ID_FIELD]){
-				dbFunctions.update(dbConstants.PROJECT_COLLECTION_ID,query,{$set:req.body.update})
+			if (result.owner == req.user[dbConstants.USERS.ID_FIELD]){
+				dbFunctions.update(dbConstants.PROJECTS.COLLECTION,query,{$set:req.body.update})
 				.then(function(result){
 					req.flash('redirectURL','/projects');
 					req.flash('statusCode','200');
@@ -197,7 +197,7 @@ module.exports = function(app,dbFunctions,queue)
 	//==================================================================
 
 	app.get("/patients", utils.isLoggedIn, function(req,res){
-		var username = req.user['username'];
+		var username = req.user[dbConstants.USERS.ID_FIELD];
 		dbFunctions.findAllPatients(undefined,true, {sort: {"completed": -1}}, username)
 		.then(function(result){
 			res.send(result);
@@ -207,13 +207,13 @@ module.exports = function(app,dbFunctions,queue)
 
 	app.post("/patients", utils.isLoggedIn, function(req,res){
 		var project,exclude;
-		var username = req.user['username'];
+		var username = req.user[dbConstants.USERS.ID_FIELD];
 		var query = {}
 		if (req.body.exclude){
 			query = {}
 			exclude = req.body.project
 		} else {
-			query[dbConstants.PROJECT_ARRAY_FIELD] = req.body['project'];
+			query[dbConstants.PROJECTS.ARRAY_FIELD] = req.body['project'];
 			project = req.body.project
 		}
 
@@ -229,7 +229,7 @@ module.exports = function(app,dbFunctions,queue)
 	//==================================================================
 	// get the owner of a document
 	app.post('/database/owner',utils.isLoggedIn,function(req,res){
-		var user = req.user[dbConstants.USER_ID_FIELD];
+		var user = req.user[dbConstants.USERS.ID_FIELD];
 		var collection = req.body.collection;
 		var query = req.body.query;
 		dbFunctions.getOwner(collection,query)
@@ -250,10 +250,10 @@ module.exports = function(app,dbFunctions,queue)
 	 *  returns true/false */
 	app.post('/database/checkInDatabase',utils.isLoggedIn,function(req,res){
 		var options = req.body;
-		if (options.collection == dbConstants.PATIENT_COLLECTION_ID && options.field == dbConstants.PATIENT_ID_FIELD){
+		if (options.collection == dbConstants.PATIENTS.COLLECTION && options.field == dbConstants.PATIENTS.ID_FIELD){
 			for (var i=queue.queue.length-1; i>= 0; i--){
 				for ( var j=0; j < queue.queue[i]['fields'].length; j++){
-					if(queue.queue[i]['fields'][dbConstants.PATIENT_ID_FIELD] == options.value){
+					if(queue.queue[i]['fields'][dbConstants.PATIENTS.ID_FIELD] == options.value){
 						res.send(true);
 						return true;
 					}

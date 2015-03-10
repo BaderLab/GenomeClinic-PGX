@@ -3,13 +3,15 @@
  * Javascript and handlers for working and manipulating all projects requests / html
  * this module adds the ability to add/remove projects, additionally add or remove 
  * patients from a specific module
- *
- * writeen by:
- *  Patrick Magee
+ * @Patrick Magee
  */
 var $ = require('Jquery'),
 	templates = require('./templates'),
 	utility = requite('./utility');
+	patientConstants = require('../../server/lib/constants.json').dbConstants.PATIENTS,
+	projectConstants = require('../../server/lib/constants.json').dbConstants.PROJECTS,
+	userConstants = require('../../server/lib/constants.json').dbConstants.USERS;
+
 
 module.exports = function(){
 	var patientInformation, projectInfo, projectName, owner,user;
@@ -73,7 +75,7 @@ module.exports = function(){
 		return getPatientInformation(project,excluded)
 		.then(function(result){
 			patientInformation = result.map(function(item){
-				return item['patient_id'];
+				return item[patientConstants.ID_FIELD];
 			})
 			var options = {
 				patients:result,
@@ -225,7 +227,7 @@ module.exports = function(){
 				$("#new-user").addClass('error').siblings('small').text('That user already has authorization').show()
 			} else if (val != ''){
 				//submit ajax requst to check to see if the username exists in the db
-				utility.existsInDB('users','username',val)
+				utility.existsInDB(userConstants.COLLECTION,userConstants.ID_FIELD,val)
 				.then(function(result){
 					//user exists so add to Auth user table
 					if (result){
@@ -292,7 +294,7 @@ module.exports = function(){
 			if (val == ''){
 				$(this).addClass('error').siblings('small').text('Required Field').show();
 			} else {
-				utility.existsInDB('projects','project_id',val)
+				utility.existsInDB(projectConstants.COLLECTION,projectConstants.ID_FIELD,val)
 				.then(function(result){
 					if (result){
 						$(self).addClass('error').siblings('small').text('Project name already exists').show();
@@ -317,17 +319,21 @@ module.exports = function(){
 						emails.push(text);
 					}
 				}
+
+				'project_id':projectId,
+				'keywords':keywords,
+				'description':description
+				'users':emails
 				var projectId = $('#project_id').val();
 				var keywords = $('#keywords').val();
 				var options = {
-					'project':{
-						'project_id':projectId,
-						'keywords':keywords,
-						'description':description
-					},
-					'patients':selected,
-					'users':emails
+					'project':{}
+					'patients':selected,	
 				};
+				options.project[projectConstants.ID_FIELD] = projectId;
+				options.project[projectConstants.KEYWORDS_FIELD] = keywords;
+				options.project[projectConstants.INFO_FIELD] = description;
+				options[projectConstants.AUTH_USER_FIELD] = emails; 
 				//send the data
 				var promise = Promise.resolve($.ajax({
 					url:'/database/projects/add',
@@ -392,11 +398,12 @@ module.exports = function(){
 				var keywords = $('#keywords').val();
 				var _o = {
 					project:projectId,
-					update:{
-						description:description,
-						keywords:keywords,
-						users:emails
-					}};
+					update:{}
+				};
+				_o.update[projectConstants.INFO_FIELD] = description;
+				_o.update[projectConstants.KEYWORDS_FIELD] = keywords;
+				_o.update[projectConstants.AUTH_USER_FIELD] = emails;
+				
 				Promise.resolve($.ajax({
 					url:'/database/project/update',
 					type:'POST',
@@ -588,7 +595,7 @@ module.exports = function(){
 
 		promise.then(function(result){
 			projectInfo = result.map(function(item){
-				return item['project_id'];
+				return item[projectConstants.ID_FIELD];
 			});
 
 			var options = {projects:result,projectPage:true};

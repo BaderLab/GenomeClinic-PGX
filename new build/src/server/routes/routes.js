@@ -1,9 +1,9 @@
 var Queue = require('./queue');
 module.exports = function(app,passport,dbFunctions,opts,logger){
 	if (!dbFunctions)
-		var dbFunctions = require("./mongodb_functions");
+		var dbFunctions = require("../bin/mongodb_functions");
 	if (!logger)
-		var logger = require('./logger')('node');
+		var logger = require('../bin/logger')('node');
 
 
 	//=======================================================================
@@ -19,7 +19,7 @@ module.exports = function(app,passport,dbFunctions,opts,logger){
 	//==================================================================
 	var queue = new Queue(logger,dbFunctions);
 	require('./special-redirect-routes')(app);
-	require('./auth-routes')(app,passport,dbFunctions,opts);
+	require('./auth-routes')(app,passport,dbFunctions,logger,opts);
 	require('./db-routes')(app,dbFunctions,queue);
 	require('./uploader-routes')(app,dbFunctions,queue);
 	require('./pgx-routes')(app,dbFunctions);

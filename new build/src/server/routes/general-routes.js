@@ -1,13 +1,13 @@
 var Promise = require('bluebird');
-var costatnts = require('./lib/constants.json');
-var utils = require('./lib/utils');
+var costatnts = require('../lib/constants.json');
+var utils = require('../lib/utils');
 
 var dbConstants = constants.dbConstants,
 	nodeConstants = constants.nodeConstants;
 
 module.exports = function(app,dbfunctions)
 	if (!dbFunctions)
-		var dbFunctions = require("mongodb_functions");
+		var dbFunctions = require("../bin/mongodb_functions");
 	//==================================================================
 	//Route to the home page, or the config page if it is not set
 	//==================================================================
@@ -57,7 +57,7 @@ module.exports = function(app,dbfunctions)
 
 	app.post("/config", utils.isLoggedIn, function(req,res){
 		var configSettings= req.body;
-		dbFunctions.update(dbConstants.ADMIN_COLLECTION_ID, {}, {$set: configSettings})
+		dbFunctions.update(dbConstants.DB.ADMIN_COLLECTION, {}, {$set: configSettings})
 		.then(function(result){
 			dbFunctions.isConfigured(true);
 		}).then(function(result){

@@ -7,9 +7,12 @@
  * written by Patrick Magee
  */
 var Promise = require('bluebird');
-var nodeConstant= require("./lib/constants.json").nodeConstants; 
+var constants= require("../lib/constants.json")
 var annotateFile = require('./annotateAndAddVariants');
 var fs = Promise.promisifyAll(require('fs'));
+
+var dbConstants = constants.dbConstants,
+	nodeConstants = constants.nodeConstants;
 
 
 
@@ -40,12 +43,11 @@ queue.prototype.addToQueue = function(fileParams, patientFields,user){
 			self.logger.info(fileParams.name + "added to queue");
 			var options = patient;
 			var now = new Date();
-			options['patient_id'];
-			options['file'] = fileParams.name;
-			options['added'] = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
-			options['ready'] = false;
-			options['completed'] = undefined;
-			options['owner'] = user;
+			options[dbConstants.PATIENTS.FILE_FIELD] = fileParams.name;
+			options[dbConstants.PATIENTS.DATE_ADDED] = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
+			options[dbConstants.PATIENTS.READY_FOR_USE] = false;
+			options[dbConstants.PATIENTS.ANNO_COMPLETE] = undefined;
+			options[dbConstants.DB.OWNER_ID] = user;
 			tempArr.push(options);
 		}).then(function(){
 			inputObj['fields'] = tempArr;

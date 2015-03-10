@@ -15,7 +15,7 @@ var fs = Promise.promisifyAll(require('fs'));
 var path = require("path");
 var glob = Promise.promisifyAll(require("glob"));
 var child_process=Promise.promisifyAll(require('child_process'));
-var dbConstants = require('./lib/constants.json').dbConstants;
+var dbConstants = require('../lib/constants.json').dbConstants;
 var logger = require('./anno_logger');
 var dbFunctions = require('./mongodb_functions');
 
@@ -88,13 +88,13 @@ function annotateAndAddVariants(options){
 
 		//Check to see whether input file exists and if annovarPath exists
 		logMessage("beginning annotations pipeline");
-		dbFunctions.findOne('admin',{})
+		dbFunctions.findOne(dbConstants.DB.ADMIN_COLLECTION,{})
 		.then(function(result){
-			annodbString = result['annovar-dbs'].join(',');
-			annovarPath = result['annovar-path'];
-			dbusageString = result['annovar-usage'].join(',');
-			annovarIndex = result['annovar-index'];
-			buildver = result['genome-build'];
+			annodbString = result[dbConstants.ANNO.DBS].join(',');
+			annovarPath = result[dbConstants.ANNO.PATH];
+			dbusageString = result[dbConstants.ANNO.USAGE].join(',');
+			annovarIndex = result[dbConstants.ANNO.INDEX_FIELDS];
+			buildver = result[dbConstants.ANNO.BUILD_VER];
 
 		}).then(function(){
 			return fs.statAsync(inputFile)
@@ -113,8 +113,8 @@ function annotateAndAddVariants(options){
 			return options['patients'];
 		}).each(function(patient){
 			//create newTable and raise exception oif tablname already exists
-			logMessage('collection created for patient: ' + patient[dbConstants.PATIENT_ID_FIELD] + ' COLLECTION: ' + patient[dbConstants['COLLECTION_ID_FIELD']])
-			var collectionName = patient[dbConstants['COLLECTION_ID_FIELD']];
+			logMessage('collection created for patient: ' + patient[dbConstants.PATIENTS.ID_FIELD] + ' COLLECTION: ' + patient[dbConstants.PATIENTS.COLLECTION_ID])
+			var collectionName = patient[dbConstants.PATIENTS.COLLECTION_ID];
 			return dbFunctions.createCollection(collectionName);
 		}).then(function(){
 			var execPath = path.resolve(annovarPath + '/table_annovar.pl');
@@ -163,7 +163,7 @@ function annotateAndAddVariants(options){
 			var args = [tempOutputFile,JSON.stringify(options['patients'])];
 			var promise = new Promise(function(resolve, reject){
 				var returnValue;
-				var filePath = path.resolve('./frangipani_node_modules/parseVCF')
+				var filePath = path.resolve('./parseVCF')
 				var ps = child_process.fork(filePath,args,{silent:true});
 
 				ps.on('error',function(err){
@@ -181,10 +181,8 @@ function annotateAndAddVariants(options){
 				ps.on('exit',function(code){
 					if (code == 0){
 						logMessage("parser exited correctly, reading program output")
-						fs.readFileAsync(tempOutputFile + '.json','utf8')
-						.then(function(result){
-							resolve(JSON.parse(result));
-						})
+						var result = require(tempOutputFile + '.json');
+						resolve(result);
 					} else {
 						logMessage(null,"parser did not exit properly");
 						reject(code);
@@ -219,8 +217,8 @@ function annotateAndAddVariants(options){
 
 					//for each patient, determing the count of documents ion the collection
 					Promise.each(options['patients'],function(patient,index){
-						patientid = patient['patient_id'];
-						collectionid = patient[dbConstants.COLLECTION_ID_FIELD]
+						patientid = patient[dbConstants.PATIENTS.ID_FIELD];
+						collectionid = patient[dbConstants.PATIENTS.COLLECTION_ID]
 						return dbFunctions.count(collectionid).then(function(count){
 
 							if (count + countArray[index] !== num) // if this is not equal, reject by throwing a new error
@@ -236,24 +234,33 @@ function annotateAndAddVariants(options){
 		}).then(function(){
 			logMessage("addding indexes to newly created collections",{'optionalIndexes':annovarIndex});
 			return Promise.each(options['patients'],function(patient){
-				return dbFunctions.createIndex(patient[dbConstants['COLLECTION_ID_FIELD']],{'chr':1,'start':1,'end':1}).then(function(){
+				var indexes = {};
+				indexes[dbConstants.VARIANTS.CHROMOSOME] = 1;
+				indexes[dbConstants.VARIANTS.START] = 1;
+				indexes[dbConstants.VARIANTS.ZYGOSITY] = 1;
+				if (dbConstants.VARIANTS.STOP)
+					indexes[dbConstants.VARIANTS.STOP] = 1;
+				return dbFunctions.createIndex(patient[dbConstants.PATIENTS.COLLECTION_ID],indexes).then(function(){
 					//add additional indexex
 					Promise.each(annovarIndex,function(index){
 						var indexOpts = {};
 						indexOpts[index] = 1;
-						return dbFunctions.createIndex(patient[dbConstants['COLLECTION_ID_FIELD']],indexOpts);
+						return dbFunctions.createIndex(patient[dbConstants.PATIENTS.COLLECTION_ID],indexOpts);
 					});
 				});
 			});
 		}).then(function(){
 			//Update the patient table
 			var patient_list = options['patients'].map(function(obj){
-				return obj['patient_id'];
+				return obj[dbConstants.PATIENTS.ID_FIELD]
 			});
-			var query = {'patient_id':{$in:patient_list}};
-			var documents = {$set:{'ready':true,'completed': new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')}};
+			var query = {}
+			query[dbConstants.PATIENTS.ID_FIELD] = {$in:patient_list};
+			var documents = {$set:[]};
+			documents['$set'][dbConstants.PATIENTS.ANNO_COMPLETE] = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+			documents['$set'][dbConstants.PATIENTS.READY_FOR_USE]:true;
 			var insOptions = {multi:true};
-			return dbFunctions.update('patients', query,documents, insOptions);
+			return dbFunctions.update(dbConstants.PATIENTS.COLLECTION, query,documents, insOptions);
 
 		}).then(function(){
 			logMessage("completed annotation and uploaded entries to db");

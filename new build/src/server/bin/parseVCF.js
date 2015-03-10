@@ -24,6 +24,7 @@ var fs = Promise.promisifyAll(require('fs'));
 var dbFunctions = require('./mongodb_functions');
 var logger =  require('./logger')('parser');
 var path = require('path');
+var dbConstants = require('../lib/constants.json').dbConstants;
 
 
 /* Empty constructor for the parseVCF object */
@@ -192,8 +193,8 @@ parseVCF.prototype.parseChunk = function(stringArray){
 								formatReached = true;
 
 							} else if (formatReached) {
-								self.patientObj[self.patients[j - self.mapper.format - 1]['patient_id']] = {'id':j,
-											'collection':self.patients[j - self.mapper.format - 1]['collection_id'],
+								self.patientObj[self.patients[j - self.mapper.format - 1][dbConstants.PATIENTS.ID_FIELD]] = {'id':j,
+											'collection':self.patients[j - self.mapper.format - 1][dbConstants.PATIENTS.COLLECTION_ID],
 											'documents':[],
 											'ignored':0,
 											'insertCache':[]};
@@ -282,10 +283,10 @@ parseVCF.prototype.parseChunk = function(stringArray){
 									self.patientObj[patient]['ignored']++;
 									cont = false;
 								} else {
-									currDoc['zygosity'] = zygosity(info);
-									currDoc['gt-raw'] = formatLine[j];
+									currDoc[dbConstants.VARIANTS.ZYGOSITY] = zygosity(info);
+									currDoc[dbConstants.VARIANTS.RAW_GENOTYPE] = formatLine[j];
 									currDoc[formatField[j]] = info;
-									currDoc['phased_status'] = (formatLine[j].indexOf('|') != -1 || false);
+									currDoc[dbConstants.VARIANTS.PHASING] = (formatLine[j].indexOf('|') != -1 || false);
 								}
 							} else if (cont){
 								currDoc[formatField[j]] = (info.length == 1 ? info[0]:info);

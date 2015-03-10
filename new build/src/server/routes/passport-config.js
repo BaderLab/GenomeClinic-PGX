@@ -1,12 +1,14 @@
 var LocalStrategy = require('passport-local').Strategy;
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
-var dbConstants = require('./mongodb_constants');
+var dbConstants = require('../lib/constants.json').dbConstants;
 
 
 module.exports = function(passport,dbFunctions,opts){
+	if (!dbFunctions)
+		var dbFunctions = require('../bin/mongodb_functions');
 
 	passport.serializeUser(function(user,done){
-		done(null,user[dbConstants.USER_ID_FIELD]);
+		done(null,user[dbConstants.USERS.ID_FIELD]);
 	});
 
 	passport.deserializeUser(function(id,done){
@@ -19,8 +21,8 @@ module.exports = function(passport,dbFunctions,opts){
 
 	if (opts.signup){
 		passport.use('local-signup', new LocalStrategy({
-			usernameField:'username',
-			passwordField:'password',
+			usernameField:dbConstants.USERS.ID_FIELD,
+			passwordField:dbConstants.USERS.PASSWORD_FIELD,
 			passReqToCallback: true
 		},
 			function(req,username,password,done){
@@ -31,8 +33,8 @@ module.exports = function(passport,dbFunctions,opts){
 							return done(null,false,req.flash('error','That Email already exists'),req.flash('statusCode','409'));
 						} else {
 							var user = {}
-							user[dbConstants.USER_ID_FIELD] = username.toString();
-							user[dbConstants.USER_PASSWORD_FIELD] = password.toString();
+							user[dbConstants.USERS.ID_FIELD] = username.toString();
+							user[dbConstants.USERS.PASSWORD_FIELD] = password.toString();
 							dbFunctions.addUser(user).then(function(){
 								return done(null,user,req.flash('statusCode','200'))
 							}).catch(function(err){
@@ -46,8 +48,8 @@ module.exports = function(passport,dbFunctions,opts){
 	}
 
 	passport.use('local-login', new LocalStrategy({
-		usernameField:'username',
-		passwordField:'password',
+		usernameField:dbConstants.USERS.ID_FIELD,
+		passwordField:dbConstants.USERS.PASSWORD_FIELD,
 		passReqToCallback:true
 	},
 
@@ -74,7 +76,7 @@ module.exports = function(passport,dbFunctions,opts){
 	));
 
 	if (opts.oauth){
-		var api = require('./api');
+		var api = require('../lib/api');
 		passport.use(new GoogleStrategy({
 			clientID: api.googleAuth.clientID,
 			clientSecret: api.googleAuth.clientSecret,
@@ -83,18 +85,18 @@ module.exports = function(passport,dbFunctions,opts){
 			function(token,refreshToken,profile,done){
 				process.nextTick(function(){
 					var query = {};
-					query[dbConstants.USER_GOOGLE_ID_FIELD] = profile.id;
+					query[dbConstants.USERS.GOOGLE.ID_FIELD] = profile.id;
 					dbFunctions.findUserByGoogleId(profile.id)
 					.then(function(user){
 						if (user) {
 							return done(null,user);
 						} else {
 							var user = {};
-							user[dbConstants.USER_ID_FIELD]= profile.emails[0].value;
-							user[dbConstants.USER_GOOGLE_ID_FIELD]=profile.id;
-							user[dbConstants.USER_GOOGLE_TOKEN_FIELD]=token;
-							user[dbConstants.USER_GOOGLE_NAME_FIELD]=profile.displayName;
-							user[dbConstants.USER_GOOGLE_EMAIL_FIELD]=profile.emails[0].value;
+							user[dbConstants.USERS.ID_FIELD]= profile.emails[0].value;
+							user[dbConstants.USERS.GOOGLE.ID_FIELD]=profile.id;
+							user[dbConstants.USERS.GOOGLE.TOKEN_FIELD]=token;
+							user[dbConstants.USERS.GOOGLE.NAME_FIELD]=profile.displayName;
+							user[dbConstants.USERS.GOOGLE.EMAIL_FIELD]=profile.emails[0].value;
 							dbFunctions.addUserGoogle(user).then(function(){
 								return done(null,user)
 							}).catch(function(err){

@@ -16,7 +16,7 @@ var express= require("express"),
 	http = require('http'),
 	morgan = require('morgan'),
 	cons = require('consolidate'),
-	constants = require('./lib/constants.json');
+	constants = require('../lib/constants.json');
 
 
 var dbConstants = constants.dbConstants;
@@ -43,18 +43,18 @@ var opts= require("nomnom")
 	})
 	.option("mongodbHost", {
 		full: "mongodb-host",
-		default: dbConstants.DB_HOST,
+		default: dbConstants.DB.HOST,
 		help: "User-specifed MongoDB hostname",
 		callback: function(mongodbHost) {
-			dbConstants.DB_HOST= mongodbHost;
+			dbConstants.DB.HOST= mongodbHost;
 		}
 	})
 	.option("mongodbPortNumber", {
 		full: "mongodb-port",
-		default: dbConstants.DB_PORT,
+		default: dbConstants.DB.PORT,
 		help: "User-specifed MongoDB port number",
 		callback: function(mongodbPortNumber) {
-			dbConstants.DB_PORT= parseInt(mongodbPortNumber);
+			dbConstants.DB.PORT= parseInt(mongodbPortNumber);
 		}
 	})
 	.option("gmail",{
@@ -108,19 +108,21 @@ opts.recover = !opts.norecover;
 if (opts.https && (!opts.crt || opts.key)){
 	console.log("--https opton provided, please provide a crt file and a key file");
 	process.exit(1);
-};
-
-
-
+} else if (!opts.password && opts.gmail || opts.password && !opts.gmail){
+	console.log("--password and --gmail must both be provided");
+	process.exit(1);
+}
+//=======================================================================
 //Make log Directories
+//=======================================================================
 try {
 	fs.statSync(nodeConstants.LOG_DIR);
 } catch (err) {
 	fs.mkdirSync(nodeConstants.LOG_DIR);
 };	
 
-var logger = require('./frangipani_node_modules/logger')('node');
-var dbFunctions = require("./frangipani_node_modules/mongodb_functions");
+var logger = require('./logger')('node');
+var dbFunctions = require("./mongodb_functions");
 
 
 //=======================================================================
@@ -130,22 +132,20 @@ var dbFunctions = require("./frangipani_node_modules/mongodb_functions");
 //configure morgan to add the user to the logged file info:
 morgan.token('user',function getUser(req){
 		if (req.user)
-			return req.user[dbConstants.USER_ID_FIELD];
+			return req.user[dbConstants.USERS.ID_FIELD];
 		else
 			return "";
 	});
-
+//=======================================================================
 //Open write stream for log files
+//=======================================================================
 var comLog = fs.createWriteStream(__dirname + "/" + nodeConstants.LOG_DIR + "/" + nodeConstants.COM_LOG_PATH);
 var app = express();
 app.use(morgan(':remote-addr - :user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', {stream:comLog}));
 
-
-
 //=======================================================================
 //If using https then add redirect callback for all incoming http calls.
 //=======================================================================
-
 if (opts.https){
 	app.use(function (req, res, next) {
 		if (req.secure) {
@@ -161,8 +161,6 @@ if (opts.https){
 		}
 	});
 }
-
-
 //=======================================================================
 // Check if prequisite directories are made, if not create them
 //=======================================================================
@@ -183,11 +181,6 @@ for (var i= 0; i < prerequisiteDirectories.length; ++i) {
 	})();
 }
 
-
-
-
-
-
 //=======================================================================
 // Add Parsers
 //=======================================================================
@@ -195,15 +188,10 @@ app.use(cookieParser());
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:false}))
 
-
-
 //=======================================================================	
 // Set up Passport to use Authentication
 //=======================================================================
-
-require('./frangipani_node_modules/passport-config')(passport,dbFunctions,opts)
-
-logger.info('mongodb://' + dbConstants.DB_HOST + ':' + dbConstants.DB_PORT + '/sessionInfo');
+require('../routes/passport-config')(passport,dbFunctions,opts)
 
 //=======================================================================
 // Initialize the session Session
@@ -211,12 +199,13 @@ logger.info('mongodb://' + dbConstants.DB_HOST + ':' + dbConstants.DB_PORT + '/s
 //In the future use a redis session to configure the session information
 app.use(session({secret:'webb_app_server',
 	store: new mongoStore({
-		url:'mongodb://' + dbConstants.DB_HOST + ':' + dbConstants.DB_PORT + '/sessionInfo'
+		url:'mongodb://' + dbConstants.DB.HOST + ':' + dbConstants.DB.PORT + '/sessionInfo'
 	}),
 	resave:false,
 	secure:true,
 	saveUninitialized:false
 }))
+logger.info('mongodb://' + dbConstants.DB.HOST + ':' + dbConstants.DB.PORT + '/sessionInfo');
 //=======================================================================
 // Initialize Passport and session
 //=======================================================================
@@ -225,17 +214,9 @@ app.use(passport.session());
 app.use(flash());
 
 //=======================================================================
-// Serve Static Public Content (ie, dont need to be logged in to access)
-//=======================================================================
-app.use(express.static("public/", {index: false}));
-
-
-
-
-//=======================================================================
 // Add routes
 //=======================================================================
-require('./frangipani_node_modules/routes')(app,passport,dbFunctions,opts,logger);
+require('../routes/routes')(app,passport,dbFunctions,opts,logger);
 
 //=======================================================================
 // Connect and Initialzie the storage Database
@@ -247,7 +228,10 @@ dbFunctions.connectAndInitializeDB()
 	logger.error("Exiting due to connection error with DB server.");
 	process.exit(1);
 });
-
+//=======================================================================
+// Serve Static Public Content (ie, dont need to be logged in to access)
+//=======================================================================
+app.use(express.static("public/", {index: false}));
 //=======================================================================
 // Start Listening on the set port
 //=======================================================================
@@ -262,8 +246,6 @@ if (opts.https){
 	logger.info("Server runnong on http port: " + opts.httpPortNumber);
 	app.listen(opts.httpsPortNumber);
 }
-
-
 //=======================================================================
 // Exit Event
 //=======================================================================

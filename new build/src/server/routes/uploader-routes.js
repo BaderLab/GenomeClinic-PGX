@@ -1,9 +1,7 @@
-var utils = require('./lib/utils');
+var utils = require('../lib/utils');
 var uploader = require("jquery-file-upload-middleware");
 var Promise = require('bluebird');
-var costatnts = require('./lib/constants.json');
-var utils = require('./lib/utils');
-
+var costatnts = require('../lib/constants.json');
 
 var dbConstants = constants.dbConstants,
 	nodeConstants = constants.nodeConstants;
@@ -12,9 +10,9 @@ var dbConstants = constants.dbConstants,
 module.exports = function(app,dbFunctions,queue){
 	//load dependencies
 	if (!dbFunctions)
-		var dbFunctions = require('mongodb_functions');
+		var dbFunctions = require('../bin/mongodb_functions');
 	if (!queue){
-		var Queue = require('./queue');
+		var Queue = require('../bin/queue');
 		var queue = new Queue(null,dbFunctions);
 	}
 	//==================================================================
@@ -40,7 +38,7 @@ module.exports = function(app,dbFunctions,queue){
 	 * of the vcf file into the local database
 	*/
 	uploader.on('end',function(fileInfo,req,res){
-		queue.addToQueue(fileInfo,req.fields,req.user[dbConstants.USER_ID_FIELD])
+		queue.addToQueue(fileInfo,req.fields,req.user[dbConstants.USERS.ID_FIELD])
 		.then(function(){
 			if (!queue.isRunning)
 				return queue.run();

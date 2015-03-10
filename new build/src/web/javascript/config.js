@@ -8,6 +8,9 @@
 var $ = require("Jquery"),
 	template = require('./templates').config
 	aux = require('../lib/config.json');
+	constants = require('../../server/lib/constants.json').dbConstatnts.ANNO
+
+
 
 module.exports = function() {
 //=======================================================================
@@ -106,9 +109,9 @@ module.exports = function() {
 					delete formInput[key]
 				}
 			}
-			formInput["annovar-dbs"]= annovarAnnotationList;
-			formInput["annovar-usage"] = annovarUsageList;
-			formInput["annovar-index"] = annovarIndexList;
+			formInput[constants.DBS]= annovarAnnotationList;
+			formInput[constants.USAGE] = annovarUsageList;
+			formInput[constants.INDEX_FIELDS] = annovarIndexList;
 
 			var promise= Promise.resolve($.ajax({
 				url: "/config",
@@ -135,7 +138,6 @@ module.exports = function() {
 			handler();
 		});
 	};
-	console.log('here');
 	render();
 };
 
