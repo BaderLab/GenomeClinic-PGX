@@ -414,9 +414,9 @@ var pgx =  {
 		// helpers, which dynamically render the HTML.
 		self.generatePgxResults(selectedPatientID,selectedPatientAlias)
 		.then(function(result){
-			templates.pgx(result);
+			return templates.pgx(result);
 		}).then(function(html) {
-			$('#main').append(html);
+			$('#main').html(html);
 			self.addEventListeners();
 		}).then(function(){
 			utility.refresh();
@@ -585,7 +585,7 @@ Handlebars.registerHelper('haplotypeMarkers', function(context, options) {
 			uppercaseAlts.push(pgx.globalPGXData.pgxCoordinates[m].alt[j].toUpperCase());
 		}
 
-		var haplotypeMarkers= pgx.lobalPGXData.pgxGenes[currentGene][currentHaplotype];
+		var haplotypeMarkers= pgx.globalPGXData.pgxGenes[currentGene][currentHaplotype];
 		if (haplotypeMarkers.indexOf(m) !== -1) {  // haplotype is defined by this marker
 			renderedHtml += "<td class='variant-alt'>" + 
 				uppercaseAlts.toString() + "</td>"; // alt is an array

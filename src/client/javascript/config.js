@@ -8,7 +8,7 @@
 var $ = require("jquery"),
 	template = require('./templates').config,
 	aux = require('../conf/config.json'),
-	constants = require('../../server/conf/constants.json').dbConstatnts.ANNO;
+	constants = require('../../server/conf/constants.json').dbConstants.ANNO;
 
 
 

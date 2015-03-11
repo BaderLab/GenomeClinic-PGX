@@ -18,14 +18,14 @@
 
  *written by Patrick Magee
 */
-var $ = require('Jquery'),
+var $ = require('jquery'),
     templates = require('./templates'),
     utility = require('./utility');
 
 //add the appropriate handlers to the window for handling the transport
-require("./vendor/vendor/jquery.ui.widget");
-require("./vendor/jquery.iframe-transport");
-require("./vendor/jquery.fileupload");
+require("./lib/vendor/jquery.ui.widget");
+require("./lib/jquery.iframe-transport");
+require("./lib/jquery.fileupload");
 
 module.exports = function(){
 
@@ -390,7 +390,7 @@ module.exports = function(){
   //render main page html
   templates.uploadpage.index()
   .then(function(renderedHtml){
-    $('main').html(renderedHtml);
+    $('#main').html(renderedHtml);
   }).then(function(){
     addAllEventListeners();
   });

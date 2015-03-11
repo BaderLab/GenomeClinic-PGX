@@ -5,6 +5,7 @@
  */
 var express= require("express"),
 	Promise= require("bluebird"),
+	path = require("path"),
 	fs = Promise.promisifyAll(require('fs')),
 	passport = require('passport'),
 	flash = require('connect-flash'),
@@ -15,8 +16,8 @@ var express= require("express"),
 	https = require('https'),
 	http = require('http'),
 	morgan = require('morgan'),
-	cons = require('consolidate'),
-	constants = require('../conf/constants.json');
+	constants = require('./lib/conf/constants.json'),
+	cons = require('consolidate');
 
 
 var dbConstants = constants.dbConstants;
@@ -115,14 +116,18 @@ if (opts.https && (!opts.crt || opts.key)){
 //=======================================================================
 //Make log Directories
 //=======================================================================
+var prerequisiteDirectories = ["upload", "tmp",nodeConstants.LOG_DIR];
 try {
-	fs.statSync(nodeConstants.LOG_DIR);
+	fs.statSync(prerequisiteDirectories[i]);
 } catch (err) {
-	fs.mkdirSync(nodeConstants.LOG_DIR);
+	try {
+		fs.mkdirSync(nodeConstants.LOG_DIR);
+	} catch (err){ 
+	}
 }
 
-var logger = require('./logger')('node');
-var dbFunctions = require("./mongodb_functions");
+var logger = require('./lib/logger')('node');
+var dbFunctions = require("./models/mongodb_functions");
 
 
 //=======================================================================
@@ -143,6 +148,15 @@ var comLog = fs.createWriteStream(__dirname + "/" + nodeConstants.LOG_DIR + "/" 
 var app = express();
 app.use(morgan(':remote-addr - :user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', {stream:comLog}));
 
+
+
+//=======================================================================
+// Serve Static Public Content (ie, dont need to be logged in to access)
+//=======================================================================
+app.use(express.static(path.resolve(__dirname + "/public")));
+
+
+
 //=======================================================================
 //If using https then add redirect callback for all incoming http calls.
 //=======================================================================
@@ -161,23 +175,6 @@ if (opts.https){
 		}
 	});
 }
-//=======================================================================
-// Check if prequisite directories are made, if not create them
-//=======================================================================
-var prerequisiteDirectories= ["upload", "tmp"];
-for (var i= 0; i < prerequisiteDirectories.length; ++i) {
-	// using an immediately-invoked function expression to keep scope across iterations
-	var currentDirectory= prerequisiteDirectories[i];
-	fs.statAsync(currentDirectory).then(function(result){
-		// directory already exists
-	}).catch(function(err){
-		logger.info(currentDirectory + ' directory does not exist. Created.');
-		return fs.mkdirAsync(currentDirectory);
-	}).catch(function(err){
-		logger.error("Cannot create " + currentDirectory + " folder");
-		logger.error(err);
-	});
-}
 
 //=======================================================================
 // Add Parsers
@@ -189,7 +186,7 @@ app.use(bodyParser.urlencoded({extended:false}));
 //=======================================================================	
 // Set up Passport to use Authentication
 //=======================================================================
-require('../routes/passport-config')(passport,dbFunctions,opts);
+require('./controllers/passport-config')(passport,dbFunctions,opts);
 
 //=======================================================================
 // Initialize the session Session
@@ -214,7 +211,10 @@ app.use(flash());
 //=======================================================================
 // Add routes
 //=======================================================================
-require('../routes/routes')(app,passport,dbFunctions,opts,logger);
+app.set('views',__dirname + '/views');
+app.engine('hbs',cons.handlebars);
+app.set('view engine', 'hbs');
+require('./controllers/routes')(app,passport,dbFunctions,opts,logger);
 
 //=======================================================================
 // Connect and Initialzie the storage Database
@@ -226,10 +226,7 @@ dbFunctions.connectAndInitializeDB()
 	logger.error("Exiting due to connection error with DB server.");
 	process.exit(1);
 });
-//=======================================================================
-// Serve Static Public Content (ie, dont need to be logged in to access)
-//=======================================================================
-app.use(express.static("public/", {index: false}));
+
 //=======================================================================
 // Start Listening on the set port
 //=======================================================================
@@ -242,7 +239,7 @@ if (opts.https){
 	logger.info("Server running on https port: " + opts.httpsPortNumber + " http port:" + opts.httpPortNumber);
 } else {
 	logger.info("Server runnong on http port: " + opts.httpPortNumber);
-	app.listen(opts.httpsPortNumber);
+	app.listen(opts.httpPortNumber);
 }
 //=======================================================================
 // Exit Event

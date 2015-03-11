@@ -13,7 +13,7 @@
 
 // Deprecated.. to be changed in later versions of the app
 var buttonClicked = false;
-var $ = require('Jquery');
+var $ = require('jquery');
 
 module.exports = {
 

@@ -1,11 +1,11 @@
 var LocalStrategy = require('passport-local').Strategy;
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
-var dbConstants = require('../conf/constants.json').dbConstants;
+var dbConstants = require('../lib/conf/constants.json').dbConstants;
 
 
 module.exports = function(passport,dbFunctions,opts){
 	if (!dbFunctions)
-		dbFunctions = require('../src/mongodb_functions');
+		dbFunctions = require('../models/mongodb_functions');
 
 	passport.serializeUser(function(user,done){
 		done(null,user[dbConstants.USERS.ID_FIELD]);

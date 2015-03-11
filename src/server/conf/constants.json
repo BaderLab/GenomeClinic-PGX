@@ -1,5 +1,5 @@
 {
-	"dbConstatnts":{
+	"dbConstants":{
 		"DB":{
 			"HOST": "localhost",
 			"PORT": 27017,
@@ -9,7 +9,7 @@
 			"SERVER_CONFIGURED_FIELD": "config",
 			"OWNER_ID":"owner",
 			"REPORT_FOOTER":"report-footer",
-			"REPORT_DISCLAIMER":"disclaimer",
+			"REPORT_DISCLAIMER":"disclaimer"
 		},
 		"ANNO":{
 			"DBS":"annovar-dbs",
@@ -22,7 +22,7 @@
 			"COLLECTION":"patients",
 			"CURRENT_INDEX_FIELD":"curr_patient_index",
 			"ID_FIELD":"patient_id",
-			"COLLECTION_ID_FIELD":"collection_id",
+			"COLLECTION_ID":"collection_id",
 			"FILE_FIELD":"file",
 			"DATE_ADDED":"added",
 			"READY_FOR_USE":"ready",
@@ -36,14 +36,13 @@
 			"AUTH_USER_FIELD":"users",
 			"INFO_FIELD":"description",
 			"KEYWORDS_FIELD":"keywords",
-			"DATE_ADDED":"date",
+			"DATE_ADDED":"date"
 		},
 		"PANELS":{
 			"COLLECTION":"panels",
 			"COLLECTION_ID":"collection_id",
 			"ID_FIELD":"panel_id",
-			"CURRENT_INDEX_FIELD":"curr_panel_index",
-			
+			"CURRENT_INDEX_FIELD":"curr_panel_index"
 		},
 		"USERS":{
 			"ID_FIELD":"username",

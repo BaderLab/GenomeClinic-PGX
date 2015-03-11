@@ -1,5 +1,5 @@
 var winston = require("winston"),
-	nodeConstants = require('../conf/constants.json').nodeConstants;
+	nodeConstants = require('./conf/constants.json').nodeConstants;
 
 
 module.exports = function(useage){

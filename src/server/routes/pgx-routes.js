@@ -1,13 +1,13 @@
-var utils = require('../conf/utils');
-var pgx = require('../conf/pgx_haplotypes.json');
+var utils = require('../lib/utils');
+var pgx = require('../lib/conf/pgx_haplotypes.json');
 var Promise = require('bluebird');
-var constants = require("../conf/constants.json");
+var constants = require("../lib/conf/constants.json");
 
 
 
 module.exports = function(app,dbFunctions){
 	if (!dbFunctions)
-		dbFunctions = rquire("../src/mongodb_functions");
+		dbFunctions = rquire("../models/mongodb_functions");
 	//==================================================================
 	//PGX routes
 	//==================================================================

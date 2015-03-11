@@ -6,16 +6,16 @@
 var MongoClient= require("mongodb").MongoClient;
 var Promise = require("bluebird");
 var assert= require("assert");
-var dbConstants = require("../conf/constants.json").dbConstants;
+var dbConstants = require("../lib/conf/constants.json").dbConstants;
 var bcrypt = require("bcrypt-nodejs");
 var randomstring = require("just.randomstring");
-var pgx= require("../conf/pgx_haplotypes");
+var pgx= require("../lib/conf/pgx_haplotypes");
 
 
 var dbFunctions = function(logger,DEBUG){
 	var logInfo,logErr;
 	if (!logger)
-		logger = require('./logger')('db');	
+		logger = require('../lib/logger')('db');	
 	if (DEBUG){
 		logInfo = console.log;
 		logErr = console.log;
@@ -846,7 +846,7 @@ var dbFunctions = function(logger,DEBUG){
 			var opts = {"_id":0};
 			opts[dbConstants.DB.REPORT_FOOTER] = 1;
 			opts[dbConstants.DB.REPORT_DISCLAIMER] = 1;
-			return find(dbConstants.DB.ADMIN_COLLECTION_ID, {}, opts)
+			return find(dbConstants.DB.ADMIN_COLLECTION, {}, opts)
 			.then(function(result) {
 				doc[dbConstants.DB.REPORT_FOOTER]= result[0][dbConstants.DB.REPORT_FOOTER];
 				doc[dbConstants.DB.REPORT_DISCLAIMER]= result[0][dbConstants.DB.REPORT_DISCLAIMER];
@@ -963,4 +963,4 @@ var dbFunctions = function(logger,DEBUG){
 	};
 };
 
-module.exports= new dbFunctions(logger);
+module.exports= new dbFunctions();

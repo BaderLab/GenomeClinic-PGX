@@ -46,28 +46,26 @@ module.exports = function(location){
 			});
 	};
 	var checkAuthAndRender = function(){
-		var opts;
-		var template;
-		Promise.resolve($.ajax({
+		return Promise.resolve($.ajax({
 			url:'/auth/check',
 			type:'GET',
 			contentType:'application/json'	
 		})).then(function(result){
-			opts = {};
+			var opts = {};
 			if (location == '/signup'){
 				opts.login = true;
 				opts.recover = true;
-				t = template.signup;
+				t = templates.signup;
 			} else if (location =='/recover') {
 				opts.login = true;
 				opts.signup = true;
-				t = template.recover;
+				t = templates.recover;
 			} else if (location == '/login'){
 				opts.signup = true;
 				opts.recover = true;
-				t = template.login;
+				t = templates.login;
 			} else if (location == '/setpassword'){
-				t = template.setpassword;
+				t = templates.setpassword;
 			}
 			if (result.oauth)
 				opts.oauth = true;
@@ -138,12 +136,11 @@ module.exports = function(location){
 	};
 	//add handlers
 	var main = function(){
+		console.log('here');
 		checkAuthAndRender().then(function(){
 			abideVal();
 			submit();
 		});
 	};
-
-
 	main();
 };

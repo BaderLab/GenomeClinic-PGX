@@ -7,7 +7,7 @@
  * written by Patrick Magee
  */
 var Promise = require('bluebird');
-var constants= require("../conf/constants.json");
+var constants= require("./conf/constants.json");
 var annotateFile = require('./annotateAndAddVariants');
 var fs = Promise.promisifyAll(require('fs'));
 
@@ -18,7 +18,7 @@ var dbConstants = constants.dbConstants,
 
 function queue(logger,dbFunctions){
 	this.logger = (logger || require('./logger')('node'));
-	dbFunctions = (dbFunctions || require('./mongodb_functions'));
+	dbFunctions = (dbFunctions || require('../models/mongodb_functions'));
 }
 
 //=======================================================================================

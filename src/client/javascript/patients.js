@@ -33,6 +33,7 @@ module.exports = function() {
 		$("tr.patient-row").on("click", function() {
 			var selectedPatientID= $(this).children("[class~='frangipani-patient-id']").text();
 			var selectedPatientAlias= $(this).children("[class~='frangipani-patient-alias']").text();
+			console.log(pgx);
 			pgx.loadPGx(selectedPatientID,selectedPatientID);
 		});
 	};
@@ -44,7 +45,7 @@ module.exports = function() {
 			context.useFull = true;
 			return templates.patient(context);
 		}).then(function(renderedHtml) {
-			$('#main').append(html);
+			$('#main').append(renderedHtml);
 		}).then(function(){
 			addEventListeners();
 		});

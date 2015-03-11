@@ -130,7 +130,7 @@ module.exports = function(){
 				patientArray = {patients:result};
 				return templates.statuspage.index(patientArray);
 			}).then(function(renderedHtml){			
-				$("#frangipani_patient_status").append(renderedHtml);
+				$("#main").append(renderedHtml);
 			}).then(function(){
 				refresh();
 			}).then(function(){

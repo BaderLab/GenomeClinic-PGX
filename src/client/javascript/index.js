@@ -1,5 +1,4 @@
 var $ = require('jquery');
-require('./lib/foundation.min');
 var templates = require('./templates');
 var projects = require('./projects'),
 	status = require('./status-page'),
@@ -12,25 +11,32 @@ var projects = require('./projects'),
 
 (function(){
 	var location = window.location.pathname;
-	Promise.resovel().then(function(){
+	Promise.resolve().then(function(){
+		console.log(location);
 		if (location == '/'){
-			$('#main').html(templates.index({title:'Frangipani'}));
-		} else if (location.indexOf(['/login','/setpassword','/recover','/signup']) != -1){
+			templates.index({title:'Frangipani'}).then(function(renderedHtml){
+				$('#main').html(renderedHtml);
+			});
+		} else if (['/login','/setpassword','/recover','/signup'].indexOf(location) != -1){
 			authentication(location);
 		} else if (location == '/upload'){
 			uploader();
-		} else if (locaton == '/projects'){
+		} else if (location == '/projects'){
 			projects();
 		} else if (location == '/browsepatients'){
 			patients();
-		} else if (locaton == '/config'){
+		} else if (location == '/config'){
 			config();
 		} else if (location == '/panel'){
-			$('#main').html(templates.construction());
+			templates.construction().then(function(renderedHtml){
+				$('#main').html(renderedHtml);
+			});
 		} else if (location == '/statuspage'){
 			status();
 		} else {
-			$('#main').html(templates.notfound());
+			templates.notfound().then(function(renderedHtml){
+				$('#main').html(renderedHtml);
+			});
 		}
 	}).then(function(){
 		utility.refresh();

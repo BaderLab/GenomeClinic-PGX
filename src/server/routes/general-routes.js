@@ -1,14 +1,14 @@
 var Promise = require('bluebird');
-var costatnts = require('../conf/constants.json');
-var utils = require('../conf/utils');
+var constants = require('../lib/conf/constants.json');
+var utils = require('../lib/utils');
 
 var dbConstants = constants.dbConstants,
 	nodeConstants = constants.nodeConstants;
 
-module.exports = function(app,dbfunctions){
+module.exports = function(app,dbFunctions){
 	var configured;
 	if (!dbFunctions)
-		dbFunctions = require("../src/mongodb_functions");
+		dbFunctions = require("../models/mongodb_functions");
 	//==================================================================
 	//Route to the home page, or the config page if it is not set
 	//==================================================================
@@ -99,7 +99,7 @@ module.exports = function(app,dbfunctions){
 		utils.render(req,res);
 	});
 
-	app.use("/variants/search", isLoggedIn, function(req,res){
+	app.use("/variants/search", utils.isLoggedIn, function(req,res){
 		utils.render(req,res);
 	});
 

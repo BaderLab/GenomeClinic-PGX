@@ -1,12 +1,3 @@
-/*
- * Sets of pharmacogenomic markers to be uploaded to the DB.
- * These markers have been extracted from PharmGKB documents and manually
- * curated by Ron Ammar and Tara Paton. The list is always growing.
- * This module also contains the marker coordinates, since they may
- * not always be in the annovar annotation DBs.
- *
- * @author Ron Ammar
- */
 {
     "pgxGenes": {
         "abcb1": {

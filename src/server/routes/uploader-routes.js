@@ -1,7 +1,7 @@
-var utils = require('../conf/utils');
+var utils = require('../lib/utils');
 var uploader = require("jquery-file-upload-middleware");
 var Promise = require('bluebird');
-var costatnts = require('../conf/constants.json');
+var constants = require('../lib/conf/constants.json');
 
 var dbConstants = constants.dbConstants,
 	nodeConstants = constants.nodeConstants;
@@ -10,10 +10,10 @@ var dbConstants = constants.dbConstants,
 module.exports = function(app,dbFunctions,queue){
 	//load dependencies
 	if (!dbFunctions)
-		dbFunctions = require('../src/mongodb_functions');
+		dbFunctions = require('../models/mongodb_functions');
 	if (!queue){
-		var logger = require('../src/logger')('node');
-		var Queue = require('../src/queue');
+		var logger = require('../lib/logger')('node');
+		var Queue = require('../lib/queue');
 		queue = new Queue(logger,dbFunctions);
 	}
 	//==================================================================
@@ -30,8 +30,8 @@ module.exports = function(app,dbFunctions,queue){
 
 	//Configure the uploader to tell it what directories to use
 	uploader.configure({
-		tmpDir:nodeConstant.TMP_UPLOAD_DIR,
-		uploadDir:nodeConstant.VCF_UPLOAD_DIR,
+		tmpDir:nodeConstants.TMP_UPLOAD_DIR,
+		uploadDir:nodeConstants.VCF_UPLOAD_DIR,
 		uploadUrl:'/upload/vcf'
 	});
 	/* Event Handler that is triggered upon successful completion of the file upload

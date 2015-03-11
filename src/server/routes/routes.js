@@ -1,9 +1,9 @@
-var Queue = require('../src/queue');
+var Queue = require('../lib/queue');
 module.exports = function(app,passport,dbFunctions,opts,logger){
 	if (!dbFunctions)
-		dbFunctions = require("../src/mongodb_functions");
+		dbFunctions = require("../models/mongodb_functions");
 	if (!logger)
-		logger = require('../src/logger')('node');
+		logger = require('../lib/logger')('node');
 
 
 	//=======================================================================
@@ -11,9 +11,6 @@ module.exports = function(app,passport,dbFunctions,opts,logger){
 	// templates. this will not be done to render ALL the html, only render 
 	// the navbar 
 	//=======================================================================
-	app.set('views','./views');
-	app.engine('hbs',consolidate.hbs);
-	
 	//==================================================================
 	//initialize the queing system for incoming file uploads
 	//==================================================================

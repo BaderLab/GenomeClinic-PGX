@@ -21,10 +21,10 @@
 */
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs'));
-var dbFunctions = require('./mongodb_functions');
+var dbFunctions = require('../models/mongodb_functions');
 var logger =  require('./logger')('parser');
 var path = require('path');
-var dbConstants = require('../conf/constants.json').dbConstants;
+var dbConstants = require('./conf/constants.json').dbConstants;
 
 
 /* Empty constructor for the parseVCF object */
