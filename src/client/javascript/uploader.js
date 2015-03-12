@@ -28,7 +28,7 @@ require("./lib/jquery.iframe-transport");
 require("./lib/jquery.fileupload");
 
 module.exports = function(){
-
+  console.log(utility);
   //======================================================================================================
   // HELPER FUNCTIONS
   //======================================================================================================
@@ -132,7 +132,7 @@ module.exports = function(){
       var valueCounts = {};
 
       //ajax request to server
-      utility.existsInDB('patients', 'patient_id', keyValue)
+      utility.existsInDb('patients', 'patient_id', keyValue)
       .then(function(result){
         if (result){
           self.addClass('error').addClass('db-error').siblings('small').text("PatientID already exists!").show();
@@ -292,7 +292,7 @@ module.exports = function(){
 
               //Render the html async to add it to the page
               templates.uploadpage.vcf(options)
-              .then(function(result){
+              .then(function(renderedHtml){
                 $('#patient_information').append(renderedHtml).closest('fieldset').show();
                 return templates.uploadpage.progress(options);
               }).then(function(renderedHtml){

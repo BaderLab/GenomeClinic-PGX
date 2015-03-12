@@ -18,7 +18,7 @@ var dbConstants = constants.dbConstants,
 
 function queue(logger,dbFunctions){
 	this.logger = (logger || require('./logger')('node'));
-	dbFunctions = (dbFunctions || require('../models/mongodb_functions'));
+	this.dbFunctions = (dbFunctions || require('../models/mongodb_functions'))
 }
 
 //=======================================================================================
@@ -31,7 +31,7 @@ queue.prototype.queue = [];
  * it also adds the patient name to the patient table ensuring no
  * duplicate entries occur
  */
-queue.prototype.addToQueue = function(fileParams, patientFields,user){
+queue.prototype.addToQueue = function(fileParams,patientFields,user){
 	var self = this;
 	var promise = new Promise(function(resolve,reject){
 		var inputObj = {
@@ -133,7 +133,7 @@ queue.prototype.run = function(){
 	}).then(function(){
 		return fields;
 	}).each(function(options){
-		return dbFunctions.addPatient(options);
+		return self.dbFunctions.addPatient(options);
 	}).then(function(result){
 		var options = {
 			input:'upload/vcf/' + fileInfo.name,

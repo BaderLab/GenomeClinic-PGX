@@ -959,7 +959,7 @@ var dbFunctions = function(logger,DEBUG){
 		doc[dbConstants.USERS.PASSWORD_FIELD] = encryptPassword;
 		doc = {$set:doc};
 		logInfo('changing password for user', {'user':user});
-		return this.update(dbConstants.USERS_COLLECTION,query,doc);
+		return this.update(dbConstants.USERS.COLLECTION,query,doc);
 	};
 };
 
