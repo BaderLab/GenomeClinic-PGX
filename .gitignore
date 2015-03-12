@@ -6,4 +6,4 @@ mongodb_data/
 annovar/
 logs/
 ssl/
-test.*
+build/
