@@ -116,13 +116,15 @@ if (opts.https && (!opts.crt || opts.key)){
 //=======================================================================
 //Make log Directories
 //=======================================================================
-var prerequisiteDirectories = ["upload", "tmp",nodeConstants.LOG_DIR];
-try {
-	fs.statSync(prerequisiteDirectories[i]);
-} catch (err) {
+var prerequisiteDirectories = ["upload", "tmp", nodeConstants.LOG_DIR];
+for (var i=0; i < prerequisiteDirectories.length; i++ ){
 	try {
-		fs.mkdirSync(nodeConstants.LOG_DIR);
-	} catch (err){ 
+		fs.statSync(prerequisiteDirectories[i]);
+	} catch (err) {
+		try {
+			fs.mkdirSync(prerequisiteDirectories[i]);
+		} catch (err){ 
+		}
 	}
 }
 
