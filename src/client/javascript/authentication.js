@@ -119,14 +119,14 @@ module.exports = function(location){
 			}));
 
 			promise.then(function(result){
-				
+				console.log(result);
 				//successful request, redirect to redirectURL
-				if (result.redirectURL){
-					window.location.replace(result.redirectURL);
+				if (result.statusCode == "200"){
+					window.location.replace('/');
 				//unsuccessful request, open errror box
 				} else {
 					$('#password').val('');
-					$('#newPassword').val('');
+					$('#newpassword').val('');
 					$('#confirmPassword').val('');
 					$('#error-display-message').text(result.error[0]).parents().find('#error-display-box').show();
 				}	
