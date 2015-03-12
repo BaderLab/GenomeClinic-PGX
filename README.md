@@ -61,7 +61,7 @@ This will deploy the project and place it in the build folder. By default gulp w
 
 To disable this behaviour and build a production quality server run the gulp command but pass it the production task as an option
 
-`node_modules/.bin/gulp production`
+`node_modules/.bin/gulp --type production`
 
 To clean the directory run:
 
