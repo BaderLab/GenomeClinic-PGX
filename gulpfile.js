@@ -5,6 +5,7 @@ var gulp = require('gulp'),
 	jshint = require('gulp-jshint'),
 	concat = require('gulp-concat'),
 	rename = require('gulp-rename'),
+	clean = require('gulp-clean'),
 	jshstylish = require('jshint-stylish'),
 	browserify = require('browserify'),
 	source = require('vinyl-source-stream'),
@@ -84,6 +85,11 @@ var paths = {
 		}
 	}
 };
+
+gulp.task('clean',function(){
+	return gulp.src(['build'])
+	.pipe(clean({read:false}))
+})
 
 
 gulp.task('default',['build'],function(){
