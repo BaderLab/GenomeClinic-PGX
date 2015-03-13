@@ -151,13 +151,10 @@ var app = express();
 app.use(morgan(':remote-addr - :user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', {stream:comLog}));
 
 
-
 //=======================================================================
 // Serve Static Public Content (ie, dont need to be logged in to access)
 //=======================================================================
 app.use(express.static(path.resolve(__dirname + "/public")));
-
-
 
 //=======================================================================
 //If using https then add redirect callback for all incoming http calls.
@@ -211,7 +208,7 @@ app.use(passport.session());
 app.use(flash());
 
 //=======================================================================
-// Add routes
+// Add routes and add the rendering engine
 //=======================================================================
 app.set('views',__dirname + '/views');
 app.engine('hbs',cons.handlebars);

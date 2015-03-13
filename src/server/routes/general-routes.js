@@ -69,11 +69,6 @@ module.exports = function(app,dbFunctions){
 	//Generic page routers
 	//==================================================================
 
-	//Upload page routes
-	app.get('/upload',utils.isLoggedIn, function(req,res){
-		utils.render(req,res);
-	});
-
 	//new projects
 	app.get('/projects', utils.isLoggedIn, function(req,res){
 		utils.render(req,res);
@@ -85,21 +80,6 @@ module.exports = function(app,dbFunctions){
 
 	//browse all patients and serve patient page
 	app.get('/browsepatients',utils.isLoggedIn,function(req,res){
-		utils.render(req,res);
-	});
-
-	//==================================================================
-	//DEPRECATED GA4G REQUESTS
-	//==================================================================
-	app.get("/datasets", utils.isLoggedIn, function(req,res){
-		utils.render(req,res);
-	});
-
-	app.use("/callsets/search", utils.isLoggedIn, function(req,res){
-		utils.render(req,res);
-	});
-
-	app.use("/variants/search", utils.isLoggedIn, function(req,res){
 		utils.render(req,res);
 	});
 

@@ -45,5 +45,11 @@ module.exports = function(app,dbFunctions,queue){
 				return queue.run();
 		}).catch(function(err){console.log(err.toString());});
 	});
+
+	//Upload page routes
+	app.get('/upload',utils.isLoggedIn, function(req,res){
+		utils.render(req,res);
+	});
+
 	app.use("/upload/vcf", utils.isLoggedIn, uploader.fileHandler());
 };
