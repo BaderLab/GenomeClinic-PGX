@@ -63,7 +63,7 @@ To disable this behaviour and build a production quality server run the gulp com
 
 `node_modules/.bin/gulp --type production`
 
-To clean the directory run:
+To clean the the build directory run:
 
 `node_modules/.bin/gulp clean`
 
