@@ -146,7 +146,7 @@ gulp.task('client-vendor', ['client-modernizr'],function(){
 
 gulp.task('client-css',function(){
 	return gulp.src(paths.client.css.src)
-	.pipe( cssmin({'keepSpecialComments':0}) )
+	.pipe( gutil.env.type==='production' ? cssmin({'keepSpecialComments':0}):gutil.noop())
 	.pipe( concat('bundle.min.css') )
 	.pipe(gulp.dest(paths.client.css.dest));
 });
