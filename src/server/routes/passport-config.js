@@ -36,7 +36,7 @@ module.exports = function(passport,dbFunctions,opts){
 							user[dbConstants.USERS.ID_FIELD] = username.toString();
 							user[dbConstants.USERS.PASSWORD_FIELD] = password.toString();
 							dbFunctions.addUser(user).then(function(){
-								return done(null,user,req.flash('statusCode','200'));
+								return done(null,user,req.flash('statusCode','200'),req.flash('alert',true),req.flash('message','Account successfully created'));
 							}).catch(function(err){
 								return done(err,null,req.flash('statusCode','400'));
 							});
