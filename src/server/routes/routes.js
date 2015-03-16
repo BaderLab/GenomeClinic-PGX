@@ -1,5 +1,4 @@
 var Queue = require('../lib/queue');
-var applib = require('../lib/conf/applib.json');
 module.exports = function(app,passport,dbFunctions,opts,logger){
 	if (!dbFunctions)
 		dbFunctions = require("../models/mongodb_functions");

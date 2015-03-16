@@ -60,7 +60,7 @@ module.exports = function(passport,dbFunctions,opts){
 					if (user) { 
 						dbFunctions.validatePassword(username.toString(),password.toString()).then(function(result){
 							if (result){
-								return done(null,user);
+								return done(null,user,req.flash("statusCode",'200'));
 							} else {
 								return done(null,false,req.flash("error", "Oops! Wrong Password"),req.flash('statusCode','400'));
 							}

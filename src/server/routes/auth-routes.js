@@ -154,6 +154,8 @@ module.exports = function(app,passport,dbFunctions,logger,opts){
 					dbFunctions.validatePassword(username,data[dbConstants.USERS.PASSWORD_FIELD].toString()).then(function(result){
 						if (result){
 							dbFunctions.changePassword(username, data.newpassword.toString()).then(function(){
+								req.flash('alert',true);
+								req.flash('message',"Password changed successfully")
 								req.flash('statusCode','200');
 								res.redirect('/success');
 							});

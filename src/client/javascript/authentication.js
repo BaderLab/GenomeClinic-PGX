@@ -93,13 +93,13 @@ module.exports = function(location){
 			e.preventDefault();
 			$(this).closest('.alert-box').hide();
 		});
-		$("#frangipani-request-login").on('invalid.fndtn.abide', function () {
+		$("#webapp-request-login").on('invalid.fndtn.abide', function () {
 		// Invalid form input
 			var invalid_fields = $(this).find('[data-invalid]');
 			console.log(invalid_fields);
 		});
 		//listen on form for valid abide ajax request
-		$("#frangipani-request-login").on('valid.fndtn.abide', function () {
+		$("#webapp-request-login").on('valid.fndtn.abide', function () {
 			var data = {};
 			data[constants.ID_FIELD] = $('#username').val();			
 			if (location == '/setpassword'){
@@ -120,8 +120,26 @@ module.exports = function(location){
 
 			promise.then(function(result){
 				console.log(result);
+				if (result.alert){
+					// display status redirect message
+					if (result.statusCode == '200'){
+						var message = result.message[0];
+						$('#error-display-box').removeClass('alert').addClass('success')
+						.find("#error-display-message").text(message + ". You will be redirected in 5 seconds")
+						.parents().find("#error-display-box").show();
+
+						var counter = 0;
+						var interval = setInterval(function() {
+						    counter++;
+						    $('#error-display-message').text(message + ". You will be redirected in "  + (5 - counter).toString() + " seconds");
+						    if (counter == 5) {
+						        clearInterval(interval);
+						        window.location.replace('/');
+						    }
+						}, 1000);
+					}
 				//successful request, redirect to redirectURL
-				if (result.statusCode == "200"){
+				} else if (result.statusCode == "200"){
 					window.location.replace('/');
 				//unsuccessful request, open errror box
 				} else {
@@ -136,7 +154,6 @@ module.exports = function(location){
 	};
 	//add handlers
 	var main = function(){
-		console.log('here');
 		checkAuthAndRender().then(function(){
 			abideVal();
 			submit();
