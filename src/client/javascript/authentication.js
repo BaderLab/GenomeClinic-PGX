@@ -123,7 +123,7 @@ module.exports = function(location){
 				if (result.alert){
 					// display status redirect message
 					if (result.statusCode == '200'){
-						var message = result.message[0];
+						var message = result.message;
 						$('#error-display-box').removeClass('alert').addClass('success')
 						.find("#error-display-message").text(message + ". You will be redirected in 5 seconds")
 						.parents().find("#error-display-box").show();
@@ -140,7 +140,7 @@ module.exports = function(location){
 					}
 				//successful request, redirect to redirectURL
 				} else if (result.statusCode == "200"){
-					window.location.replace('/');
+					window.location.replace(result.redirectURL);
 				//unsuccessful request, open errror box
 				} else {
 					$('#password').val('');
@@ -154,10 +154,10 @@ module.exports = function(location){
 	};
 	//add handlers
 	var main = function(){
-		checkAuthAndRender().then(function(){
+		return checkAuthAndRender().then(function(){
 			abideVal();
 			submit();
 		});
 	};
-	main();
+	return main();
 };
