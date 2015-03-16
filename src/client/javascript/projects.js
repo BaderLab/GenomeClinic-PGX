@@ -226,7 +226,7 @@ module.exports = function(){
 				$("#new-user").addClass('error').siblings('small').text('That user already has authorization').show();
 			} else if (val !== ''){
 				//submit ajax requst to check to see if the username exists in the db
-				utility.existsInDB(userConstants.COLLECTION,userConstants.ID_FIELD,val)
+				utility.existsInDb(userConstants.COLLECTION,userConstants.ID_FIELD,val)
 				.then(function(result){
 					//user exists so add to Auth user table
 					if (result){
@@ -293,7 +293,7 @@ module.exports = function(){
 			if (val === ''){
 				$(this).addClass('error').siblings('small').text('Required Field').show();
 			} else {
-				utility.existsInDB(projectConstants.COLLECTION,projectConstants.ID_FIELD,val)
+				utility.existsInDb(projectConstants.COLLECTION,projectConstants.ID_FIELD,val)
 				.then(function(result){
 					if (result){
 						$(self).addClass('error').siblings('small').text('Project name already exists').show();
