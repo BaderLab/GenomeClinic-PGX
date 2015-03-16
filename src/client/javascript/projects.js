@@ -602,13 +602,13 @@ module.exports = function(){
 	};
 
 	var main = function(){
-		utility.getUserInfo().then(function(result){
+		return utility.getUserInfo().then(function(result){
 			user = result.user;
 		}).then(function(){
 			return loadhtml();
 		});
 	};
 
-	main();
+	return main();
 
 };

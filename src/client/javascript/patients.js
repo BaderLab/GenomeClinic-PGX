@@ -39,7 +39,7 @@ module.exports = function() {
 	};
 	/* Create a promise function to wrap our browse button tasks. */
 	var loadPatients= function() {
-		getPatients()
+		return getPatients()
 		.then(function(result){  // clear the current page
 			var context= result;
 			context.useFull = true;
@@ -54,11 +54,8 @@ module.exports = function() {
 	/* 
 	 * Set up a ready handler, a function to run when the DOM is ready
 	 */
-	var handler= function() {
-		loadPatients();
-	};
 
-	loadPatients();
+	return loadPatients();
 };
 
 

@@ -28,7 +28,6 @@ require("./lib/jquery.iframe-transport");
 require("./lib/jquery.fileupload");
 
 module.exports = function(){
-  console.log(utility);
   //======================================================================================================
   // HELPER FUNCTIONS
   //======================================================================================================
@@ -388,7 +387,7 @@ module.exports = function(){
   };
 
   //render main page html
-  templates.uploadpage.index()
+  return templates.uploadpage.index()
   .then(function(renderedHtml){
     $('#main').html(renderedHtml);
   }).then(function(){

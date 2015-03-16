@@ -8,6 +8,7 @@
 var $ = require("jquery"),
 	template = require('./templates').config,
 	aux = require('../conf/config.json'),
+	utility = require('./utility')
 	constants = require('../../server/conf/constants.json').dbConstants.ANNO;
 
 
@@ -57,16 +58,16 @@ module.exports = function() {
 		});
 
 		// Set the maximum number of records.
-		$("#webapp-max-records-slider").foundation("slider", "set_value", aux.MAX_RECORDS);
+		
 
 		// Attached a listener to max records slider and associated input field
 		var updateSlider= function(event) {
 			$("#webapp-max-records-slider").foundation("slider", "set_value", $(this).val());		
 		};
 		$("#webapp-max-records-slider-output")
-			.on("change", updateSlider)
-			.on("keyup", updateSlider);
-
+			.on("change", updateSlider);
+			//.on("keyup", updateSlider);
+		$("#webapp-max-records-slider").foundation("slider", "set_value", aux.MAX_RECORDS);
 		// Set default footer
 		$("#webapp-footer").val(aux.FOOTER);
 
@@ -77,6 +78,7 @@ module.exports = function() {
 		$("#webapp-config-form").on('invalid.fndtn.abide', function () {
 			// Invalid form input
 			var invalid_fields = $(this).find('[data-invalid]');
+			console.log(invalid_fields);
 		});
 		$("#webapp-config-form").on('valid.fndtn.abide', function () {
 			// Tell user we are submitting
@@ -118,9 +120,10 @@ module.exports = function() {
 				dataType: "json",
 				data: JSON.stringify(formInput)
 			}));
-			promise.then(function(result) {
+			return promise.then(function(result) {
 				window.location.replace("/");  //redirect to home page
 			}).catch(function(err){
+				console.log('there has been an error');
 				console.log(err);
 			});
 		});
@@ -130,13 +133,15 @@ module.exports = function() {
 		var options = {
 			'annotations':Object.keys(aux.ANNOVAR_ANNOTATIONS)
 		};
-		template(options).then(function(renderedHtml){
+		return template(options).then(function(renderedHtml){
 			$('#main').html(renderedHtml);
 		}).then(function(){
+			utility.refresh();
+		}).then(function(){
 			handler();
-		});
+		})
 	};
-	render();
+	return render();
 };
 
 

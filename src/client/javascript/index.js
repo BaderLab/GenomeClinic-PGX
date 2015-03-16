@@ -13,27 +13,27 @@ var projects = require('./projects'),
 	var location = window.location.pathname;
 	Promise.resolve().then(function(){
 		if (location == '/'){
-			templates.index({title:'PGX Webapp'}).then(function(renderedHtml){
+			return templates.index({title:'PGX Webapp'}).then(function(renderedHtml){
 				$('#main').html(renderedHtml);
 			});
 		} else if (['/login','/setpassword','/recover','/signup'].indexOf(location) != -1){
-			authentication(location);
+			return authentication(location);
 		} else if (location == '/upload'){
-			uploader();
+			return uploader();
 		} else if (location == '/projects'){
-			projects();
+			return projects();
 		} else if (location == '/browsepatients'){
-			patients();
+			return patients();
 		} else if (location == '/config'){
-			config();
+			return config();
 		} else if (location == '/panel'){
-			templates.construction().then(function(renderedHtml){
+			return templates.construction().then(function(renderedHtml){
 				$('#main').html(renderedHtml);
 			});
 		} else if (location == '/statuspage'){
-			status();
+			return status();
 		} else {
-			templates.notfound().then(function(renderedHtml){
+			return templates.notfound().then(function(renderedHtml){
 				$('#main').html(renderedHtml);
 			});
 		}

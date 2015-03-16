@@ -147,6 +147,6 @@ module.exports = function(){
 	//var main = function(){
 	//	checkStatusHtml();
 	//}
-	checkStatusHtml();
+	return checkStatusHtml();
 	
 };

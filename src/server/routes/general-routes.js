@@ -39,7 +39,7 @@ module.exports = function(app,dbFunctions){
 	//==================================================================
 	//config form
 	//==================================================================
-	app.post("/config", utils.isLoggedIn, function(req,res){
+	app.get("/config", utils.isLoggedIn, function(req,res){
 		var promise = new Promise.resolve(configured);
 		if (! configured) {
 			promise = dbFunctions.isConfigured();

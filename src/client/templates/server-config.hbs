@@ -2,13 +2,13 @@
         <div class="large-10 large-centered columns">
           <h1>Welcome!</h1>
           <h5 class="subheader">
-            We've built <i>Frangipani</i> to make genome interpretation easier for clinicians.
+            We've built this <i>PGX webapp</i> to make genome interpretation easier for clinicians.
           </h5>
         </div>
         <div class="large-10 large-centered columns">
           <h2>Let's get you set up</h2>
           <h5 class="subheader">
-            It's time to configure your Frangipani server. We've made some suggestions where possible
+            It's time to configure your web server. We've made some suggestions where possible
             if you're not sure what to enter.
           </h5>
         </div>
@@ -126,31 +126,30 @@
                     </div>
                   </div>
                 </div>
-              </div>
-              <div class="large-6 columns">
-                <div class="row">
-                  <div class="large-12 large-centered columns">
-                    <label>Annovar annotations</label>
-                      <table>
+                <div class="large-6 columns">
+                  <div class="row">
+                    <div class="large-12 large-centered columns">
+                      <label>Annovar annotations</label>
+                      <table class="large-12">
                         <tbody>
-                          {{#each annotations}}
-                            <tr>
-                              <td><p style="margin-bottom: 0px;">{{this}}</p></td>
-                              <td>
-                                <div class="switch small radius">
-                                  <input id="webapp-annovar-annotation-{{this}}" name="webapp-annovar-annotation-{{this}}" type="checkbox" value="{{this}}" checked>
-                                  <label for="webapp-annovar-annotation-{{this}}"></label>
-                                </div>
-                              </td>
-                            </tr>
-                          {{/each}}
+                        {{#each annotations}}
+                          <tr>
+                            <td class="large-10"><p style="margin-bottom: 0px;">{{this}}</p></td>
+                            <td class="large-2">
+                              <div class="switch small radius">
+                                <input id="webapp-annovar-annotation-{{this}}" name="webapp-annovar-annotation-{{this}}" type="checkbox" value="{{this}}" checked>
+                                <label for="webapp-annovar-annotation-{{this}}"></label>
+                              </div>
+                            </td>
+                          </tr>
+                        {{/each}}
                         </tbody>
                       </table>
                     </div>
                   </div>
+                </div>
               </div>
             </fieldset>
-
             <div class="row">
               <div class="large-7 column">
                 <div class="row collapse prefix-radius">
@@ -164,7 +163,7 @@
                 </div>
               </div>
               <div class="large-5 columns">
-                <div class="range-slider" id= "webapp-max-records-slider" data-slider data-options="start: 100; end: 2000; display_selector: #webapp-max-records-slider-output;" style="margin-top: 13px;">
+                <div class="range-slider" id="webapp-max-records-slider" data-slider data-options="start: 100; end: 2000; display_selector: #webapp-max-records-slider-output;" style="margin-top: 13px;">
                   <span class="range-slider-handle" role="slider" tabindex="0"></span>
                   <span class="range-slider-active-segment"></span>
                 </div>
