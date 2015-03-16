@@ -1,3 +1,11 @@
+/* Build webbapp from source-code and distribute to the proper
+ * folder structure. Additionally offer the ability to make a clean
+ * distribution and build by removing the current build directory
+ * and all of its contents
+ *
+ * @Patrick Magee
+*/
+
 var gulp = require('gulp'),
 	gutil = require('gulp-util'),
 	uglify = require('gulp-uglify'),
@@ -14,6 +22,8 @@ var gulp = require('gulp'),
 	sourcemap = require('gulp-sourcemaps'),
 	runSequence = require('run-sequence');
 
+
+/* all paths for use */
 var paths = {
 	client:{
 		browserify:{
@@ -83,8 +93,16 @@ var paths = {
 			src:'src/server/src/mongodb_functions.js',
 			dest:'build/models'
 		}
-	}
+	},
+	jshint:[
+		'src/server/**/*.js',
+		'src/client/javascript/*.js',
+		'src/client/config/*.json'
+	]
 };
+
+
+//Clean the build directory
 
 gulp.task('clean',function(){
 	return gulp.src(['build'])
@@ -128,6 +146,8 @@ gulp.task('client-vendor', ['client-modernizr'],function(){
 
 gulp.task('client-css',function(){
 	return gulp.src(paths.client.css.src)
+	.pipe( cssmin({'keepSpecialComments':0}) )
+	.pipe( concat('bundle.min.css') )
 	.pipe(gulp.dest(paths.client.css.dest));
 });
 
@@ -178,7 +198,7 @@ gulp.task('server',function(next){
 
 gulp.task('jshint',function(){
 	if (gutil.env.type !== 'production'){
-		return gulp.src("./src/**/*.js")
+		return gulp.src(paths.jshint)
 		.pipe(jshint())
 		.pipe(jshint.reporter(jshstylish));
 	}
