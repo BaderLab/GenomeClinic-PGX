@@ -65,8 +65,9 @@ To disable this behaviour and build a production quality server run the gulp com
 
 To clean the the build directory run:
 
-`node_modules/.bin/gulp clean`
+`sudo node_modules/.bin/gulp clean`
 
+the command has to be run in sudo if you have already run the server. This is because the log files require sudo permissions to remove.
 
 ## Running the server
 
@@ -78,7 +79,7 @@ Running the server is quite easy. There are several customizable options that yo
 
 If you possess an https certificate and would like to use only https routes, the server is set up so that you can easily configure it for this purpose. It will automatically redirect all incoming http traffic to a secure https connection. This behaviour is toggled with a single command, however it requires you provide it with a key and crt file as well.
 
-`node webapp.js -https -key path/to/key -crt path/to/crt`
+`node webapp.js --https --key path/to/key --crt path/to/crt`
 
 The server by default operates on ports 80 and 443 (for https traffic). You can modify this with the `--httpsport` and `--httpport` commands followed by the desired port number. We do not recommend you to use non standard ports, unless you must. For a complete list of options run
 
