@@ -20,7 +20,7 @@ module.exports = function() {
 	/* Update the Disclaimer using the current institution name. */
 	updateDisclaimer = function() {
 		aux.DISCLAIMER= aux.DISCLAIMER_PREFIX + aux.INSTITUTION + aux.DISCLAIMER_SUFFIX;
-		$("#fragipani-disclaimer").val(aux.DISCLAIMER);
+		$("#webapp-disclaimer").val(aux.DISCLAIMER);
 	};
 	/* Convert form into JSON.
 	 * Function adapted from http://stackoverflow.com/questions/1184624/convert-form-data-to-js-object-with-jquery */
@@ -50,37 +50,37 @@ module.exports = function() {
 
 		// Customize the disclaimer for the institute, using a default first
 		updateDisclaimer();
-		$("#frangipani-institution").attr("placeholder", "e.g. " + aux.INSTITUTION);
-		$("#frangipani-institution").on("change", function(event) {
+		$("#webapp-institution").attr("placeholder", "e.g. " + aux.INSTITUTION);
+		$("#webapp-institution").on("change", function(event) {
 			aux.INSTITUTION= $(this).val();
 			updateDisclaimer();
 		});
 
 		// Set the maximum number of records.
-		$("#frangipani-max-records-slider").foundation("slider", "set_value", aux.MAX_RECORDS);
+		$("#webapp-max-records-slider").foundation("slider", "set_value", aux.MAX_RECORDS);
 
 		// Attached a listener to max records slider and associated input field
 		var updateSlider= function(event) {
-			$("#frangipani-max-records-slider").foundation("slider", "set_value", $(this).val());		
+			$("#webapp-max-records-slider").foundation("slider", "set_value", $(this).val());		
 		};
-		$("#frangipani-max-records-slider-output")
+		$("#webapp-max-records-slider-output")
 			.on("change", updateSlider)
 			.on("keyup", updateSlider);
 
 		// Set default footer
-		$("#frangipani-footer").val(aux.FOOTER);
+		$("#webapp-footer").val(aux.FOOTER);
 
 
 		/* Create switches for each annovar annotation. */
 		/* Receive the submitted form data (Abide validation events are handled by
 		 * foundation ). */
-		$("#frangipani-config-form").on('invalid.fndtn.abide', function () {
+		$("#webapp-config-form").on('invalid.fndtn.abide', function () {
 			// Invalid form input
 			var invalid_fields = $(this).find('[data-invalid]');
 		});
-		$("#frangipani-config-form").on('valid.fndtn.abide', function () {
+		$("#webapp-config-form").on('valid.fndtn.abide', function () {
 			// Tell user we are submitting
-			$("#frangipani-config-form-button").text("Sending...");
+			$("#webapp-config-form-button").text("Sending...");
 
 			// Valid form input
 			var formInput= serializeObject($(this));
@@ -89,7 +89,7 @@ module.exports = function() {
 			var annovarAnnotationList= [];
 			var annovarUsageList = [];
 			var annovarIndexList = [];
-			var prefixPattern= /^frangipani\-annovar\-annotation\-/;
+			var prefixPattern= /^webapp\-annovar\-annotation\-/;
 			for (var key in formInput) {
 				// Important check that property is not from inherited prototype prop
 				if(formInput.hasOwnProperty(key) && prefixPattern.test(key)) {

@@ -40,20 +40,20 @@
   text-align:center;
 }
 
-#frangipani-title-description {
+#webapp-title-description {
   position: relative;
   padding-top: 20px;
   padding-bottom: 20px;
 }
 
-#frangipani-github-icon {
+#webapp-github-icon {
 	padding: 4px 15px;
 	line-height: 0px;
 }
 
 /* Adjust the button padding to match other "has-form" buttons. 
  * Use !important to override has-dropdown !important padding rules. */
-#frangipani-plus-icon {
+#webapp-plus-icon {
 	padding-left: 12px;
 	padding-right: 12px !important;
 	padding-top: 5px;
@@ -61,50 +61,50 @@
 }
 
 /* Remove the caret from the Foundation dropdown style */
-#frangipani-plus-icon::after {
+#webapp-plus-icon::after {
   display: none;
 }
 
 /* Adjust the button padding to match other "has-form" buttons. */
-#frangipani-status-page {
+#webapp-status-page {
   padding-left: 12px;
   padding-right: 12px;
   padding-top: 5px;
   padding-bottom: 5px;
 }
 
-#frangipani-search-field {
+#webapp-search-field {
 	border-top-left-radius: 3px;
 	border-bottom-left-radius: 3px;
 }
 
-#frangipani-search-button {
+#webapp-search-button {
 	border-top-right-radius: 3px;
 	border-bottom-right-radius: 3px;
 }
 
-#frangipani-submit-variant-request {
+#webapp-submit-variant-request {
   position: relative;
   float: left;
 }
 
-#frangipani-cancel-variant-request {
+#webapp-cancel-variant-request {
   position: relative;
   float: left;
 }
 
-#frangipani-app-main {
+#webapp-app-main {
   min-height: 130%;
   height: auto;
 }
 
-#frangipani-new-search {
+#webapp-new-search {
   display: none;
   position: relative;
   float: left;
 }
 
-#frangipani-patient-board {
+#webapp-patient-board {
   border: 2px solid #DFDFDF;
   padding: 10px 10px 10px;
   box-shadow: 0 0 5px #888;

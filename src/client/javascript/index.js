@@ -12,9 +12,8 @@ var projects = require('./projects'),
 (function(){
 	var location = window.location.pathname;
 	Promise.resolve().then(function(){
-		console.log(location);
 		if (location == '/'){
-			templates.index({title:'Frangipani'}).then(function(renderedHtml){
+			templates.index({title:'PGX Webapp'}).then(function(renderedHtml){
 				$('#main').html(renderedHtml);
 			});
 		} else if (['/login','/setpassword','/recover','/signup'].indexOf(location) != -1){

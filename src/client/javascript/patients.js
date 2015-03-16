@@ -31,8 +31,8 @@ module.exports = function() {
 	//add row event listener for loading pgx data
 	var addEventListeners = function(){
 		$("tr.patient-row").on("click", function() {
-			var selectedPatientID= $(this).children("[class~='frangipani-patient-id']").text();
-			var selectedPatientAlias= $(this).children("[class~='frangipani-patient-alias']").text();
+			var selectedPatientID= $(this).children("[class~='webapp-patient-id']").text();
+			var selectedPatientAlias= $(this).children("[class~='webapp-patient-alias']").text();
 			console.log(pgx);
 			pgx.loadPGx(selectedPatientID,selectedPatientID);
 		});

@@ -4,16 +4,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{title}}</title>
-    <link rel="stylesheet" href="css/foundation.min.css" />
+    <link rel="stylesheet" href="css/bundle.min.css" />
 
     <!-- Foundation vector graphic icon fonts -->
     <link rel="stylesheet" href="icons/foundation-icons/foundation-icons.css" />
 
     <!-- Font awesome vector graphic icons -->
     <link rel="stylesheet" href="icons/font-awesome-4.2.0/css/font-awesome.min.css" />
-
-    <!-- Custom style sheet -->
-    <link rel="stylesheet" href="css/app.css">
 
     <script type="text/javascript" src="js/vendor/modernizr.js"></script>
 
@@ -25,30 +22,30 @@
     <div class="sticky contain-to-grid">
       <nav class="top-bar" data-topbar role="navigation">
         <ul class="title-area">
-          <li class="name"><h1><a href="/">Frangipani</a></h1></li>
+          <li class="name"><h1><a href="/">{{title}}</a></h1></li>
         </ul>
         {{#if authenticated}}
           <section class="top-bar-section">
             <!-- Right Nav Section -->
             <ul class="right show-for-medium-up">
               <li class="has-dropdown">
-                <a href="#" class="button radius alert" id="frangipani-plus-icon"><i class="fi-plus size-16"></i></a>
+                <a href="#" class="button radius alert" id="webapp-plus-icon"><i class="fi-plus size-16"></i></a>
                 <ul class="dropdown">
-                  <li><a href="/upload" id="frangipani-add-new-patient"><i class="fi-torso size-24"></i>&nbsp&nbsp&nbsp Add Patient</a></li>
-                  <li><a href="/projects" id="frangipani-add-new-project"><i class="fi-page-multiple size-24"></i>&nbsp&nbsp&nbsp My Projects</a></li>
-                  <li><a href="/construction" id="frangipani-add-new-panel"><i class="fa fa-stethoscope fa-2x"></i>&nbsp&nbsp&nbsp Gene Panel</a></li>
+                  <li><a href="/upload" id="webapp-add-new-patient"><i class="fi-torso size-24"></i>&nbsp&nbsp&nbsp Add Patient</a></li>
+                  <li><a href="/projects" id="webapp-add-new-project"><i class="fi-page-multiple size-24"></i>&nbsp&nbsp&nbsp My Projects</a></li>
+                  <li><a href="/construction" id="webapp-add-new-panel"><i class="fa fa-stethoscope fa-2x"></i>&nbsp&nbsp&nbsp Gene Panel</a></li>
                 </ul>
               </li>
               <li class="has-form">
-                <span data-tooltip data-options="show_on:large" aria-haspopup="true" class="has-tip tip-bottom radius" title="Check annotation status"><a href='/statuspage' class="button radius alert" id='frangipani-status-page'><i class='fi-annotate size-16'></i></a></span>
+                <span data-tooltip data-options="show_on:large" aria-haspopup="true" class="has-tip tip-bottom radius" title="Check annotation status"><a href='/statuspage' class="button radius alert" id='webapp-status-page'><i class='fi-annotate size-16'></i></a></span>
               </li>
               <li class="has-form">
-                <a href="/browsepatients" class="button radius alert" id="frangipani-browse-button">Browse</a>
+                <a href="/browsepatients" class="button radius alert" id="webapp-browse-button">Browse</a>
               </li>
               <li class="divider hide-for-small">
               </li>
               <li class="has-dropdown">
-                <a href="#" id="frangipani-user-icon"><i class="fi-torso size-14"></i>&nbsp&nbsp{{user}}</a>
+                <a href="#" id="webapp-user-icon"><i class="fi-torso size-14"></i>&nbsp&nbsp{{user}}</a>
                 <ul class="dropdown">
                   <li><label>Account Actions</li></label>
                   <li><a href="/setpassword"><i class="fi-lock size-16"></i>&nbsp&nbsp Change Password</a></li>
@@ -61,10 +58,10 @@
                 <a href="#" class="button radius alert"><i class="fi-list size-16"></i></a>
                 <ul class="dropdown">
                   <li><label>Navigation</label></li>
-                  <li><a href="/upload" id="frangipani-add-new-patient">Add Patient</a></li>
-                  <li><a href="/projects" id="frangipani-add-new-project">My Projects</a></li>
-                  <li><a href="/panel" id="frangipani-add-new-panel">Gene Panel</a></li>
-                  <li><a href="/browsepatients" id="frangipani-browse-button">Browse</a></li>
+                  <li><a href="/upload" id="webapp-add-new-patient">Add Patient</a></li>
+                  <li><a href="/projects" id="webapp-add-new-project">My Projects</a></li>
+                  <li><a href="/panel" id="webapp-add-new-panel">Gene Panel</a></li>
+                  <li><a href="/browsepatients" id="webapp-browse-button">Browse</a></li>
                   <li class="divider"></li>
                   <li><label>Account Actions</li>
                   <li><label>{{user}}</li>

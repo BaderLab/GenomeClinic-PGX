@@ -46,7 +46,7 @@ module.exports = function(){
 				})).then(function(result){
 					patientArray = result;
 					patientNameArray = patientArray.map(function(item){return item.patient_id;});
-					var currentRows =  $('#frangipani-status-row').children();
+					var currentRows =  $('#webapp-status-row').children();
 					var currentRowNames = currentRows.map(function(){
 						return $(this).data('id').toString();
 					}).toArray();
@@ -76,13 +76,13 @@ module.exports = function(){
 						}	
 						if (toAdd.length > 0){
 							return templates.statuspage.row({patients:toAdd}).then(function(renderedHtml){
-								$('#frangipani-status-row').prepend(renderedHtml);
+								$('#webapp-status-row').prepend(renderedHtml);
 							});
 						}
 					}
 				}).then(function(){
 					//listen for any changes made to the status of each item
-					var currentRows = $("#frangipani-status-row").children();
+					var currentRows = $("#webapp-status-row").children();
 					for (var i=0;i<patientArray.length;i++){
 						if (patientArray[i].ready){
 							if(!$(currentRows[i]).find('i').hasClass('fi-check'))

@@ -18,7 +18,7 @@
       <div class="row">
         <div class="large-10 large-centered columns">
 
-          <form data-abide="ajax" id="frangipani-config-form">
+          <form data-abide="ajax" id="webapp-config-form">
 
             <div class="row">
               <div class="large-12 large-centered columns">
@@ -27,7 +27,7 @@
                     <span class="prefix">Your Institution's Name</span>
                   </div>
                   <div class="large-9 columns">
-                      <input type="text" id="frangipani-institution" name="institution" required/>
+                      <input type="text" id="webapp-institution" name="institution" required/>
                       <small class="error">Institution name required.</small>
                   </div>
                 </div>
@@ -60,14 +60,14 @@
                       <span class="prefix">Annovar path</span> 
                     </div>
                     <div class="large-9 columns">
-                      <input type="text" placeholder="e.g. /home/frangipani_server_user/annovar/" name="annovar-path" required />
+                      <input type="text" placeholder="e.g. /home/webapp_server_user/annovar/" name="annovar-path" required />
                       <small class="error">An Annovar path is required.</small>
                     </div>
                   </div>
                 </div>
               </div>
               
-              <div class="row" id="frangipani-annovar-options">
+              <div class="row" id="webapp-annovar-options">
                 <div class="large-6 columns">
                   <div class="row">
                     <div class="large-6 large-centered columns">
@@ -138,8 +138,8 @@
                               <td><p style="margin-bottom: 0px;">{{this}}</p></td>
                               <td>
                                 <div class="switch small radius">
-                                  <input id="frangipani-annovar-annotation-{{this}}" name="frangipani-annovar-annotation-{{this}}" type="checkbox" value="{{this}}" checked>
-                                  <label for="frangipani-annovar-annotation-{{this}}"></label>
+                                  <input id="webapp-annovar-annotation-{{this}}" name="webapp-annovar-annotation-{{this}}" type="checkbox" value="{{this}}" checked>
+                                  <label for="webapp-annovar-annotation-{{this}}"></label>
                                 </div>
                               </td>
                             </tr>
@@ -158,13 +158,13 @@
                     <span class="prefix">Maximum number of variants to output for any query</span>
                   </div>
                   <div class="large-2 columns">
-                    <input type="text" id="frangipani-max-records-slider-output" name="max-query-records" style="font-weight: bold; text-align: center;" pattern="[0-9]+" required></span>
+                    <input type="text" id="webapp-max-records-slider-output" name="max-query-records" style="font-weight: bold; text-align: center;" pattern="[0-9]+" required></span>
                     <small class="error">Please enter a number.</small>
                   </div>
                 </div>
               </div>
               <div class="large-5 columns">
-                <div class="range-slider" id= "frangipani-max-records-slider" data-slider data-options="start: 100; end: 2000; display_selector: #frangipani-max-records-slider-output;" style="margin-top: 13px;">
+                <div class="range-slider" id= "webapp-max-records-slider" data-slider data-options="start: 100; end: 2000; display_selector: #webapp-max-records-slider-output;" style="margin-top: 13px;">
                   <span class="range-slider-handle" role="slider" tabindex="0"></span>
                   <span class="range-slider-active-segment"></span>
                 </div>
@@ -178,7 +178,7 @@
                     <span class="prefix">Default footer for reports</span>
                   </div>
                   <div class="large-9 columns">
-                    <input type="text" id="frangipani-footer" name="report-footer" />
+                    <input type="text" id="webapp-footer" name="report-footer" />
                   </div>
                 </div>
               </div>
@@ -191,7 +191,7 @@
                     <span class="prefix">Default disclaimer for reports</span>
                   </div>
                   <div class="large-9 columns">
-                    <textarea rows=11 id="frangipani-disclaimer" name="disclaimer"></textarea>
+                    <textarea rows=11 id="webapp-disclaimer" name="disclaimer"></textarea>
                   </div>
                 </div>
               </div>
@@ -200,7 +200,7 @@
             <div class="row">
               <div class="large-6 columns"></div>
               <div class="large-4 columns">
-                <button id="frangipani-config-form-button" class="button large round alert" type="submit"><i class="fa fa-hand-o-right"></i>&nbsp;Get started!</button>
+                <button id="webapp-config-form-button" class="button large round alert" type="submit"><i class="fa fa-hand-o-right"></i>&nbsp;Get started!</button>
               </div>
             </div>
 

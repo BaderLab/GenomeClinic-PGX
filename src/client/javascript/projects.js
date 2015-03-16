@@ -262,7 +262,7 @@ module.exports = function(){
 	};
 	/* New Project Handlers
 	 * add all the page handlers for facilitating the addition of a new project
-	 * to the database. This is a rendered page from frangipani-projects.hbs'.
+	 * to the database. This is a rendered page from webapp-projects.hbs'.
 	 */ 
 	var addNewProjectHandlers = function(){
 		//generic handlers
@@ -541,7 +541,7 @@ module.exports = function(){
 		});
 
 		$('.project-row').on('click',function(){
-			project = $(this).find('.frangipani-project-name').text();
+			project = $(this).find('.webapp-project-name').text();
 			renderProjectInfo(project);
 		});
 	};
