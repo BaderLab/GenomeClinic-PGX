@@ -75,6 +75,8 @@ Running the server is quite easy. There are several customizable options that yo
 
 `node webapp.js`
 
+Depending on what ports you are running the server on you may have to run the command as sudo. The default ports (443 for https and 80) are closed by default on a unix based system.
+
 ## Running the server with https
 
 If you possess an https certificate and would like to use only https routes, the server is set up so that you can easily configure it for this purpose. It will automatically redirect all incoming http traffic to a secure https connection. This behaviour is toggled with a single command, however it requires you provide it with a key and crt file as well.
