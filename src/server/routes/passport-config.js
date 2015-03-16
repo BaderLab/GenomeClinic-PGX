@@ -76,7 +76,11 @@ module.exports = function(passport,dbFunctions,opts){
 	));
 
 	if (opts.oauth){
-		var api = require('../lib/api');
+		var api = require('../lib/conf/api');
+		if (!api.googleAuth.clientID){
+			console.log("--oauth option passed however Oauth is not set up! please setup the lib/conf/api.js googleOAUTH and then try again");
+			process.exit(1);
+		}
 		passport.use(new GoogleStrategy({
 			clientID: api.googleAuth.clientID,
 			clientSecret: api.googleAuth.clientSecret,

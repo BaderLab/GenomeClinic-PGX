@@ -84,6 +84,7 @@ var paths = {
 		},
 		conf:{
 			src:[
+				'src/server/conf/api.js',
 				'src/server/conf/constants.json',
 				'src/server/conf/pgx_haplotypes.json'
 			],
