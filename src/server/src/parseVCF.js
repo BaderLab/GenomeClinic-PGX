@@ -134,7 +134,6 @@ parseVCF.prototype.readAndParse = function(chunk){
 			}  else {
 				self.oldString = splitString.pop();
 			}
-			self.logMessage("processing " + splitString.length + " variants");
 			return splitString;
 		}).then(function(stringArray){
 			if (stringArray.length > 0 )

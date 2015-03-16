@@ -9,7 +9,7 @@ module.exports = {
 		var _o = {
 			title:'PGX webapp',
 			cache:true
-		}
+		};
 		if (req.isAuthenticated()){
 			_o.authenticated = true;
 			_o.user = req.user.username;

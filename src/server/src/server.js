@@ -127,7 +127,7 @@ for (var i=0; i < prerequisiteDirectories.length; i++ ){
 	} catch (err) {
 		try {
 			fs.mkdirSync(prerequisiteDirectories[i]);
-		} catch (err){ 
+		} catch (err2){ 
 		}
 	}
 }

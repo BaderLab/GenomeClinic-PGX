@@ -18,7 +18,7 @@ var dbConstants = constants.dbConstants,
 
 function queue(logger,dbFunctions){
 	this.logger = (logger || require('./logger')('node'));
-	this.dbFunctions = (dbFunctions || require('../models/mongodb_functions'))
+	this.dbFunctions = (dbFunctions || require('../models/mongodb_functions'));
 }
 
 //=======================================================================================

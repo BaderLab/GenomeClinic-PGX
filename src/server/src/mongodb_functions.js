@@ -43,12 +43,13 @@ var dbFunctions = function(logger,DEBUG){
 		dbURL= "mongodb://" + dbConstants.DB.HOST + ":" + dbConstants.DB.PORT + "/" + dbConstants.DB.NAME;
 
 		var promise= new Promise(function(resolve, reject) {
-			MongoClient.connect(dbURL, function(err, db) {
+			MongoClient.connect(dbURL, function(err, DB) {
 				if (err) {
 					reject(err);
 				}
-				logInfo("connected to " + dbURL);
-				resolve(db);
+				logInfo("connected to " + DB);
+				db = DB;
+				resolve(DB);
 			});
 		});
 		return promise;
@@ -70,7 +71,7 @@ var dbFunctions = function(logger,DEBUG){
 
 			// Create a patient collection and index by unique identifiers.
 			// Do the same for panel collections.
-			self.insert(dbConstants.DB.DMIN_COLLECTION, currentDocument)
+			self.insert(dbConstants.DB.ADMIN_COLLECTION, currentDocument)
 				.then(function(result) {
 					// Patient IDs are unique.
 					currentDocument= {};
@@ -80,7 +81,7 @@ var dbFunctions = function(logger,DEBUG){
 				.then(function(result){
 					// Patient Collection IDs are also unique
 					currentDocument= {};
-					currentDocument[dbConstants.PATIENTS.COLLECTION_ID_]= -1;  // index in descending order
+					currentDocument[dbConstants.PATIENTS.COLLECTION_ID]= -1;  // index in descending order
 					return self.createIndex(dbConstants.PATIENTS.COLLECTION, currentDocument, {unique: true});
 				})
 				.then(function(result){
@@ -196,7 +197,6 @@ var dbFunctions = function(logger,DEBUG){
 		var promise= new Promise(function(resolve, reject) {
 			// Connect to MongoDB
 			connect().then(function(result) {
-				db= result;
 				if (!silent)
 					logInfo("Connected to MongoDB at " + dbURL);
 
@@ -266,7 +266,6 @@ var dbFunctions = function(logger,DEBUG){
 	 * Returns a promise. */
 	this.insert= function(collectionName, doc) {
 		assert.notStrictEqual(db, undefined); // ensure we're connected first
-
 		// validate input
 		assert(Object.prototype.toString.call(collectionName) == "[object String]",
 			"Invalid collection");
@@ -647,7 +646,7 @@ var dbFunctions = function(logger,DEBUG){
 					return self.insert(dbConstants.PATIENTS.COLLECTION, currentDocument);
 				}).then(function(result) {
 					// Increment patient collection ID only after insert is done
-					var currentDocument= {};
+					currentDocument= {};
 					currentDocument[dbConstants.PATIENTS.CURRENT_INDEX_FIELD]= 1;  // increment by 1
 					return self.update(dbConstants.DB.ADMIN_COLLECTION, {}, {$inc: currentDocument});
 				}).then(function(result) {

@@ -3,7 +3,7 @@
 		"DB":{
 			"HOST": "localhost",
 			"PORT": 27017,
-			"NAME": "frangipaniDB",
+			"NAME": "webappDB",
 			"ADMIN_COLLECTION": "admin",
 			"SYSTEM_NAMESPACES": "system.namespaces",
 			"SERVER_CONFIGURED_FIELD": "config",
