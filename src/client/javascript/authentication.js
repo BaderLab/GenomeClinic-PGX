@@ -53,16 +53,24 @@ module.exports = function(location){
 		})).then(function(result){
 			var opts = {};
 			if (location == '/signup'){
-				opts.login = true;
-				opts.recover = true;
-				t = templates.signup;
+				if (result.signup){
+					opts.login = result.login;
+					opts.recover = result.recover;
+					t = templates.signup;
+				} else {
+					t = templates.notfound;
+				}
 			} else if (location =='/recover') {
-				opts.login = true;
-				opts.signup = true;
-				t = templates.recover;
+				if (result.recover){
+					opts.login = result.login;
+					opts.signup = result.signup;
+					t = templates.recover;
+				} else {
+					t = templates.notfound;
+				}
 			} else if (location == '/login'){
-				opts.signup = true;
-				opts.recover = true;
+				opts.signup = result.signup;
+				opts.recover = result.recover;
 				t = templates.login;
 			} else if (location == '/setpassword'){
 				t = templates.setpassword;
