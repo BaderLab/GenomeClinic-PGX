@@ -72,6 +72,7 @@ AnnovarError.prototype.constructor = AnnovarError;
  */
 
 function annotateAndAddVariants(options){
+	var annodbString,annovarPath,dbusageString,annovarIndex,buildver;
 	var logMessage = function(message,err,obj){
 		if (message){
 			var text = "FILE: " + options.input + "\n " + message;
@@ -163,7 +164,7 @@ function annotateAndAddVariants(options){
 			var args = [tempOutputFile,JSON.stringify(options.patients)];
 			var promise = new Promise(function(resolve, reject){
 				var returnValue;
-				var filePath = path.resolve('./parseVCF');
+				var filePath = __dirname + '/parseVCF';
 				var ps = child_process.fork(filePath,args,{silent:true});
 
 				ps.on('error',function(err){
@@ -174,8 +175,9 @@ function annotateAndAddVariants(options){
 				//retrieve the json array printed to stdout from ther ParseVCF
 
 				ps.stderr.on('data',function(data){
+					console.log(data.toString('utf-8'));
 					logMessage(null,"ERR: " + data.toString('utf-8'));
-					reject(err);
+					reject(data.toString('utf-8'));
 					
 				});
 				ps.on('exit',function(code){
@@ -256,7 +258,7 @@ function annotateAndAddVariants(options){
 			});
 			var query = {};
 			query[dbConstants.PATIENTS.ID_FIELD] = {$in:patient_list};
-			var documents = {$set:[]};
+			var documents = {$set:{}};
 			documents.$set[dbConstants.PATIENTS.ANNO_COMPLETE] = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 			documents.$set[dbConstants.PATIENTS.READY_FOR_USE] = true;
 			var insOptions = {multi:true};
