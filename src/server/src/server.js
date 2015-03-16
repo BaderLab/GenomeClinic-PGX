@@ -1,7 +1,8 @@
 /*
- * Frangipani genome annotation server that connects to genome storage servers
+ * Webapp server for clinical pharmacogenomics analyis and variant visualization
  * 
- * @author Ron Ammar, Patrick Magee
+ * @author Ron Ammar
+ * @Patrick Magee
  */
 var express= require("express"),
 	Promise= require("bluebird"),
@@ -95,18 +96,21 @@ var opts= require("nomnom")
 		help:'Set development environment to true and use localhost ports'
 	})
 	.option('crt',{
+		abbr:'c',
+		full:'crt',
 		help:'Path to the crt file for https usage. Required if -https is used',
 		default:undefined
 	})
 	.option('key',{
+		abbr:'k',
+		full:'key',
 		help:'Pass in the key file for https usage. Required if -https is used',
 		default:undefined
 	})
 	.parse();
 opts.signup =  !opts.nosignup;
 opts.recover = !opts.norecover;
-
-if (opts.https && (!opts.crt || opts.key)){
+if (opts.https && (! opts.crt || !opts.key)){
 	console.log("--https opton provided, please provide a crt file and a key file");
 	process.exit(1);
 } else if (!opts.password && opts.gmail || opts.password && !opts.gmail){
