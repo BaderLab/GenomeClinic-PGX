@@ -170,11 +170,9 @@ if (opts.https){
 			next();
 		} else {
 			// request was via http, so redirect to https
-			if (!opts.development)
-				res.redirect('https://' + req.headers.host + req.url); //
-			else
-				res.redirect('https://' + req.headers.host + ':' + opts.httpsPortNumber + req.url);
-
+			req.headers.host = req.headers.host.replace(/:.+/,"");
+			var url = "https://" + req.headers.host + (opts.httpsPortNumber == 443 ? "":":" + opts.httpsPortNumber.toString()) + req.url;	
+			res.redirect(url); //
 		}
 	});
 }
