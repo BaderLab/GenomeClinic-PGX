@@ -117,15 +117,16 @@ module.exports = function(){
     });
 
     /* The Patient_id tag must be unique both within the form and within the currently existing 
-     * base. This handler listens for keyup events. it then checks two things, according to an internal
-     * hierarchy. first it submits an ajax request to the server asking for the names of all patients
-     * it then compares the current field to all the entires in the list, flagging an error if one is found
-     * additionally it is actively aware of all the entries on a page. And will flag an error when you type
-     * an id that is already present on the page
+     * base. This handler listens for keyup events. It first will remove any invalid characters from the patient
+     * name field so there are no erros when converting it to strings later on. it then checks two things, according to an internal
+     * hierarchy. first it submits an ajax request to the server checking to see if the current name is in the db
+     * flagging an error if one is found additionally it is actively aware of all the entries on a page. And 
+     * will flag an error when you type an id that is already present on the page
      */
     $('.patient_id').on("keyup",function(){
       var self = $(this);
       var promise;
+      $(this).val($(this).val().toString().replace(/[^A-Za-z1-9\-_\/\\\.\s]/g,""));
       var keyValue = self.val().toString(); //current key value
       var patientIdFields = $('.patient_id').toArray(); //get ALL patientID fields
       var valueCounts = {};
