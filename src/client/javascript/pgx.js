@@ -12,7 +12,6 @@ var $ = require("jquery"),
 var pgx =  {
 	//dumo for pgx data
 	globalPGXData: {},
-	templateData:undefined,
 	// Original colour of the haplotype variant table collapse button
 	originalCollapseButtonColor: "rgb(0, 123, 164)",
 	/*
