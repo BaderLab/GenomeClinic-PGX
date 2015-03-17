@@ -33,7 +33,6 @@ module.exports = function() {
 		$("tr.patient-row").on("click", function() {
 			var selectedPatientID= $(this).children("[class~='webapp-patient-id']").text();
 			var selectedPatientAlias= $(this).children("[class~='webapp-patient-alias']").text();
-			console.log(pgx);
 			pgx.loadPGx(selectedPatientID,selectedPatientID);
 		});
 	};

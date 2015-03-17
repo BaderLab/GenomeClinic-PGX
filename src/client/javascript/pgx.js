@@ -642,7 +642,6 @@ var pgx =  {
 			}
 			out.push(o);
 		}
-		console.log(out);
 		return out;
 	},
 
