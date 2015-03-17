@@ -57,7 +57,7 @@ module.exports = function(location){
 					opts.login = result.login;
 					opts.recover = result.recover;
 					t = templates.signup;
-				} else {
+				} else {	
 					t = templates.notfound;
 				}
 			} else if (location =='/recover') {
