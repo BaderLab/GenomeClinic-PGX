@@ -8,11 +8,11 @@ var $ = require("jquery"),
 	utility = require('./utility'),
 	Handlebars = require('hbsfy/runtime');
 
-
 ///// main object to be returned
 var pgx =  {
 	//dumo for pgx data
 	globalPGXData: {},
+	templateData:undefined,
 	// Original colour of the haplotype variant table collapse button
 	originalCollapseButtonColor: "rgb(0, 123, 164)",
 	/*
@@ -413,7 +413,9 @@ var pgx =  {
 		// NOTE: rendering the handlebars template triggers the handlebars block
 		// helpers, which dynamically render the HTML.
 		self.generatePgxResults(selectedPatientID,selectedPatientAlias)
-		.then(function(result){
+		.then(function(){
+			return self.convertTotemplateData();
+		}).then(function(result){
 			return templates.pgx(result);
 		}).then(function(html) {
 			$('#main').html(html);
@@ -510,180 +512,150 @@ var pgx =  {
 				$(".haplotype-expand-div").slideDown();
 			}
 		});
-	}
-};
+	},
 
-/* Handlebars block helper to output PGx known haplotype genotypes.
- * This helper is going to be a little messy, but this particular task is a bit
- * complicated and I don't think can be acheived within the template itself. */
-Handlebars.registerHelper("listPossibleHaplotypes", function(context, options) {
-	var renderedHtml= "<em style='color: red;'>No haplotypes identified</em>";
-	var currentGene= context;
+	//Yes I know this is wasteful, However I really dont want to break any of the previous code
+	convertTotemplateData:function(){
+		var self = this;
+		var promise = new Promise(function(resolve,reject){
+			var templateData = {pgxGenes : []};
+			templateData.disclaimer = self.globalPGXData.disclaimer;
+			templateData.patientID = self.globalPGXData.patientID;
+			templateData.patientAlias = self.globalPGXData.patientAlias;
+			var _o;
+			for (var gene in self.globalPGXData.pgxGenes){
+				_o = {};
+				_o.gene = gene;
+				_o.heads = self.markerHeads(gene);
+				_o.possibleHaplotypes = self.listPossibleHaplotypes(gene);
+				_o.patientHaplotypes = self.listPatientHaplotypes(gene);
+				_o.haplotypes = self.listHaplotypes(gene);
+				templateData.pgxGenes.push(_o);
+			}
+			resolve(templateData);
+		});
+		return promise;
+	},
 
-	// Iterate through all haplotype names and add them
-	var possibleHaplotypeKeys= [];
-	var possibleHaplotypeStrings= [];
-
-	if (pgx.globalPGXData.possibleHaplotypesStringRep[currentGene] !== undefined) {
-		possibleHaplotypeKeys= Object.keys(pgx.globalPGXData.possibleHaplotypesStringRep[currentGene]);
-	}
-
-	for (var i= 0; i < possibleHaplotypeKeys.length; ++i) {
-		var currentHaplotypeStrings= 
-			pgx.globalPGXData.possibleHaplotypesStringRep[currentGene][possibleHaplotypeKeys[i]].closestMatch;
-		possibleHaplotypeStrings= possibleHaplotypeStrings.concat(currentHaplotypeStrings);
-	}
-
-	// Generate rendered html
-	if (possibleHaplotypeStrings.length > 0) {
-		renderedHtml= "<em>" + possibleHaplotypeStrings.toString() + "</em>";
-	}
-
-	return renderedHtml;
-});
-
-
-/* Handlebars block helper to output all PGx markers for this gene. */
-Handlebars.registerHelper('markerHeader', function(context, options) {
-	var renderedHtml= "";
-	var currentGene= context;
-
-	// Match dbSNP rs IDs and capture the number
-	var rsPattern= /rs(\d+)/;
-
-	var currentGeneMarkers= pgx.globalPGXData.geneMarkers[currentGene];
-	for (var i= 0; i < currentGeneMarkers.length; ++i) {
-		var rsMatch= rsPattern.exec(currentGeneMarkers[i]);
-		if (rsMatch !== null) {
-			var url= "http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=" + rsMatch[1];
-			renderedHtml += "<th><a target='_blank' href='" + url + "'>" + currentGeneMarkers[i] + "</a></th>";
-		} else {
-			renderedHtml += "<th>" + currentGeneMarkers[i] + "</th>";
-		}
-	}
-
-	return renderedHtml;
-});
-
-
-/* Handlebars block helper to output PGx known haplotype genotypes.
- * This helper is going to be a little messy, but this particular task is a bit
- * complicated and I don't think can be acheived within the template itself. */
-Handlebars.registerHelper('haplotypeMarkers', function(context, options) {
-	var renderedHtml= "";
-	var currentGene= options.data._parent.key;
-	var currentHaplotype= context;
-
-	var currentGeneMarkers= pgx.globalPGXData.geneMarkers[currentGene];
-
-	for (var i= 0; i < currentGeneMarkers.length; ++i) {
-		var m= currentGeneMarkers[i];
-
-		// Convert Alt genotypes to uppercase (Alts are in array, unlike Ref)
-		var uppercaseAlts= [];
-		for (var j= 0; j < pgx.globalPGXData.pgxCoordinates[m].alt.length; ++j) {
-			uppercaseAlts.push(pgx.globalPGXData.pgxCoordinates[m].alt[j].toUpperCase());
-		}
-
-		var haplotypeMarkers= pgx.globalPGXData.pgxGenes[currentGene][currentHaplotype];
-		if (haplotypeMarkers.indexOf(m) !== -1) {  // haplotype is defined by this marker
-			renderedHtml += "<td class='variant-alt'>" + 
-				uppercaseAlts.toString() + "</td>"; // alt is an array
-		} else {
-			renderedHtml += "<td>" + pgx.globalPGXData.pgxCoordinates[m].ref.toUpperCase() + "</td>";
-		}
-	}
-
-	return renderedHtml;
-});
-
-
-/* Handlebars block helper to output PGx patient haplotype genotypes.
- * This helper is going to be a little messy, but this particular task is a bit
- * complicated and I don't think can be acheived within the template itself. */
-Handlebars.registerHelper('patientGenotypes', function(options) {
-	var renderedHtml= "";
-	var currentGene= options.data.key;
-
-	// If there are no haplotypes recorded for this individual, skip
-	if (pgx.globalPGXData.possibleHaplotypesStringRep[currentGene] === undefined) {
-		return;
-	}
-
-	// Iterate over all patient possible haplotypes
-	var markerByID= pgx.globalPGXData.markerByID;
-	var patientHaplotypes= Object.keys(pgx.globalPGXData.possibleHaplotypesStringRep[currentGene]);
-	for (var i= 0; i < patientHaplotypes.length; ++i) {
-		var haplotypeName= patientHaplotypes[i];
-
-		// Output the haplotype name and haplotype matches. If a the minimum
-		// distance to the nearest reference haplotype == 0, it's a match.
-		// Otherwise, we will consider it "similar to".
-		var similarString= "";
-		if (pgx.globalPGXData.possibleHaplotypesStringRep[currentGene][haplotypeName].minDistance > 0) {
-			similarString= "similar to ";
-		}
-		var hapNameAndMatches= haplotypeName + " (" + similarString +
-			pgx.globalPGXData.possibleHaplotypesStringRep[currentGene][haplotypeName].closestMatch
-			.toString() + ")";
-
-		renderedHtml += "<tr class='patient-genotype-row'><td><em>" + hapNameAndMatches + "<em></td>";
-	
-		var currentGeneMarkers= pgx.globalPGXData.geneMarkers[currentGene];
-		for (var j= 0; j < currentGeneMarkers.length; ++j) {
-			var m= currentGeneMarkers[j];
-
-			// if this marker isn't missing, check if patient is ref or alt
-			if (!markerByID[m]) {  // missing
-				renderedHtml += "<td class='variant-alt'>missing</td>";
-			} else if (pgx.globalPGXData.possibleHaplotypesStringRep[currentGene][haplotypeName].haplotype.indexOf(m) !== -1) {  // alt
-
-				var altGenotype= markerByID[m].alt;
-
-				if (Object.prototype.toString.call(altGenotype) == "[object String]") {
-					renderedHtml += "<td class='variant-alt'>" + altGenotype.toUpperCase() + "</td>";
-				} else if (Object.prototype.toString.call(altGenotype) == "[object Array]") {
-				/* How to process GT alts into haplotypes:
-				 * NOTE: at this point, haplotypes have already been phased by
-				 * generateAllHaplotypes().
-				 * 1) If only one GT index > 0 (eg. 0/1, 1|0, 2/0) use the
-				 * index that is > 0.
-				 * 2) If there are 2 GT indexes > 0 (eg. 1/2, 2|1) output both
-				 * the corresponding genotypes.
-				 * 3) If the genotypes are phased, we run into a complication
-				 * for GT's like "2|1" because this appears as a heterozygous
-				 * call, even though the call is effectively homozygous for the
-				 * marker (using two different alt alleles). So in this case,
-				 * we ignore the phased status and output both alleles. It's
-				 * also hard to incorporate these phased exceptions if some
-				 * markers of this gene are unphased. Outputting both alts is
-				 * acceptable:
-				 * ex.	Ref= "A", Alt= "G,C,T", GT= 2|1
-				 * 		we output, "G,C"
-				 */
-					var indexes= [];
-					var gtArray= markerByID[m].gt;
-					for (var k= 0; k < gtArray.length; ++k) {
-						if (gtArray[k] > 0) {
-							indexes.push(gtArray[k]);
-						}
+	listHaplotypes:function(gene){
+		var m, uppercaseAlts,o,_v;
+		var out = [];
+		var currentHaplotype;
+		var haplotypes = this.globalPGXData.pgxGenes[gene];
+		var m = this.globalPGXData.geneMarkers[gene];
+		for (var hap in haplotypes){
+			o = {};
+			o.name = hap;
+			o.variants = [];
+			if (haplotypes.hasOwnProperty(hap)){
+				for (var i = 0; i < m.length; i++){
+					_v = {};
+					//If there are alt alleles present, and the current haplotype has the current marker
+					if (this.globalPGXData.pgxCoordinates[m[i]].alt.length > 0 && haplotypes[hap].indexOf(m[i]) !== -1 ){
+						_v.class="alt";
+						_v.variant=this.globalPGXData.pgxCoordinates[m[i]].alt.toString().toUpperCase();
+					} else {
+						_v.class="ref";
+						_v.variant=this.globalPGXData.pgxCoordinates[m[i]].ref.toString().toUpperCase();
 					}
-					var possibleAltGenotypes= [];
-					for (var k= 0; k < indexes.length; ++k) {
-						// subtract 1 from index because 0 == ref and we're starting from alt #1
-						possibleAltGenotypes.push(altGenotype[indexes[k] - 1]);
-					}
-
-					renderedHtml += "<td class='variant-alt'>" + possibleAltGenotypes.toString().toUpperCase() + "</td>";
+					o.variants.push(_v);
 				}
-			} else {  // ref
-				renderedHtml += "<td>" + markerByID[m].ref.toUpperCase() + "</td>";
+				out.push(o);
 			}
 		}
-		renderedHtml += "</tr>";
+		return out;
+	},
+
+	listPossibleHaplotypes:function(gene){
+		var out = [];
+		var possibleHaplotypeKeys = [];
+		var possibleHaplotypeStrings = [];
+		var o;
+		if (pgx.globalPGXData.possibleHaplotypesStringRep[gene] !== undefined)
+			possibleHaplotypeKeys= Object.keys(pgx.globalPGXData.possibleHaplotypesStringRep[gene]);
+		for (var i= 0; i < possibleHaplotypeKeys.length; ++i) {
+			o = {};
+			if (i == possibleHaplotypeKeys.length - 1)
+				o.after = '';
+			else
+				o.after = ',';
+
+			o.string = pgx.globalPGXData.possibleHaplotypesStringRep[gene][possibleHaplotypeKeys[i]].closestMatch;
+			out.push(o);
+		}
+		return out;
+	},
+
+	listPatientHaplotypes:function(gene){
+		var hname,o,v,m; 
+		var out = [];
+		if (this.globalPGXData.possibleHaplotypesStringRep[gene] === undefined)
+			return undefined;
+		var markers = this.globalPGXData.markerByID;
+		var phap = Object.keys(this.globalPGXData.possibleHaplotypesStringRep[gene]);
+		console.log(phap);
+		for (var i=0; i< phap.length; i++){
+			o = {};
+			o.name = phap[i];
+			if (this.globalPGXData.possibleHaplotypesStringRep[gene][o.name].minDistance > 0) {
+				o.name += " ( similar to " + this.globalPGXData.possibleHaplotypesStringRep[gene][o.name].closestMatch.toString() + ")";
+			}
+			console.log(o);
+			m = pgx.globalPGXData.geneMarkers[gene];
+			o.variants = [];
+			for (var j=0; j < m.length; j++){
+				v = {};
+				if (!markers[m[j]]){
+					v.variant = 'missing';
+					v.class = 'alt';
+				} else if (this.globalPGXData.possibleHaplotypesStringRep[currentGene][haplotypeName].haplotype.indexOf(m[j]) !== -1) {
+					var altGenotype= markers[m[j]].alt;
+					if (Object.prototype.toString.call(altGenotype) == "[object String]") {
+						v.variant=altGenotype;
+						v.class='alt';
+					} else if (Object.prototype.toString.call(altGenotype) == "[object Array]") {
+						var indexes= [];
+						var gtArray= markers[m[j]].gt;
+						for (var k= 0; k < gtArray.length; ++k) {
+							if (gtArray[k] > 0) {
+								indexes.push(gtArray[k]);
+							}
+						}
+						var possibleAltGenotypes= [];
+						for (var k= 0; k < indexes.length; ++k) {
+							// subtract 1 from index because 0 == ref and we're starting from alt #1
+							possibleAltGenotypes.push(altGenotype[indexes[k] - 1]);
+						}
+						v.variant = possibleAltGenotypes.toString().toUpperCase();
+						v.class="alt";
+					}
+				} else {  // ref
+					v.variant = markers[m[j]].ref.toUpperCase();
+					v.class = "ref";
+				}
+				o.variants.push(v);
+			}
+			out.push(o);
+		}
+		return out;
+	},
+
+	markerHeads:function(gene){
+		var markers = [];
+		var c = this.globalPGXData.geneMarkers[gene];
+		var pattern=/rs(\d+)/;
+		for (var i=0; i < c.length; i++){
+			var o = {};
+			var match = pattern.exec(c[i]);
+			if (match !== null)
+				o.url = "http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=" + match[1];
+			o.id = c[i];
+			markers.push(o);
+		}
+		return markers;
 	}
-	return renderedHtml;
-});
+
+};
 
 module.exports = pgx;
 
