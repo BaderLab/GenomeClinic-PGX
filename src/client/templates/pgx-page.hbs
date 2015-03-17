@@ -12,51 +12,66 @@
 		<h6 style="margin-bottom: 40px;"><em><a href="#" id="collapse-all-haplotypes">Show less</a></em></h6></p>
 	</div>
 </div>
-{{#each pgxGenes}}
+{{#pgxGenes}}
 <div class="row">
 	<div class="large-12 columns">
 			<div class="row">
 				<div class="large-2 columns">
-					<h3><strong>{{@key}}</strong></h3>
+					<h3><strong>{{gene}}</strong></h3>
 				</div>
 				<div class="large-9 columns">
+
 					<h3>
-					{{#listPossibleHaplotypes @key}}
-					{{/listPossibleHaplotypes}}
+					{{#if possibleHaplotypes}}
+					<em class="haplo-present">
+					{{#possibleHaplotypes}}
+						{{string}}{{after}}
+					{{/possibleHaplotypes}}
+					{{else}}
+						<em class="haplo-not-present" style="color:red;">No haplotypes detected</em>
+					{{/if}}
 					</h3>
 				</div>
 				<div class="large-1 columns">
-					<a href="#"><i class="fa fa-plus haplotype-expand" gene="{{@key}}" expanded="yes"></i></a>
+					<a href="#"><i class="fa fa-plus haplotype-expand" gene="{{gene}}" expanded="yes"></i></a>
 				</div>
 			</div>
 			
 			{{!-- The next div is for sliding. Tables cannot slide using JQuery. See http://stackoverflow.com/questions/467336/how-to-use-slidedown-or-show-function-on-a-table-row --}}
 			
-			<div id="table{{@key}}" class="haplotype-expand-div">
+			<div id="table{{gene}}" class="haplotype-expand-div">
 				<table>
 					<thead>
 						<tr>
 							<th>Haplotype</th>
-							{{#markerHeader @key}}
-							{{/markerHeader}}
+							{{#heads}}
+							<th><a target="_blank" href={{url}} rs={{id}}">{{id}}</a></th>
+							{{/heads}}
 						</tr>
 					</thead>
 					<tbody>
-						{{#patientGenotypes}}
-						{{/patientGenotypes}}
-						{{#each this}}
-						<tr>
-							<td>{{@key}}</td>
-							{{#haplotypeMarkers @key}}
-							{{/haplotypeMarkers}}
+						{{#patientHaplotypes}}
+						<tr class="patient-genotype-row">
+							<td><em>{{name}}</em></td>
+							{{#variants}}
+							<td class="variant-{{class}}">{{variant}}</td>
+							{{/variants}}
 						</tr>
-						{{/each}}
+						{{/patientHaplotypes}}
+						{{#haplotypes}}
+						<tr>
+							<td>{{name}}</td>
+							{{#variants}}
+							<td class="variant-{{class}}">{{variant}}</td>
+							{{/variants}}
+						</tr>
+						{{/haplotypes}}
 					</tbody>
 				</table>
 			</div>
 	</div>	
 </div>
-{{/each}}
+{{/pgxGenes}}
 <div class="row">	
 	<div class="large-12 columns" style="margin-top: 40px; margin-bottom: 20px;">
 		<h5><strong>Disclaimer</strong></h5>
