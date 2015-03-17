@@ -1,0 +1,124 @@
+<div class="row">
+    <div class="large-12 columns" style="margin-top:20px">
+        <a href="/projects" class="button radius"><i class="fa fa-arrow-left"></i>&nbspBack</a>
+      	<h2><i class="fi-page-multiple"></i>&nbsp&nbspAdd New Project</h2>
+        <div class="row">
+          <div class="large-12 columns">
+            <form id="webapp-add-new-project" style="margin-top:40px">
+              <fieldset>
+                <legend>Project Information </legend>
+                <div class="row">
+                <div class="small-12 columns">
+                  <div data-alert class="alert-box radius alert" id="error-display-box"  style="display:none">
+                    <!-- Alert message goes here -->
+                    <div class="row">
+                      <div class="small-11 columns">
+                        <p id="error-display-message"></p>
+                      </div>
+                      <div class="small-1 columns">
+                        <a href="#" class='close-box'><i class="fi-x size-16" style="color:#606060"></i></a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="large-12 columns">
+            	      <div class="row collapse prefix-radius">
+                      <div class="large-3 columns">
+                        <span class="prefix">Project Name</span></span>
+                      </div>
+                      <div class="large-9 columns">
+                        <input type="text" id='project_id' name='project_id'> 
+                        <small class="error" style="display:none;">That project Id alredy exists</small>
+                      </div>
+                    </div>
+                    <div class="row collapse prefix-radius">
+                      <div class="large-3 columns">
+                        <span class="prefix">Keywords</span>
+                      </div>
+                      <div class="large-9 columns">
+                        <input type="text" id='keywords' name='keywords'>
+                      </div>
+                    </div>
+                    <div class="row collapse prefix-radius">
+                      <div class="large-3 columns">
+                        <span class="prefix">Project Description</span>
+                      </div>
+                      <div class="large-9 columns">
+                        <textarea id="description" rows=5></textarea>
+                      </div>
+                    </div>
+                    <div class="row collapse prefix-radius postfix-radius">
+                      <div class="large-3 columns">
+                        <span class="prefix">Add Authorized User</span>
+                      </div>
+                      <div class="large-8 columns">
+                        <input type="text" id='new-user' name='new-user'>
+                        <small class="error" style="display:none">That user does not exist</small>
+                      </div>
+                      <div class="large-1 columns">
+                        <a href="#" class="postfix button secondary" id="add-auth-user"><i class="fi-plus"></i></a>
+                      </div>
+                    </div>
+                    <div class="row collapse prefix-radius">
+                      <div class="large-3 columns">
+                        <span class="prefix">Authorized Users</span></span>
+                      </div>
+                      <div class="large-9 columns">
+                        <table class="large-12">
+                          <thead>
+                            <tr>
+                              <th class="large-9">Email</th>
+                              <th class="large-3 text-center">Remove</th>
+                            </tr>
+                          <tbody id='auth-users'>
+                            <tr>
+                              <td>You</td>
+                              <td class='text-center'>Cannot Remove</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+          	    </div>
+                <div class="row">
+                  <div class="large-12 columns" id='patient_id_links' style="min-height:150px;">
+                    <div class="large-8 columns">
+                      <h4>Patients to add to project</h4>
+                    </div>
+                    <div class="large-3 columns right">
+                      <a href="#" id="remove-all-visible" class="tiny button radius alert right">Remove All Patients</a>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="large-4 columns">
+                    <a href="#" class="button alert round large-12" id="submit-new-project">Submit</a>
+                  </div>
+                </div>
+              </fieldset>
+            </form>
+          </div>
+        </div>
+        <hr>
+        <div  class="row">
+          <div class="large-12 columns">
+            <p>Search through the available patients and select those that you would like to add to your new project. To add a patient simply click on them in the table!</p> 
+            <div class="row collapse prefix-radius">
+              <div class="large-2 columns">
+                <span class="prefix">Search</span>
+              </div>
+              <div class="large-6 small-8 columns left">
+                <input type="text" id="searchBox" name="searchBox">
+              </div>
+              <div class="large-3 small-2 columns right">
+                <a href="#" id="add-all-visible" class="right tiny button alert radius">Add All Active Patients</a>
+              </div>
+            </div>
+            <div class="large-12 columns" id="patient-information">
+            </div>
+          </div>
+        </div>
+    </div>
+</div>

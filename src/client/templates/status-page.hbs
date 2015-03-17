@@ -1,0 +1,54 @@
+<div class="row">
+	<div class="large-12 columns">
+		<div class="row">
+			<div class="large-12 columns">
+				<h2>Recent Uploads</h2>
+				<h5 class="subheader">Displaying All Uploads</h5>
+				<p>Information on recent uploads, including the Patient Id, the original file name and the useability status. If a patient has been completely uploaded, annotated and is available for use in searching, a checkmark will be displayed. Otherwise the spinning icon denotes the file is not currently ready to use.</p>
+			</div>
+		</div>
+		<div class="row">
+			<div class= large-12 columns">
+			{{#if patients}}
+				<table class='small-12 medium-12 large-12'>
+			        <thead>
+			          	<tr>
+				          <th>Patient</th>
+				          <th>File</th>
+				          <th>Added</th>
+				          <th>Completed</th>
+				          <th>Status</th>
+			        	</tr>
+			      	</thead>
+			      	<tbody id="webapp-status-row">
+					{{#each patients}}
+						<tr data-id="{{patient_id}}">
+							<td>{{patient_id}}</td>
+							<td>{{file}}</td>
+							<td>{{added}}</td>
+							<td class="completed">{{completed}}</td>
+							<td class="text-center check">
+								{{#if ready}}
+									<i class="fi-check size-24" style="color:#66CD00;"</i>
+								{{else}}
+									<i class="fa fa-spinner fa-spin" style="color:#3399FF;font-size:1.5em;"</i>
+								{{/if}}
+							</td>
+						</tr>
+					{{/each}}
+				   	</tbody>
+				</table>
+			{{else}}
+				<div data-alert class="alert-box radius secondary" id="error-display-box">
+			      <!-- Alert message goes here -->
+			      <div class="row">
+			          <div class="small-11 columns">
+			              <p id="error-display-message">There does not appear to be anyhting here</p>
+			          </div>
+			        </div>
+			    </div>
+			{{/if}}
+			</div>
+		</div>
+	</div>
+</div>
