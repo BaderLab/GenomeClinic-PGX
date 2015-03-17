@@ -23,12 +23,12 @@
 
 					<h3>
 					{{#if possibleHaplotypes}}
-					<em>
+					<em class="haplo-present">
 					{{#possibleHaplotypes}}
 						{{string}}{{after}}
 					{{/possibleHaplotypes}}
 					{{else}}
-						<em style="color:red;">No haplotypes detected</em>
+						<em class="haplo-not-present" style="color:red;">No haplotypes detected</em>
 					{{/if}}
 					</h3>
 				</div>

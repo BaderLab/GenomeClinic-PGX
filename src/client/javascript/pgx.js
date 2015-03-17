@@ -456,6 +456,7 @@ var pgx =  {
 	/* Add the event listeners */
  	addEventListeners: function() {
  		var self = this;
+ 		
 		// Animate haplotype variant tables with buttons and sliding tables
 		var expand= function(element) {
 			$(element).attr("expanded", "yes");
@@ -512,6 +513,8 @@ var pgx =  {
 				$(".haplotype-expand-div").slideDown();
 			}
 		});
+
+		$('.haplo-not-present').closest('.row').find('i.haplotype-expand').trigger('click');
 	},
 
 	//Yes I know this is wasteful, However I really dont want to break any of the previous code
@@ -597,9 +600,12 @@ var pgx =  {
 			o = {};
 			hapname = phap[i];
 			o.name = hapname
+			var similarString = "";
 			if (this.globalPGXData.possibleHaplotypesStringRep[gene][hapname].minDistance > 0) {
-				o.name += " ( similar to " + this.globalPGXData.possibleHaplotypesStringRep[gene][hapname].closestMatch.toString() + ")";
+				similarString = "similar to ";
+				
 			}
+			o.name += " ( " + similarString + this.globalPGXData.possibleHaplotypesStringRep[gene][hapname].closestMatch.toString() + ")";
 			m = pgx.globalPGXData.geneMarkers[gene];
 			o.variants = [];
 			for (var j=0; j < m.length; j++){
@@ -608,9 +614,9 @@ var pgx =  {
 					v.variant = 'missing';
 					v.class = 'alt';
 				} else if (this.globalPGXData.possibleHaplotypesStringRep[gene][hapname].haplotype.indexOf(m[j]) !== -1) {
-					var altGenotype= markers[m[j]].alt.toUpperCase();
+					var altGenotype= markers[m[j]].alt
 					if (Object.prototype.toString.call(altGenotype) == "[object String]") {
-						v.variant=altGenotype;
+						v.variant=altGenotype.toUpperCase();
 						v.class='alt';
 					} else if (Object.prototype.toString.call(altGenotype) == "[object Array]") {
 						var indexes= [];
