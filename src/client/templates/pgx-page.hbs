@@ -50,16 +50,14 @@
 						</tr>
 					</thead>
 					<tbody>
-						{{#if patientHaplotype}}
-						{{#patientHaplotype}}
+						{{#patientHaplotypes}}
 						<tr class="patient-genotype-row">
 							<td><em>{{name}}</em></td>
 							{{#variants}}
 							<td class="variant-{{class}}">{{variant}}</td>
 							{{/variants}}
 						</tr>
-						{{/patientHaplotype}}
-						{{/if}}
+						{{/patientHaplotypes}}
 						{{#haplotypes}}
 						<tr>
 							<td>{{name}}</td>

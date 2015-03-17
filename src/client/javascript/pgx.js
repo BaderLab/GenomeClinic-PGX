@@ -593,14 +593,13 @@ var pgx =  {
 			return undefined;
 		var markers = this.globalPGXData.markerByID;
 		var phap = Object.keys(this.globalPGXData.possibleHaplotypesStringRep[gene]);
-		console.log(phap);
 		for (var i=0; i< phap.length; i++){
 			o = {};
-			o.name = phap[i];
-			if (this.globalPGXData.possibleHaplotypesStringRep[gene][o.name].minDistance > 0) {
-				o.name += " ( similar to " + this.globalPGXData.possibleHaplotypesStringRep[gene][o.name].closestMatch.toString() + ")";
+			hapname = phap[i];
+			o.name = hapname
+			if (this.globalPGXData.possibleHaplotypesStringRep[gene][hapname].minDistance > 0) {
+				o.name += " ( similar to " + this.globalPGXData.possibleHaplotypesStringRep[gene][hapname].closestMatch.toString() + ")";
 			}
-			console.log(o);
 			m = pgx.globalPGXData.geneMarkers[gene];
 			o.variants = [];
 			for (var j=0; j < m.length; j++){
@@ -608,8 +607,8 @@ var pgx =  {
 				if (!markers[m[j]]){
 					v.variant = 'missing';
 					v.class = 'alt';
-				} else if (this.globalPGXData.possibleHaplotypesStringRep[currentGene][haplotypeName].haplotype.indexOf(m[j]) !== -1) {
-					var altGenotype= markers[m[j]].alt;
+				} else if (this.globalPGXData.possibleHaplotypesStringRep[gene][hapname].haplotype.indexOf(m[j]) !== -1) {
+					var altGenotype= markers[m[j]].alt.toUpperCase();
 					if (Object.prototype.toString.call(altGenotype) == "[object String]") {
 						v.variant=altGenotype;
 						v.class='alt';
@@ -637,6 +636,7 @@ var pgx =  {
 			}
 			out.push(o);
 		}
+		console.log(out);
 		return out;
 	},
 
