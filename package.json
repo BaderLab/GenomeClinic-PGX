@@ -1,10 +1,10 @@
 {
-  "name": "WebApp",
-  "description": "Web-based Clinical Genome Interpretation",
+  "name": "GenomClinic-PGX",
+  "description": "Web-based Clinical Genome Pharmacogenomics Interpretation",
   "version": "0.0.2",
   "repository": {
     "type": "git",
-    "url": "https://github.com/BaderLab/Frangipani.git"
+    "url": "https://github.com/BaderLab/GenomeClinic-PGX.git"
   },
   "contributors": [
     {
