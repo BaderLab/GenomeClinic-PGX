@@ -16,7 +16,7 @@
  * https://github.com/blueimp/jQuery-File-Upload
 
 
- *written by Patrick Magee
+ *@Patrick Magee
 */
 var $ = require('jquery'),
     templates = require('./templates'),
@@ -126,7 +126,7 @@ module.exports = function(){
     $('.patient_id').on("keyup",function(){
       var self = $(this);
       var promise;
-      $(this).val($(this).val().toString().replace(/[^A-Za-z1-9\-_\/\\\.\s]/g,""));
+      $(this).val($(this).val().toString().replace(/[^A-Za-z0-9\-_\/\\\.\s]/g,""));
       var keyValue = self.val().toString(); //current key value
       var patientIdFields = $('.patient_id').toArray(); //get ALL patientID fields
       var valueCounts = {};

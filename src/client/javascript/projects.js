@@ -290,7 +290,7 @@ module.exports = function(){
 		$('#project_id').on('keyup',function(){
 			var self = $(this);
 			//Remove illegal characters from the current string
-			$(this).val($(this).val().toString().replace(/[^A-Za-z1-9\-_\/\\\.\s]/g,""))
+			$(this).val($(this).val().toString().replace(/[^A-Za-z0-9\-_\/\\\.\s]/g,""))
 			var val = $(this).val();
 			if (val === ''){
 				$(this).addClass('error').siblings('small').text('Required Field').show();
