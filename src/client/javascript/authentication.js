@@ -14,6 +14,7 @@
  */
 var $ = require('jquery'),
 	templates = require('./templates'),
+	utility = require('./utility'),
 	constants = require('../../server/conf/constants.json').dbConstants.USERS;
 
 module.exports = function(location){
@@ -79,6 +80,12 @@ module.exports = function(location){
 				opts.oauth = true;
 			t(opts).then(function(renderedHtml){
 				$('#main').html(renderedHtml);
+			}).then(function(){
+				utility.refresh();
+			}).then(function(){
+				abideVal();
+			}).then(function(){
+				submitHandler();
 			});
 		});
 	};
@@ -94,7 +101,7 @@ module.exports = function(location){
   	* the client is redirected to the redirectURL
   	*/
 
-	var submit = function(){
+	var submitHandler = function(){
 
 		//close alert box
 		$('.close-box').on('click',function(e){
@@ -127,7 +134,6 @@ module.exports = function(location){
 			}));
 
 			promise.then(function(result){
-				console.log(result);
 				if (result.alert){
 					// display status redirect message
 					if (result.statusCode == '200'){
@@ -160,12 +166,5 @@ module.exports = function(location){
 			
 		});
 	};
-	//add handlers
-	var main = function(){
-		return checkAuthAndRender().then(function(){
-			abideVal();
-			submit();
-		});
-	};
-	return main();
+	return checkAuthAndRender();
 };
