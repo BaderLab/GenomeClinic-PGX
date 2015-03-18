@@ -259,8 +259,8 @@ module.exports = function(){
         if (!(name.endsWith('.vcf'))){
           alert("Invalid File, please choose a file that ends in .vcf extension");
         } else {
-          //preview the first megabyte of the file, parse patient names and dynmaically
-          //determine how many potential patiennts are included in a single file.
+          //preview the first megabyte of the file, parse patient names and dynamically
+          //determine how many potential patients are included in a single file.
           numberFiles++;
           var Id = numberFiles ;
           var reader = new FileReader();
@@ -269,14 +269,26 @@ module.exports = function(){
             var count  = 0;
             var previewData = atob(reader.result.split(',')[1]);
             var tempString,tempArray,options,patientIds;
-
+            //These are the Expected fields to find in the vcf header.
+            var staticFields = ['#CHROM','POS','ID', 'REF','ALT','QUAL','FILTER','INFO','FORMAT','HAPLOTYPE'];
             previewData = previewData.split(/[\n\r]+/);
             while (!foundSeq || count < previewData.length){
               tempString = previewData[count];
               if (tempString.startsWith('#CHROM')){
                 foundSeq = true;
                 tempArray = previewData[count].split(/[\s]+/);
-                patientIds = tempArray.slice(tempArray.indexOf('FORMAT')+1);
+                var slice;
+                for (var i=0; i < tempArray.length; i++){
+                  if (slice === undefined){
+                    if (staticFields.indexOf(tempArray[i].toUpperCase()) === -1){
+                      slice = i;
+                    }
+                  }
+                }
+                if (slice === undefined)
+                  patientIds = ["Change-Me"];
+                else 
+                  patientIds = tempArray.slice(slice).filter(function(p){if(p!==""){return p;}});
                 options = {'patient_ids':patientIds,
                             'Id': + Id,
                             'size':(data.files[0].size/1000),
