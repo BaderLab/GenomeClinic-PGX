@@ -173,15 +173,15 @@ parseVCF.prototype.parseChunk = function(stringArray){
 		for (var i=0; i < stringArray.length ; i++ ){
 			//If the file is malformed, it may have ##, ignore these
 			if (stringArray[i] !== "" ){
-				if(stringArray[i].startsWith('##INFO') && stringArray[i].match(/annovar/i) !== null){
-					line = stringArray[i].toLowerCase().match(/id=[a-z0-9\.-_+]+/i)[0].replace('id=','').replace('.','_');
+				if(stringArray[i].search(/##INFO/) !== -1 && stringArray[i].search(/annovar/i) !== -1){
+					line = stringArray[i].toLowerCase().match(/id=.+,/i)[0].replace('id=','').replace('.','_');
 					if (line == 'snp138'){
 						self.useDbSnpID = true;
 						self.mask.push('id');
 					}
 					self.mapper.anno.push(line);
 					self.numHeader++;
-				} else if (stringArray[i].startsWith("#CHR")) {
+				} else if (stringArray[i].search(/^#CHROM/)!== -1) {
 					self.numHeader++;
 					var formatReached = false;
 
@@ -206,7 +206,7 @@ parseVCF.prototype.parseChunk = function(stringArray){
  							}
  						}
 					}
-				} else if (!stringArray[i].startsWith('#')) {
+				} else if (stringArray[i].search(/^#/) === -1) {
 					line = stringArray[i].toLowerCase().split('\t');
 					var annoObj = self.convertAnnoString(line[self.mapper.annofield]);
 					var annoList = self.mapper.anno;
@@ -222,7 +222,7 @@ parseVCF.prototype.parseChunk = function(stringArray){
 							for (var field in self.mapper.static){
 								if (self.mapper.static.hasOwnProperty(field)){
 									var itemToInsert = line[self.mapper.static[field]].split(',');
-									if (field.match('chr') === null){ // we want to keep chr as a string so dont convert it
+									if (field.search('chr') === -1){ // we want to keep chr as a string so dont convert it
 										itemToInsert = itemToInsert.map(convertNum);
 									} else {
 										field = 'chr';
@@ -241,6 +241,9 @@ parseVCF.prototype.parseChunk = function(stringArray){
 							}
 
 							var alleles = convertAlleles(ref,alt);
+							currDoc.original_alt = alt;
+							currDoc.original_ref = ref;
+							currDoc.original_pos = currDoc.pos;
 							currDoc.alt = alleles.alt;
 							currDoc.ref = alleles.ref;
 							currDoc.pos += alleles.posModifier;
@@ -444,6 +447,8 @@ var countUndefined = function(arr){
  * deletions. Additionally, the position is fixed so that it now refers to the appropriate
  * position referenced by dbSNP.
  */
+
+ //THIS MUST BE LOOKED INTO....
 var convertAlleles = function(ref,alt){
 	var tempRefAllele, tempModifier,
 		tempAlts = [],
