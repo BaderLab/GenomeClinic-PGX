@@ -35,7 +35,7 @@ module.exports = function(){
 			var promise = new Promise(function(resolve,reject){
 				var patientArray;
 				Promise.resolve($.ajax({
-					url:'database/find',
+					url:'database/patients/all',
 					type:'GET',
 					contentType:'application/json',
 					dataType:'json',
@@ -85,9 +85,15 @@ module.exports = function(){
 					var currentRows = $("#webapp-status-row").children();
 					for (var i=0;i<patientArray.length;i++){
 						if (patientArray[i].ready){
-							if(!$(currentRows[i]).find('i').hasClass('fi-check'))
+							if(!$(currentRows[i]).find('i').hasClass('fi-check')){
 								$(currentRows[i]).find('.completed').text(patientArray[i].completed);
 								$(currentRows[i]).find('.check').html('<i class="fi-check size-24" style="color:#66CD00;"></i>');
+							}
+						} else if ( patientArray[i].fail){
+							if (!$(currentRows[i]).find('i').hasClass('fi-x')){
+								$(currentRows[i]).find('.completed').text(patientArray[i].completed);
+								$(currentRows[i]).find('.check').html('<i class="fi-x size-24" style="color:#ff1d1d;"></i>');
+							}
 						} else {
 							if(!$(currentRows[i]).find('i').hasClass('fa-spinner'))
 								$(currentRows[i]).find('.check').html('<i class="fa fa-spinner fa-spin" style="color:#3399FF;font-size:1.5em;"></i>');
@@ -117,7 +123,7 @@ module.exports = function(){
 		var promise = new Promise(function(resolve,reject){
 			var patientArray;
 			var promise = Promise.resolve($.ajax({
-				url:'database/find',
+				url:'database/patients/all',
 				type:'GET',
 				contentType:'application/json',
 				dataType:'json',
@@ -127,6 +133,7 @@ module.exports = function(){
 				})
 			}));
 			promise.then(function(result){
+				console.log(result);
 				patientArray = {patients:result};
 				return templates.statuspage.index(patientArray);
 			}).then(function(renderedHtml){			
