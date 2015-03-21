@@ -175,7 +175,7 @@ parseVCF.prototype.parseChunk = function(stringArray){
 			//Check to make sure the first entry equates to a vcf format
 			if (stringArray[i] !== "" ){
 				if (!self.vcf){
-					version = parseFloat(stringArray[i].match(/VCFv.*+/ig).replace(/[a-z]+/ig,""));
+					version = parseFloat(stringArray[i].match(/VCFv.+/ig)[0].replace(/[a-z]+/ig,""));
 					if (version < 4.1 || version  > 4.2)
 						throw new Error ("Invalid vcf File format");
 					else
@@ -260,6 +260,7 @@ parseVCF.prototype.parseChunk = function(stringArray){
 								if (annoList[j].search(/annovar(\.|_)date/i) == -1 && 
 										annoList[j].search(/allele(\.|_)end/i) == -1){
 									//currDoc[annoList[j]] = annoObj
+									console.log(annoObj[annoList[j]]);
 									var itemToInsert = annoObj[annoList[j]];	
 									var itemToInsert = itemToInsert.map(function(item){
 										if (item !== "."){
