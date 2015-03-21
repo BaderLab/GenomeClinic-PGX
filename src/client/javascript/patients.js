@@ -16,7 +16,7 @@ module.exports = function() {
 	var getPatients= function() {
 		//Promise Function
 		var promise= Promise.resolve($.ajax({
-			url: "/patients",
+			url: "database/patients/completed",
 			type: "GET",
 			contentType: "application/json",
 		}))

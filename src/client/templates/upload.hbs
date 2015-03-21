@@ -11,6 +11,25 @@
     <p>Once you have all of your files selected, click “Submit”. Each files progress will be monitored in the upload bar. Once they are uploaded, give the file some time as it needs to be annotated. Check out the upload status bar to see if it is available for viewing yet!</p>
     <h6 class="subheader spacer"><i>NOTICE: Leaving this page prior to upload completion will cancel the upload and the file will not be processed</i></h6>
   </div>
+  <div class="small-12 columns">
+    <div data-alert class="alert-box radius alert" id="error-display-box"  style="display:none">
+      <!-- Alert message goes here -->
+      <div class="row">
+        <div class="small-11 columns">
+          <p id="error-display-message"></p>
+          <p>vcf files should have the following minimal format:<br />
+          ##fileFormat=VCFv4.*<br />
+          ## meta data <br />
+          ## meta data <br />
+          #CHROM&nbsp&nbspPOS&nbsp&nbspID&nbsp&nbspREF&nbsp&nbspALT&nbsp&nbspQUAL&nbsp&nbspFILTER&nbsp&nbspINFO&nbsp&nbspFORMAT&nbsp&nbsp[Patients...]
+          </p>
+        </div>
+        <div class="small-1 columns">
+          <a href="#" class='close-box'><i class="fi-x size-16" style="color:#606060"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="small-12 large-12 columns">
     <form id="jquery-new-patient-form" data-abide>
       <div class="row">

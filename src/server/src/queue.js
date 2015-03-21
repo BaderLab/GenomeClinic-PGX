@@ -143,14 +143,14 @@ queue.prototype.run = function(){
 		return annotateFile(options);
 	}).then(function(){
 		self.logger.info('annotations complete');
+	}).catch(function(err){
+		self.logger.error(err);
+	}).done(function(){
 		if (self.queue.length > 0){
 			return self.run();
 		} else {
 			self.isRunning = false;
 		}
-	}).catch(function(err){
-		self.logger.error(err.stack);
-		self.isRunning = false;
 	});
 		// do somehting here;
 };

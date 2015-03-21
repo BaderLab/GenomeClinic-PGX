@@ -33,37 +33,7 @@ module.exports = function(app,dbFunctions,queue){
 	});
 
 
-	/* Find ALL patients including those in the queue */
-	app.use('/database/find',utils.isLoggedIn, function(req,res){
-		var username = req.user[dbConstants.USERS.ID_FIELD];
-		dbFunctions.findAllPatients(undefined, undefined, {sort:{'completed':-1}}, username)
-		.then(function(result){
-			var fieldsArray = [];
-			for (var i=queue.queue.length-1; i>= 0; i--){
-				for ( var j=0; j < queue.queue[i].fields.length; j++){
-					if (queue.queue[i].fields[j][dbConstants.DB.OWNER_ID] == username)
-						fieldsArray.push(queue.queue[i].fields[j]);
-				}
-			}
-			return fieldsArray.concat(result);
-		}).then(function(result){
-			res.send(result.sort(function(a,b){
-				a = a.added.split(/\s/);
-				b = b.added.split(/\s/);
-				if (a[0] < b[0]){
-					return 1;
-				} else if (a[0] > b[0]) {
-					return -1;
-				} else {
-					if (a[1] < b[1])
-						return 1;
-					else if (a[1] > b[1])
-						return -1;
-					return 0;
-				}
-			}));
-		});
-	});
+
 
 
 	//==================================================================
@@ -196,30 +166,63 @@ module.exports = function(app,dbFunctions,queue){
 	//==================================================================
 	//Patient Routes
 	//==================================================================
-
-	app.get("/patients", utils.isLoggedIn, function(req,res){
+	//Find only the completed patients
+	app.get("/database/patients/completed", utils.isLoggedIn, function(req,res){
 		var username = req.user[dbConstants.USERS.ID_FIELD];
-		dbFunctions.findAllPatients(undefined,true, {sort: {"completed": -1}}, username)
+		dbFunctions.findAllPatients(username,true,{sort: {"completed": -1}})
 		.then(function(result){
 			res.send(result);
 		});
 
 	});
 
-	app.post("/patients", utils.isLoggedIn, function(req,res){
-		var project,exclude;
+
+	//FInd patients linked to a project
+	app.post("/database/patients/project", utils.isLoggedIn, function(req,res){
+		var project,exclude,promise;
 		var username = req.user[dbConstants.USERS.ID_FIELD];
 		var query = {};
 		if (req.body.exclude){
-			exclude = req.body.project;
+			promise =  dbFunctions.findAllPatientsNinProject(req.body.project,username,{sort:{'completed':-1}});
 		} else {
-			query[dbConstants.PROJECTS.ARRAY_FIELD] = req.body.project;
-			project = req.body.project;
+			promise = dbFunctions.findAllPatientsInProject(req.body.project,{sort:{'completed':-1}});
 		}
-
-		dbFunctions.findAllPatients(query,true, {sort: {"completed": -1}}, username,project,exclude)
-		.then(function(result){
+		promise.then(function(result){
 			res.send(result);
+		});
+	});
+
+
+	/* Find ALL patients including those in the queue and failure db */
+	app.use('/database/patients/all',utils.isLoggedIn, function(req,res){
+		var username = req.user[dbConstants.USERS.ID_FIELD];
+		dbFunctions.findAllPatients(username, false, {sort:{'completed':-1}})
+		.then(function(result){
+			//append all the 
+			var fieldsArray = [];
+			for (var i=queue.queue.length-1; i>= 0; i--){
+				for ( var j=0; j < queue.queue[i].fields.length; j++){
+					if (queue.queue[i].fields[j][dbConstants.DB.OWNER_ID] == username)
+						fieldsArray.push(queue.queue[i].fields[j]);
+				}
+			}
+			return fieldsArray.concat(result);
+		}).then(function(result){
+			res.send(result.sort(function(a,b){
+				a = a.added.split(/\s/);
+				b = b.added.split(/\s/);
+				if (a[0] < b[0]){
+					return 1;
+				} else if (a[0] > b[0]) {
+					return -1;
+				} else {
+					if (a[1] < b[1])
+						return 1;
+					else if (a[1] > b[1])
+						return -1;
+					return 0;
+				}
+			}));
 		});
 	});
 

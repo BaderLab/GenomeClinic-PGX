@@ -661,10 +661,27 @@ var dbFunctions = function(logger,DEBUG){
 
 	/*remove patient from patient collection */
 	this.removePatient = function(patient){
+		assert.notStrictEqual(db, undefined);
+		assert(Object.prototype.toString.call(patient) == "[object String]", "Invalid Patient Name");
 		var query = {};
+		var _this = this;
+		var failure;
 		query[dbConstants.PATIENTS.ID_FIELD] = patient;
 		logInfo('removing patient: %s from databse',patient);
-		return removeDocument(dbConstants.PATIENTS.COLLECTION,query,[[dbConstants.PATIENTS.ID_FIELD,1]]);
+		return this.findOne(dbConstants.PATIENTS.COLLECTION,query).then(function(result){
+			failure = result;
+			return _this.dropCollection(result[dbConstants.PATIENTS.COLLECTION_ID]);
+		}).catch(function(err){
+				logInfo("No Variant collection found")
+		}).then(function(){
+			return removeDocument(dbConstants.PATIENTS.COLLECTION,query,[[dbConstants.PATIENTS.ID_FIELD,1]]);
+		}).then(function(){
+			failure[dbConstants.FAILURE.ANNO_COMPLETE] = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+			failure[dbConstants.FAILURE.FAIL_FIELD] = true;
+			return _this.insert(dbConstants.FAILURE.COLLECTION,failure);
+		}).catch(function(err){
+				logErr(err);
+		});
 	};
 
 	/* Find all the patients in the 'patients' collection.
@@ -695,49 +712,79 @@ var dbFunctions = function(logger,DEBUG){
 	 * If readyOnly == true, return only fully uploaded patients.
 	 * To get output sorted by date and time(newest patient records first), do:
 	 * options == {sort: {"date": -1, "time": -1}} */
-	this.findAllPatients=function(query, readyOnly, options, username, project,exclude){
-		assert.notStrictEqual(db, undefined); // ensure we're connected first
-		var collectionName = dbConstants.PATIENTS.COLLECTION;
-		if (!query)
-			query= {};
-		if (username && !project)
-			query[dbConstants.DB.OWNER_ID] = username;
-		var fields = {'_id': 0};
-		if (readyOnly) {
-			query[dbConstants.PATIENTS.READY_FOR_USE]= true;
-		}
-		if (project){
-			return find(collectionName, query,fields, options);
-		} else {
-			return self.findProjects(undefined,username).then(function(result){
-				return result.map(function(item){
-					if (exclude){
-						if (item[dbConstants.PROJECTS.ID_FIELD] != exclude)
-							return item[dbConstants.PROJECTS.ID_FIELD];
-					} else {
-						return item[dbConstants.PROJECTS.ID_FIELD];
-					}
-				});
-			}).then(function(result){
-				result = result.filter(function(n){return n!==undefined;});
-				var tagQuery = {};
-				tagQuery[dbConstants.PROJECTS.ARRAY_FIELD] = {$in:result};
-				var newQuery = {$or:[query,tagQuery]};
-				return find(collectionName,newQuery,fields,options);
-			}).then(function(result){
-				if (exclude) {
-					return result.filter(function(patient){
-						if (!patient[dbConstants.PROJECTS.ARRAY_FIELD])
-							return patient;
-						if (patient[dbConstants.PROJECTS.ARRAY_FIELD].indexOf(exclude)==-1){
-							return patient;
-						}
-					});
-				} else {
-					return result;
-				}
+
+	this.findAllPatientsInProject = function(project,options){
+		assert.notStrictEqual(db,undefined);
+		assert(Object.prototype.toString.call(project) == "[object String]", "Invalid Project Name");
+		var field = {'_id':0};
+		query = {};
+		query[dbConstants.PROJECTS.ARRAY_FIELD] = project;
+		return find(dbConstants.PATIENTS.COLLECTION,query,field,options);
+	};
+
+	this.findAllPatientsNinProject = function(project,username,options){
+		assert.notStrictEqual(db,undefined);
+		assert(Object.prototype.toString.call(project) == "[object String]", "Invalid Project Name");
+		//find all the availble projects for this person
+		return this.findProjects(undefined,username).then(function(result){
+			return result.filter(function(item){
+				if (item[dbConstants.PROJECTS.ID_FIELD] != project)
+					return item[dbConstants.PROJECTS.ID_FIELD];
 			});
-		}
+		}).then(function(result){
+			var query = {},tagQuery={},ownerQuery={},queryList=[];
+			ownerQuery[dbConstants.DB.OWNER_ID] = username;
+			queryList.push(ownerQuery);
+			if (result.length > 0){
+				tagQuery[dbConstants.PROJECTS.ARRAY_FIELD] = {$in:result};
+				queryList.push(tagQuery);
+				queryList['$or'] = queryList
+			} else {
+				query = ownerQuery
+			}
+			query[dbConstants.PATIENTS.READY_FOR_USE] = true;
+			return find(dbConstants.PATIENTS.COLLECTION,query,null,options);
+		}).then(function(result){
+			return result.filter(function(patient){
+				if (!patient[dbConstants.PROJECTS.ARRAY_FIELD])
+					return patient;
+				if (patient[dbConstants.PROJECTS.ARRAY_FIELD].indexOf(project)==-1)
+					return patient;
+			});
+		})
+	};
+
+	this.findAllPatients = function(username,readyOnly,options){
+		assert.notStrictEqual(db,undefined);
+		assert(Object.prototype.toString.call(username) == "[object String]", "Invalid username Name");
+		return this.findProjects(undefined,username)
+		.then(function(result){
+			return result.filter(function(item){
+				return item[dbConstants.PROJECTS.ID_FIELD];
+			});
+		}).then(function(result){
+			var query = {},tagQuery={},ownwerQuery={},queryList=[];
+			ownwerQuery[dbConstants.DB.OWNER_ID] = username;
+			queryList.push(ownwerQuery)
+			if (result.length > 0){
+				tagQuery[dbConstants.PROJECTS.ARRAY_FIELD] = {$in:result};
+				queryList.push(tagQuery);
+			}
+			query['$or'] = queryList;
+			if (readyOnly){
+				query[dbConstants.PATIENTS.READY_FOR_USE] = true;
+				return find(dbConstants.PATIENTS.COLLECTION,query,null,options);
+			} else {
+				var goodResults;
+				return find(dbConstants.PATIENTS.COLLECTION,query,null,options)
+				.then(function(result){
+					goodResults = result;
+					return find(dbConstants.FAILURE.COLLECTION,query,null,options);
+				}).then(function(failures){
+					return goodResults.concat(failures);
+				});
+			}
+		});
 	};
 	//=======================================================================================
 	//PGX and Panels

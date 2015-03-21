@@ -43,6 +43,7 @@ var parseVCF = function(file,patients,bufferSize,mask){
 	this.mask = (mask || ['qual','filter']);
 	this.numHeader = 0;
 	this.useDbSnpID = false;
+	this.vcf = undefined;
 };
 //==============================================================================================================
 /* Create a read stream to read data from, and add event handlers to 
@@ -81,7 +82,17 @@ parseVCF.prototype.read = function(){
 		});
 
 		self.stream.on('end',function(){
-			Promise.each(Object.keys(self.patientObj),function(patient){
+			var promise;
+			//if there is any remaining itms in the string. add them
+			if (self.oldString !== ""){
+				promise = self.parseChunk([self.oldString])
+				.then(function(){
+					return Object.keys(self.patientObj);
+				});
+			} else {
+				promise = Promise.resolve(Object.keys(self.patientObj));
+			}
+			promise.each(function(patient){
 				return self.checkAndInsertDoc(patient);
 			}).then(function(){
 				self.logMessage("file read successful, documents inserted into database");
@@ -171,24 +182,30 @@ parseVCF.prototype.parseChunk = function(stringArray){
 	var promise = new Promise(function(resolve,reject){
 		//iterate over all strings that are include
 		for (var i=0; i < stringArray.length ; i++ ){
-			//If the file is malformed, it may have ##, ignore these
+			//Check to make sure the first entry equates to a vcf format
 			if (stringArray[i] !== "" ){
-				if(stringArray[i].startsWith('##INFO') && stringArray[i].match(/annovar/i) !== null){
-					line = stringArray[i].toLowerCase().match(/id=[a-z0-9\.-_+]+/i)[0].replace('id=','').replace('.','_');
+				if (!self.vcf){
+					self.numHeader++;
+					version = parseFloat(stringArray[i].match(/VCFv.+/ig)[0].replace(/[a-z]+/ig,""));
+					if (version < 4.1 || version  > 4.2)
+						throw new Error ("Invalid vcf File format");
+					else
+						self.vcf = version;
+				} else if (stringArray[i].search(/##INFO/i) !== -1 && stringArray[i].search(/annovar/i) !== -1){
+					line = stringArray[i].toLowerCase().match(/id=[^,]+/i)[0].replace('id=','').replace('.','_');
 					if (line == 'snp138'){
 						self.useDbSnpID = true;
 						self.mask.push('id');
 					}
 					self.mapper.anno.push(line);
 					self.numHeader++;
-				} else if (stringArray[i].startsWith("#CHR")) {
+				} else if (stringArray[i].search(/^#CHROM/i)!== -1) {
 					self.numHeader++;
 					var formatReached = false;
-
 					var staticLine = stringArray[i].toLowerCase().split('\t');
 					for (var j = 0; j < staticLine.length; j++ ){
 						if(self.mask.indexOf(staticLine[j]) == -1){
-							if (staticLine[j] == 'format'){
+							if (staticLine[j].search(/format/i)!== -1){
 								self.mapper.format = j;
 								formatReached = true;
 
@@ -199,14 +216,14 @@ parseVCF.prototype.parseChunk = function(stringArray){
 											'ignored':0,
 											'insertCache':[]};
 
-							} else if (staticLine[j] == 'info'){
+							} else if (staticLine[j].search(/info/i) !== -1){
 								self.mapper.annofield = j;
 							} else {
 								self.mapper.static[staticLine[j].replace('#','')] = j;
  							}
  						}
 					}
-				} else if (!stringArray[i].startsWith('#')) {
+				} else if (stringArray[i].search(/^#/) === -1) {
 					line = stringArray[i].toLowerCase().split('\t');
 					var annoObj = self.convertAnnoString(line[self.mapper.annofield]);
 					var annoList = self.mapper.anno;
@@ -222,7 +239,7 @@ parseVCF.prototype.parseChunk = function(stringArray){
 							for (var field in self.mapper.static){
 								if (self.mapper.static.hasOwnProperty(field)){
 									var itemToInsert = line[self.mapper.static[field]].split(',');
-									if (field.match('chr') === null){ // we want to keep chr as a string so dont convert it
+									if (field.search('chr') === -1){ // we want to keep chr as a string so dont convert it
 										itemToInsert = itemToInsert.map(convertNum);
 									} else {
 										field = 'chr';
@@ -241,6 +258,9 @@ parseVCF.prototype.parseChunk = function(stringArray){
 							}
 
 							var alleles = convertAlleles(ref,alt);
+							currDoc.original_alt = alt;
+							currDoc.original_ref = ref;
+							currDoc.original_pos = currDoc.pos;
 							currDoc.alt = alleles.alt;
 							currDoc.ref = alleles.ref;
 							currDoc.pos += alleles.posModifier;
@@ -251,7 +271,7 @@ parseVCF.prototype.parseChunk = function(stringArray){
 										annoList[j].search(/allele(\.|_)end/i) == -1){
 									//currDoc[annoList[j]] = annoObj
 									var itemToInsert = annoObj[annoList[j]];	
-									var itemToInsert = itemToInsert.map(function(item){
+									itemToInsert = itemToInsert.map(function(item){
 										if (item !== "."){
 											if (isNaN(item))
 												item = item.split(',');
@@ -273,7 +293,11 @@ parseVCF.prototype.parseChunk = function(stringArray){
 						//Add the format fields now, these are additional information including the genotype
 						var formatMapper = [];
 						var formatField = line[self.mapper.format].split(':');
+						var formatRegex = new RegExp(line[self.mapper.format].replace(/[a-z0-9]+/gi,".*"),'i');
 						var formatLine = line[self.patientObj[patient].id].split(':');
+						if (line[self.patientObj[patient].id].match(formatRegex) === null){
+							throw new Error("Invalid Genotype field found");
+						}
 						for (var j = 0; j < formatField.length; j++ ){
 							var info = formatLine[j].split(/[\/|,]/);
 							info = info.map(convertNum);
@@ -444,6 +468,8 @@ var countUndefined = function(arr){
  * deletions. Additionally, the position is fixed so that it now refers to the appropriate
  * position referenced by dbSNP.
  */
+
+ //THIS MUST BE LOOKED INTO....
 var convertAlleles = function(ref,alt){
 	var tempRefAllele, tempModifier,
 		tempAlts = [],
@@ -519,7 +545,7 @@ return dbFunctions.connectAndInitializeDB(true)
 		var parser = new parseVCF(fileName,patients);
 		return parser.read();
 	}).catch(function(err){
-		console.log(err.toString());
+		throw new Error(err);
 	}).done(function(){
 		return dbFunctions.closeConnection();
 	});

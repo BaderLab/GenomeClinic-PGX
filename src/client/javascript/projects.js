@@ -50,7 +50,7 @@ module.exports = function(){
 						'exclude':excluded
 			};
 			return Promise.resolve($.ajax({
-				url: "/patients",
+				url: "database/patients/project",
 				type: "POST",
 				contentType: "application/json",
 				dataType: 'json',
@@ -58,7 +58,7 @@ module.exports = function(){
 			}));
 		} else {
 			return Promise.resolve($.ajax({
-				url:'/patients',
+				url:'database/patients/completed',
 				type:'GET',
 				contentType:'application/json'
 			}));

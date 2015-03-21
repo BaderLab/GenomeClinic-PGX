@@ -54,8 +54,14 @@ module.exports = function(){
    */
   var staticHandlers = function(){
 
+    $('.close-box').on('click',function(e){
+      e.preventDefault();
+      $(this).closest('.alert-box').slideUp(300);
+    });
+
     //trigger the hidden file dialog button
     $("#upload-button").on("click",function(event){
+      $('.close-box').trigger('click')
       event.preventDefault();
       $("#fileselect").trigger('click');
     });
@@ -257,7 +263,7 @@ module.exports = function(){
 
         //ensure the file is in the appropriate format
         if (!(name.endsWith('.vcf'))){
-          alert("Invalid File, please choose a file that ends in .vcf extension");
+          $("#error-display-message").text("Invalid File, please choose a file that ends in .vcf extension").parents().find("#error-display-box").slideDown(300);
         } else {
           //preview the first megabyte of the file, parse patient names and dynamically
           //determine how many potential patients are included in a single file.
@@ -268,40 +274,65 @@ module.exports = function(){
             var foundSeq = false;
             var count  = 0;
             var previewData = atob(reader.result.split(',')[1]);
-            var tempString,tempArray,options,patientIds;
-            //These are the Expected fields to find in the vcf header.
-            var staticFields = ['#CHROM','POS','ID', 'REF','ALT','QUAL','FILTER','INFO','FORMAT','HAPLOTYPE'];
-            previewData = previewData.split(/[\n\r]+/);
-            while (!foundSeq || count < previewData.length){
-              tempString = previewData[count];
-              if (tempString.startsWith('#CHROM')){
-                foundSeq = true;
-                tempArray = previewData[count].split(/[\s]+/);
-                var slice;
-                for (var i=0; i < tempArray.length; i++){
-                  if (slice === undefined){
-                    if (staticFields.indexOf(tempArray[i].toUpperCase()) === -1){
-                      slice = i;
+            var tempString,tempArray,options,patientIds,format,regex, field;
+            var promise = Promise.resolve().then(function(){
+              //There technically only are 8 fixed fields, however, we required genotype infomration
+              //To compute pgx data. therefor we require the format field to uplaod and store variants
+              var reqFields = ['#CHROM','POS','ID', 'REF','ALT','QUAL','FILTER','INFO','FORMAT'];
+              previewData = previewData.split(/[\n\r]+/);
+              for (var count=0; count < previewData.length-1; count ++){
+                tempString = previewData[count].toUpperCase();
+                //This should be the first field;
+                if (count === 0){
+                  if (tempString.search(/fileFormat/i) !== -1){
+                    format = parseFloat(tempString.match(/VCFv.+$/i)[0].replace(/VCFv/i,""));
+                    if (format <= 4 || format === undefined)
+                      throw new Error('Input File not in proper Format');
+                  } else {
+                    throw new Error('Input Does not contain proper format field');
+                  }
+                } else if (tempString.search(/^#CHROM/i)!== -1) {
+                  foundSeq = true;
+                  // Split data on any white space
+                  tempArray = tempString.split(/[\s]+/);
+                  regex;
+                  for (var i=0; i < reqFields.length; i++){
+                    regex = new RegExp(reqFields[i],'i');
+                    //If there is an extra field this will throw an error
+                    if (tempArray[i].search(regex) === -1){
+                      if (reqFields[i] === "FORMAT")
+                        throw new Error ("Genotype Information is required");
+                      throw new Error("Invalid input file, missing required field: " + reqFields[i]);
                     }
                   }
+                  patientIds = tempArray.slice(reqFields.indexOf('FORMAT') + 1).filter(function(p){if(p!==""){return p;}});
+                  options = {'patient_ids':patientIds,
+                              'Id': + Id,
+                              'size':(data.files[0].size/1000),
+                              'file-name':name
+                            };
+                } else if (foundSeq){
+                  tempArray = tempString.split(/[\s]+/);
+                  field = tempArray[reqFields.indexOf("FORMAT")];
+                  if (field && field.search(/[^:]+/g) !== -1) 
+                    regex = new RegExp(tempArray[reqFields.indexOf('FORMAT')].replace(/[^:]+/g,".*"));
+                  else { 
+                    console.log(tempArray);
+                    console.log(tempString);
+                    throw new Error('Formatting error detected on line: ' + count);
+                  }
+                  for ( i=reqFields.length; i < patientIds.length + reqFields.length; i++){
+                    if (tempArray[i].match(regex)===null){
+                      throw new Error("A genotype field that does not correspond to the FORMAT field was found, please review the file and fix prior to uploading");
+                    }
+                  } 
                 }
-                if (slice === undefined)
-                  patientIds = ["Change-Me"];
-                else 
-                  patientIds = tempArray.slice(slice).filter(function(p){if(p!==""){return p;}});
-                options = {'patient_ids':patientIds,
-                            'Id': + Id,
-                            'size':(data.files[0].size/1000),
-                            'file-name':name
-                          };
               }
-              count++;
-            }
-            //if there was no field with #CHROM found then assume improperly formatted vcf
-            if (count == previewData.length & !foundSeq){
-              throw new Error('Input File not in proper Format');
-            } else {
-
+              //if there was no field with #CHROM found then assume improperly formatted vcf
+              //or if the formatField of the vcf file was not found.
+              if (!foundSeq)
+                throw new Error('Input File not in proper Format, could not find header information');
+            }).then(function(){
               //Render the html async to add it to the page
               templates.uploadpage.vcf(options)
               .then(function(renderedHtml){
@@ -352,7 +383,11 @@ module.exports = function(){
                   });
                 });
               });
-            }
+            }).catch(function(err){
+              $('#error-display-message').text(err.message).parents().find('#error-display-box').slideDown(300);
+            });
+
+            return promise;
           };
           reader.readAsDataURL(data.files[0].slice(0,10*1024*10));
         }
