@@ -82,7 +82,13 @@ parseVCF.prototype.read = function(){
 		});
 
 		self.stream.on('end',function(){
-			Promise.each(Object.keys(self.patientObj),function(patient){
+			var promise;
+			//if there is any remaining itms in the string. add them
+			if (self.oldString !== "")
+				promise = self.parseChunk([self.oldString]]).then(function(){return Object.keys(self.patientObj)});
+			else
+				promise = Promise.resolve(Object.keys(self.patientObj));
+			promise.each(function(patient){
 				return self.checkAndInsertDoc(patient);
 			}).then(function(){
 				self.logMessage("file read successful, documents inserted into database");
@@ -181,7 +187,7 @@ parseVCF.prototype.parseChunk = function(stringArray){
 					else
 						self.vcf = version;
 				} else if (stringArray[i].search(/##INFO/i) !== -1 && stringArray[i].search(/annovar/i) !== -1){
-					line = stringArray[i].toLowerCase().match(/id=.+,/i)[0].replace('id=','').replace('.','_');
+					line = stringArray[i].toLowerCase().match(/id=[^,]+/i)[0].replace('id=','').replace('.','_');
 					if (line == 'snp138'){
 						self.useDbSnpID = true;
 						self.mask.push('id');
@@ -191,11 +197,10 @@ parseVCF.prototype.parseChunk = function(stringArray){
 				} else if (stringArray[i].search(/^#CHROM/i)!== -1) {
 					self.numHeader++;
 					var formatReached = false;
-
 					var staticLine = stringArray[i].toLowerCase().split('\t');
 					for (var j = 0; j < staticLine.length; j++ ){
 						if(self.mask.indexOf(staticLine[j]) == -1){
-							if (staticLine[j] == 'format'){
+							if (staticLine[j].search(/format/i)!== -1){
 								self.mapper.format = j;
 								formatReached = true;
 
@@ -206,7 +211,7 @@ parseVCF.prototype.parseChunk = function(stringArray){
 											'ignored':0,
 											'insertCache':[]};
 
-							} else if (staticLine[j] == 'info'){
+							} else if (staticLine[j].search(/info/i) !== -1){
 								self.mapper.annofield = j;
 							} else {
 								self.mapper.static[staticLine[j].replace('#','')] = j;
@@ -260,9 +265,8 @@ parseVCF.prototype.parseChunk = function(stringArray){
 								if (annoList[j].search(/annovar(\.|_)date/i) == -1 && 
 										annoList[j].search(/allele(\.|_)end/i) == -1){
 									//currDoc[annoList[j]] = annoObj
-									console.log(annoObj[annoList[j]]);
 									var itemToInsert = annoObj[annoList[j]];	
-									var itemToInsert = itemToInsert.map(function(item){
+									itemToInsert = itemToInsert.map(function(item){
 										if (item !== "."){
 											if (isNaN(item))
 												item = item.split(',');
@@ -284,9 +288,9 @@ parseVCF.prototype.parseChunk = function(stringArray){
 						//Add the format fields now, these are additional information including the genotype
 						var formatMapper = [];
 						var formatField = line[self.mapper.format].split(':');
-						var formatRegex = new RegExp(formatField.replace(/[a-z0-9]+/gi,".*"),'i');
+						var formatRegex = new RegExp(line[self.mapper.format].replace(/[a-z0-9]+/gi,".*"),'i');
 						var formatLine = line[self.patientObj[patient].id].split(':');
-						if (formatLine.match(formatRegex) == null){
+						if (line[self.patientObj[patient].id].match(formatRegex) === null){
 							throw new Error("Invalid Genotype field found");
 						}
 						for (var j = 0; j < formatField.length; j++ ){
