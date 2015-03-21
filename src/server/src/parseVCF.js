@@ -84,10 +84,14 @@ parseVCF.prototype.read = function(){
 		self.stream.on('end',function(){
 			var promise;
 			//if there is any remaining itms in the string. add them
-			if (self.oldString !== "")
-				promise = self.parseChunk([self.oldString]]).then(function(){return Object.keys(self.patientObj)});
-			else
+			if (self.oldString !== ""){
+				promise = self.parseChunk([self.oldString])
+				.then(function(){
+					return Object.keys(self.patientObj);
+				});
+			} else {
 				promise = Promise.resolve(Object.keys(self.patientObj));
+			}
 			promise.each(function(patient){
 				return self.checkAndInsertDoc(patient);
 			}).then(function(){
