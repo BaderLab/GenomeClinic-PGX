@@ -718,8 +718,8 @@ var dbFunctions = function(logger,DEBUG){
 		assert(Object.prototype.toString.call(project) == "[object String]", "Invalid Project Name");
 		var field = {'_id':0};
 		query = {};
-		query[dbConstants.PROJECTS.COLLECTION] = project;
-		return find(dbConstants.PATIENTS.COLLECTION,query,fields,options);
+		query[dbConstants.PROJECTS.ARRAY_FIELD] = project;
+		return find(dbConstants.PATIENTS.COLLECTION,query,field,options);
 	};
 
 	this.findAllPatientsNinProject = function(project,username,options){
@@ -732,11 +732,17 @@ var dbFunctions = function(logger,DEBUG){
 					return item[dbConstants.PROJECTS.ID_FIELD];
 			});
 		}).then(function(result){
-			var query = {},tagQuery={},ownwerQuery={};
-			query[dbConstants.READY_FOR_USE] = true;
-			tagQuery[dbConstants.PROJECTS.ARRAY_FIELD] = {$in:result};
-			ownwerQuery[dbConstants.DB.OWNER_ID] = username;
-			query['$or'] = [ownerQuery,tagQuery];
+			var query = {},tagQuery={},ownerQuery={},queryList=[];
+			ownerQuery[dbConstants.DB.OWNER_ID] = username;
+			queryList.push(ownerQuery);
+			if (result.length > 0){
+				tagQuery[dbConstants.PROJECTS.ARRAY_FIELD] = {$in:result};
+				queryList.push(tagQuery);
+				queryList['$or'] = queryList
+			} else {
+				query = ownerQuery
+			}
+			query[dbConstants.PATIENTS.READY_FOR_USE] = true;
 			return find(dbConstants.PATIENTS.COLLECTION,query,null,options);
 		}).then(function(result){
 			return result.filter(function(patient){
@@ -757,12 +763,16 @@ var dbFunctions = function(logger,DEBUG){
 				return item[dbConstants.PROJECTS.ID_FIELD];
 			});
 		}).then(function(result){
-			var query = {},tagQuery={},ownwerQuery={};
-			tagQuery[dbConstants.PROJECTS.ARRAY_FIELD] = {$in:result};
+			var query = {},tagQuery={},ownwerQuery={},queryList=[];
 			ownwerQuery[dbConstants.DB.OWNER_ID] = username;
-			query['$or'] = [ownwerQuery,tagQuery];
+			queryList.push(ownwerQuery)
+			if (result.length > 0){
+				tagQuery[dbConstants.PROJECTS.ARRAY_FIELD] = {$in:result};
+				queryList.push(tagQuery);
+			}
+			query['$or'] = queryList;
 			if (readyOnly){
-				query[dbConstants.READY_FOR_USE] = true;
+				query[dbConstants.PATIENTS.READY_FOR_USE] = true;
 				return find(dbConstants.PATIENTS.COLLECTION,query,null,options);
 			} else {
 				var goodResults;

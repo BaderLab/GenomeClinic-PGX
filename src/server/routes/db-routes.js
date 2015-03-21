@@ -183,10 +183,10 @@ module.exports = function(app,dbFunctions,queue){
 		var username = req.user[dbConstants.USERS.ID_FIELD];
 		var query = {};
 		if (req.body.exclude){
-			promise =  dbFunctions.findAllPatientsNinProject(req.body.exclude,username,{sort:{'completed':-1}});
+			promise =  dbFunctions.findAllPatientsNinProject(req.body.project,username,{sort:{'completed':-1}});
 		} else {
 			promise = dbFunctions.findAllPatientsInProject(req.body.project,{sort:{'completed':-1}});
-		}	
+		}
 		promise.then(function(result){
 			res.send(result);
 		});
