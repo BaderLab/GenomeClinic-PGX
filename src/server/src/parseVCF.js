@@ -185,6 +185,7 @@ parseVCF.prototype.parseChunk = function(stringArray){
 			//Check to make sure the first entry equates to a vcf format
 			if (stringArray[i] !== "" ){
 				if (!self.vcf){
+					self.numHeader++;
 					version = parseFloat(stringArray[i].match(/VCFv.+/ig)[0].replace(/[a-z]+/ig,""));
 					if (version < 4.1 || version  > 4.2)
 						throw new Error ("Invalid vcf File format");
