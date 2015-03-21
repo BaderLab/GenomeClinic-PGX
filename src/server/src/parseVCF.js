@@ -43,6 +43,7 @@ var parseVCF = function(file,patients,bufferSize,mask){
 	this.mask = (mask || ['qual','filter']);
 	this.numHeader = 0;
 	this.useDbSnpID = false;
+	this.vcf = undefined;
 };
 //==============================================================================================================
 /* Create a read stream to read data from, and add event handlers to 
@@ -171,9 +172,15 @@ parseVCF.prototype.parseChunk = function(stringArray){
 	var promise = new Promise(function(resolve,reject){
 		//iterate over all strings that are include
 		for (var i=0; i < stringArray.length ; i++ ){
-			//If the file is malformed, it may have ##, ignore these
+			//Check to make sure the first entry equates to a vcf format
 			if (stringArray[i] !== "" ){
-				if(stringArray[i].search(/##INFO/) !== -1 && stringArray[i].search(/annovar/i) !== -1){
+				if (!self.vcf){
+					version = parseFloat(stringArray[i].match(/VCFv.*+/ig).replace(/[a-z]+/ig,""));
+					if (version < 4.1 || version  > 4.2)
+						throw new Error ("Invalid vcf File format");
+					else
+						self.vcf = version;
+				} else if (stringArray[i].search(/##INFO/i) !== -1 && stringArray[i].search(/annovar/i) !== -1){
 					line = stringArray[i].toLowerCase().match(/id=.+,/i)[0].replace('id=','').replace('.','_');
 					if (line == 'snp138'){
 						self.useDbSnpID = true;
@@ -181,7 +188,7 @@ parseVCF.prototype.parseChunk = function(stringArray){
 					}
 					self.mapper.anno.push(line);
 					self.numHeader++;
-				} else if (stringArray[i].search(/^#CHROM/)!== -1) {
+				} else if (stringArray[i].search(/^#CHROM/i)!== -1) {
 					self.numHeader++;
 					var formatReached = false;
 
@@ -276,7 +283,11 @@ parseVCF.prototype.parseChunk = function(stringArray){
 						//Add the format fields now, these are additional information including the genotype
 						var formatMapper = [];
 						var formatField = line[self.mapper.format].split(':');
+						var formatRegex = new RegExp(formatField.replace(/[a-z0-9]+/gi,".*"),'i');
 						var formatLine = line[self.patientObj[patient].id].split(':');
+						if (formatLine.match(formatRegex) == null){
+							throw new Error("Invalid Genotype field found");
+						}
 						for (var j = 0; j < formatField.length; j++ ){
 							var info = formatLine[j].split(/[\/|,]/);
 							info = info.map(convertNum);
@@ -524,7 +535,7 @@ return dbFunctions.connectAndInitializeDB(true)
 		var parser = new parseVCF(fileName,patients);
 		return parser.read();
 	}).catch(function(err){
-		console.log(err.toString());
+		throw new Error(err);
 	}).done(function(){
 		return dbFunctions.closeConnection();
 	});
