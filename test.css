@@ -1,0 +1,55 @@
+.row {
+	width:100%;
+	margin-right:0;
+	margin-left:0;
+}	
+
+.columns {
+	padding-left:0;
+	padding-right:0;
+	display:inline-block;
+}
+.large-1 {
+	width: 8%;
+}
+.large-2 {
+	width: 16%;
+}
+.large-3 {
+	width: 24%;
+}
+.large-4 {
+	width: 33%;
+}
+.large-5 {
+	width: 41%;
+}
+.large-6 {
+	width: 49%;
+}
+.large-7 {
+	width: 58%;
+}
+.large-8 {
+	width: 66%;
+}
+.large-9 {
+	width: 74%;
+}
+.large-10 {
+	width: 82.5%;
+}
+.large-11 {
+	width: 91%;
+}
+.large-12 {
+	width: 100%;
+}
+
+p {
+	font-size:8px;
+	font-family: Verdana;
+}
+p.center {
+	text-align:center;
+}
