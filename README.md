@@ -40,6 +40,11 @@ Once installed, you will need to run the MongoDB server prior to running our web
 
 The default port number for mongo is 27017. If you want to change this feel free, however in order to connect you will need to modify the [constants.json](src/server/conf/constants.json) file to reflect the new port. change dbConstants.PORT to whatever your desired port is.
 
+It is recomended that you modify the default settings for namespace file size when first initializing the server. The default setting limits the number of namespaces to a maximum of 24000 per databse or a ns file of 16mb. This is generally enough, however a databse running over a longer perior of time may accumulate far more namespaces then this. The namespace file go be written up to a maximum of 2gb per db effectively providing upt to 3,000,000 potential namespaces. To set this when starting the server simply run the service with the addition `--nssize` command and the number of megabytes you want the namespace file to be. For example, a mazium nsfile size of 2gb would be:
+
+`mongod --dbpath=db_data/ --port 27017 --nssize 2048`
+
+There are a variety of other options you can customize, we suggest reading the [documentation](http://docs.mongodb.org/manual/reference/configuration-options/) about server configuration. It is important to note that at this time, the app does not support an authenticated databse. This will be coming in the near future. 	
 
 ## Setting up the server
 
