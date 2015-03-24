@@ -40,6 +40,7 @@ module.exports = function() {
 		.then(function(result){  // clear the current page
 			var context= result;
 			context.useFull = true;
+			context.pgx = true;
 			return templates.patient(context);
 		}).then(function(renderedHtml) {
 			$('#main').append(renderedHtml);
