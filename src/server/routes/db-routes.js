@@ -1,3 +1,9 @@
+/* Routes related to modifying or retrieving information
+ * from the linked database. Contains functions for Projects
+ * Patients, etc.
+ * @author Patrick Magee
+ * @author Ron Ammar
+ */
 var utils = require('../lib/utils');
 var Promise= require("bluebird");
 var constants = require('../lib/conf/constants.json');
@@ -124,7 +130,11 @@ module.exports = function(app,dbFunctions,queue){
 		query[dbConstants.PROJECTS.ID_FIELD] = req.body.project;
 		dbFunctions.findOne(dbConstants.PROJECTS.COLLECTION,query)
 		.then(function(result){
-			if (result.owner == req.user[dbConstants.USERS.ID_FIELD]){
+			/*This line essentailly gives any user the ability to modify the current project so long as they are
+			 *Listed as an authorized user for that project. However once they remove a patient, if they are not
+			 *The original owner, once they remove that patient they will not have access to it  This is a temp
+			 *Fix until we come up with a better Idea for how the permissions should work. */
+			if (result.owner == req.user[dbConstants.USERS.ID_FIELD] || result.users.indexOf(req.user[dbConstants.USERS.ID_FIELD]) !== -1){
 				dbFunctions.removeProject(req.body.project).then(function(result){
 					req.flash('redirectURL','/projects');
 					req.flash('statusCode','200');
@@ -144,9 +154,13 @@ module.exports = function(app,dbFunctions,queue){
 	app.post('/database/project/update',utils.isLoggedIn,function(req,res){
 		var query = {};
 		query[dbConstants.PROJECTS.ID_FIELD] = req.body.project;
-		dbFunctions.findOne(dbConstants.PROJECT.COLLECTION,query)
+		dbFunctions.findOne(dbConstants.PROJECTS.COLLECTION,query)
 		.then(function(result){
-			if (result.owner == req.user[dbConstants.USERS.ID_FIELD]){
+			/*This line essentailly gives any user the ability to modify the current project so long as they are
+			 *Listed as an authorized user for that project. However once they remove a patient, if they are not
+			 *The original owner, once they remove that patient they will not have access to it  This is a temp
+			 *Fix until we come up with a better Idea for how the permissions should work. */
+			if (result.owner == req.user[dbConstants.USERS.ID_FIELD] || result.users.indexOf(req.user[dbConstants.USERS.ID_FIELD]) !== -1){
 				dbFunctions.update(dbConstants.PROJECTS.COLLECTION,query,{$set:req.body.update})
 				.then(function(result){
 					req.flash('redirectURL','/projects');
@@ -157,7 +171,7 @@ module.exports = function(app,dbFunctions,queue){
 					res.redirect('/failure');
 				});
 			} else {
-				req.flash('error','Sorry, for security reasons only the original owner of the project may delete it');
+				req.flash('error','Sorry, for security reasons only the original owner of the project may modify it');
 				res.redirect('/failure');
 			}
 		});

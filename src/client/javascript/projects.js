@@ -3,7 +3,7 @@
  * Javascript and handlers for working and manipulating all projects requests / html
  * this module adds the ability to add/remove projects, additionally add or remove 
  * patients from a specific module
- * @Patrick Magee
+ * @author Patrick Magee
  */
 var $ = require('jquery'),
 	templates = require('./templates'),
@@ -205,6 +205,10 @@ module.exports = function(){
 		});
 	};
 
+	/* Add a new authorized user to the project. This function will take the input
+	 * from the input field, check to see if that user exists in a database then render
+	 * an additional row on Auth User table */
+
 	var addNewAuthUser = function(){
 		$('#new-user').on('keyup',function(e){
 			if (e.keyCode == 13){
@@ -253,6 +257,9 @@ module.exports = function(){
 		});
 	};
 
+
+	/* when a key is pressed and new data is entered into an input field, remove the previous error
+	 * that was present */
 	var removeInputErrors = function(){
 		$('input').on('keydown',function(){
 			if ($(this).hasClass('error')){
@@ -549,7 +556,9 @@ module.exports = function(){
 	};
 
 	
-
+	/* After selecting a project, render the page displaying project specific information
+	 * enabling the user to edit the currnety project, view all patients in it, delete the
+	 * project and modify it in other ways*/ 
 	var renderProjectInfo = function(project){
 		var remove;
 		projectName = project;
@@ -563,7 +572,11 @@ module.exports = function(){
 			})
 		})).then(function(result){
 			owner = result[0].owner;
-			remove = (owner == user);
+			/*This line essentailly gives any user the ability to modify the current project so long as they are
+			 *Listed as an authorized user for that project. However once they remove a patient, if they are not
+			 *The original owner, once they remove that patient they will not have access to it  This is a temp
+			 *Fix until we come up with a better Idea for how the permissions should work. */
+			remove = (owner == user || result[0].users.indexOf(user) !== -1);
 			var options = result[0];
 			options.isOwner = remove;
 			return templates.project.info(options);	
