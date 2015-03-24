@@ -44,7 +44,7 @@ It is recomended that you modify the default settings for namespace file size wh
 
 `mongod --dbpath=db_data/ --port 27017 --nssize 2048`
 
-There are a variety of other options you can customize, we suggest reading the [documentation](http://docs.mongodb.org/manual/reference/configuration-options/) about server configuration. It is important to note that at this time, the app does not support an authenticated databse. This will be coming in the near future. 	
+There are a variety of other options you can customize, we suggest reading the [documentation](http://docs.mongodb.org/manual/reference/configuration-options/) about server configuration. It is important to note that at this time, the app does not support an authenticated database. This will be coming in the near future. 	
 
 ## Setting up the server
 
