@@ -1,3 +1,9 @@
+/* Configuration for the passport express app.
+ * This module configures the various associated routes and actions
+ * for the passport app. It adds functions for de/serializing users,
+ * adding new users, loggin in, and logging out.
+ * @author Patrick Magee
+ */
 var LocalStrategy = require('passport-local').Strategy;
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 var dbConstants = require('../lib/conf/constants.json').dbConstants;

@@ -17,7 +17,7 @@
  * closed.
  * 
  *
- * written by Patrick Magee
+ * @author Patrick Magee
 */
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs'));

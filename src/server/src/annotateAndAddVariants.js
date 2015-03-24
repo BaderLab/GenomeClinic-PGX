@@ -7,7 +7,7 @@
  * name automatically being determined.
  *
  *
- * Written by Patrick Magee
+ * @author Patrick Magee
 */
 var Promise = require("bluebird");
 //var db = require("../frangipani_node_modules/DB");
@@ -273,7 +273,7 @@ function annotateAndAddVariants(options){
 			logMessage(null,err.stack);
 			shouldReject = true;
 			Promise.each(options.patients,function(patient){
-				return dbFunctions.removePatient(patient[dbConstants.PATIENTS.ID_FIELD])
+				return dbFunctions.removePatient(patient[dbConstants.PATIENTS.ID_FIELD]);
 			}).catch(function(err){
 				logMessage(null,"Error removing entries from database",{err:err});
 			});

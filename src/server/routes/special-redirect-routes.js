@@ -1,4 +1,8 @@
-
+/* These routes are used when a request is sent and then it is waiting for a 
+ * success or failure message. These generalized routes will return information
+ * about the status of a request, along wiht any relevant information that goes 
+ * along with the status 
+ * @author Patrick Magee */
 module.exports = function(app){
 	//route to send information in the event of a login failure
 	app.get('/failure',function(req,res){

@@ -1,5 +1,5 @@
 /*
- * Frangipani pharmacogenomics app JavaScript.
+ * Pharmacogenomics app JavaScript.
  * @author Ron Ammar
 */
 

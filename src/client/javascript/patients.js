@@ -3,8 +3,6 @@
  * @author Ron Ammar
  */
 
-/* Wrap all code in an immediately-invoked function expressions to avoid 
- * global variables. */
 var $ = require('jquery'),
 	templates = require('./templates'),
 	utility = require('./utility'),

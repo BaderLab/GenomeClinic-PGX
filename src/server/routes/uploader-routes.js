@@ -1,3 +1,6 @@
+/* Routes associated with uploading files to the server then initializing
+ * their annotation 
+ * @auhtor Patrick Magee */
 var utils = require('../lib/utils');
 var uploader = require("jquery-file-upload-middleware");
 var Promise = require('bluebird');

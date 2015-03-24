@@ -1,4 +1,6 @@
-//templates to be precompiled and sent to browser
+/* Templates to be rendered and precompiled prior to be sent to webpage
+ * @author Patrick Magee
+ */
 var $ = require('jquery');
 var notfound = require("../templates/404notfound.hbs"),
 	construction = require('../templates/construction.hbs'),
@@ -20,10 +22,9 @@ var notfound = require("../templates/404notfound.hbs"),
 	patient = require('../templates/patients-table.hbs'),
 	pgx = require('../templates/pgx-page.hbs'),
 	config = require('../templates/server-config.hbs');
-// CUSTOM HANDLEBARS HELPERS
 
-//PGX helpers
-
+/* return a promisfied version of the template that accepts a single parameter
+ * o to render the template */
 var _t = function(t){
 	return function p (o){
 		return Promise.resolve().then(function(){
@@ -32,6 +33,8 @@ var _t = function(t){
 	};
 };
 
+
+//Return object with All the templates
 module.exports = {
 	notfound:_t(notfound),
 	construction:_t(construction),

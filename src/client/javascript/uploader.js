@@ -4,19 +4,13 @@
  * Validation as well as file uploading. It can handle one, or many
  * files at any given time, to be sequentially uploaded (this was done
  * due to naming issues within the databse)
-
-
  * requires: 
-
  * jquery.ui.widget.js
  * jquery.iframe-transport.js
  * jquery.fileupload.js
-
  * from the jquery-file-upload.
  * https://github.com/blueimp/jQuery-File-Upload
-
-
- *@Patrick Magee
+ * @author Patrick Magee
 */
 var $ = require('jquery'),
     templates = require('./templates'),

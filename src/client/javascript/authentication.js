@@ -7,10 +7,8 @@
  * 4. Change Pass
  *
  * Contains generic functions which allow for compatability between different
- * html pages
-
- * written by:
- * Patrick Magee
+ * html page
+ * @author Patrick Magee
  */
 var $ = require('jquery'),
 	templates = require('./templates'),

@@ -4,7 +4,7 @@
  * hold off performing any action on them, until the one ahead
  * of it is completed.
  * 
- * written by Patrick Magee
+ * @author Patrick Magee
  */
 var Promise = require('bluebird');
 var constants= require("./conf/constants.json");

@@ -1,3 +1,6 @@
+/* Routes to handle the pgx app
+ * @author Ron Ammar
+ */
 var utils = require('../lib/utils');
 var pgx = require('../lib/conf/pgx_haplotypes.json');
 var Promise = require('bluebird');

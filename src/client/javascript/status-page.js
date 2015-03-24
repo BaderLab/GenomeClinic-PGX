@@ -4,8 +4,7 @@
  * patients (for the moment). In the future it will only show
  * the files uploaded by the specific user
  *
- * Written by:
- * Patrick Magee
+ * @author Patrick Magee
  */
 var $ = require("jquery"),
 	templates = require('./templates.js'),

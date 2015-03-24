@@ -1,3 +1,9 @@
+/* Routes module to add Authorization and login routes to
+ * the express app. These routes handle loggin in to the app.
+ * This module requires that the express app is already configured
+ * to use passport
+ * @author Patrick Magee
+ */
 var Promise= require("bluebird");
 var nodemailer = require('nodemailer');
 var constants = require("../lib/conf/constants.json");

@@ -1,3 +1,9 @@
+/* Main function that is called each time a new page is loaded. 
+ * this function delegates what
+ * additional page specific functions are then called 
+ * 
+ * @author Patrick Magee
+ */
 var $ = require('jquery');
 var templates = require('./templates');
 var projects = require('./projects'),
@@ -7,6 +13,8 @@ var projects = require('./projects'),
 	config = require('./config'),
 	authentication = require('./authentication'),
 	patients = require('./patients');
+
+
 
 
 (function(){
