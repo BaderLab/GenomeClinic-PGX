@@ -289,7 +289,6 @@ module.exports = function(){
                   foundSeq = true;
                   // Split data on any white space
                   tempArray = tempString.split(/[\s]+/);
-                  regex;
                   for (var i=0; i < reqFields.length; i++){
                     regex = new RegExp(reqFields[i],'i');
                     //If there is an extra field this will throw an error
@@ -311,11 +310,13 @@ module.exports = function(){
                   if (field && field.search(/[^:]+/g) !== -1) 
                     regex = new RegExp(tempArray[reqFields.indexOf('FORMAT')].replace(/[^:]+/g,".*"));
                   else { 
-                    console.log(tempArray);
-                    console.log(tempString);
-                    throw new Error('Formatting error detected on line: ' + count);
+                    throw new Error('Formatting error detected on line: ' + (count + 1));
                   }
+
                   for ( i=reqFields.length; i < patientIds.length + reqFields.length; i++){
+                    if (!tempArray[i]){
+                      throw new Error("Missing Genotype information at line " + (count + 1));
+                    }
                     if (tempArray[i].match(regex)===null){
                       throw new Error("A genotype field that does not correspond to the FORMAT field was found, please review the file and fix prior to uploading");
                     }
