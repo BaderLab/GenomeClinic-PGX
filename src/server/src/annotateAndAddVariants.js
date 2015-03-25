@@ -7,7 +7,7 @@
  * name automatically being determined.
  *
  *
- * Written by Patrick Magee
+ * @author Patrick Magee
 */
 var Promise = require("bluebird");
 //var db = require("../frangipani_node_modules/DB");
@@ -84,7 +84,7 @@ function annotateAndAddVariants(options){
 	//new promise to return
 	var promise = new Promise(function(resolve,reject){
 		var annovarPath, annodbStrin, dbusageString, 
-			tempOutputFile,buildver,annovarIndex;
+			tempOutputFile,buildver,annovarIndex,shouldReject;
 		var inputFile = path.resolve(options.input);
 
 		//Check to see whether input file exists and if annovarPath exists
@@ -266,12 +266,18 @@ function annotateAndAddVariants(options){
 
 		}).then(function(){
 			logMessage("completed annotation and uploaded entries to db");
-			resolve('Completed Annotation and uploaded entries');
-		}).catch(AnnovarError,function(err){
-			logMessage(null,err.toString());
+		//}).catch(AnnovarError,function(err){
+		//	logMessage(null,err.toString());
 		}).catch(function(err){
 			//Need more robust error handler here for solving issues
 			logMessage(null,err.stack);
+			shouldReject = true;
+			Promise.each(options.patients,function(patient){
+				return dbFunctions.removePatient(patient[dbConstants.PATIENTS.ID_FIELD]);
+			}).catch(function(err){
+				logMessage(null,"Error removing entries from database",{err:err});
+			});
+
 		}).done(function(){
 			//Cleanup, remove files and close db connection
 			logMessage("cleaning up directory");
@@ -282,6 +288,11 @@ function annotateAndAddVariants(options){
 				logMessage("all files removed successfully");
 			}).catch(function(err){
 				logMessage(null,"could not remove files",{err:err});
+			}).then(function(){
+				if (shouldReject)
+					reject();
+				else
+					resolve('Completed Annotation and uploaded entries');
 			});
 
 		});

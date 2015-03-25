@@ -65,6 +65,17 @@
 			"REFERENCE":"ref",
 			"ALTERNATE":"alt",
 			"IDENTIFIER":"id"
+		},
+		"FAILURE":{
+			"COLLECTION":"failures",
+			"FAIL_FIELD":"fail",
+			"ID_FIELD":"patient_id",
+			"COLLECTION_ID":"collection_id",
+			"FILE_FIELD":"file",
+			"DATE_ADDED":"added",
+			"READY_FOR_USE":"ready",
+			"ANNO_COMPLETE":"completed",
+			"PROJECT_ARRAY_FIELD":"tags"
 		}
 	},
 	"nodeConstants":{

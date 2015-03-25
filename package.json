@@ -71,6 +71,7 @@
     "glob": "^5.0.1",
     "handlebars": "^3.0.0",
     "hbsfy": "^2.2.1",
+    "html-pdf": "^1.1.0",
     "jquery-file-upload-middleware": "^0.1.7",
     "just.randomstring": "^0.1.1",
     "mongodb": "^1.4.34",
@@ -80,6 +81,7 @@
     "passport": "^0.2.1",
     "passport-google-oauth": "^0.2.0",
     "passport-local": "^1.0.0",
+    "phantom": "^0.7.2",
     "request": "^2.53.0",
     "winston": "^0.9.0"
   }

@@ -1,3 +1,9 @@
+/* Routes related to modifying or retrieving information
+ * from the linked database. Contains functions for Projects
+ * Patients, etc.
+ * @author Patrick Magee
+ * @author Ron Ammar
+ */
 var utils = require('../lib/utils');
 var Promise= require("bluebird");
 var constants = require('../lib/conf/constants.json');
@@ -33,37 +39,7 @@ module.exports = function(app,dbFunctions,queue){
 	});
 
 
-	/* Find ALL patients including those in the queue */
-	app.use('/database/find',utils.isLoggedIn, function(req,res){
-		var username = req.user[dbConstants.USERS.ID_FIELD];
-		dbFunctions.findAllPatients(undefined, undefined, {sort:{'completed':-1}}, username)
-		.then(function(result){
-			var fieldsArray = [];
-			for (var i=queue.queue.length-1; i>= 0; i--){
-				for ( var j=0; j < queue.queue[i].fields.length; j++){
-					if (queue.queue[i].fields[j][dbConstants.DB.OWNER_ID] == username)
-						fieldsArray.push(queue.queue[i].fields[j]);
-				}
-			}
-			return fieldsArray.concat(result);
-		}).then(function(result){
-			res.send(result.sort(function(a,b){
-				a = a.added.split(/\s/);
-				b = b.added.split(/\s/);
-				if (a[0] < b[0]){
-					return 1;
-				} else if (a[0] > b[0]) {
-					return -1;
-				} else {
-					if (a[1] < b[1])
-						return 1;
-					else if (a[1] > b[1])
-						return -1;
-					return 0;
-				}
-			}));
-		});
-	});
+
 
 
 	//==================================================================
@@ -154,7 +130,11 @@ module.exports = function(app,dbFunctions,queue){
 		query[dbConstants.PROJECTS.ID_FIELD] = req.body.project;
 		dbFunctions.findOne(dbConstants.PROJECTS.COLLECTION,query)
 		.then(function(result){
-			if (result.owner == req.user[dbConstants.USERS.ID_FIELD]){
+			/*This line essentailly gives any user the ability to modify the current project so long as they are
+			 *Listed as an authorized user for that project. However once they remove a patient, if they are not
+			 *The original owner, once they remove that patient they will not have access to it  This is a temp
+			 *Fix until we come up with a better Idea for how the permissions should work. */
+			if (result.owner == req.user[dbConstants.USERS.ID_FIELD] || result.users.indexOf(req.user[dbConstants.USERS.ID_FIELD]) !== -1){
 				dbFunctions.removeProject(req.body.project).then(function(result){
 					req.flash('redirectURL','/projects');
 					req.flash('statusCode','200');
@@ -174,9 +154,13 @@ module.exports = function(app,dbFunctions,queue){
 	app.post('/database/project/update',utils.isLoggedIn,function(req,res){
 		var query = {};
 		query[dbConstants.PROJECTS.ID_FIELD] = req.body.project;
-		dbFunctions.findOne(dbConstants.PROJECT.COLLECTION,query)
+		dbFunctions.findOne(dbConstants.PROJECTS.COLLECTION,query)
 		.then(function(result){
-			if (result.owner == req.user[dbConstants.USERS.ID_FIELD]){
+			/*This line essentailly gives any user the ability to modify the current project so long as they are
+			 *Listed as an authorized user for that project. However once they remove a patient, if they are not
+			 *The original owner, once they remove that patient they will not have access to it  This is a temp
+			 *Fix until we come up with a better Idea for how the permissions should work. */
+			if (result.owner == req.user[dbConstants.USERS.ID_FIELD] || result.users.indexOf(req.user[dbConstants.USERS.ID_FIELD]) !== -1){
 				dbFunctions.update(dbConstants.PROJECTS.COLLECTION,query,{$set:req.body.update})
 				.then(function(result){
 					req.flash('redirectURL','/projects');
@@ -187,7 +171,7 @@ module.exports = function(app,dbFunctions,queue){
 					res.redirect('/failure');
 				});
 			} else {
-				req.flash('error','Sorry, for security reasons only the original owner of the project may delete it');
+				req.flash('error','Sorry, for security reasons only the original owner of the project may modify it');
 				res.redirect('/failure');
 			}
 		});
@@ -196,30 +180,63 @@ module.exports = function(app,dbFunctions,queue){
 	//==================================================================
 	//Patient Routes
 	//==================================================================
-
-	app.get("/patients", utils.isLoggedIn, function(req,res){
+	//Find only the completed patients
+	app.get("/database/patients/completed", utils.isLoggedIn, function(req,res){
 		var username = req.user[dbConstants.USERS.ID_FIELD];
-		dbFunctions.findAllPatients(undefined,true, {sort: {"completed": -1}}, username)
+		dbFunctions.findAllPatients(username,true,{sort: {"completed": -1}})
 		.then(function(result){
 			res.send(result);
 		});
 
 	});
 
-	app.post("/patients", utils.isLoggedIn, function(req,res){
-		var project,exclude;
+
+	//FInd patients linked to a project
+	app.post("/database/patients/project", utils.isLoggedIn, function(req,res){
+		var project,exclude,promise;
 		var username = req.user[dbConstants.USERS.ID_FIELD];
 		var query = {};
 		if (req.body.exclude){
-			exclude = req.body.project;
+			promise =  dbFunctions.findAllPatientsNinProject(req.body.project,username,{sort:{'completed':-1}});
 		} else {
-			query[dbConstants.PROJECTS.ARRAY_FIELD] = req.body.project;
-			project = req.body.project;
+			promise = dbFunctions.findAllPatientsInProject(req.body.project,{sort:{'completed':-1}});
 		}
-
-		dbFunctions.findAllPatients(query,true, {sort: {"completed": -1}}, username,project,exclude)
-		.then(function(result){
+		promise.then(function(result){
 			res.send(result);
+		});
+	});
+
+
+	/* Find ALL patients including those in the queue and failure db */
+	app.use('/database/patients/all',utils.isLoggedIn, function(req,res){
+		var username = req.user[dbConstants.USERS.ID_FIELD];
+		dbFunctions.findAllPatients(username, false, {sort:{'completed':-1}})
+		.then(function(result){
+			//append all the 
+			var fieldsArray = [];
+			for (var i=queue.queue.length-1; i>= 0; i--){
+				for ( var j=0; j < queue.queue[i].fields.length; j++){
+					if (queue.queue[i].fields[j][dbConstants.DB.OWNER_ID] == username)
+						fieldsArray.push(queue.queue[i].fields[j]);
+				}
+			}
+			return fieldsArray.concat(result);
+		}).then(function(result){
+			res.send(result.sort(function(a,b){
+				a = a.added.split(/\s/);
+				b = b.added.split(/\s/);
+				if (a[0] < b[0]){
+					return 1;
+				} else if (a[0] > b[0]) {
+					return -1;
+				} else {
+					if (a[1] < b[1])
+						return 1;
+					else if (a[1] > b[1])
+						return -1;
+					return 0;
+				}
+			}));
 		});
 	});
 

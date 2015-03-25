@@ -3,8 +3,6 @@
  * @author Ron Ammar
  */
 
-/* Wrap all code in an immediately-invoked function expressions to avoid 
- * global variables. */
 var $ = require('jquery'),
 	templates = require('./templates'),
 	utility = require('./utility'),
@@ -16,7 +14,7 @@ module.exports = function() {
 	var getPatients= function() {
 		//Promise Function
 		var promise= Promise.resolve($.ajax({
-			url: "/patients",
+			url: "database/patients/completed",
 			type: "GET",
 			contentType: "application/json",
 		}))
@@ -42,6 +40,7 @@ module.exports = function() {
 		.then(function(result){  // clear the current page
 			var context= result;
 			context.useFull = true;
+			context.pgx = true;
 			return templates.patient(context);
 		}).then(function(renderedHtml) {
 			$('#main').append(renderedHtml);

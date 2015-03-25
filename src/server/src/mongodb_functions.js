@@ -1,5 +1,6 @@
 /* 
  * MongoDB interface for node server.
+ * @author Patrick Magee 
  * @author Ron Ammar
  */
 
@@ -503,6 +504,7 @@ var dbFunctions = function(logger,DEBUG){
 	//Project functions
 	//=======================================================================================
 
+	/* Find all projects for a specific user */
 	this.findProjects = function(projectName, username){
 		assert.notStrictEqual(db, undefined);
 		var query = {$or:[]};
@@ -533,7 +535,7 @@ var dbFunctions = function(logger,DEBUG){
 
 	};
 
-
+	/* Add a new project */
 	this.addProject = function(options){
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(options) == '[object Object]',"Invalid options");
@@ -580,7 +582,9 @@ var dbFunctions = function(logger,DEBUG){
 		return this.update(dbConstants.PATIENTS.COLLECTION, query, doc);
 	};
 
-
+	/* Remove the Tag for a project from one or more patients. Once the tag is remvoed the patient
+	 * is no longer associated with the previous project in any way and will not show up in the project
+	 * screen. */
 	this.removePatientsFromProject = function(project, patients){
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(project) == "[object String]", "Invalid Project Name");
@@ -596,7 +600,8 @@ var dbFunctions = function(logger,DEBUG){
 		});
 	};
 
-
+	/* When a  new patient is added to a project add the project to their 'tags' field, so that this patient
+	 * will then be associated with the new project */
 	this.addPatientsToProject = function(project, patients){
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(project) == "[object String]", "Invalid Project Name");
@@ -661,10 +666,27 @@ var dbFunctions = function(logger,DEBUG){
 
 	/*remove patient from patient collection */
 	this.removePatient = function(patient){
+		assert.notStrictEqual(db, undefined);
+		assert(Object.prototype.toString.call(patient) == "[object String]", "Invalid Patient Name");
 		var query = {};
+		var _this = this;
+		var failure;
 		query[dbConstants.PATIENTS.ID_FIELD] = patient;
 		logInfo('removing patient: %s from databse',patient);
-		return removeDocument(dbConstants.PATIENTS.COLLECTION,query,[[dbConstants.PATIENTS.ID_FIELD,1]]);
+		return this.findOne(dbConstants.PATIENTS.COLLECTION,query).then(function(result){
+			failure = result;
+			return _this.dropCollection(result[dbConstants.PATIENTS.COLLECTION_ID]);
+		}).catch(function(err){
+				logInfo("No Variant collection found");
+		}).then(function(){
+			return removeDocument(dbConstants.PATIENTS.COLLECTION,query,[[dbConstants.PATIENTS.ID_FIELD,1]]);
+		}).then(function(){
+			failure[dbConstants.FAILURE.ANNO_COMPLETE] = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+			failure[dbConstants.FAILURE.FAIL_FIELD] = true;
+			return _this.insert(dbConstants.FAILURE.COLLECTION,failure);
+		}).catch(function(err){
+				logErr(err);
+		});
 	};
 
 	/* Find all the patients in the 'patients' collection.
@@ -695,49 +717,89 @@ var dbFunctions = function(logger,DEBUG){
 	 * If readyOnly == true, return only fully uploaded patients.
 	 * To get output sorted by date and time(newest patient records first), do:
 	 * options == {sort: {"date": -1, "time": -1}} */
-	this.findAllPatients=function(query, readyOnly, options, username, project,exclude){
-		assert.notStrictEqual(db, undefined); // ensure we're connected first
-		var collectionName = dbConstants.PATIENTS.COLLECTION;
-		if (!query)
-			query= {};
-		if (username && !project)
-			query[dbConstants.DB.OWNER_ID] = username;
-		var fields = {'_id': 0};
-		if (readyOnly) {
-			query[dbConstants.PATIENTS.READY_FOR_USE]= true;
-		}
-		if (project){
-			return find(collectionName, query,fields, options);
-		} else {
-			return self.findProjects(undefined,username).then(function(result){
-				return result.map(function(item){
-					if (exclude){
-						if (item[dbConstants.PROJECTS.ID_FIELD] != exclude)
-							return item[dbConstants.PROJECTS.ID_FIELD];
-					} else {
-						return item[dbConstants.PROJECTS.ID_FIELD];
-					}
-				});
-			}).then(function(result){
-				result = result.filter(function(n){return n!==undefined;});
-				var tagQuery = {};
-				tagQuery[dbConstants.PROJECTS.ARRAY_FIELD] = {$in:result};
-				var newQuery = {$or:[query,tagQuery]};
-				return find(collectionName,newQuery,fields,options);
-			}).then(function(result){
-				if (exclude) {
-					return result.filter(function(patient){
-						if (!patient[dbConstants.PROJECTS.ARRAY_FIELD])
-							return patient;
-						if (patient[dbConstants.PROJECTS.ARRAY_FIELD].indexOf(exclude)==-1){
-							return patient;
-						}
-					});
-				} else {
-					return result;
-				}
+
+	this.findAllPatientsInProject = function(project,options){
+		assert.notStrictEqual(db,undefined);
+		assert(Object.prototype.toString.call(project) == "[object String]", "Invalid Project Name");
+		var field = {'_id':0};
+		query = {};
+		query[dbConstants.PROJECTS.ARRAY_FIELD] = project;
+		return find(dbConstants.PATIENTS.COLLECTION,query,field,options);
+	};
+
+
+	/* Given a specific project, return all available patients for a user that are
+	 * not listed in that project. this is used for adding patients to an existing 
+	 * project */
+	this.findAllPatientsNinProject = function(project,username,options){
+		assert.notStrictEqual(db,undefined);
+		assert(Object.prototype.toString.call(project) == "[object String]", "Invalid Project Name");
+		//find all the availble projects for this person
+		return this.findProjects(undefined,username).then(function(result){
+			return result.filter(function(item){
+				if (item[dbConstants.PROJECTS.ID_FIELD] != project)
+					return item[dbConstants.PROJECTS.ID_FIELD];
 			});
-		}
+		}).then(function(result){
+			var query = {},tagQuery={},ownerQuery={},queryList=[];
+			ownerQuery[dbConstants.DB.OWNER_ID] = username;
+			queryList.push(ownerQuery);
+			if (result.length > 0){
+				tagQuery[dbConstants.PROJECTS.ARRAY_FIELD] = {$in:result};
+				queryList.push(tagQuery);
+				queryList.$or = queryList;
+			} else {
+				query = ownerQuery;
+			}
+			query[dbConstants.PATIENTS.READY_FOR_USE] = true;
+			return find(dbConstants.PATIENTS.COLLECTION,query,null,options);
+		}).then(function(result){
+			return result.filter(function(patient){
+				if (!patient[dbConstants.PROJECTS.ARRAY_FIELD])
+					return patient;
+				if (patient[dbConstants.PROJECTS.ARRAY_FIELD].indexOf(project)==-1)
+					return patient;
+			});
+		});
+	};
+
+	/* Find all of the patients for a praticular user. this will find either ALLL
+	 * patients in the the entire database regardless of their status or it will find
+	 * only those that are ready for analysis depending on if readyOnly is true or not.
+	 * If readyonly is False or undefiend, this function will look for all non-ready,ready,
+	 * And failed vcf files. It will then return a concatenated list of all of them
+	 */
+	this.findAllPatients = function(username,readyOnly,options){
+		assert.notStrictEqual(db,undefined);
+		assert(Object.prototype.toString.call(username) == "[object String]", "Invalid username Name");
+		return this.findProjects(undefined,username)
+		.then(function(result){
+			return result.map(function(item){
+				return item[dbConstants.PROJECTS.ID_FIELD];
+			});
+		}).then(function(result){
+			var query = {},tagQuery={},ownwerQuery={},queryList=[];
+			ownwerQuery[dbConstants.DB.OWNER_ID] = username;
+			queryList.push(ownwerQuery)
+			if (result.length > 0){
+				tagQuery[dbConstants.PROJECTS.ARRAY_FIELD] = {$in:result};
+				queryList.push(tagQuery);
+			}
+			query.$or = queryList;
+			if (readyOnly){
+				query[dbConstants.PATIENTS.READY_FOR_USE] = true;
+				return find(dbConstants.PATIENTS.COLLECTION,query,null,options);
+			} else {
+				var goodResults;
+				return find(dbConstants.PATIENTS.COLLECTION,query,null,options)
+				.then(function(result){
+					goodResults = result;
+					return find(dbConstants.FAILURE.COLLECTION,query,null,options);
+				}).then(function(failures){
+					return goodResults.concat(failures);
+				});
+			}
+		});
 	};
 	//=======================================================================================
 	//PGX and Panels
@@ -860,7 +922,7 @@ var dbFunctions = function(logger,DEBUG){
 	//Login functions
 	//=======================================================================================
 
-
+	//Add a user to the database, encrypting the provided password and storing them in the users db
 	this.addUser = function(user){
 		assert.notStrictEqual(db, undefined);
 		assert(Object.prototype.toString.call(user[dbConstants.USERS.ID_FIELD]) == "[object String]",
@@ -874,7 +936,7 @@ var dbFunctions = function(logger,DEBUG){
 
 	};
 
-
+	//Find a user by the provided ID and return all information related to them
 	this.findUserById = function(id){
 		assert.notStrictEqual(db, undefined);
 		assert(Object.prototype.toString.call(id) == "[object String]",
@@ -887,7 +949,7 @@ var dbFunctions = function(logger,DEBUG){
 	};
 
 
-
+	//Validate the password during signon in a secure manner.
 	this.validatePassword = function(username,password){
 		assert.notStrictEqual(db, undefined);
 		assert(Object.prototype.toString.call(username) == "[object String]",
@@ -901,6 +963,8 @@ var dbFunctions = function(logger,DEBUG){
 
 	};
 
+
+	//Find the user by the google id
 	this.findUserByGoogleId = function(id){
 		assert.notStrictEqual(db, undefined);
 		assert(Object.prototype.toString.call(id) == "[object String]",
@@ -910,7 +974,7 @@ var dbFunctions = function(logger,DEBUG){
 		return this.findOne(dbConstants.USERS.COLLECTION,query);
 	};
 
-
+	//Add a google user, only used for Google OAUTH
 	this.addUserGoogle = function(user){
 		assert.notStrictEqual(db, undefined);
 		assert(Object.prototype.toString.call(user[dbConstants.USERS.GOOGLE.ID_FIELD]) == "[object String]",
@@ -926,6 +990,9 @@ var dbFunctions = function(logger,DEBUG){
 		return this.insert(dbConstants.USERS.COLLECTION,user);
 	};
 
+
+	//When the password is lost and needs to be recovered, generate a random password, bcrypt it
+	//And return the new password in an non-encrypted format
 	this.generatePassword = function(user){
 		assert.notStrictEqual(db, undefined);
 		assert(Object.prototype.toString.call(user) == "[object String]",
@@ -944,6 +1011,8 @@ var dbFunctions = function(logger,DEBUG){
 		});
 	};
 
+
+	//Change the current users password
 	this.changePassword = function(user, password){
 		assert.notStrictEqual(db, undefined);
 		assert(Object.prototype.toString.call(user) == "[object String]",

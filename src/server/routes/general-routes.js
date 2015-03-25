@@ -1,3 +1,9 @@
+/* General desintation routes. This is called last when 
+ * adding route information. these reoutes essentially
+ * are what is handling serving page content to the browser.
+ * @author Ron Ammar
+ * @author Patrick Magee
+ */
 var Promise = require('bluebird');
 var constants = require('../lib/conf/constants.json');
 var utils = require('../lib/utils');

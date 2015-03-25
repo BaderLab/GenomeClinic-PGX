@@ -1,3 +1,7 @@
+/* Main function which requires all other routes in order to modularize
+ * the addition of routes.
+ * @author Patrick Magee
+ */
 var Queue = require('../lib/queue');
 module.exports = function(app,passport,dbFunctions,opts,logger){
 	if (!dbFunctions)

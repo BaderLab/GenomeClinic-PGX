@@ -1,4 +1,5 @@
-/* utility functions available for all routes */
+/* utility functions available for all routes
+ * @author Patrick Magee */
 module.exports = {
 	isLoggedIn:function(req,res,next){
 		if (req.isAuthenticated())

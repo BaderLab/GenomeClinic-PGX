@@ -4,7 +4,7 @@
  * hold off performing any action on them, until the one ahead
  * of it is completed.
  * 
- * written by Patrick Magee
+ * @author Patrick Magee
  */
 var Promise = require('bluebird');
 var constants= require("./conf/constants.json");
@@ -143,14 +143,14 @@ queue.prototype.run = function(){
 		return annotateFile(options);
 	}).then(function(){
 		self.logger.info('annotations complete');
+	}).catch(function(err){
+		self.logger.error(err);
+	}).done(function(){
 		if (self.queue.length > 0){
 			return self.run();
 		} else {
 			self.isRunning = false;
 		}
-	}).catch(function(err){
-		self.logger.error(err.stack);
-		self.isRunning = false;
 	});
 		// do somehting here;
 };

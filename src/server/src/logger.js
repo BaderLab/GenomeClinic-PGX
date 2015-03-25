@@ -1,3 +1,9 @@
+/* Logger configurations
+ * Various configuration information for each type of logger. Additionally this module
+ * exports a function that will initialize the specified loger version
+ * @author Patrick Magee
+ */
+
 var winston = require("winston"),
 	nodeConstants = require('./conf/constants.json').nodeConstants;
 

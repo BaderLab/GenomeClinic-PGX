@@ -5,8 +5,8 @@
  * accessible and are loaded prior to any additional app specific 
  * javascript being loaded
 
- * Written by: 
- * Patrick Magee & Ron Ammar
+ * @author Patrick Magee
+ * @author Ron Ammar
  */
 
 
@@ -72,33 +72,7 @@ module.exports = {
 		});
 		return promise;
 	},
-	//=======================================================================
-	// Nav Bar
-	//=======================================================================
-	/* Whenever the page is loaded add the nav bar from the template. The nav
-	 * Bar will change depending on whether the user loggin in is authenticated
-	 * or not. If they are authenticated, then the user will see the full nav bar
-	 * otherwise they will not get any additional options */
-	 // this is now added during sending the layout.hbs
-	/*addNavBar : function(){
-		var self = this;
-		var promise;
-		var options;
-		promise = Promise.resolve($.ajax({
-			url:'/authenticated',
-			type:'GET',
-			contentType:'application/json'
-		}))
 
-		return promise.then(function(result){
-			options={authenticated:result}
-			return self.getUserInfo()
-		}).then(function(user){
-			options['user'] = user.user;
-			$(document).find('nav').html(template.navbar(options));
-			});
-		});
-	},*/
 	refresh : function(){
 		$(document).foundation();
 	},

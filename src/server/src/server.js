@@ -2,7 +2,7 @@
  * Webapp server for clinical pharmacogenomics analyis and variant visualization
  * 
  * @author Ron Ammar
- * @Patrick Magee
+ * @author Patrick Magee
  */
 var express= require("express"),
 	Promise= require("bluebird"),

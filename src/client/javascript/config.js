@@ -1,14 +1,11 @@
 /*
- * Frangipani config page Javascript.
+ * Config page  for initial server startup.
  * @author Ron Ammar
  */
-
-/* Wrap all code in an immediately-invoked function expressions to avoid 
- * global variables. */
 var $ = require("jquery"),
 	template = require('./templates').config,
 	aux = require('../conf/config.json'),
-	utility = require('./utility')
+	utility = require('./utility'),
 	constants = require('../../server/conf/constants.json').dbConstants.ANNO;
 
 
@@ -139,7 +136,7 @@ module.exports = function() {
 			utility.refresh();
 		}).then(function(){
 			handler();
-		})
+		});
 	};
 	return render();
 };
