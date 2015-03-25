@@ -16,6 +16,7 @@ var path = require("path");
 var glob = Promise.promisifyAll(require("glob"));
 var child_process=Promise.promisifyAll(require('child_process'));
 var dbConstants = require('./conf/constants.json').dbConstants;
+var nodeConstants = require('./conf/constants.json').nodeConstants;
 var logger = require('./anno_logger');
 var dbFunctions = require('../models/mongodb_functions');
 
@@ -85,7 +86,7 @@ function annotateAndAddVariants(options){
 	var promise = new Promise(function(resolve,reject){
 		var annovarPath, annodbStrin, dbusageString, 
 			tempOutputFile,buildver,annovarIndex,shouldReject;
-		var inputFile = path.resolve(options.input);
+		var inputFile = nodeConstants.SERVER_DIR + '/' + options.input;
 
 		//Check to see whether input file exists and if annovarPath exists
 		logMessage("beginning annotations pipeline");
@@ -118,8 +119,8 @@ function annotateAndAddVariants(options){
 			var collectionName = patient[dbConstants.PATIENTS.COLLECTION_ID];
 			return dbFunctions.createCollection(collectionName);
 		}).then(function(){
-			var execPath = path.resolve(annovarPath + '/table_annovar.pl');
-			var dbPath = path.resolve(annovarPath + "/humandb/");
+			var execPath = annovarPath + '/table_annovar.pl';
+			var dbPath = annovarPath + "/humandb/";
 			var annovarCmd = execPath;
 			var args = [
 				inputFile,
