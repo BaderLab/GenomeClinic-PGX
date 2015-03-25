@@ -79,7 +79,7 @@
 		}
 	},
 	"nodeConstants":{
-		"SERVER_DIR":".",
+		"SERVER_DIR":"{{DIR}}",
 		"VCF_UPLOAD_DIR":"upload/vcf",
 		"TMP_UPLOAD_DIR":"tmp",
 		"LOG_DIR":"logs",

@@ -20,7 +20,9 @@ var gulp = require('gulp'),
 	buffer = require('vinyl-buffer'),
 	path = require('path'),
 	sourcemap = require('gulp-sourcemaps'),
-	runSequence = require('run-sequence');
+	runSequence = require('run-sequence'),
+	replace = require('gulp-replace'),
+	path = require('path');
 
 
 /* all paths for use */
@@ -85,9 +87,12 @@ var paths = {
 		conf:{
 			src:[
 				'src/server/conf/api.js',
-				'src/server/conf/constants.json',
 				'src/server/conf/pgx_haplotypes.json'
 			],
+			dest:'build/lib/conf'
+		},
+		cons:{
+			src:'src/server/conf/constants.json',
 			dest:'build/lib/conf'
 		},
 		model:{
@@ -107,8 +112,8 @@ var paths = {
 
 gulp.task('clean',function(){
 	return gulp.src(['build'])
-	.pipe(clean({read:false}))
-})
+	.pipe(clean({read:false}));
+});
 
 
 gulp.task('default',['build'],function(){
@@ -171,9 +176,19 @@ gulp.task('server-routes',function(){
 	.pipe( gulp.dest(paths.server.routes.dest));
 });
 
-gulp.task('server-conf', ['server-lib','server-models'], function(){
+gulp.task('server-conf', ['server-lib','server-models','server-cons'], function(){
 	return gulp.src(paths.server.conf.src)
 	.pipe( gulp.dest( paths.server.conf.dest) );
+});
+
+gulp.task('server-cons',function(){
+	var dir = path.resolve(__dirname + '/build');
+	if (process.platform.search(/win/) !== -1){
+		dir = dir.replace(/\\/g,"\\\\");
+	}
+	return gulp.src(paths.server.cons.src)
+	.pipe( replace(/\{\{DIR\}\}/, dir) )
+	.pipe( gulp.dest(paths.server.cons.dest) );
 });
 
 gulp.task('server-lib',function(){
@@ -189,7 +204,7 @@ gulp.task('server-models',function(){
 gulp.task('server-app',['server-conf'],function(){
 	return gulp.src(paths.server.app.src)
 	.pipe( rename( paths.server.app.name) )
-	.pipe( gulp.dest( paths.server.app.dest) )
+	.pipe( gulp.dest( paths.server.app.dest) );
 });
 
 
