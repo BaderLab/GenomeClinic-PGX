@@ -123,10 +123,10 @@ if (opts.https && (! opts.crt || !opts.key)){
 var prerequisiteDirectories = ["upload", "tmp", nodeConstants.LOG_DIR];
 for (var i=0; i < prerequisiteDirectories.length; i++ ){
 	try {
-		fs.statSync(prerequisiteDirectories[i]);
+		fs.statSync(nodeConstants.SERVER_DIR + '/' +  prerequisiteDirectories[i]);
 	} catch (err) {
 		try {
-			fs.mkdirSync(prerequisiteDirectories[i]);
+			fs.mkdirSync(nodeConstants.SERVER_DIR + '/' +  prerequisiteDirectories[i]);
 		} catch (err2){ 
 		}
 	}
@@ -150,7 +150,7 @@ morgan.token('user',function getUser(req){
 //=======================================================================
 //Open write stream for log files
 //=======================================================================
-var comLog = fs.createWriteStream(__dirname + "/" + nodeConstants.LOG_DIR + "/" + nodeConstants.COM_LOG_PATH);
+var comLog = fs.createWriteStream(nodeConstants.SERVER_DIR + "/" + nodeConstants.LOG_DIR + "/" + nodeConstants.COM_LOG_PATH);
 var app = express();
 app.use(morgan(':remote-addr - :user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', {stream:comLog}));
 
@@ -158,7 +158,7 @@ app.use(morgan(':remote-addr - :user [:date[clf]] ":method :url HTTP/:http-versi
 //=======================================================================
 // Serve Static Public Content (ie, dont need to be logged in to access)
 //=======================================================================
-app.use(express.static(path.resolve(__dirname + "/public")));
+app.use(express.static(path.resolve(nodeConstants.SERVER_DIR + "/public")));
 
 //=======================================================================
 //If using https then add redirect callback for all incoming http calls.
@@ -212,7 +212,7 @@ app.use(flash());
 //=======================================================================
 // Add routes and add the rendering engine
 //=======================================================================
-app.set('views',__dirname + '/views');
+app.set('views',nodeConstants.SERVER_DIR + '/views');
 app.engine('hbs',cons.handlebars);
 app.set('view engine', 'hbs');
 require('./controllers/routes')(app,passport,dbFunctions,opts,logger);
