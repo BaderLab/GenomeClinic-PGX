@@ -60,9 +60,9 @@ this will take care of installing all of the dependencies listed within the pack
 
 We are using gulptasks to automate the deploying of both the server and the client front end. After installing the package.json type the following command to build the working server:
 
-`node_modules/.bin/gulp`
+`sudo node_modules/.bin/gulp`
 
-This will deploy the project and place it in the build folder. By default gulp will enter into a watch loop, rerunning tasks when any of the src files change. If you are working on developing this project, simply leave the terminal running and modify the files within the src/ directory instead of the files within the build/ directory. Changes in build/ will not be tracked.
+This will deploy the project and place it in the build folder. To properly run the gulp task you must run it as sudo in order to install global dependencies. By default gulp will enter into a watch loop, rerunning tasks when any of the src files change. If you are working on developing this project, simply leave the terminal running and modify the files within the src/ directory instead of the files within the build/ directory. Changes in build/ will not be tracked.
 
 To disable this behaviour and build a production quality server run the gulp command but pass it the production task as an option
 
