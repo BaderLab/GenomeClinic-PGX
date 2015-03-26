@@ -22,7 +22,8 @@ var gulp = require('gulp'),
 	sourcemap = require('gulp-sourcemaps'),
 	runSequence = require('run-sequence'),
 	replace = require('gulp-replace'),
-	path = require('path');
+	path = require('path'),
+	exec = require('child_process').exec;;
 
 
 /* all paths for use */
@@ -47,11 +48,21 @@ var paths = {
 			dest:'build/public/js/vendor'
 		},
 		views:{
-			src:'src/client/templates/layout.hbs',
+			src:[
+				'src/client/templates/layout.hbs',
+				'src/client/templates/pgx-report.hbs'
+				],
 			dest:'build/views'
 		},
 		css:{
-			src:'src/client/css/**/*.*',
+			src:[
+				'src/client/css/app.css',
+				'src/client/css/foundation.min.css'
+				],
+			dest:'build/public/css'
+		},
+		reportCss:{
+			src:'src/client/css/pgx-report.css',
 			dest:'build/public/css'
 		},
 		img:{
@@ -61,7 +72,7 @@ var paths = {
 		icon:{
 			src:'src/client/icons/**/*.*',
 			dest:'build/public/icons'
-		}
+		},
 	},
 	server:{
 		app:{
@@ -80,7 +91,8 @@ var paths = {
 				'src/server/src/logger.js',
 				'src/server/src/parseVCF.js',
 				'src/server/src/queue.js',
-				'src/server/src/utils.js'
+				'src/server/src/utils.js',
+				'src/server/src/pgx-report.js'
 			],
 			dest:'build/lib'
 		},
@@ -150,7 +162,11 @@ gulp.task('client-vendor', ['client-modernizr'],function(){
 	.pipe( gulp.dest(paths.client.vendorBundle.dest) );
 });
 
-gulp.task('client-css',function(){
+gulp.task('client-report-css',function(){
+	return gulp.src(paths.client.reportCss.src)
+	.pipe( gulp.dest(paths.client.reportCss.dest) );
+});
+gulp.task('client-css',['client-report-css'],function(){
 	return gulp.src(paths.client.css.src)
 	.pipe( gutil.env.type==='production' ? cssmin({'keepSpecialComments':0}):gutil.noop())
 	.pipe( concat('bundle.min.css') )
@@ -183,7 +199,7 @@ gulp.task('server-conf', ['server-lib','server-models','server-cons'], function(
 
 gulp.task('server-cons',function(){
 	var dir = path.resolve(__dirname + '/build');
-	if (process.platform.search(/win/) !== -1){
+	if (process.platform.search(/win[0-9]+/i) !== -1){
 		dir = dir.replace(/\\/g,"\\\\");
 	}
 	return gulp.src(paths.server.cons.src)
@@ -212,6 +228,33 @@ gulp.task('server',function(next){
 	runSequence('server-routes','server-conf','server-app',next);
 });
 
+
+//Added route for globally installing phantomJs dependency
+gulp.task("phantom",function(){
+	var cont = true;
+	var uid = process.getuid();
+	var platform = process.platform;
+	if (platform.search(/win[0-9]+/i) === -1){
+		if (uid !== 0){
+			gutil.log(gutil.colors.bgRed("Error:"), gutil.colors.bgYellow("PhantomJS"), "requires root privliges to be installed...");
+			gutil.log(gutil.colors.bgRed("Error:"), gutil.colors.bgYellow("PhantomJS"), "Please run gulp with root privelege or manually install...");
+			gutil.log(gutil.colors.bgRed("Error:"), gutil.colors.bgYellow("PhantomJS"), "Skipping installation...");
+			cont = false;
+		}
+	}
+	if (cont){
+		gutil.log(gutil.colors.bgGreen("Starting:"), gutil.colors.bgYellow("PhantomJS"),"Installation Starting");
+		exec('npm install -g phantomjs',function(err,stdout,stderr){
+			if (err)
+				gutil.log(gutil.colors.bgRed("Error:"), gutil.colors.bgYellow("PhantomJS"),"Install failed");
+			else if (stderr)
+				gutil.log(gutil.colors.bgRed("Error:"), gutil.colors.bgYellow("PhantomJS"),"Install failed");
+			else 
+				gutil.log(gutil.colors.bgGreen("Success:"), gutil.colors.bgYellow("PhantomJS"),"Successfully installed");
+		});
+	}
+});
+
 gulp.task('jshint',function(){
 	if (gutil.env.type !== 'production'){
 		return gulp.src(paths.jshint)
@@ -221,7 +264,7 @@ gulp.task('jshint',function(){
 });
 
 gulp.task('prewatch', ['jshint'], function(){
-	runSequence('client','server');
+	runSequence('phantom','client','server');
 });
 
 gulp.task('watch',['prewatch'], function(){
