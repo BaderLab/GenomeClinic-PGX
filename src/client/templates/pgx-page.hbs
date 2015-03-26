@@ -7,10 +7,18 @@
 		{{else}}
 		<h2><i class="fi-torso"></i> <em>{{patientID}}</em></h2>
 		{{/if}}
-
-		<h5 style="margin-top: 30px;">Pharmacogenomic results based on phased and unphased genotypes from this sample.</h5>
-		<h6 style="margin-bottom: 40px;"><em><a href="#" id="collapse-all-haplotypes">Show less</a></em></h6></p>
 	</div>
+	<div class="row">
+		<div class="large-10 columns">
+			<h5 style="margin-top: 30px;">Pharmacogenomic results based on phased and unphased genotypes from this sample.</h5>
+			<h6 style="margin-bottom: 40px;"><em><a href="#" id="collapse-all-haplotypes">Show less</a></em></h6></p>
+		</div>
+		<div class="large-2 columns">
+			<a href="#" id="direct_download" style="display:none;">test</a>
+			<a href="#" id="download" class="button radius size-12">Download</a>
+		</div>
+	</div>
+
 </div>
 {{#pgxGenes}}
 <div class="row">

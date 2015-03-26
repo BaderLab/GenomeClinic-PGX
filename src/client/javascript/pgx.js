@@ -415,6 +415,7 @@ var pgx =  {
 		.then(function(){
 			return self.convertTotemplateData();
 		}).then(function(result){
+			self.templateData = result;
 			return templates.pgx(result);
 		}).then(function(html) {
 			$('#main').html(html);
@@ -514,6 +515,27 @@ var pgx =  {
 		});
 
 		$('.haplo-not-present').closest('.row').find('i.haplotype-expand').trigger('click');
+
+
+		//Trigger an event that will cause a pdf report to be generated adn then be sent to the user
+		// for download
+		$('#download').on('click',function(e){
+			e.preventDefault();
+			Promise.resolve($.ajax({
+				url: "pgx/report",
+				type: "POST",
+				dataType: 'json',
+				contentType:'application/json',
+				data:JSON.stringify(self.templateData)
+			})).then(function(result){
+				return $('#direct_download').attr('href',"pgx/download/" + result.name);
+				
+			}).then(function(){
+				return $('#direct_download').get(0).click();
+			}).then(function(){
+				return $('#direct_download').attr('href','');
+			});
+		});
 	},
 
 	//Yes I know this is wasteful, However I really dont want to break any of the previous code

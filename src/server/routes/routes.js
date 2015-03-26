@@ -23,7 +23,7 @@ module.exports = function(app,passport,dbFunctions,opts,logger){
 	require('./auth-routes')(app,passport,dbFunctions,logger,opts);
 	require('./db-routes')(app,dbFunctions,queue);
 	require('./uploader-routes')(app,dbFunctions,queue);
-	require('./pgx-routes')(app,dbFunctions);
+	require('./pgx-routes')(app,dbFunctions,logger);
 	// General routes contains the path to the 404routes
 	require('./general-routes.js')(app,dbFunctions);
 };
