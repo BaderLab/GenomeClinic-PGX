@@ -236,21 +236,21 @@ gulp.task("phantom",function(){
 	var platform = process.platform;
 	if (platform.search(/win[0-9]+/i) === -1){
 		if (uid !== 0){
-			gutil.log(gutil.colors.bgRed("Error:"), gutil.colors.bgYellow("PhantomJS"), "requires root privliges to be installed...");
-			gutil.log(gutil.colors.bgRed("Error:"), gutil.colors.bgYellow("PhantomJS"), "Please run gulp with root privelege or manually install...");
-			gutil.log(gutil.colors.bgRed("Error:"), gutil.colors.bgYellow("PhantomJS"), "Skipping installation...");
+			gutil.log(gutil.colors.bgRed("Error:"), gutil.colors.yellow("PhantomJS"), "requires root privliges to be installed...");
+			gutil.log(gutil.colors.bgRed("Error:"), gutil.colors.yellow("PhantomJS"), "Please run gulp with root privelege or manually install...");
+			gutil.log(gutil.colors.bgRed("Error:"), gutil.colors.yellow("PhantomJS"), "Skipping installation...");
 			cont = false;
 		}
 	}
 	if (cont){
-		gutil.log(gutil.colors.bgGreen("Starting:"), gutil.colors.bgYellow("PhantomJS"),"Installation Starting");
+		gutil.log(gutil.colors.bgGreen("Starting:"), gutil.colors.yellow("PhantomJS"),"Installation Starting");
 		exec('npm install -g phantomjs',function(err,stdout,stderr){
 			if (err)
-				gutil.log(gutil.colors.bgRed("Error:"), gutil.colors.bgYellow("PhantomJS"),"Install failed");
+				gutil.log(gutil.colors.bgRed("Error:"), gutil.colors.yellow("PhantomJS"),"Install failed");
 			else if (stderr)
-				gutil.log(gutil.colors.bgRed("Error:"), gutil.colors.bgYellow("PhantomJS"),"Install failed");
+				gutil.log(gutil.colors.bgRed("Error:"), gutil.colors.yellow("PhantomJS"),"Install failed");
 			else 
-				gutil.log(gutil.colors.bgGreen("Success:"), gutil.colors.bgYellow("PhantomJS"),"Successfully installed");
+				gutil.log(gutil.colors.bgGreen("Success:"), gutil.colors.yellow("PhantomJS"),"Successfully installed");
 		});
 	}
 });
