@@ -11,7 +11,6 @@ var dbConstants = require("../lib/conf/constants.json").dbConstants;
 var nodeConstants = require('../lib/conf/constants.json').nodeConstants;
 var bcrypt = require("bcrypt-nodejs");
 var randomstring = require("just.randomstring");
-var pgx= require("../lib/conf/pgx_haplotypes");
 var fs = Promise.promisifyAll(require('fs'));
 
 
