@@ -56,11 +56,12 @@ module.exports = function(app,dbFunctions,logger){
 		var currentPatientID= req.body[constants.dbConstants.PATIENTS.ID_FIELD];
 		dbFunctions.getPGXVariants(currentPatientID)
 		.then(function(result) {
+			res.send(result);
 			// Return all PGx information: variants from this patient along
 			// with all PGx haplotype and marker data. Also return the patient
 			// ID to ensure we're returning the correct patient (in case 
 			// multiple clicks are happening and there's a delay in the response).
-			var allPGXDetails= {
+			/*var allPGXDetails= {
 				"pgxGenes": pgx.pgxGenes,
 				"pgxCoordinates": pgx.pgxCoordinates,
 				"patientID": currentPatientID,
@@ -70,7 +71,7 @@ module.exports = function(app,dbFunctions,logger){
 			};
 			return Promise.resolve(allPGXDetails);
 		}).then(function(result){
-			res.send(result);
+			res.send(result);*/
 		});
 	});
 };

@@ -120,9 +120,9 @@ var dbFunctions = function(logger,DEBUG){
 					}).catch(function(err){
 						throw new Error("No Default Pgx Information detected, skipping step");
 					}).then(function(result){
-						var pgxCoords = require(nodeConstants + '/' + dbConstants.PGX.COORDS.DEFAULT);
-						var pgxGenes = require(nodeConstants + '/' + dbConstants.PGX.GENES.DEFAULT);
-						var o;
+						var pgxCoords = require(nodeConstants.SERVER_DIR + '/' + dbConstants.PGX.COORDS.DEFAULT);
+						var pgxGenes = require(nodeConstants.SERVER_DIR + '/' + dbConstants.PGX.GENES.DEFAULT);
+						var o,rsIds;
 						var coordIds = [];
 						//Get a list of all the coordinate ids
 						for (var i=0; i < pgxCoords.length;i++ ){
@@ -130,8 +130,13 @@ var dbFunctions = function(logger,DEBUG){
 						}
 						//Check to ensure the default information is complete.
 						for (i = 0; i < pgxGenes.length; i++ ){
-							for (var j = 0; j < pgxGenes[i].haplotpyes.length; i++ ){
-								if (coordIds.indexOf(pgxGenes[i].haplotpyes[j]) === -1)
+							rsIds = [];
+							var keys = Object.keys(pgxGenes[i].haplotypes);
+							for (var j = 0; j < keys.length; j++ ){
+								rsIds = rsIds.concat(pgxGenes[i].haplotypes[keys[j]]);
+							}
+							for ( j = 0; j < rsIds.length; j++){
+								if (coordIds.indexOf(rsIds[j]) === -1)
 									throw new Error("PGX coordinate information incompletee. Missing Id's in PGX coordinates that were found in haplotpyes");
 							}
 						}
@@ -928,45 +933,84 @@ var dbFunctions = function(logger,DEBUG){
 	};
 
 
+	this.getPGXCoords = function() {
+		assert.notStrictEqual(db,undefined);
+		return find(dbConstants.PGX.COORDS.COLLECTION,{},{"_id":0})
+		.then(function(result){
+			var out = {};
+			for (var i = 0; i < result.length; i++ ){
+				out[result[i].id] = {};
+				for (var key in result[i]){
+					if (result[i].hasOwnProperty(key) && key != "id"){
+						out[result[i].id][key] = result[i][key];
+					}
+				}
+			}
+			return out;	
+		});
+	};
+
+	this.getPGXGenes = function(){
+		assert.notStrictEqual(db,undefined);
+		return find(dbConstants.PGX.GENES.COLLECTION,{},{'_id':0})
+		.then(function(result){
+			var out = {};
+			for (var i=0; i< result.length; i++ ){
+
+				out[result[i].gene] = result[i].haplotypes;
+			}
+			return out;
+		});
+	};
+
 	/* Find all PGx variants for a specific patient ID.
 	 * NOTE: patient ID is the user-specified ID, not the internal collection ID.
 	 * Returns a promise. */
 	this.getPGXVariants= function(patientID) {
+
 		assert.notStrictEqual(db, undefined);  // ensure we're connected first
+		var self = this;
+		var pgxCoords, pgxGenes,currentPatientCollectionID;
 		var query= {};
-		var getTempCoords = function(marker,query){
-			var tempCoords = {};
-			tempCoords[dbConstants.VARIANTS.CHROMOSOME]= pgx.pgxCoordinates[marker].chr;
-			tempCoords[dbConstants.VARIANTS.START]= pgx.pgxCoordinates[marker].pos;
-			query.$or.push(tempCoords);
-		};
 		query[dbConstants.PATIENTS.ID_FIELD]= patientID;
+
 		var promise= this.findOne(dbConstants.PATIENTS.COLLECTION, query)
 		.then(function(result) {
+			currentPatientCollectionID = result[dbConstants.PATIENTS.COLLECTION_ID];
+			return self.getPGXGenes();
+		}).then(function(result){
+			pgxGenes = result;
+			return self.getPGXCoords();
+		}).then(function(result){
 			// build search query
-			var query= {};
-			query.$or= [];
-			for (var marker in pgx.pgxCoordinates) {
-				if (pgx.pgxCoordinates.hasOwnProperty(marker)) {
-					getTempCoords(marker,query);
-				}
+			query = {'$or' : []};
+			pgxCoords = result;
+			var tempCoords;
+			var keys = Object.keys(result);
+			for ( var i = 0; i < keys.length; i++){
+				tempCoords = {};
+				tempCoords[dbConstants.VARIANTS.CHROMOSOME] = result[keys[i]].chr;
+				tempCoords[dbConstants.VARIANTS.START] = result[keys[i]].pos;
+				query.$or.push(tempCoords);
 			}
-
-			var currentPatientCollectionID= result[dbConstants.PATIENTS.COLLECTION_ID];
 			return find(currentPatientCollectionID, query, {"_id": 0}); // don't send internal _id field
 		})
 		.then(function(result) {
 			var doc= {};
 			doc.variants= result;
+			doc.pgxGenes = pgxGenes;
+			doc.pgxCoordinates = pgxCoords;
+			doc.patientID = patientID;
+
 			var opts = {"_id":0};
 			opts[dbConstants.DB.REPORT_FOOTER] = 1;
 			opts[dbConstants.DB.REPORT_DISCLAIMER] = 1;
+
 			return find(dbConstants.DB.ADMIN_COLLECTION, {}, opts)
 			.then(function(result) {
 				doc[dbConstants.DB.REPORT_FOOTER]= result[0][dbConstants.DB.REPORT_FOOTER];
 				doc[dbConstants.DB.REPORT_DISCLAIMER]= result[0][dbConstants.DB.REPORT_DISCLAIMER];
-
-				return Promise.resolve(doc);
+				return doc;
 			});
 		});
 		return promise;
