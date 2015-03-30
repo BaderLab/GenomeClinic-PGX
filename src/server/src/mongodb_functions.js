@@ -8,9 +8,11 @@ var MongoClient= require("mongodb").MongoClient;
 var Promise = require("bluebird");
 var assert= require("assert");
 var dbConstants = require("../lib/conf/constants.json").dbConstants;
+var nodeConstants = require('../lib/conf/constants.json').nodeConstants;
 var bcrypt = require("bcrypt-nodejs");
 var randomstring = require("just.randomstring");
 var pgx= require("../lib/conf/pgx_haplotypes");
+var fs = Promise.promisifyAll(require('fs'));
 
 
 var dbFunctions = function(logger,DEBUG){
@@ -107,6 +109,58 @@ var dbFunctions = function(logger,DEBUG){
 					currentDocument = {};
 					currentDocument[dbConstants.PROJECTS.ID_FIELD] = 1; // index in ascending order
 					return self.createIndex(dbConstants.PROJECTS.COLLECTION, currentDocument,{unique:true}); 
+				})
+				//Add the default pgx data to the collection if its not there already and only if it exists.
+				.then(function(){
+					logInfo("Checking for default PGX information");
+					fs.statAsync(nodeConstants.SERVER_DIR + '/' + dbConstants.PGX.COORDS.DEFAULT)
+					.then(function(){
+						// Make sure both the Genes and the Coords are available.
+						return fs.statAsync(nodeConstants.SERVER_DIR + '/' + dbConstants.PGX.GENES.DEFAULT);
+					}).catch(function(err){
+						throw new Error("No Default Pgx Information detected, skipping step");
+					}).then(function(result){
+						var pgxCoords = require(nodeConstants + '/' + dbConstants.PGX.COORDS.DEFAULT);
+						var pgxGenes = require(nodeConstants + '/' + dbConstants.PGX.GENES.DEFAULT);
+						var o;
+						var coordIds = [];
+						//Get a list of all the coordinate ids
+						for (var i=0; i < pgxCoords.length;i++ ){
+							coordIds.push(pgxCoords[i].id);
+						}
+						//Check to ensure the default information is complete.
+						for (i = 0; i < pgxGenes.length; i++ ){
+							for (var j = 0; j < pgxGenes[i].haplotpyes.length; i++ ){
+								if (coordIds.indexOf(pgxGenes[i].haplotpyes[j]) === -1)
+									throw new Error("PGX coordinate information incompletee. Missing Id's in PGX coordinates that were found in haplotpyes");
+							}
+						}
+
+						o = {
+							documents : pgxCoords,
+							collectionName : dbConstants.PGX.COORDS.COLLECTION
+						};
+						return self.insertMany(o)
+						.then(function(result){
+							currentDocument = {};
+							currentDocument[dbConstants.PGX.COORDS.ID_FIELD] = 1;
+							return self.createIndex(dbConstants.PGX.COORDS.COLLECTION,currentDocument,{unique:true});
+						}).then(function(){
+							o.documents = pgxGenes;
+							o.collectionName = dbConstants.PGX.GENES.COLLECTION;
+							return self.insertMany(o);
+						}).then(function(result){
+							currentDocument = {};
+							currentDocument[dbConstants.PGX.GENES.ID_FIELD] = 1;
+							return self.createIndex(dbConstants.PGX.GENES.COLLECTION,currentDocument,{unique:true});
+						}).then(function(){
+							logInfo("Successfully added default PGX information");
+						}).catch(function(err){
+							logErr("Default PGX info was not successfully added",err);
+						});
+					}).catch(function(err){
+						logInfo(err.message);
+					});
 				})
 				.then(function(result) {
 					resolve();
@@ -780,7 +834,7 @@ var dbFunctions = function(logger,DEBUG){
 		}).then(function(result){
 			var query = {},tagQuery={},ownwerQuery={},queryList=[];
 			ownwerQuery[dbConstants.DB.OWNER_ID] = username;
-			queryList.push(ownwerQuery)
+			queryList.push(ownwerQuery);
 			if (result.length > 0){
 				tagQuery[dbConstants.PROJECTS.ARRAY_FIELD] = {$in:result};
 				queryList.push(tagQuery);
