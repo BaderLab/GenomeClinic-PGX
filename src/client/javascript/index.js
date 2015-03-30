@@ -12,7 +12,8 @@ var projects = require('./projects'),
 	utility = require('./utility'),
 	config = require('./config'),
 	authentication = require('./authentication'),
-	patients = require('./patients');
+	patients = require('./patients'),
+	phasing = require('./phase-page');
 
 
 
@@ -40,6 +41,8 @@ var projects = require('./projects'),
 			});
 		} else if (location == '/statuspage'){
 			return status();
+		} else if (location == '/haplotypes'){
+			return phasing();
 		} else {
 			return templates.notfound().then(function(renderedHtml){
 				$('#main').html(renderedHtml);

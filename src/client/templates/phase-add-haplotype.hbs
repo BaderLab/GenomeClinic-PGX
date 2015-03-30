@@ -1,0 +1,48 @@
+<fieldset>
+  	<div class="row">
+      	<div class="large-12 columns">
+      		<div class="row collapse prefix-radius">
+            	<div class="small-3 columns">
+              		<span class="prefix">Haplotype Name</span>
+            	</div>
+            	<div class="small-9 columns left">
+              		<input type="text" required id="gene-id">
+              		<small class='error'>Haplotype name is required</small>
+            	</div>
+      		</div>
+     		<h5 class="subheader" style="margin-top:20px;margin-bottom:0px;padding-bottom:0px">Marker Information</h5>
+   			<hr style="margin-top:0px" />	
+      		<div class="row collapse prefix-radius postfix-radius">
+      			<p>Add all markers for the given haplotype. If the marker is not currently in the database you will be prompted to add additional information</p>
+      			<div class="small-3 columns">
+      				<span class="prefix">Marker ID</span>
+      			</div>
+      			<div class="small-7 columns">
+      				<input type="text" class="haplotype-id">
+      			</div>
+      			<div class="small-2 columns">
+      				<a class="postfix button secondary"><i class="fi-plus"></i></a>
+      			</div>
+      		</div>
+            <div class="row collapse prefix-radius marker-table" style="display:none">
+              	<div class="large-3 columns">
+                	<span class="prefix">Added Markers</span>
+              	</div>
+              	<div class="large-9 columns">
+                	<table class="large-12">
+                  		<thead>
+                    		<tr>
+                              <th class="large-3 text-center">Marker Id</th>
+                              <th class="large-3 text-center">Chromosome</th>
+                              <th class="large-3 text-center">Position</th>
+                              <th class="large-3 text-center">Remove</th>
+                    		</tr>
+                    	</thead>
+                  		<tbody>
+                  		</tbody>
+                	</table>
+              	</div>
+            </div>
+        </div>	              					
+    </div>
+</fieldset>

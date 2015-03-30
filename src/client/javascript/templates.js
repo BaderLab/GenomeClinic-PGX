@@ -21,7 +21,10 @@ var notfound = require("../templates/404notfound.hbs"),
 	projectUser = require('../templates/project-auth-user.hbs'),
 	patient = require('../templates/patients-table.hbs'),
 	pgx = require('../templates/pgx-page.hbs'),
-	config = require('../templates/server-config.hbs');
+	config = require('../templates/server-config.hbs'),
+	phasePage = require('../templates/phase-page.hbs'),
+	markerRow = require('../templates/phase-add-marker-row.hbs'),
+	haplotype = require('../templates/phase-add-haplotype.hbs');
 
 /* return a promisfied version of the template that accepts a single parameter
  * o to render the template */
@@ -61,5 +64,10 @@ module.exports = {
 	},
 	patient:_t(patient),
 	pgx:_t(pgx),
-	config:_t(config)
+	config:_t(config),
+	haplotypes:{
+		index:_t(phasePage),
+		haplotype:_t(haplotype),
+		row:_t(markerRow)
+	}
 };
