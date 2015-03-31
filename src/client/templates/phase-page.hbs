@@ -23,7 +23,7 @@
 			</thead>
 			<tbody>
 				{{#each haplotypes}}
-				<tr class="haplotype-row">
+				<tr class="haplotype-row" data-name="{{@key}}">
 					<td>{{@key}}</td>
 					<td class="text-center">{{this.numHap}}</td>
 					<td class="text-center">{{this.numMark}}</td>

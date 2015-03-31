@@ -932,9 +932,15 @@ var dbFunctions = function(logger,DEBUG){
 	};
 
 
-	this.getPGXCoords = function() {
+	this.getPGXCoords = function(rsID) {
 		assert.notStrictEqual(db,undefined);
-		return find(dbConstants.PGX.COORDS.COLLECTION,{},{"_id":0})
+		var query = {};
+		if (Object.prototype.toString.call(rsID) == "[object Array]")
+			query[dbConstants.PGX.COORDS.ID_FIELD] = {$in:rsID};
+		else if (rsID)
+			query[dbConstants.PGX.COORDS.ID_FIELD] = rsID;
+
+		return find(dbConstants.PGX.COORDS.COLLECTION,query,{"_id":0})
 		.then(function(result){
 			var out = {};
 			for (var i = 0; i < result.length; i++ ){
@@ -949,8 +955,13 @@ var dbFunctions = function(logger,DEBUG){
 		});
 	};
 
-	this.getPGXGenes = function(){
+	this.getPGXGenes = function(geneName){
 		assert.notStrictEqual(db,undefined);
+		var query = {};
+		if (Object.prototype.toString.call(geneName) == '[object Array]')
+			query[dbConstants.PGX.GENES.ID_FIELD] = {$in:geneName};
+		else if (geneName)
+			query[dbConstants.PGX.GENES.ID_FIELD] = geneName;
 		return find(dbConstants.PGX.GENES.COLLECTION,{},{'_id':0})
 		.then(function(result){
 			var out = {};
@@ -961,6 +972,34 @@ var dbFunctions = function(logger,DEBUG){
 			return out;
 		});
 	};
+
+	this.removePGXGene = function(geneName){
+		assert.notStrictEqual(db,undefined);
+		assert(Object.prototype.toString.call(geneName) == "[object String]");
+		var query = {};
+		query[dbConstants.PGX.GENES.ID_FIELD] = geneName;
+		return removeDocument(dbConstants.PGX.GENES.COLLECTION,query,[[dbConstants.PGX.GENES.ID_FIELD,1]]);
+
+	}
+
+	this.updatePGXGene = function(geneName,document){
+		assert.notStrictEqual(db,undefined);
+		assert(Object.prototype.toString.call(geneName) == "[object String]");
+		assert(Object.prototype.toString.call(doc) == "[object Object]");
+
+		var query = {};
+		query[dbConstants.PGX.GENES.ID_FIELD] = geneName
+		return this.update(dbConstants.PGX.GENES.COLLECTION,query,doc);
+	};
+
+	this.updatePGXCoord = function(rsID,document){
+		assert.notStrictEqual(db,undefined);
+		assert(Object.prototype.toString.call(rsID) == "[object String]");
+		assert(Object.prototype.toString.call(doc) == "[object Object]");
+		var query = {};
+		query[dbConstants.PGX.COORDS.ID_FIELD] = rsID
+		return this.update(dbConstants.PGX.COORDS.COLLECTION,query,doc);
+	}
 
 	/* Find all PGx variants for a specific patient ID.
 	 * NOTE: patient ID is the user-specified ID, not the internal collection ID.

@@ -246,7 +246,6 @@ module.exports = function(app,dbFunctions,queue){
 	//==================================================================
 	app.get('/databse/haplotypes/getGenes',utils.isLoggedIn,function(req,res){
 		dbFunctions.getPGXGenes().then(function(result){
-			console.log(result);
 			if (result)
 				res.send(result);
 			else 

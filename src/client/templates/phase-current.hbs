@@ -1,0 +1,72 @@
+<div class="row" style="padding-top: 30px;">  
+	<div class="large-12 columns">
+		<a href="/haplotypes" class="button radius"><i class="fa fa-arrow-left"></i>&nbspBack</a>
+		<div class="row">
+			<div class="large-10 columns">
+				<h2><i class="fa fa-asterisk"></i>&nbsp{{gene}}</h2>
+			</div>
+			<div class="large-2 columns right">
+				<h2 class="text-right"><a href="#" id="edit-page"><i class="fi-pencil" style="color:#A2A2A2;"></i></a></h2>
+				<a href="#" id="submit-changes" class="button radius right edit" style="display:none;">Submit</a>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="large-12">
+	{{#each haplotype}}
+		<fieldset>
+			<div class="row collapse prefix-radius">
+				<div class="large-3 columns">
+					<span class="prefix">Haplotype</span>
+				</div>
+				<div class="large-9 columns">
+					<input type="text" id="haplo-name-{{@index}}" value="{{@key}}" class="edit" disabled="disabled">
+				</div>
+			</div>
+			<div class="row collapse prefix-radius postfix-radius edit" style="display:none;">
+				<div class="large-3 columns">
+					<span class="prefix">Add Additional Markers</span>
+				</div>
+				<div class="large-7 columns">
+					<input type="text" class="haplo-add-new-context">
+				</div>
+				<div class="large-2 columns">
+					<a href="#" class="postfix button secondary haplo-add-new"><i class="fi-plus"></i></a>
+				</div>
+			</div>
+			<div class="row collapse prefix-radius">
+				<div class="large-3 columns">
+					<span class="prefix">Markers</span>
+				</div>
+				<div class="large-9 columns">
+					<table class="large-12">
+						<thead>
+							<tr>
+								<th>Marker</th>
+								<th class="text-center">Chr</th>
+								<th class="text-center">Pos</th>
+								<th class="text-center">Ref</th>
+								<th class="text-center">Alt</th>
+								<th class="text-center edit" style="display:none;">Remove</th>
+							<tr>
+						</thead>
+						<tbody>
+							{{#markers}}
+							<tr>
+								<td class="marker-id">{{id}}</td>
+								<td class="text-center">{{chr}}</td>
+								<td class="text-center">{{pos}}</td>
+								<td class="text-center">{{ref}}</td>
+								<td class="text-center">{{alt}}</td>
+								<td class="text-center edit" style="display:none"><a href="#"><i class="fi-x size-16"></i></a></td>
+							</tr>
+							{{/markers}}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</fieldset>
+	{{/each}}
+	</div>
+</div>
