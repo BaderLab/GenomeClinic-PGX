@@ -26,7 +26,7 @@ module.exports = function(app,dbFunctions,logger){
 
 
 	//Send the report to the user, delete the report after it was sent.
-	app.get('/pgx/download*',utils.isLoggedIn,function(req,res){
+	app.get('/pgx/download/:id',utils.isLoggedIn,function(req,res){
 
 		var url = req.url
 		var file = url.replace(/\/pgx\/download\//,"");
@@ -58,4 +58,33 @@ module.exports = function(app,dbFunctions,logger){
 			res.send(result);
 		});
 	});
+
+
+	app.get(['/haplotypes','/haplotypes/new','/haplotypes/current/:hapid'],utils.isLoggedIn,function(req,res){
+		utils.render(req,res);
+	});
+
+	app.param('hapid',function(req,res,next,hapid){
+		dbFunctions.checkInDatabase(constants.dbConstants.PGX.GENES.COLLECTION,constants.dbConstants.PGX.GENES.ID_FIELD,hapid)
+		.then(function(result){
+			console.log(result);
+			if (result)
+				next();
+			else
+				utils.render(req,res,true);
+		});
+	});
+
+	app.post('/haplotypes/current/:hapid',utils.isLoggedIn,function(req,res){
+
+	});
+
+	app.delete('/haplotypes/current/:hapid',utils.isLoggedIn,function(req,res){
+
+	});
+
+	app.post('/haplotypes/new',utils.isLoggedIn,function(req,res){
+
+	});
+
 };

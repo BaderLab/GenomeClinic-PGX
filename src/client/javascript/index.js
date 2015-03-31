@@ -20,6 +20,7 @@ var projects = require('./projects'),
 
 (function(){
 	var location = window.location.pathname;
+	console.log(location);
 	Promise.resolve().then(function(){
 		if (location == '/'){
 			return templates.index({title:'PGX Webapp'}).then(function(renderedHtml){
@@ -41,12 +42,8 @@ var projects = require('./projects'),
 			});
 		} else if (location == '/statuspage'){
 			return status();
-		} else if (location == '/haplotypes'){
+		} else if (location.search(/\/haplotypes/) !== -1){
 			return phasing();
-		} else {
-			return templates.notfound().then(function(renderedHtml){
-				$('#main').html(renderedHtml);
-			});
 		}
 	}).then(function(){
 		utility.refresh();

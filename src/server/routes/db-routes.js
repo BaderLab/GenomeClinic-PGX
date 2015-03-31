@@ -242,6 +242,21 @@ module.exports = function(app,dbFunctions,queue){
 
 
 	//==================================================================
+	//Check Haplotypes
+	//==================================================================
+	app.get('/databse/haplotypes/getGenes',utils.isLoggedIn,function(req,res){
+		dbFunctions.getPGXGenes().then(function(result){
+			console.log(result);
+			if (result)
+				res.send(result);
+			else 
+				res.send(undefined);
+		}).catch(function(err){
+			console.log(err);
+		});
+	});
+
+	//==================================================================
 	//Generic Database routes
 	//==================================================================
 	// get the owner of a document

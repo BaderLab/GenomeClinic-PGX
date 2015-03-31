@@ -158,7 +158,7 @@ app.use(morgan(':remote-addr - :user [:date[clf]] ":method :url HTTP/:http-versi
 //=======================================================================
 // Serve Static Public Content (ie, dont need to be logged in to access)
 //=======================================================================
-app.use(express.static(path.resolve(nodeConstants.SERVER_DIR + "/public")));
+app.use("/static", express.static(path.join(nodeConstants.SERVER_DIR + "/public")));
 
 //=======================================================================
 //If using https then add redirect callback for all incoming http calls.

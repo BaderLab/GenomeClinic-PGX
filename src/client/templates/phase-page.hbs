@@ -1,43 +1,45 @@
 <div class="row" style="padding-top: 30px;">  
 	<div class="large-12 columns">
 		<h2><i class="fa fa-asterisk"></i>&nbspManage Haplotypes</h2>
+		<h5 class="subheader">Displaying all available phase infomration</h5>
+		<p>Select any of the available genes below to modify the phasing information for that specific gene, adding new haplotypes,markers,etc or additionally create a new haplotype.</p>
+		<div class="row">
+        	<div class="large-3 columns">
+          		<a href="haplotypes/new" class="button alert radius left" id="add-new-haplotype">Add New Haplotype</a>
+        	</div>
+      	</div> 
 	</div>
 </div>
 <div class="row">
-	<div class="large-12 columns" style="margin-top:30px	">
-		<div class="row">
-			<div class="large-7 columns large-centered">
-				<div class="large-5 columns">
-					<a href="#" class="button radius large-12">Search Genes</a>
-				</div>
-				<div class="large-2 columns">
-					<h5 class="subeader text-center">OR</h5>
-				</div>
-				<div class="large-5 columns">
-					<a href="#" class="button radius large-12 add-new-haplo">Add Haplotype</a>
-				</div>
-			</div>
-		</div>
-		<div class="row" style="display:none">
-			<div class="large-8 columns">
-				<div class="row collapse prefix-radius postfix-radius">
-                	<div class="large-2 columns">
-                  		<span class="prefix">search Genes</span>	
-                  	</div>
-	                <div class="large-8 columns left">
-	                	<input type="text" id='username' name='username' required>
-	                </div>
-                  	<div class="large-2 columns left">
-	            		<a href="#" class="secondary button radius postfix">GO</a>
-            		</div>
-              	</div>
-          	</div>
-          	<div class="large-1 columns">
-          		<h5 class="subheader">Or</h5>
-          	</div>
-          	<div class="large-3 columns">
-          		<a href="#" class="button radius large-12">Add New Haplotype</a>
-          	</div>
-       	</div>
+	<div class="large-12 columns" style="margin-top:30px">
+		{{#if haplotypes}}
+		<table id="haplotype-table" class="large-12">
+			<thead>
+				<tr>
+					<th class="large-6">Gene</th>
+					<th class="large-3 text-center">Number of Haplotypes</th>
+					<th class="large-3 text-center">Number of Markers</th>
+				</tr>
+			</thead>
+			<tbody>
+				{{#each haplotypes}}
+				<tr class="haplotype-row">
+					<td>{{@key}}</td>
+					<td class="text-center">{{this.numHap}}</td>
+					<td class="text-center">{{this.numMark}}</td>
+				</tr>
+				{{/each}}
+			</tbody>
+		</table>
+		{{else}}
+		<div data-alert class="alert-box radius secondary" id="error-display-box">
+	      <!-- Alert message goes here -->
+	      <div class="row">
+	          <div class="small-11 columns">
+	              <p id="error-display-message">There does not appear to be anything here</p>
+	          </div>
+	        </div>
+	    </div>
+		{{/if}}
    	</div>
 </div>
