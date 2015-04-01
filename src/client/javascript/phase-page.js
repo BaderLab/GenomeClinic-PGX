@@ -12,30 +12,82 @@ module.exports = function(){
 		var currHap;
 		var outObj = {};
 		var haplotypes = $('fieldset');
+		var geneName = $('#gene-name').is('input') ? $('#gene-name').val() : $('#gene-name').text().substring(1)		;
 		for (var i = 0; i < haplotypes.length; i++ ){
-			currHap = $(haplotypes[i]).find('[id^=haplo-name-]').val()
+			currHap = $(haplotypes[i]).find('[id^=haplo-name-]').val();
 			outObj[currHap] = [];
-			var ids = $(haplotypes[i]).find("tbody").find(".marker-id")
+			var ids = $(haplotypes[i]).find("tbody").find(".marker-id");
 			for (var j = 0; j < ids.length; j++){
-				outObj[currHap].push($(ids[j]).text())
+				outObj[currHap].push($(ids[j]).text());
 			}
 		}
-		return outObj
+		return {gene:geneName,haplotypes:outObj};
 	};
 
-	seriaizeNewMarkers = function(){
-		var currHap,id,chr,pos,ref,alt;
-		var field = ['chr','pos','ref','alt'];
-		var outObj = {};
-		var haplotypes = $('fieldset');
-		for (var i = 0; i < haplotypes.length; i++ )
-			var newRows = $(haplotypes[i]).find('tbody').find(".new-entry")
-			for (var j = 0; j < newRows.length; j++ );
-				id = $(newRows[i]).find('.marker-id').text();
-				outObj[id] = {};
+	var revealModal = function(marker){
+		var promise = new Promise(function(resolve,reject){
+			$('#new-marker-form').on('valid',function(e){
+				var form = $(this).serializeArray();
+				var doc = {};
+				for (var i=0; i<form.length; i++){
+					if (form[i].name == 'pos')
+						doc[form[i].name] = parseInt(form[i].value);
+					else if(form[i].name == 'alt')
+						doc[form[i].name] = form[i].value.toLowerCase().split(/[\,\s]/g);
+					else
+						doc[form[i].name] = form[i].value.toLowerCase();
+				}
 
-				chr = $(newRows[i]).find('.marker-chr')
-	}
+			 	Promise.resolve($.ajax({
+			 		url:'/markers/new',
+			 		type:"POST",
+			 		contentType:"application/json",
+			 		datatype:"json",
+			 		data:JSON.stringify(doc)
+			 	})).then(function(result){
+			 		$('#add-marker-modal').find('.cancel').trigger('click');
+			 		resolve(doc);
+			 	}).catch(function(err){
+			 		reject(err);
+			 	});
+			});
+
+			$('#new-marker-form').find('.cancel').on('click',function(e){
+				e.preventDefault();
+				$('#new-marker-form').find('input').val('');
+				$('#new-marker-form').foundation('reveal','close');
+			});
+
+			$('#add-marker-modal').find('#new-marker-name').text(marker);
+			$('#new-marker-form').find('input[name=id]').val(marker);
+			$('#add-marker-modal').foundation('reveal','open');
+
+		});
+		return promise;
+
+	};
+
+	var valueNotOnPage = function(value,input,context){
+		var allValues = $('input[id^='+input+']:not([id=' + context + '])')
+		for (var i = 0; i < allValues.length; i++ ){
+			if ($(allValues[i]).val() == value){
+				$('#'+context).addClass('error').siblings('small').show();
+				return false;
+			}
+		}
+		$('#'+context).removeClass('error').siblings('small').hide();
+		return true;
+	};
+
+	var allPageHandlers = function(){
+		$('.remove-row').on('click',function(e){
+			e.preventDefault();
+			$(this).closest('tr').remove();
+
+		});
+
+		utility.refresh();
+	};
 
 	var staticHandlers = {
 		index:function(){
@@ -57,34 +109,81 @@ module.exports = function(){
 				$(document).find('input.edit').attr('disabled',false);
 			});
 			$('#submit-changes').on('click',function(e){
+				var _this = this;
 				e.preventDefault();
-				$(this).parent().find('#edit-page').show();
-				$(document).find('.edit:not(input)').toggle();
-				$(document).find('input.edit').attr('disabled',true);
+				if ($('.haplo-error:visible').length === 0){
+					Promise.resolve($.ajax({
+						url:window.location.pathname,
+						type:"POST",
+						contentType:'application/json',
+						datatype:'json',
+						data:JSON.stringify(serializeInput())
+					})).then(function(result){
+						$(_this).parents().find('#edit-page').show();
+						$(document).find('.edit:not(input)').toggle();
+						$(document).find('input.edit').attr('disabled',true);
+					});
+				}
 			});
+			$('#cancel-changes').on('click',function(e){
+				e.preventDefault();
+				window.location.reload();
+			});
+
+			$('input[id^=haplo-name-]').on('keyup',function(){
+				var context = $(this).attr('id');
+				var value = $(this).val();
+				valueNotOnPage(value,'haplo-name-',context);
+			});
+
+			$('input[id^=haplo-name-]').on('click',function(){
+				var context =$(this).attr('id');
+				var value = $(this).val();
+				valueNotOnPage(value,'haplo-name-',context)
+			});
+
 			$('.haplo-add-new').on('click',function(e){
 				e.preventDefault();
 				var _this = this;
 				var value = $(this).closest('.collapse').find('.haplo-add-new-context').val().toString();
 				if (value !== ""){
 					$(this).closest('.collapse').find('.haplo-add-new-context').val("");
-					var opt = {id:value};
 					//eventually an ajax call
-					Promise.resolve(opt).then(function(result){
-						return templates.haplotypes.row(result)
+					Promise.resolve($.ajax({
+						url:"/database/haplotypes/getmarkers/" + value,
+						type:"GET",
+						contentType:"application/json"
+					})).then(function(result){
+						var promise;
+						if ($.isEmptyObject(result)) {
+							promise = revealModal(value);
+						} else {
+							var out = result[value];
+							out.id = value;
+							promise = Promise.resolve(out );
+						}
+						return promise;
+					}).then(function(result){
+						return templates.haplotypes.row(result);
 					}).then(function(renderedHtml){
-						$(_this).closest('fieldset').find('tbody').append(renderedHtml);
+						return $(_this).closest('fieldset').find('tbody').append(renderedHtml);
+					}).then(function(){
+						allPageHandlers();
 					});
 				}
 			});
+			utility.bioAbide();
+			//valid is deprecated
+			
 		}
 	};
 
 	var main = function(){
-		var location = window.location.pathname
+		var promise;
+		var location = window.location.pathname;
 		if (location === '/haplotypes'){
 			return Promise.resolve($.ajax({
-				url:'/databse/haplotypes/getGenes',
+				url:'/database/haplotypes/getgenes',
 				type:'GET',
 				contentType:'application/json'
 			})).then(function(result){
@@ -110,87 +209,29 @@ module.exports = function(){
 				return $('#main').html(renderedHtml);
 			}).then(function(){
 				staticHandlers.index();
-			})
+				allPageHandlers();
+			});
 		} else if (location === "/haplotypes/new"){
 			templates.construction()
 			.then(function(renderedHtml){
 				$('#main').html(renderedHtml);
 			});
 		} else if (location.match(/haplotypes\/current\/.+/) !== null){
-			var test_opts = {
-				gene:location.replace(/haplotypes\/current\//,""),
-				haplotype:{
-					'test1':{
-						markers:[{
-							id:'rs22',
-							ref:'A',
-							alt:'G',
-							pos:'1231151'
-						},
-						{
-							id:'rs22',
-							ref:'A',
-							alt:'G',
-							pos:'1231151'
-						},
-						{
-							id:'rs22',
-							ref:'A',
-							alt:'G',
-							pos:'1231151'
-						}]
-					},
-					'test2':{
-						markers:[{
-							id:'rs22',
-							ref:'A',
-							alt:'G',
-							pos:'1231151'
-						},
-						{
-							id:'rs22',
-							ref:'A',
-							alt:'G',
-							pos:'1231151'
-						},
-						{
-							id:'rs22',
-							ref:'A',
-							alt:'G',
-							pos:'1231151'
-						}]
-					},
-					'test3':{
-						markers:[{
-							id:'rs22',
-							ref:'A',
-							alt:'G',
-							pos:'1231151'
-						},
-						{
-							id:'rs22',
-							ref:'A',
-							alt:'G',
-							pos:'1231151'
-						},
-						{
-							id:'rs22',
-							ref:'A',
-							alt:'G',
-							pos:'1231151'
-						}]
-					}
-
-				}
-			}
-
-			templates.haplotypes.current(test_opts)
-			.then(function(renderedHtml){
+			var gene = location.split('/').pop();
+			Promise.resolve($.ajax({
+				url:'/database/haplotypes/getgenes/' + gene,
+				contentType:'application/json',
+				type:"GET"
+			})).then(function(result){
+				return templates.haplotypes.current(result);
+			}).then(function(renderedHtml){
 				return $('#main').html(renderedHtml);
 			}).then(function(){
 				staticHandlers.current();
+				allPageHandlers();
 			});
 		}
+		
 	};
 	return main();
 };
