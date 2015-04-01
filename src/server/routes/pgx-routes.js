@@ -27,9 +27,7 @@ module.exports = function(app,dbFunctions,logger){
 
 	//Send the report to the user, delete the report after it was sent.
 	app.get('/pgx/download/:id',utils.isLoggedIn,function(req,res){
-
-		var url = req.url
-		var file = url.replace(/\/pgx\/download\//,"");
+		var file = req.params.id;
 		var path = constants.nodeConstants.SERVER_DIR + '/' + constants.nodeConstants.TMP_UPLOAD_DIR + '/' + file;
 		logger.info("Sending Report file: " + path + " to user: " + req.user[constants.dbConstants.USERS.ID_FIELD]); 
 		res.download(path,file,function(err){
@@ -75,15 +73,68 @@ module.exports = function(app,dbFunctions,logger){
 	});
 
 	app.post('/haplotypes/current/:hapid',utils.isLoggedIn,function(req,res){
+		dbFunctions.updatePGXGene(req.params.hapid,req.body)
+		.then(function(result){
+			//Flash Data
+			res.redirect("/success");
+		}).catch(function(err){
+			//Flash Data
+			res.redirect("/failure");
+		});
 
 	});
 
 	app.delete('/haplotypes/current/:hapid',utils.isLoggedIn,function(req,res){
+		var id = req.params.hapid;
+		dbFunctions.removePGXGene(id)
+		.then(function(result){
+			if (result){
+				res.redirect('/succes');
+			} else {
+				res.redirect('/failure');
+			}
+		}).catch(function(err){
+			res.redirect('/failure');
+		});
 
 	});
 
 	app.post('/haplotypes/new',utils.isLoggedIn,function(req,res){
 
 	});
+
+	app.get('/markers',utils.isLoggedIn,function(req,res){
+		utils.render(req,res);
+	});
+
+	app.post('/markers/current/:marker',utils.isLoggedIn,function(req,res){
+		var marker = req.params.marker;
+		var info = req.body;
+		var query = {};
+		query[constants.dbConstants.PGX.COORDS.ID_FIELD] = marker;
+		dbFunctions.updatePGXCoord(marker,info)
+		.then(function(result){
+			if (result){
+				res.redirect('/success');
+			} else {
+				res.redirect('/failure');
+			}
+		}).catch(function(err){
+			res.redirect('/failure');
+		});
+	});
+	app.post('/markers/new',utils.isLoggedIn,function(req,res){
+		dbFunctions.insert(constants.dbConstants.PGX.COORDS.COLLECTION,req.body)
+		.then(function(result){
+			if (result){
+				res.redirect('/success');
+			} else {
+				res.redirect('/failure');
+			}
+		}).catch(function(err){
+			res.redirect('/failure');
+		});
+	});
+
 
 };
