@@ -436,7 +436,7 @@ var pgx =  {
 			})
 		}))
 		.then(function(result) {
-				return self.processPGXResponse(selectedPatientAlias, selectedPatientID, result);
+			return self.processPGXResponse(selectedPatientAlias, selectedPatientID, result);
 		})
 		.then(function(result) {
 			return self.generateAllHaplotypes(result);
