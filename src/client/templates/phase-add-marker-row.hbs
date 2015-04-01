@@ -1,28 +1,8 @@
-{{#if newEntry}}
-<tr class="new-entry">
-{{else}}
 <tr>
-{{/if}}
 	<td class="marker-id">{{id}}</td>
-	<td class="text-center marker-chr">{{#if chr}}
-		{{chr}}
-	{{else}}
-		<input type="text" class="marker-chr">
-	{{/if}}</td>
-	<td class="text-center marker-pos">{{#if pos}}
-		{{pos}}
-	{{else}}
-		<input type="text" class="marker-pos">
-	{{/if}}</td>
-	<td class="text-center marker-ref">{{#if ref}}
-		{{ref}}
-	{{else}}
-		<input type="text" class="marker-ref">
-	{{/if}}</td>
-	<td class="text-center marker-alt">{{#if alt}}
-		{{alt}}
-	{{else}}
-		<input type="text" class="marker-alt">
-	{{/if}}</td>
-	<td class='text-center'><a href="#"><i class="fi-x size-16"></i></td>
+	<td class="text-center">{{chr}}</td>
+	<td class="text-center">{{pos}}</td>
+	<td class="text-center">{{ref}}</td>
+	<td class="text-center">{{alt}}</td>
+	<td class='text-center'><a href="#" class="remove-row"><i class="fi-x size-16"></i></td>
 </tr>

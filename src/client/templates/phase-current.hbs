@@ -2,19 +2,83 @@
 	<div class="large-12 columns">
 		<a href="/haplotypes" class="button radius"><i class="fa fa-arrow-left"></i>&nbspBack</a>
 		<div class="row">
-			<div class="large-10 columns">
-				<h2><i class="fa fa-asterisk"></i>&nbsp{{gene}}</h2>
+			<div class="large-8 columns">
+				<h2 id="gene-name"><i class="fa fa-asterisk" ></i>&nbsp{{gene}}</h2>
 			</div>
-			<div class="large-2 columns right">
+			<div class="large-4 columns right">
 				<h2 class="text-right"><a href="#" id="edit-page"><i class="fi-pencil" style="color:#A2A2A2;"></i></a></h2>
-				<a href="#" id="submit-changes" class="button radius right edit" style="display:none;">Submit</a>
+				<div class="large-6 columns">
+					<a href="#" id="submit-changes" class="left button radius edit large-12" style="display:none;">Submit</a>
+				</div>
+				<div class="large-6 columns">
+					<a href="#" id="cancel-changes" class="right button radius alert edit large-12" style="display:none">Cancel</a>
+				</div>
 			</div>
 		</div>
 	</div>
 </div>
+<div id="add-marker-modal" class="reveal-modal large" data-reveal>
+	<form id="new-marker-form" data-abide="ajax">
+		<div class="row">
+			<div class="large-12 columns">
+  				<h3><em id="new-marker-name"></em> was not found in the database, would you like to add it?</h3>
+  			</div>
+  			<input type="text" style="display:none" name="id" required>
+  			<div class="large-6 columns">
+	  			<div class="row collapse prefix-radius">
+	  				<div class="large-4 columns">
+	  					<span class="prefix">Chromosome</span>
+	  				</div>
+	  				<div class="large-8 columns">
+	  					<input type="text" pattern="chromosomes" name="chr" required>
+	  					<small class="error">A valid chromosome is required</small>
+	  				</div>
+	  			</div>
+	  			<div class="row collapse prefix-radius">
+	  				<div class="large-4 columns">
+	  					<span class="prefix">Position</span>
+	  				</div>
+	  				<div class="large-8 columns">
+	  					<input type="number" name="pos" required>
+	  					<small class="error">A number is required</small>
+	  				</div>
+	  			</div>
+	  		</div>
+	  		<div class="large-6 columns">
+	  			<div class="row collapse prefix-radius">
+	  				<div class="large-4 columns">
+	  					<span class="prefix">Reference Allele</span>
+	  				</div>
+	  				<div class="large-8 columns">
+	  					<input type="text" pattern="alleles" name="ref" required>
+	  					<small class="error">A proper Allele is required</small>
+	  				</div>
+	  			</div>
+	  			<div class="row collapse prefix-radius">
+	  				<div class="large-4 columns">
+	  					<span class="prefix">Alternate Allele</span>
+	  				</div>
+	  				<div class="large-8 columns">
+	  					<input type="text" pattern="alleles" name="alt" required>
+	  					<small class="error">A proper Allele is required</small>
+	  				</div>
+	  			</div>
+	  		</div>
+		</div>
+  		<div class="row">
+  			<div class='large-6 columns'>
+	  			<button type="submit" class="large-12 button radius success">Submit</button>
+	  		</div>
+	  		<div class="large-6 columns">
+	  			<a href="#" class="large-12 button radius alert cancel">Cancel</a>
+	  		</div>
+	  	</div>
+	</form>
+	<a class="close-reveal-modal">&#215;</a>
+</div>
 <div class="row">
 	<div class="large-12">
-	{{#each haplotype}}
+	{{#each haplotypes}}
 		<fieldset>
 			<div class="row collapse prefix-radius">
 				<div class="large-3 columns">
@@ -22,6 +86,7 @@
 				</div>
 				<div class="large-9 columns">
 					<input type="text" id="haplo-name-{{@index}}" value="{{@key}}" class="edit" disabled="disabled">
+					<small class="error haplo-error" style="display:none">Value already on page</small>
 				</div>
 			</div>
 			<div class="row collapse prefix-radius postfix-radius edit" style="display:none;">
@@ -59,7 +124,7 @@
 								<td class="text-center">{{pos}}</td>
 								<td class="text-center">{{ref}}</td>
 								<td class="text-center">{{alt}}</td>
-								<td class="text-center edit" style="display:none"><a href="#"><i class="fi-x size-16"></i></a></td>
+								<td class="text-center edit" style="display:none"><a href="#" class="remove-row"><i class="fi-x size-16"></i></a></td>
 							</tr>
 							{{/markers}}
 						</tbody>
