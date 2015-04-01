@@ -962,7 +962,7 @@ var dbFunctions = function(logger,DEBUG){
 			query[dbConstants.PGX.GENES.ID_FIELD] = {$in:geneName};
 		else if (geneName)
 			query[dbConstants.PGX.GENES.ID_FIELD] = geneName;
-		return find(dbConstants.PGX.GENES.COLLECTION,{},{'_id':0})
+		return find(dbConstants.PGX.GENES.COLLECTION,query,{'_id':0})
 		.then(function(result){
 			var out = {};
 			for (var i=0; i< result.length; i++ ){
@@ -982,7 +982,7 @@ var dbFunctions = function(logger,DEBUG){
 
 	}
 
-	this.updatePGXGene = function(geneName,document){
+	this.updatePGXGene = function(geneName,doc){
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(geneName) == "[object String]");
 		assert(Object.prototype.toString.call(doc) == "[object Object]");
@@ -992,7 +992,7 @@ var dbFunctions = function(logger,DEBUG){
 		return this.update(dbConstants.PGX.GENES.COLLECTION,query,doc);
 	};
 
-	this.updatePGXCoord = function(rsID,document){
+	this.updatePGXCoord = function(rsID,doc){
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(rsID) == "[object String]");
 		assert(Object.prototype.toString.call(doc) == "[object Object]");
