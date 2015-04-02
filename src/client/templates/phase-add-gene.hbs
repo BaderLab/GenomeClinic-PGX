@@ -49,6 +49,65 @@
 		</div>
 	</div>
 </div>
+<div id="add-marker-modal" class="reveal-modal large" data-reveal>
+	<form id="new-marker-form" data-abide="ajax">
+		<div class="row">
+			<div class="large-12 columns">
+  				<h3><em id="new-marker-name"></em> was not found in the database, would you like to add it?</h3>
+  			</div>
+  			<input type="text" style="display:none" name="id" required>
+  			<div class="large-6 columns">
+	  			<div class="row collapse prefix-radius">
+	  				<div class="large-4 columns">
+	  					<span class="prefix">Chromosome</span>
+	  				</div>
+	  				<div class="large-8 columns">
+	  					<input type="text" pattern="chromosomes" name="chr" required>
+	  					<small class="error">A valid chromosome is required</small>
+	  				</div>
+	  			</div>
+	  			<div class="row collapse prefix-radius">
+	  				<div class="large-4 columns">
+	  					<span class="prefix">Position</span>
+	  				</div>
+	  				<div class="large-8 columns">
+	  					<input type="number" name="pos" required>
+	  					<small class="error">A number is required</small>
+	  				</div>
+	  			</div>
+	  		</div>
+	  		<div class="large-6 columns">
+	  			<div class="row collapse prefix-radius">
+	  				<div class="large-4 columns">
+	  					<span class="prefix">Reference Allele</span>
+	  				</div>
+	  				<div class="large-8 columns">
+	  					<input type="text" pattern="alleles" name="ref" required>
+	  					<small class="error">A proper Allele is required</small>
+	  				</div>
+	  			</div>
+	  			<div class="row collapse prefix-radius">
+	  				<div class="large-4 columns">
+	  					<span class="prefix">Alternate Allele</span>
+	  				</div>
+	  				<div class="large-8 columns">
+	  					<input type="text" pattern="alleles" name="alt" required>
+	  					<small class="error">A proper Allele is required</small>
+	  				</div>
+	  			</div>
+	  		</div>
+		</div>
+  		<div class="row">
+  			<div class='large-6 columns'>
+	  			<button type="submit" class="large-12 button radius success">Submit</button>
+	  		</div>
+	  		<div class="large-6 columns">
+	  			<a href="#" class="large-12 button radius alert cancel">Cancel</a>
+	  		</div>
+	  	</div>
+	</form>
+	<a class="close-reveal-modal">&#215;</a>
+</div>
 <div class="row">
 	<div class="large-12 columns" id="haplotypes">
 	</div>

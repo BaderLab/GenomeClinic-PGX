@@ -1,3 +1,7 @@
+/* module for working with and modifying
+ * haplotype information
+ *@patrick magee */
+
 var $  = require('jquery'),
 	templates = require('./templates'),
 	utility = require('./utility');
@@ -5,19 +9,27 @@ var $  = require('jquery'),
 var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 
 module.exports = function(){
+	/* Serialize the page, putting the data into a form that 
+	 * can then be sent to the server to update the current
+	 * db entry. iterates over each haploytpe to generate the
+	 * information
+	 */
 	serializeInput = function(){
 		var promise = new Promise(function(resolve,reject){
 			var currHap,err;
 			var outObj = {};
 			var haplotypes = $('fieldset');
+			//check if this is an input (in case of new entry)
 			var geneName = $('#gene-name').is('input') ? $('#gene-name').val() : $('#gene-name').text().substring(1);
 			geneName = geneName.toLowerCase();
-			if (geneName == ""){
+			if (geneName === ""){
 				$('#gene-name').addClass('error').siblings('small').text("Required").show();
+				err = true;
 			}
+			//get the values for each haplotype and marker
 			for (var i = 0; i < haplotypes.length; i++ ){
 				currHap = $(haplotypes[i]).find('[id^=haplo-name-]').val();
-				if (currHap == ''){
+				if (currHap === ''){
 					$(haplotypes[i]).find('[id^=haplo-name-]').addClass('error').siblings('small').show();
 					err = true;
 				}
@@ -27,6 +39,7 @@ module.exports = function(){
 					outObj[currHap].push($(ids[j]).text().toLowerCase());
 				}
 			}
+			//If any errors were added, reject the submissions and do not continue
 			if (err){
 				reject( new Error());
 			}
@@ -35,6 +48,12 @@ module.exports = function(){
 		return promise;
 	};
 
+
+	/* Function for working with the hidden modal that will pop 
+	 * up in the event there is a marker entered that is not located
+	 * within the databse. The modal contains a form that will request
+	 * whether or not the user would like to input a new marker
+	 */
 	var revealMarkerModal = function(marker){
 		var promise = new Promise(function(resolve,reject){
 			$('#new-marker-form').on('valid',function(e){
@@ -78,10 +97,17 @@ module.exports = function(){
 
 	};
 
+	/* Add a new haplotype field. When triggered
+	 * will render a new haplotype fieldset and prepend it to
+	 * the current list of existing ones. Additionally it adds
+	 * the specific handlers to the field, so the entire page does
+	 * not have to refresh their handlers
+	 * Accepts a single argument, the name of the selector to trigger
+	 * this action when clicked */
 	var addNewHaplotype = function(context){
 		$(context).on('click',function(e){
 			e.preventDefault();
-			var opt = {index:$('fieldset').length}
+			var opt = {index:$('fieldset').length};
 			templates.haplotypes.haplotype(opt)
 			.then(function(renderedHtml){
 				return $('#haplotypes').prepend(renderedHtml);
@@ -93,10 +119,16 @@ module.exports = function(){
 				$('#haplotypes').find('fieldset').first().slideDown(400);
 			});
 		});
-	}
+	};
 
+	/* When adding a new haplotype ensure the value is not already on the page
+	 * if it is, raise an error warning. Takes three arguments,
+	 * value: the value being compared against
+	 * input: the input id prefix that is being searched
+	 * context: the exact id of the current value
+	 */
 	var valueNotOnPage = function(value,input,context){
-		var allValues = $('input[id^='+input+']:not([id=' + context + '])')
+		var allValues = $('input[id^='+input+']:not([id=' + context + '])');
 		for (var i = 0; i < allValues.length; i++ ){
 			if ($(allValues[i]).val() == value){
 				$('#'+context).addClass('error').siblings('small').show();
@@ -107,6 +139,13 @@ module.exports = function(){
 		return true;
 	};
 
+	/* remove an item, its html and all the handlers for good
+     * context: the element that the trigger starts from
+     * toRemove: the selector for an element to remove
+     * action: what action is being watched for
+     * child: if the selected element is a child of toRemove
+     * subset: add the handler for a specifc subset
+     */
 	var removeItem = function(context,toRemove,action,child,subset){
 		var item;
 		if (subset)
@@ -119,9 +158,13 @@ module.exports = function(){
 				$(this).closest(toRemove).slideUp(400,function(){$(this).remove();});
 			else $(toRemove).slideUp(400,function(){$(this).remove();});
 		});
-	}
+	};
 
-
+	/* add all handlers to a new haplotype field
+	 * Accepts one argument "parent". Parent 
+	 * like the name suggest is the parent fieldset. if it is not
+	 * defined, handlers are bound to ALL things that meet the find criteria
+	 * on the page*/
 	var haplotypeHandlers = function(parent){
 		var p;
 		if (parent)
@@ -138,7 +181,7 @@ module.exports = function(){
 		p.find('input[id^=haplo-name-]').on('click',function(){
 			var context =$(this).attr('id');
 			var value = $(this).val();
-			valueNotOnPage(value,'haplo-name-',context)
+			valueNotOnPage(value,'haplo-name-',context);
 		});
 
 		p.find('.haplo-add-new-context').on('click',function(e){
@@ -183,7 +226,10 @@ module.exports = function(){
 				$(this).closest('fieldset').find('.haplo-add-new-context').addClass('error').siblings('small').show();
 			}
 		});
-	}
+	};
+	/* When the user is about make a delete, confirm they want to
+	 * do so.
+	 */
 	var confirmDelete = function(context, url){
 		$(context).on('click',function(e){
 			e.preventDefault();
@@ -205,8 +251,15 @@ module.exports = function(){
 		$('#confirm-delete').find('.cancel').on('click',function(e){
 			$(this).closest('#confirm-delete').foundation('reveal','close');
 		});
-	}
+	};
 
+	/* Submit the changes by serializing the current page
+	 * and submitting an ajax call to the server. if there are
+	 * no fieldsets on the page it will interpret this as a deltion
+	 * event and delete the current gene. Accepts two arugments:
+	 * context: name of the button that triggers this,
+	 * _new: if this is a "add new haplotype" set to true.
+	 */
 	var submitChanges = function(context,_new){
 		$(context).on('click',function(e){
 			var gene;
@@ -237,7 +290,7 @@ module.exports = function(){
 				});
 			} else if ($('fieldset').length === 0 && !_new){
 				$('#delete').trigger('click');
-			};
+			}
 		});
 		$('#cancel-changes').on('click',function(e){
 			e.preventDefault();
@@ -246,9 +299,9 @@ module.exports = function(){
 			else 
 				window.location.reload();
 		});
-	}
+	};
 
-
+	/* match funcion for the searchbar */
 	var matchSearch = function(input){
 		var val = $('#search-box').val();
 		var re = new RegExp(val,'g','i');
@@ -259,14 +312,21 @@ module.exports = function(){
 		return false;
 	};
 
+	/* handlers taht are called on every page
+	 * if there is a context provided it will call these
+	 * on the conexts specifically */
 	var allPageHandlers = function(context){
 		removeItem('.remove-row','tr','click',true,context);
 		removeItem('.remove-haplotype','fieldset','click',true,context);
 		utility.refresh();
 	};
 
-
+	/* handlers for all pages. These functions contain static page specific
+	 * handlers, as well as determining which handlers to dynamically call and
+	 * add to the current page
+	 */
 	var staticHandlers = {
+		//all haplotype collections
 		index:function(){
 			$('.haplotype-row').on('click',function(e){
 				e.preventDefault();
@@ -282,8 +342,9 @@ module.exports = function(){
 					else 
 						$(currentRows[i]).show();
 				}
-			})
+			});
 		},
+		//new haplotype collection
 		new: function(){
 			addNewHaplotype('#new-haplotype');
 			haplotypeHandlers();
@@ -303,6 +364,7 @@ module.exports = function(){
 				});
 			});
 		},
+		//Existing haplotype collection
 		current:function(){
 			confirmDelete('#delete',window.location.pathname);
 			addNewHaplotype('#new-haplotype');
@@ -319,7 +381,7 @@ module.exports = function(){
 			
 		}
 	};
-
+	//Main function will render the page based on the specified URL
 	var main = function(){
 		var promise;
 		var location = window.location.pathname;
@@ -330,6 +392,7 @@ module.exports = function(){
 				contentType:'application/json'
 			})).then(function(result){
 				var gene,hap,obj,i;
+				//a bit of massagig the data into the proper format
 				for (gene in result){
 					if (result.hasOwnProperty(gene) ){
 						result[gene].numHap = Object.keys(result[gene]).length;
