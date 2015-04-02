@@ -76,21 +76,9 @@ module.exports = function(app,dbFunctions){
 	//==================================================================
 
 	//new projects
-	app.get('/projects', utils.isLoggedIn, function(req,res){
+	app.get(['statuspage'], utils.isLoggedIn, function(req,res){
 		utils.render(req,res);
 	});
-	//statusPage routes
-	app.get('/statuspage',utils.isLoggedIn,function(req,res){
-		utils.render(req,res);
-	});
-
-	//browse all patients and serve patient page
-	app.get('/browsepatients',utils.isLoggedIn,function(req,res){
-		utils.render(req,res);
-	});
-
-
-
 	//==================================================================
 	//Handle 404 routes
 	//==================================================================

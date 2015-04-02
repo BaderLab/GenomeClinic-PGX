@@ -17,16 +17,60 @@ module.exports = function(app,dbFunctions,logger){
 	//Generate the report with the incoming data contained within the request.
 	//This is done in order to properly format the printed output report
 
-	app.post("/pgx/report", utils.isLoggedIn, function(req,res){
-		logger.info("Generating PGX report for " + req.body.patientID);
+	//browse all patients and serve patient page
+	var renderRoutes = [
+		'/browsepatients',
+		'/browsepatients/id/:patientID',
+		'/haplotypes',
+		'/haplotypes/new',
+		'/haplotypes/current/:hapid',
+		'/markers'
+	];
+
+	app.get(renderRoutes,utils.isLoggedIn,function(req,res){
+		utils.render(req,res);
+	});
+
+
+	//Parameter Handlers
+	app.param('patientID',function(req,res,next,patientID){
+		dbFunctions.checkInDatabase(constants.dbConstants.PATIENTS.COLLECTION,constants.dbConstants.PATIENTS.ID_FIELD,patientID)
+		.then(function(result){
+			if (result)
+				next();
+			else
+				res.render(req,res,true);
+		});
+	});
+
+
+	app.param('hapid',function(req,res,next,hapid){
+		dbFunctions.checkInDatabase(constants.dbConstants.PGX.GENES.COLLECTION,constants.dbConstants.PGX.GENES.ID_FIELD,hapid)
+		.then(function(result){
+			if (result)
+				next();
+			else
+				utils.render(req,res,true);
+		});
+	});
+
+
+	app.get("/database/pgx/:patientID", utils.isLoggedIn, function(req,res){
+		dbFunctions.getPGXVariants(req.params.patientID)
+		.then(function(result){
+			res.send(result);
+		});
+	});
+	
+	app.post("/browsepatients/id/:patiendID/report", utils.isLoggedIn, function(req,res){
+		logger.info("Generating PGX report for " + req.params.patientID);
 		genReport(req,res).catch(function(err){
 			logger.error("Failed to generate report for " + req.body.patientID,err);
 		});
 	});
 
-
 	//Send the report to the user, delete the report after it was sent.
-	app.get('/pgx/download/:id',utils.isLoggedIn,function(req,res){
+	app.get('/browsepatients/id/:patientID/download/:id',utils.isLoggedIn,function(req,res){
 		var file = req.params.id;
 		var path = constants.nodeConstants.SERVER_DIR + '/' + constants.nodeConstants.TMP_UPLOAD_DIR + '/' + file;
 		logger.info("Sending Report file: " + path + " to user: " + req.user[constants.dbConstants.USERS.ID_FIELD]); 
@@ -47,31 +91,9 @@ module.exports = function(app,dbFunctions,logger){
 		});
 	});
 
-	//Genereate data to send to user for computing the PGX report. The actual computation
-	//Is all done on the client side
-	app.post("/pgx", utils.isLoggedIn, function(req,res){
-		var currentPatientID= req.body[constants.dbConstants.PATIENTS.ID_FIELD];
-		dbFunctions.getPGXVariants(currentPatientID)
-		.then(function(result) {
-			res.send(result);
-		});
-	});
-
-
-	app.get(['/haplotypes','/haplotypes/new','/haplotypes/current/:hapid'],utils.isLoggedIn,function(req,res){
-		utils.render(req,res);
-	});
-
-	app.param('hapid',function(req,res,next,hapid){
-		dbFunctions.checkInDatabase(constants.dbConstants.PGX.GENES.COLLECTION,constants.dbConstants.PGX.GENES.ID_FIELD,hapid)
-		.then(function(result){
-			if (result)
-				next();
-			else
-				utils.render(req,res,true);
-		});
-	});
-
+	//app.get(['/haplotypes','/haplotypes/new','/haplotypes/current/:hapid'],utils.isLoggedIn,function(req,res){
+	//	utils.render(req,res);
+	//});
 	app.post('/haplotypes/current/:hapid',utils.isLoggedIn,function(req,res){
 		dbFunctions.updatePGXGene(req.params.hapid,req.body)
 		.then(function(result){
@@ -112,9 +134,9 @@ module.exports = function(app,dbFunctions,logger){
 		});
 	});
 
-	app.get('/markers',utils.isLoggedIn,function(req,res){
-		utils.render(req,res);
-	});
+	//app.get('/markers',utils.isLoggedIn,function(req,res){
+	//	utils.render(req,res);
+	//});
 
 	app.post('/markers/current/:marker',utils.isLoggedIn,function(req,res){
 		var marker = req.params.marker;
@@ -144,6 +166,4 @@ module.exports = function(app,dbFunctions,logger){
 			res.redirect('/failure');
 		});
 	});
-
-
 };

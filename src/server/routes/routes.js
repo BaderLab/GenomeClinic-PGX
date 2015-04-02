@@ -24,6 +24,7 @@ module.exports = function(app,passport,dbFunctions,opts,logger){
 	require('./db-routes')(app,dbFunctions,queue);
 	require('./uploader-routes')(app,dbFunctions,queue);
 	require('./pgx-routes')(app,dbFunctions,logger);
+	require('./project-routes')(app,dbFunctions,queue);
 	// General routes contains the path to the 404routes
 	require('./general-routes.js')(app,dbFunctions);
 };
