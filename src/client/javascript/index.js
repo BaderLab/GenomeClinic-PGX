@@ -29,9 +29,9 @@ var projects = require('./projects'),
 			return authentication(location);
 		} else if (location == '/upload'){
 			return uploader();
-		} else if (location == '/projects'){
+		} else if (location.match(/^\/projects+/)!== null){
 			return projects();
-		} else if (location == '/browsepatients'){
+		} else if (location.match(/^\/browsepatients+/)!== null){
 			return patients();
 		} else if (location == '/config'){
 			return config();

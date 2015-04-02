@@ -14,7 +14,7 @@ var $ = require('jquery'),
 
 
 module.exports = function(){
-	var patientInformation, projectInfo, projectName, owner,user;
+	var patientInformation, projectInfo, owner,user,LOCATION,PROJECTID;
 	var selected = [];
 
 	//=========================================================
@@ -45,20 +45,14 @@ module.exports = function(){
 	 */
 	var getPatientInformation = function(project,excluded){
 		if (project){
-			var options = {
-						'project':project,
-						'exclude':excluded
-			};
 			return Promise.resolve($.ajax({
-				url: "database/patients/project",
-				type: "POST",
+				url: "/database/projects/" + PROJECTID + "/patients?exclude=" + excluded,
+				type: "GET",
 				contentType: "application/json",
-				dataType: 'json',
-				data:JSON.stringify(options)
 			}));
 		} else {
 			return Promise.resolve($.ajax({
-				url:'database/patients/completed',
+				url:'/database/patients/completed',
 				type:'GET',
 				contentType:'application/json'
 			}));
@@ -74,6 +68,7 @@ module.exports = function(){
 	var renderPatientInformation = function(project,excluded,remove,ele,handlers,callback){
 		return getPatientInformation(project,excluded)
 		.then(function(result){
+			console.log(result);
 			patientInformation = result.map(function(item){
 				return item[patientConstants.ID_FIELD];
 			});
@@ -297,7 +292,7 @@ module.exports = function(){
 		$('#project_id').on('keyup',function(){
 			var self = $(this);
 			//Remove illegal characters from the current string
-			$(this).val($(this).val().toString().replace(/[^A-Za-z0-9\-_\/\\\.\s]/g,""))
+			$(this).val($(this).val().toString().replace(/[^A-Za-z0-9\-_\/\\\.\s]/g,""));
 			var val = $(this).val();
 			if (val === ''){
 				$(this).addClass('error').siblings('small').text('Required Field').show();
@@ -339,7 +334,7 @@ module.exports = function(){
 				options[projectConstants.AUTH_USER_FIELD] = emails; 
 				//send the data
 				var promise = Promise.resolve($.ajax({
-					url:'/database/projects/add',
+					url: LOCATION,
 					type:'POST',
 					contentType:'application/json',
 					dataType:'json',
@@ -347,8 +342,8 @@ module.exports = function(){
 				}));
 
 				promise.then(function(result){
-					if (result.redirectURL){
-						window.location.replace(result.redirectURL);
+					if (result.status=='ok'){
+						window.location.replace('/projects/current/' + projectId);
 					//unsuccessful request, open errror box
 					} else {
 						$('#error-display-message').text(result.error[0]).parents().find('#error-display-box').show();
@@ -394,7 +389,7 @@ module.exports = function(){
 						emails.push(text);
 					}
 				}
-				var projectId = projectName;
+				var projectId = PROJECTID;
 				var description = $('#description').val();
 				var keywords = $('#keywords').val();
 				var _o = {
@@ -406,14 +401,14 @@ module.exports = function(){
 				_o.update[projectConstants.AUTH_USER_FIELD] = emails;
 				
 				Promise.resolve($.ajax({
-					url:'/database/project/update',
+					url: LOCATION,
 					type:'POST',
 					contentType:'application/json',
 					dataType:'json',
 					data:JSON.stringify(_o)
 				})).then(function(result){
 					if (result.statusCode == "200"){
-						return renderProjectInfo(projectName);
+						window.location.reload();
 					} else {
 						$('#error-display-message').text(result.error)
 						.parents().find("#error-display-box").show();
@@ -427,8 +422,6 @@ module.exports = function(){
 			}
 
 		});
-
-
 		//add handlers to remove patients
 		//
 
@@ -437,7 +430,7 @@ module.exports = function(){
 				return $(this).data('id').toString();
 			}).toArray();
 			if (checked.length > 0){
-				$(modal).find('h3').text("Are you sure you want to remove " + checked.length + " patients from " + projectName);
+				$(modal).find('h3').text("Are you sure you want to remove " + checked.length + " patients from " + PROJECTID);
 				return checked;
 			}
 			return undefined;
@@ -445,17 +438,17 @@ module.exports = function(){
 			if (confirm){
 				var data = {
 						'patients':checked,
-						'project':projectName
+						'project':PROJECTID
 				};
 				Promise.resolve($.ajax({
-					url:'/database/projects/removepatients',
+					url:'/database/projects/' + PROJECTID + '/removepatients',
 					type:'POST',
 					contentType:'application/json',
 					dataType:'json',
 					data:JSON.stringify(data)
 				})).then(function(result){
 					$('input:checked').closest('tr').remove();
-					$('#error-display-message').text("Successfully removed " + checked.length + " patients from " + projectName)
+					$('#error-display-message').text("Successfully removed " + checked.length + " patients from " + PROJECTID)
 					.parents().find("#error-display-box").show();
 					refreshNum('#patients-table');
 				});
@@ -466,7 +459,7 @@ module.exports = function(){
 		confirm('#add-patients','#add-patients-modal',true,function(modal){
 			selected = [];
 			
-			return renderPatientInformation(projectName,true,false,'#patient-information',function(){
+			return renderPatientInformation(PROJECTID,true,false,'#patient-information',function(){
 				patientRowHandler('#patient-information');
 				searchBoxHandler('#patient-information');
 				$('.patient-row').on('click.resize', function(){
@@ -481,10 +474,10 @@ module.exports = function(){
 			if (confirm){
 				var options = {
 					patients:selected,
-					project:projectName
+					project:PROJECTID
 				};
 				Promise.resolve($.ajax({
-					url:'/database/projects/addpatients',
+					url:'/database/projects/' + PROJECTID + '/addpatients',
 					type:'POST',
 					contentType:"application/json",
 					dataType:'json',
@@ -492,15 +485,13 @@ module.exports = function(){
 				})).then(function(result){
 					$(modal).find('#patient_id_links').empty();
 					$(modal).find('#patient-information').empty();
-					$('#error-display-message').text("Successfully added " + selected.length + " patients to " + projectName)
+					$('#error-display-message').text("Successfully added " + selected.length + " patients to " + PROJECTID)
 						.parents().find("#error-display-box").show();
 					selected = [];
 					$(modal).find('#patient_id_links').empty().removeClass('scrollit');
 					$(modal).find('#patient-information').empty();
 				}).then(function(){
-					return renderPatientInformation(projectName,undefined,remove,'#patients-table',function(){
-						$('.patient-row').off('click');
-					});
+					window.location.reload();
 				});
 			} else {
 				selected = [];
@@ -517,17 +508,15 @@ module.exports = function(){
 		}, function(confirm,result,modal){
 			if (confirm){
 				Promise.resolve($.ajax({
-					url:'/database/projects/delete',
+					url:'/database/projects/' + PROJECTID + '/delete',
 					type:'POST',
 					contentType:'application/json',
-					dataType:'json',
-					data:JSON.stringify({project:projectName})
-
-				})).then(function(result){
-					if (result.statusCode == '200'){
-						window.location.replace((result.redirectURL || '/projects'));
+					dataType:'json'
+				})).then(function(status){
+					if (status.statusCode === '200'){
+						window.location.replace('/projects');
 					} else {
-						$('#error-display-message').text(result.error).addClass('alert')
+						$('#error-display-message').text(status.error).addClass('alert')
 						.parents().find("#error-display-box").show();
 					}
 				});
@@ -540,18 +529,8 @@ module.exports = function(){
 	 * user
 	 */
 	var allProjectPageHandlers = function(){
-		$('#add-new-project').on('click',function(e){
-			e.preventDefault();
-			templates.project.new()
-			.then(function(renderedHtml){
-				$('#main').html(renderedHtml);
-				return renderPatientInformation(undefined,false,false,'#patient-information',addNewProjectHandlers);
-			});
-		});
-
 		$('.project-row').on('click',function(){
-			project = $(this).find('.webapp-project-name').text();
-			renderProjectInfo(project);
+			window.location.replace('/projects/current/' + $(this).find('.webapp-project-name').text())
 		});
 	};
 
@@ -559,44 +538,12 @@ module.exports = function(){
 	/* After selecting a project, render the page displaying project specific information
 	 * enabling the user to edit the currnety project, view all patients in it, delete the
 	 * project and modify it in other ways*/ 
-	var renderProjectInfo = function(project){
-		var remove;
-		projectName = project;
-		Promise.resolve($.ajax({
-			url:'/database/projects',
-			type:'POST',
-			contentType:'application/json',
-			dataType:'json',
-			data:JSON.stringify({
-				'project_id':projectName
-			})
-		})).then(function(result){
-			owner = result[0].owner;
-			/*This line essentailly gives any user the ability to modify the current project so long as they are
-			 *Listed as an authorized user for that project. However once they remove a patient, if they are not
-			 *The original owner, once they remove that patient they will not have access to it  This is a temp
-			 *Fix until we come up with a better Idea for how the permissions should work. */
-			remove = (owner == user || result[0].users.indexOf(user) !== -1);
-			var options = result[0];
-			options.isOwner = remove;
-			return templates.project.info(options);	
-		}).then(function(renderedHtml){
-			$('#main').html(renderedHtml);
-			return renderPatientInformation(projectName,undefined,remove,'#patients-table',function(){
-				projectPageHandlers();
-			});	
-		}).then(function(){
-			utility.refresh();
-		}).catch(function(err){
-			console.log(err);
-		});
-	};
-
-	var loadhtml = function(){
+	var loadAllProjects = function(){
 		var promise = Promise.resolve($.ajax({
 			url:'/database/projects',
 			type:'GET',
-			contentType:'application/json'
+			contentType:'application/json',
+			dataType:'json'
 		}));
 
 		promise.then(function(result){
@@ -616,11 +563,59 @@ module.exports = function(){
 		});
 	};
 
+	var loadNewProject = function(){
+		templates.project.new()
+		.then(function(renderedHtml){
+			$('#main').html(renderedHtml);
+			return renderPatientInformation(undefined,false,false,'#patient-information',addNewProjectHandlers);
+		});
+	};
+
+
+	var loadSpecificProject = function(){
+		var remove;
+		Promise.resolve($.ajax({
+			url:'/database/projects/' + PROJECTID,
+			type:'GET',
+			contentType:'application/json',
+			dataType:'json'
+		})).then(function(result){
+			owner = result[0].owner;
+			/*This line essentailly gives any user the ability to modify the current project so long as they are
+			 *Listed as an authorized user for that project. However once they remove a patient, if they are not
+			 *The original owner, once they remove that patient they will not have access to it  This is a temp
+			 *Fix until we come up with a better Idea for how the permissions should work. */
+			remove = (owner == user || result[0].users.indexOf(user) !== -1);
+			var options = result[0];
+			options.isOwner = remove;
+			return templates.project.info(options);	
+		}).then(function(renderedHtml){
+			$('#main').html(renderedHtml);
+			return renderPatientInformation(PROJECTID,false,remove,'#patients-table',function(){
+				projectPageHandlers();
+			});	
+		}).then(function(){
+			utility.refresh();
+		}).catch(function(err){
+			console.log(err);
+		});
+	};
+
+
 	var main = function(){
+		LOCATION = window.location.pathname
 		return utility.getUserInfo().then(function(result){
 			user = result.user;
 		}).then(function(){
-			return loadhtml();
+			if (LOCATION === '/projects'){
+				return loadAllProjects();
+			} else if ( LOCATION === '/projects/new'){
+				console.location
+				return loadNewProject();
+			} else if ( LOCATION.match(/\/projects\/current\/+/) !== null){
+				PROJECTID = LOCATION.split('/').pop();
+				return loadSpecificProject();
+			}
 		});
 	};
 
