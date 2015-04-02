@@ -23,8 +23,10 @@ var notfound = require("../templates/404notfound.hbs"),
 	pgx = require('../templates/pgx-page.hbs'),
 	config = require('../templates/server-config.hbs'),
 	phase_page = require('../templates/phase-page.hbs'),
-	phase_current = require('../templates/phase-current.hbs')
-	phase_add_row = require('../templates/phase-add-marker-row.hbs');
+	phase_current = require('../templates/phase-current.hbs'),
+	phase_new = require('../templates/phase-add-gene.hbs'),
+	phase_add_row = require('../templates/phase-add-marker-row.hbs'),
+	phase_add_haplotype = require('../templates/phase-add-haplotype.hbs');
 
 /* return a promisfied version of the template that accepts a single parameter
  * o to render the template */
@@ -68,6 +70,8 @@ module.exports = {
 	haplotypes:{
 		index:_t(phase_page),
 		current:_t(phase_current),
-		row:_t(phase_add_row)
+		row:_t(phase_add_row),
+		haplotype:_t(phase_add_haplotype),
+		new:_t(phase_new)
 	}
 };

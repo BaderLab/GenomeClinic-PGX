@@ -1,48 +1,114 @@
-<fieldset>
-  	<div class="row">
-      	<div class="large-12 columns">
-      		<div class="row collapse prefix-radius">
-            	<div class="small-3 columns">
-              		<span class="prefix">Haplotype Name</span>
-            	</div>
-            	<div class="small-9 columns left">
-              		<input type="text" required id="gene-id">
-              		<small class='error'>Haplotype name is required</small>
-            	</div>
-      		</div>
-     		<h5 class="subheader" style="margin-top:20px;margin-bottom:0px;padding-bottom:0px">Marker Information</h5>
-   			<hr style="margin-top:0px" />	
-      		<div class="row collapse prefix-radius postfix-radius">
-      			<p>Add all markers for the given haplotype. If the marker is not currently in the database you will be prompted to add additional information</p>
-      			<div class="small-3 columns">
-      				<span class="prefix">Marker ID</span>
-      			</div>
-      			<div class="small-7 columns">
-      				<input type="text" class="haplotype-id">
-      			</div>
-      			<div class="small-2 columns">
-      				<a class="postfix button secondary"><i class="fi-plus"></i></a>
-      			</div>
-      		</div>
-            <div class="row collapse prefix-radius marker-table" style="display:none">
-              	<div class="large-3 columns">
-                	<span class="prefix">Added Markers</span>
-              	</div>
-              	<div class="large-9 columns">
-                	<table class="large-12">
-                  		<thead>
-                    		<tr>
-                              <th class="large-3 text-center">Marker Id</th>
-                              <th class="large-3 text-center">Chromosome</th>
-                              <th class="large-3 text-center">Position</th>
-                              <th class="large-3 text-center">Remove</th>
-                    		</tr>
-                    	</thead>
-                  		<tbody>
-                  		</tbody>
-                	</table>
-              	</div>
-            </div>
-        </div>	              					
-    </div>
+{{#if haplotypes}}
+{{#each haplotypes}}
+	<fieldset>
+		<div class="row">
+			<div class="large-2 columns right">
+				<a href="#" class="button secondary right radius tiny edit remove-haplotype" style="display:none;"><i class="fi-x size-12"></i></a>
+			</div>
+		</div>
+		<div class="row collapse prefix-radius">
+			<div class="large-3 columns">
+				<span class="prefix">Haplotype</span>
+			</div>
+			<div class="large-9 columns">
+				<input type="text" id="haplo-name-{{@index}}" value="{{@key}}" class="edit" disabled="disabled">
+				<small class="error haplo-error" style="display:none">Required or Value already on page</small>
+			</div>
+		</div>
+		<div class="row collapse prefix-radius postfix-radius edit" style="display:none;">
+			<div class="large-3 columns">
+				<span class="prefix">Add Additional Markers</span>
+			</div>
+			<div class="large-7 columns">
+				<input type="text" class="haplo-add-new-context">
+				<small class="error" style="display:none">Marker already added</small>
+			</div>
+			<div class="large-2 columns">
+				<a href="#" class="postfix button secondary haplo-add-new"><i class="fi-plus"></i></a>
+			</div>
+		</div>
+		<div class="row collapse prefix-radius">
+			<div class="large-3 columns">
+				<span class="prefix">Markers</span>
+			</div>
+			<div class="large-9 columns">
+				<table class="large-12">
+					<thead>
+						<tr>
+							<th>Marker</th>
+							<th class="text-center">Chr</th>
+							<th class="text-center">Pos</th>
+							<th class="text-center">Ref</th>
+							<th class="text-center">Alt</th>
+							<th class="text-center edit" style="display:none;">Remove</th>
+						<tr>
+					</thead>
+					<tbody>
+						{{#markers}}
+						<tr>
+							<td class="marker-id">{{id}}</td>
+							<td class="text-center">{{chr}}</td>
+							<td class="text-center">{{pos}}</td>
+							<td class="text-center">{{ref}}</td>
+							<td class="text-center">{{alt}}</td>
+							<td class="text-center edit" style="display:none"><a href="#" class="remove-row"><i class="fi-x size-16"></i></a></td>
+						</tr>
+						{{/markers}}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</fieldset>
+{{/each}}
+{{else}}
+<fieldset style="display:none">
+	<div class="row">
+		<div class="large-2 columns right">
+			<a href="#" class="button secondary right radius tiny edit remove-haplotype"><i class="fi-x size-12"></i></a>
+		</div>
+	</div>
+	<div class="row collapse prefix-radius">
+		<div class="large-3 columns">
+			<span class="prefix">Haplotype</span>
+		</div>
+		<div class="large-9 columns">
+			<input type="text" id="haplo-name-{{index}}" class="edit">
+			<small class="error haplo-error" style="display:none">Required or Value already on page</small>
+		</div>
+	</div>
+	<div class="row collapse prefix-radius postfix-radius edit">
+		<div class="large-3 columns">
+			<span class="prefix">Add Additional Markers</span>
+		</div>
+		<div class="large-7 columns">
+			<input type="text" class="haplo-add-new-context">
+			<small class="error" style="display:none">Marker already added</small>
+		</div>
+		<div class="large-2 columns">
+			<a href="#" class="postfix button secondary haplo-add-new"><i class="fi-plus"></i></a>
+		</div>
+	</div>
+	<div class="row collapse prefix-radius">
+		<div class="large-3 columns">
+			<span class="prefix">Markers</span>
+		</div>
+		<div class="large-9 columns">
+			<table class="large-12">
+				<thead>
+					<tr>
+						<th>Marker</th>
+						<th class="text-center">Chr</th>
+						<th class="text-center">Pos</th>
+						<th class="text-center">Ref</th>
+						<th class="text-center">Alt</th>
+						<th class="text-center edit">Remove</th>
+					<tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+	</div>
 </fieldset>
+{{/if}}
+

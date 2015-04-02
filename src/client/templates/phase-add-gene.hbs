@@ -1,36 +1,55 @@
 <div class="row" style="padding-top: 30px;">  
 	<div class="large-12 columns">
-		<h2><i class="fa fa-asterisk"></i>&nbspAdd a new haplotype</h2>
+		<a href="/haplotypes" class="button radius"><i class="fa fa-arrow-left"></i>&nbspBack</a>
+		<div class="row">
+			<div class="large-10 columns">
+				<h2><i class="fa fa-asterisk"></i>&nbspAdd A new Haplotype Collection</h2>
+			</div>
+		</div>
 	</div>
 </div>
 <div class="row">
-	<div class="large-12 columns">
-		<form data-abide="ajax">
-				<div class="row">
-					<div class="large-12 columns">
-						<div class="row collapse prefix-radius">
-		                	<div class="large-2 columns">
-		                  		<span class="prefix">Gene Name</span>	
-		                  	</div>
-			                <div class="large-10 columns left">
-			                	<input type="text" id='username' name='username' required>
-			                  	<small class='error'>Gene Name must be provided</small>
-			                </div>
-		              	</div>
-	              	</div>
-	           	</div>
-	           	<h4 style="margin-top:20px;margin-bottom:0px;padding-bottom:0px">Phasing informmation</h4>
-	           	<hr style="margin-top:0px" />	
-	           	<div class="row">
-	           		<div class="large-12 columns" id="haplotypes">
-	           		</div>
-	           	</div>
-		        <div class="row">
-		        	<div class="large-4 columns right">
-		        		<a href="#" class="large-12 radius button alert" id="add-new-haplotype">Add Another Haplotype</a>
-		        	</div>
-		        </div>
+	<div class="large-12 columns" id="header">
 
-		</form>
+		<div class="row">
+			<div class="large-3 columns left">
+				<a href="#" class="button radius" id="new-haplotype"><i class="fi-plus size-16"></i>&nbspAdd Haplotype</a>
+			</div>
+			<div class="large-4 columns right">
+				<ul class="button-group radius even-2" >
+					<li>
+						<a href="#" id="submit-changes" class="button text-center success radius">Submit</a>
+					</li>
+					<li>
+						<a href="#" id="cancel-changes" class="button radius text-center">Cancel</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div class="row collapse prefix-radius" style="margin-top:30px">
+			<div class="large-3 columns">
+				<span class="prefix">Gene name</span>
+			</div>
+			<div class="large-5 left columns">
+				<input type="text" id="gene-name">
+				<small class="error haplo-error" style="display:none"></small>
+			</div>
+		</div>
+		<div id="confirm-delete" class="reveal-modal large" data-reveal>
+			<h4>Are you sure you want to delete the haplotypes for {{gene}} permanately?</h4>
+			<h6 class="subheader">Once deleted you will no longer be able access or use this haplotype set. None of the markers will be modified or deleted.</h6>
+			<div class="row">
+				<div class="large-6 columns">
+					<a href="#" class="large-12 success button radius">Confirm</a>
+				</div>
+				<div class="large-6 columns">
+					<a href="#" class="large-12 alert button radius cancel">Cancel</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="large-12 columns" id="haplotypes">
 	</div>
 </div>
