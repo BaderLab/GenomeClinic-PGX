@@ -313,7 +313,7 @@ module.exports = function(){
                     throw new Error('Formatting error detected on line: ' + (count + 1));
                   }
 
-                  for ( i=reqFields.length; i < patientIds.length + reqFields.length; i++){
+                  for (var i=reqFields.length; i < patientIds.length + reqFields.length; i++){
                     if (!tempArray[i]){
                       throw new Error("Missing Genotype information at line " + (count + 1));
                     }
