@@ -20,7 +20,6 @@ var projects = require('./projects'),
 
 (function(){
 	var location = window.location.pathname;
-	console.log(location);
 	Promise.resolve().then(function(){
 		if (location == '/'){
 			return templates.index({title:'PGX Webapp'}).then(function(renderedHtml){

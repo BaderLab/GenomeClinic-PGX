@@ -672,7 +672,7 @@ var pgx =  {
 	markerHeads:function(gene){
 		var markers = [];
 		var c = this.globalPGXData.geneMarkers[gene];
-		var pattern=/rs(\d+)/;
+		var pattern=/^[a-zA-Z]{2}(\d+)/;
 		for (var i=0; i < c.length; i++){
 			var o = {};
 			var match = pattern.exec(c[i]);

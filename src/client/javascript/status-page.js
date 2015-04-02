@@ -132,7 +132,6 @@ module.exports = function(){
 				})
 			}));
 			promise.then(function(result){
-				console.log(result);
 				patientArray = {patients:result};
 				return templates.statuspage.index(patientArray);
 			}).then(function(renderedHtml){			
