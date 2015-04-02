@@ -245,6 +245,17 @@ module.exports = function(){
 		});
 	}
 
+
+	var matchSearch = function(input){
+		var val = $('#search-box').val();
+		var re = new RegExp(val,'g','i');
+		if ( val === '' )
+			return true;
+		else if (input.match(re) !== null)
+			return true;
+		return false;
+	};
+
 	var allPageHandlers = function(context){
 		removeItem('.remove-row','tr','click',true,context);
 		removeItem('.remove-haplotype','fieldset','click',true,context);
@@ -259,6 +270,16 @@ module.exports = function(){
 				var path = "/haplotypes/current/" + $(this).data('name').toString();
 				window.location.replace(path);
 			});
+
+			$('#search-box').on('keyup',function(){
+				var currentRows = $('.haplotype-row');
+				for (var i=0; i < currentRows.length; i++ ){
+					if (!matchSearch($(currentRows[i]).data('name')))
+						$(currentRows[i]).hide();
+					else 
+						$(currentRows[i]).show();
+				}
+			})
 		},
 		new: function(){
 			addNewHaplotype('#new-haplotype');
