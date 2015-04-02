@@ -436,7 +436,7 @@ var pgx =  {
 			})
 		}))
 		.then(function(result) {
-				return self.processPGXResponse(selectedPatientAlias, selectedPatientID, result);
+			return self.processPGXResponse(selectedPatientAlias, selectedPatientID, result);
 		})
 		.then(function(result) {
 			return self.generateAllHaplotypes(result);
@@ -520,7 +520,9 @@ var pgx =  {
 		//Trigger an event that will cause a pdf report to be generated adn then be sent to the user
 		// for download
 		$('#download').on('click',function(e){
+			var _this = this
 			e.preventDefault();
+			$(this).text("Generating...")
 			Promise.resolve($.ajax({
 				url: "pgx/report",
 				type: "POST",
@@ -533,6 +535,7 @@ var pgx =  {
 			}).then(function(){
 				return $('#direct_download').get(0).click();
 			}).then(function(){
+				$(_this).text("Download");
 				return $('#direct_download').attr('href','');
 			});
 		});
@@ -669,7 +672,7 @@ var pgx =  {
 	markerHeads:function(gene){
 		var markers = [];
 		var c = this.globalPGXData.geneMarkers[gene];
-		var pattern=/rs(\d+)/;
+		var pattern=/^[a-zA-Z]{2}(\d+)/;
 		for (var i=0; i < c.length; i++){
 			var o = {};
 			var match = pattern.exec(c[i]);

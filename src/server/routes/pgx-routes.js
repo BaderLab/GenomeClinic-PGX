@@ -2,7 +2,6 @@
  * @author Ron Ammar
  */
 var utils = require('../lib/utils');
-var pgx = require('../lib/conf/pgx_haplotypes.json');
 var Promise = require('bluebird');
 var fs = require('fs');
 var constants = require("../lib/conf/constants.json");
@@ -27,10 +26,8 @@ module.exports = function(app,dbFunctions,logger){
 
 
 	//Send the report to the user, delete the report after it was sent.
-	app.get('/pgx/download*',utils.isLoggedIn,function(req,res){
-
-		var url = req.url
-		var file = url.replace(/\/pgx\/download\//,"");
+	app.get('/pgx/download/:id',utils.isLoggedIn,function(req,res){
+		var file = req.params.id;
 		var path = constants.nodeConstants.SERVER_DIR + '/' + constants.nodeConstants.TMP_UPLOAD_DIR + '/' + file;
 		logger.info("Sending Report file: " + path + " to user: " + req.user[constants.dbConstants.USERS.ID_FIELD]); 
 		res.download(path,file,function(err){
@@ -40,11 +37,11 @@ module.exports = function(app,dbFunctions,logger){
 				var html = path.replace(/.pdf$/,'.html');
 				fs.unlink(html,function(err){
 					if (err)
-						logger.error("Fialed to remove report file: " + html,err);
+						logger.error("Failed to remove report file: " + html,err);
 				});
 				fs.unlink(path,function(err){
 					if (err)
-						logger.error("Fialed to remove report file: " + path,err);
+						logger.error("Failed to remove report file: " + path,err);
 				});
 			}
 		});
@@ -56,21 +53,97 @@ module.exports = function(app,dbFunctions,logger){
 		var currentPatientID= req.body[constants.dbConstants.PATIENTS.ID_FIELD];
 		dbFunctions.getPGXVariants(currentPatientID)
 		.then(function(result) {
-			// Return all PGx information: variants from this patient along
-			// with all PGx haplotype and marker data. Also return the patient
-			// ID to ensure we're returning the correct patient (in case 
-			// multiple clicks are happening and there's a delay in the response).
-			var allPGXDetails= {
-				"pgxGenes": pgx.pgxGenes,
-				"pgxCoordinates": pgx.pgxCoordinates,
-				"patientID": currentPatientID,
-				"variants": result.variants,
-				"report-footer": result["report-footer"],
-				"disclaimer": result.disclaimer
-			};
-			return Promise.resolve(allPGXDetails);
-		}).then(function(result){
 			res.send(result);
 		});
 	});
+
+
+	app.get(['/haplotypes','/haplotypes/new','/haplotypes/current/:hapid'],utils.isLoggedIn,function(req,res){
+		utils.render(req,res);
+	});
+
+	app.param('hapid',function(req,res,next,hapid){
+		dbFunctions.checkInDatabase(constants.dbConstants.PGX.GENES.COLLECTION,constants.dbConstants.PGX.GENES.ID_FIELD,hapid)
+		.then(function(result){
+			if (result)
+				next();
+			else
+				utils.render(req,res,true);
+		});
+	});
+
+	app.post('/haplotypes/current/:hapid',utils.isLoggedIn,function(req,res){
+		dbFunctions.updatePGXGene(req.params.hapid,req.body)
+		.then(function(result){
+			//Flash Data
+			res.redirect("/success");
+		}).catch(function(err){
+			//Flash Data
+			res.redirect("/failure");
+		});
+
+	});
+
+	app.delete('/haplotypes/current/:hapid',utils.isLoggedIn,function(req,res){
+		var id = req.params.hapid;
+		dbFunctions.removePGXGene(id)
+		.then(function(result){
+			if (result){
+				res.send(true);
+			} else {
+				res.send(false);
+			}
+		}).catch(function(err){
+			res.redirect(false);
+		});
+
+	});
+
+	app.post('/haplotypes/new',utils.isLoggedIn,function(req,res){
+		dbFunctions.insert(constants.dbConstants.PGX.GENES.COLLECTION,req.body)
+		.then(function(result){
+			if (result){
+				res.redirect('/success');
+			} else {
+				res.redirect('/failure');
+			}
+		}).catch(function(err){
+			res.redirect('/failure');
+		});
+	});
+
+	app.get('/markers',utils.isLoggedIn,function(req,res){
+		utils.render(req,res);
+	});
+
+	app.post('/markers/current/:marker',utils.isLoggedIn,function(req,res){
+		var marker = req.params.marker;
+		var info = req.body;
+		var query = {};
+		query[constants.dbConstants.PGX.COORDS.ID_FIELD] = marker;
+		dbFunctions.updatePGXCoord(marker,info)
+		.then(function(result){
+			if (result){
+				res.redirect('/success');
+			} else {
+				res.redirect('/failure');
+			}
+		}).catch(function(err){
+			res.redirect('/failure');
+		});
+	});
+	app.post('/markers/new',utils.isLoggedIn,function(req,res){
+		dbFunctions.insert(constants.dbConstants.PGX.COORDS.COLLECTION,req.body)
+		.then(function(result){
+			if (result){
+				res.redirect('/success');
+			} else {
+				res.redirect('/failure');
+			}
+		}).catch(function(err){
+			res.redirect('/failure');
+		});
+	});
+
+
 };

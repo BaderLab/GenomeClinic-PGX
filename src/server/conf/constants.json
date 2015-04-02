@@ -76,6 +76,18 @@
 			"READY_FOR_USE":"ready",
 			"ANNO_COMPLETE":"completed",
 			"PROJECT_ARRAY_FIELD":"tags"
+		},
+		"PGX":{
+			"COORDS":{
+				"DEFAULT":"lib/conf/pgx_coordinates.json",
+				"COLLECTION":"pgxCoordinates",
+				"ID_FIELD":"id"
+				},
+			"GENES":{
+				"DEFAULT":"lib/conf/pgx_genes.json",
+				"COLLECTION":"pgxGenes",
+				"ID_FIELD":"gene"
+			}
 		}
 	},
 	"nodeConstants":{

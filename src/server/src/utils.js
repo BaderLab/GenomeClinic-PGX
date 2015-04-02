@@ -6,19 +6,25 @@ module.exports = {
 			return next();
 		res.redirect('/login');
 	},
-	render:function(req,res,scripts){
+	render:function(req,res,notFound,scripts){
+		var template;
 		var _o = {
 			title:'PGX webapp',
 			cache:true
 		};
+		if (notFound)
+			template = 'notfound.hbs'
+		else
+			template = 'layout.hbs'
+
 		if (req.isAuthenticated()){
 			_o.authenticated = true;
 			_o.user = req.user.username;
 			if (scripts)
 				_o.scripts = scripts;
-			res.render('layout.hbs',_o);
+			res.render(template,_o);
 		} else {
-			res.render('layout.hbs',_o);
+			res.render(template,_o);
 		}
 	}
 };

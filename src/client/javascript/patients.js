@@ -5,8 +5,8 @@
 
 var $ = require('jquery'),
 	templates = require('./templates'),
-	utility = require('./utility'),
-	pgx = require('./pgx');
+	utility = require('./utility');
+pgx = require('./pgx');
 
 module.exports = function() {
 	/* AJAX call to application server to retrieve patients.

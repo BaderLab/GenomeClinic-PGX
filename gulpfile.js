@@ -50,7 +50,8 @@ var paths = {
 		views:{
 			src:[
 				'src/client/templates/layout.hbs',
-				'src/client/templates/pgx-report.hbs'
+				'src/client/templates/pgx-report.hbs',
+				'src/client/templates/notfound.hbs'
 				],
 			dest:'build/views'
 		},
@@ -99,7 +100,7 @@ var paths = {
 		conf:{
 			src:[
 				'src/server/conf/api.js',
-				'src/server/conf/pgx_haplotypes.json'
+				'src/server/conf/pgx*'
 			],
 			dest:'build/lib/conf'
 		},
@@ -232,9 +233,10 @@ gulp.task('server',function(next){
 //Added route for globally installing phantomJs dependency
 gulp.task("phantom",function(){
 	var cont = true;
-	var uid = process.getuid();
 	var platform = process.platform;
+	console.log(platform);
 	if (platform.search(/win[0-9]+/i) === -1){
+		var uid = process.getuid();
 		if (uid !== 0){
 			gutil.log(gutil.colors.bgRed("Error:"), gutil.colors.yellow("PhantomJS"), "requires root privliges to be installed...");
 			gutil.log(gutil.colors.bgRed("Error:"), gutil.colors.yellow("PhantomJS"), "Please run gulp with root privelege or manually install...");

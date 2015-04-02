@@ -90,6 +90,7 @@ module.exports = function(app,dbFunctions){
 	});
 
 
+
 	//==================================================================
 	//Handle 404 routes
 	//==================================================================
@@ -97,8 +98,8 @@ module.exports = function(app,dbFunctions){
 	 * Otherwise It will redirect a legitimate route to the 404 page.
 	 * Essentially its sayin, anything coming in will be sent to 404notfound
 	 */
-	app.get('*', function(req,res){
-		utils.render(req,res);
+	app.get(/^\/(.+)/, function(req,res){
+		utils.render(req,res,true);
 	});
 };
 

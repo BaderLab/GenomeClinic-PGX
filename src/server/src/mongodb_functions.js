@@ -8,9 +8,10 @@ var MongoClient= require("mongodb").MongoClient;
 var Promise = require("bluebird");
 var assert= require("assert");
 var dbConstants = require("../lib/conf/constants.json").dbConstants;
+var nodeConstants = require('../lib/conf/constants.json').nodeConstants;
 var bcrypt = require("bcrypt-nodejs");
 var randomstring = require("just.randomstring");
-var pgx= require("../lib/conf/pgx_haplotypes");
+var fs = Promise.promisifyAll(require('fs'));
 
 
 var dbFunctions = function(logger,DEBUG){
@@ -107,6 +108,63 @@ var dbFunctions = function(logger,DEBUG){
 					currentDocument = {};
 					currentDocument[dbConstants.PROJECTS.ID_FIELD] = 1; // index in ascending order
 					return self.createIndex(dbConstants.PROJECTS.COLLECTION, currentDocument,{unique:true}); 
+				})
+				//Add the default pgx data to the collection if its not there already and only if it exists.
+				.then(function(){
+					logInfo("Checking for default PGX information");
+					fs.statAsync(nodeConstants.SERVER_DIR + '/' + dbConstants.PGX.COORDS.DEFAULT)
+					.then(function(){
+						// Make sure both the Genes and the Coords are available.
+						return fs.statAsync(nodeConstants.SERVER_DIR + '/' + dbConstants.PGX.GENES.DEFAULT);
+					}).catch(function(err){
+						throw new Error("No Default Pgx Information detected, skipping step");
+					}).then(function(result){
+						var pgxCoords = require(nodeConstants.SERVER_DIR + '/' + dbConstants.PGX.COORDS.DEFAULT);
+						var pgxGenes = require(nodeConstants.SERVER_DIR + '/' + dbConstants.PGX.GENES.DEFAULT);
+						var o,rsIds;
+						var coordIds = [];
+						//Get a list of all the coordinate ids
+						for (var i=0; i < pgxCoords.length;i++ ){
+							coordIds.push(pgxCoords[i].id);
+						}
+						//Check to ensure the default information is complete.
+						for (i = 0; i < pgxGenes.length; i++ ){
+							rsIds = [];
+							var keys = Object.keys(pgxGenes[i].haplotypes);
+							for (var j = 0; j < keys.length; j++ ){
+								rsIds = rsIds.concat(pgxGenes[i].haplotypes[keys[j]]);
+							}
+							for ( j = 0; j < rsIds.length; j++){
+								if (coordIds.indexOf(rsIds[j]) === -1)
+									throw new Error("PGX coordinate information incompletee. Missing Id's in PGX coordinates that were found in haplotpyes");
+							}
+						}
+
+						o = {
+							documents : pgxCoords,
+							collectionName : dbConstants.PGX.COORDS.COLLECTION
+						};
+						return self.insertMany(o)
+						.then(function(result){
+							currentDocument = {};
+							currentDocument[dbConstants.PGX.COORDS.ID_FIELD] = 1;
+							return self.createIndex(dbConstants.PGX.COORDS.COLLECTION,currentDocument,{unique:true});
+						}).then(function(){
+							o.documents = pgxGenes;
+							o.collectionName = dbConstants.PGX.GENES.COLLECTION;
+							return self.insertMany(o);
+						}).then(function(result){
+							currentDocument = {};
+							currentDocument[dbConstants.PGX.GENES.ID_FIELD] = 1;
+							return self.createIndex(dbConstants.PGX.GENES.COLLECTION,currentDocument,{unique:true});
+						}).then(function(){
+							logInfo("Successfully added default PGX information");
+						}).catch(function(err){
+							logErr("Default PGX info was not successfully added",err);
+						});
+					}).catch(function(err){
+						logInfo(err.message);
+					});
 				})
 				.then(function(result) {
 					resolve();
@@ -780,7 +838,7 @@ var dbFunctions = function(logger,DEBUG){
 		}).then(function(result){
 			var query = {},tagQuery={},ownwerQuery={},queryList=[];
 			ownwerQuery[dbConstants.DB.OWNER_ID] = username;
-			queryList.push(ownwerQuery)
+			queryList.push(ownwerQuery);
 			if (result.length > 0){
 				tagQuery[dbConstants.PROJECTS.ARRAY_FIELD] = {$in:result};
 				queryList.push(tagQuery);
@@ -874,45 +932,123 @@ var dbFunctions = function(logger,DEBUG){
 	};
 
 
+	this.getPGXCoords = function(rsID) {
+		assert.notStrictEqual(db,undefined);
+		var query = {};
+		if (Object.prototype.toString.call(rsID) == "[object Array]")
+			query[dbConstants.PGX.COORDS.ID_FIELD] = {$in:rsID};
+		else if (rsID)
+			query[dbConstants.PGX.COORDS.ID_FIELD] = rsID;
+
+		return find(dbConstants.PGX.COORDS.COLLECTION,query,{"_id":0})
+		.then(function(result){
+			var out = {};
+			for (var i = 0; i < result.length; i++ ){
+				out[result[i].id] = {};
+				for (var key in result[i]){
+					if (result[i].hasOwnProperty(key) && key != "id"){
+						out[result[i].id][key] = result[i][key];
+					}
+				}
+			}
+			return out;	
+		});
+	};
+
+	this.getPGXGenes = function(geneName){
+		assert.notStrictEqual(db,undefined);
+		var query = {};
+		if (Object.prototype.toString.call(geneName) == '[object Array]')
+			query[dbConstants.PGX.GENES.ID_FIELD] = {$in:geneName};
+		else if (geneName)
+			query[dbConstants.PGX.GENES.ID_FIELD] = geneName;
+		return find(dbConstants.PGX.GENES.COLLECTION,query,{'_id':0})
+		.then(function(result){
+			var out = {};
+			for (var i=0; i< result.length; i++ ){
+
+				out[result[i].gene] = result[i].haplotypes;
+			}
+			return out;
+		});
+	};
+
+	this.removePGXGene = function(geneName){
+		assert.notStrictEqual(db,undefined);
+		assert(Object.prototype.toString.call(geneName) == "[object String]");
+		var query = {};
+		query[dbConstants.PGX.GENES.ID_FIELD] = geneName;
+		return removeDocument(dbConstants.PGX.GENES.COLLECTION,query,[[dbConstants.PGX.GENES.ID_FIELD,1]]);
+
+	}
+
+	this.updatePGXGene = function(geneName,doc){
+		assert.notStrictEqual(db,undefined);
+		assert(Object.prototype.toString.call(geneName) == "[object String]");
+		assert(Object.prototype.toString.call(doc) == "[object Object]");
+
+		var query = {};
+		query[dbConstants.PGX.GENES.ID_FIELD] = geneName
+		return this.update(dbConstants.PGX.GENES.COLLECTION,query,doc);
+	};
+
+	this.updatePGXCoord = function(rsID,doc){
+		assert.notStrictEqual(db,undefined);
+		assert(Object.prototype.toString.call(rsID) == "[object String]");
+		assert(Object.prototype.toString.call(doc) == "[object Object]");
+		var query = {};
+		query[dbConstants.PGX.COORDS.ID_FIELD] = rsID
+		return this.update(dbConstants.PGX.COORDS.COLLECTION,query,doc);
+	}
+
 	/* Find all PGx variants for a specific patient ID.
 	 * NOTE: patient ID is the user-specified ID, not the internal collection ID.
 	 * Returns a promise. */
 	this.getPGXVariants= function(patientID) {
+
 		assert.notStrictEqual(db, undefined);  // ensure we're connected first
+		var self = this;
+		var pgxCoords, pgxGenes,currentPatientCollectionID;
 		var query= {};
-		var getTempCoords = function(marker,query){
-			var tempCoords = {};
-			tempCoords[dbConstants.VARIANTS.CHROMOSOME]= pgx.pgxCoordinates[marker].chr;
-			tempCoords[dbConstants.VARIANTS.START]= pgx.pgxCoordinates[marker].pos;
-			query.$or.push(tempCoords);
-		};
 		query[dbConstants.PATIENTS.ID_FIELD]= patientID;
+
 		var promise= this.findOne(dbConstants.PATIENTS.COLLECTION, query)
 		.then(function(result) {
+			currentPatientCollectionID = result[dbConstants.PATIENTS.COLLECTION_ID];
+			return self.getPGXGenes();
+		}).then(function(result){
+			pgxGenes = result;
+			return self.getPGXCoords();
+		}).then(function(result){
 			// build search query
-			var query= {};
-			query.$or= [];
-			for (var marker in pgx.pgxCoordinates) {
-				if (pgx.pgxCoordinates.hasOwnProperty(marker)) {
-					getTempCoords(marker,query);
-				}
+			query = {'$or' : []};
+			pgxCoords = result;
+			var tempCoords;
+			var keys = Object.keys(result);
+			for ( var i = 0; i < keys.length; i++){
+				tempCoords = {};
+				tempCoords[dbConstants.VARIANTS.CHROMOSOME] = result[keys[i]].chr;
+				tempCoords[dbConstants.VARIANTS.START] = result[keys[i]].pos;
+				query.$or.push(tempCoords);
 			}
-
-			var currentPatientCollectionID= result[dbConstants.PATIENTS.COLLECTION_ID];
 			return find(currentPatientCollectionID, query, {"_id": 0}); // don't send internal _id field
 		})
 		.then(function(result) {
 			var doc= {};
 			doc.variants= result;
+			doc.pgxGenes = pgxGenes;
+			doc.pgxCoordinates = pgxCoords;
+			doc.patientID = patientID;
+
 			var opts = {"_id":0};
 			opts[dbConstants.DB.REPORT_FOOTER] = 1;
 			opts[dbConstants.DB.REPORT_DISCLAIMER] = 1;
+
 			return find(dbConstants.DB.ADMIN_COLLECTION, {}, opts)
 			.then(function(result) {
 				doc[dbConstants.DB.REPORT_FOOTER]= result[0][dbConstants.DB.REPORT_FOOTER];
 				doc[dbConstants.DB.REPORT_DISCLAIMER]= result[0][dbConstants.DB.REPORT_DISCLAIMER];
-
-				return Promise.resolve(doc);
+				return doc;
 			});
 		});
 		return promise;
