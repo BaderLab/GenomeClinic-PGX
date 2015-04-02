@@ -89,18 +89,27 @@ module.exports = function(app,dbFunctions,logger){
 		dbFunctions.removePGXGene(id)
 		.then(function(result){
 			if (result){
-				res.redirect('/succes');
+				res.send(true);
+			} else {
+				res.send(false);
+			}
+		}).catch(function(err){
+			res.redirect(false);
+		});
+
+	});
+
+	app.post('/haplotypes/new',utils.isLoggedIn,function(req,res){
+		dbFunctions.insert(constants.dbConstants.PGX.GENES.COLLECTION,req.body)
+		.then(function(result){
+			if (result){
+				res.redirect('/success');
 			} else {
 				res.redirect('/failure');
 			}
 		}).catch(function(err){
 			res.redirect('/failure');
 		});
-
-	});
-
-	app.post('/haplotypes/new',utils.isLoggedIn,function(req,res){
-
 	});
 
 	app.get('/markers',utils.isLoggedIn,function(req,res){
