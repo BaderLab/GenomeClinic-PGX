@@ -12,6 +12,9 @@ module.exports = function(){
 			var haplotypes = $('fieldset');
 			var geneName = $('#gene-name').is('input') ? $('#gene-name').val() : $('#gene-name').text().substring(1);
 			geneName = geneName.toLowerCase();
+			if (geneName == ""){
+				$('#gene-name').addClass('error').siblings('small').text("Required").show();
+			}
 			for (var i = 0; i < haplotypes.length; i++ ){
 				currHap = $(haplotypes[i]).find('[id^=haplo-name-]').val();
 				if (currHap == ''){
