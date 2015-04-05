@@ -76,7 +76,7 @@ module.exports = function(app,dbFunctions){
 	//==================================================================
 
 	//new projects
-	app.get(['statuspage'], utils.isLoggedIn, function(req,res){
+	app.get(['/statuspage'], utils.isLoggedIn, function(req,res){
 		utils.render(req,res);
 	});
 	//==================================================================
