@@ -517,6 +517,7 @@ var dbFunctions = function(logger,DEBUG){
 	/* Check within the specified database to determine whether or not an item exists*/
 	this.checkInDatabase = function(collection,field,value){
 		assert.notStrictEqual(db, undefined);
+		console.log(collection);
 		assert(Object.prototype.toString.call(collection) == "[object String]",
 			"Invalid collection");
 		assert(Object.prototype.toString.call(field) == "[object String]",

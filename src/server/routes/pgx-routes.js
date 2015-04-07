@@ -134,9 +134,9 @@ module.exports = function(app,dbFunctions,logger){
 		});
 	});
 
-	//app.get('/markers',utils.isLoggedIn,function(req,res){
-	//	utils.render(req,res);
-	//});
+	app.get('/markers',utils.isLoggedIn,function(req,res){
+		utils.render(req,res);
+	});
 
 	app.post('/markers/current/:marker',utils.isLoggedIn,function(req,res){
 		var marker = req.params.marker;
@@ -167,7 +167,7 @@ module.exports = function(app,dbFunctions,logger){
 		});
 	});
 
-	app.get('/markers*',utils.isLoggedIn,function(req,res){
-		utils.render(req,res,'construction');
-	});
+	//app.get('/markers*',utils.isLoggedIn,function(req,res){
+	//	utils.render(req,res,'construction');
+	//});
 };

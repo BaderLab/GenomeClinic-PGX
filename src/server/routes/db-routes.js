@@ -154,7 +154,7 @@ module.exports = function(app,dbFunctions,queue){
 		});
 	});
 
-	app.get('/database/haplotypes/getmarkers',utils.isLoggedIn,function(req,res){
+	app.get('/database/markers/getmarkers',utils.isLoggedIn,function(req,res){
 		dbFunctions.getPGXCoords().then(function(result){
 			if (result)
 				res.send(result);
@@ -164,7 +164,7 @@ module.exports = function(app,dbFunctions,queue){
 	});
 
 
-	app.get('/database/haplotypes/getmarkers/:marker',utils.isLoggedIn,function(req,res){
+	app.get('/database/markers/getmarkers/:marker',utils.isLoggedIn,function(req,res){
 		var marker = req.params.marker;
 		dbFunctions.getPGXCoords(marker).then(function(result){
 			if (result)
@@ -200,6 +200,7 @@ module.exports = function(app,dbFunctions,queue){
 	/* checkt to see whether the content within the body is within the database
 	 *  returns true/false */
 	app.post('/database/checkInDatabase',utils.isLoggedIn,function(req,res){
+		console.log(req.body);
 		var options = req.body;
 		if (options.collection == dbConstants.PATIENTS.COLLECTION && options.field == dbConstants.PATIENTS.ID_FIELD){
 			for (var i=queue.queue.length-1; i>= 0; i--){

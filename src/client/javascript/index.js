@@ -13,7 +13,8 @@ var projects = require('./projects'),
 	config = require('./config'),
 	authentication = require('./authentication'),
 	patients = require('./patients'),
-	phasing = require('./phase-page');
+	phasing = require('./phase-page'),
+	markers =  require('./markers-page');
 
 
 
@@ -37,6 +38,8 @@ var projects = require('./projects'),
 			return config();
 		} else if (location == '/statuspage'){
 			return status();
+		} else if (location == '/markers'){
+			return markers();
 		} else if (location.search(/\/haplotypes/) !== -1){
 			return phasing();
 		}

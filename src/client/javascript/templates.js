@@ -24,7 +24,9 @@ var index = require('../templates/index.hbs'),
 	phase_current = require('../templates/phase-current.hbs'),
 	phase_new = require('../templates/phase-add-gene.hbs'),
 	phase_add_row = require('../templates/phase-add-marker-row.hbs'),
-	phase_add_haplotype = require('../templates/phase-add-haplotype.hbs');
+	phase_add_haplotype = require('../templates/phase-add-haplotype.hbs'),
+	marker_page = require('../templates/marker-page.hbs'),
+	marker_add_row = require('../templates/marker-add-marker.hbs');
 
 /* return a promisfied version of the template that accepts a single parameter
  * o to render the template */
@@ -69,5 +71,9 @@ module.exports = {
 		row:_t(phase_add_row),
 		haplotype:_t(phase_add_haplotype),
 		new:_t(phase_new)
+	},
+	markers:{
+		index:_t(marker_page),
+		row:_t(marker_add_row)
 	}
 };
