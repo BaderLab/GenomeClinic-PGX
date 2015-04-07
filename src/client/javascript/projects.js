@@ -68,7 +68,6 @@ module.exports = function(){
 	var renderPatientInformation = function(project,excluded,remove,ele,handlers,callback){
 		return getPatientInformation(project,excluded)
 		.then(function(result){
-			console.log(result);
 			patientInformation = result.map(function(item){
 				return item[patientConstants.ID_FIELD];
 			});
@@ -373,7 +372,15 @@ module.exports = function(){
 		});
 		var remove = (user==owner);
 		confirm('#edit-page','#change-details',false,function(ele){
-			$(ele).show().closest('fieldset').find('#fixed-details').hide(0);
+			$('#submit-changes').on('click',function(e){
+				e.preventDefault();
+				$(ele).find('.confirm').trigger('click');
+			});
+			$('#cancel-changes').on('click',function(e){
+				e.preventDefault();
+				$(ele).find('.cancel').trigger('click');
+			});
+			$('.edit').show(0).find('#fixed-details').hide(0);
 			var _default = {
 				keywords:$('#keywords').val(),
 				description:$('#description').val()
@@ -418,7 +425,7 @@ module.exports = function(){
 				$('.auth-user-email').closest('tr').find('a').show();
 				$('#keywords').val(_default.keywords);
 				$('#description').val(_default.description);
-				$(content).hide().parents().find('#fixed-details').show();
+				$('.edit').hide().parents().find('#fixed-details').show();
 			}
 
 		});

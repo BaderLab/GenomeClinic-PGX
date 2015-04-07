@@ -31,7 +31,20 @@
     </div>
   </div>
   <div class="small-12 large-12 columns">
-    <form id="jquery-new-patient-form" data-abide>
+    <form id="jquery-new-patient-form" data-abide style="margin-top:20px">
+      <div class="row">
+        <div class="small-6 large-4 columns left">
+          <input id="fileselect" type="file" name="files[]" style="display:none" multiple></input>
+          <a href="#" class="button alert round large-12" id="upload-button"><i class="fi-plus size-16"></i>&nbsp&nbspAdd File</a></li>
+        </div>
+        <div class="small-6 large-4 columns right">
+          <a href='/statuspage' class="small-12 large-12 button round alert" id="go-to-status" style="display:none;">Check Status</a>
+          <ul class="button-group even-2 round">
+            <li><a href="#" class="button alert" id="cancel-all-button"><i class="fi-x size-16"></i>&nbsp&nbspCancel</a></li>
+            <li><a href="#" class="button alert" id="submit-all-button"><i class="fi-upload size-16"></i>&nbsp&nbspSubmit</a></li>
+          </ul>
+        </div>     
+      </div>
       <div class="row">
         <div class="small-12 large-12 columns">
           <fieldset style="display:none" id="info-fields">
@@ -69,19 +82,18 @@
             </div>
           </fieldset>
         </div>
-      </div<
-      <div class="row">
+      </div>
+      <div class="row" id="dummy-buttons" style="display:none">
         <div class="small-6 large-4 columns left">
-          <input id="fileselect" type="file" name="files[]" style="display:none" multiple></input>
-          <a href="#" class="button alert round large-12" id="upload-button"><i class="fi-plus size-16"></i>&nbsp&nbspAdd File</a></li>
+          <a href="#" class="button alert round large-12" id="dummy-upload-button"><i class="fi-plus size-16"></i>&nbsp&nbspAdd File</a></li>
         </div>
         <div class="small-6 large-4 columns right">
-          <a href='/statuspage' class="small-12 large-12 button round alert" id="go-to-status" style="display:none;">Check Status</a>
+          <a href='/statuspage' class="small-12 large-12 button round alert" id="dummy-go-to-status" style="display:none;">Check Status</a>
           <ul class="button-group even-2 round">
-            <li><a href="#" class="button alert" id="cancel-all-button"><i class="fi-x size-16"></i>&nbsp&nbspCancel</a></li>
-            <li><a href="#" class="button alert" id="submit-all-button"><i class="fi-upload size-16"></i>&nbsp&nbspSubmit</a></li>
+            <li><a href="#" class="button alert" id="dummy-cancel-all-button"><i class="fi-x size-16"></i>&nbsp&nbspCancel</a></li>
+            <li><a href="#" class="button alert" id="dummy-submit-all-button"><i class="fi-upload size-16"></i>&nbsp&nbspSubmit</a></li>
           </ul>
-        </div>     
+        </div>  
       </div>
     </form>
   </div>

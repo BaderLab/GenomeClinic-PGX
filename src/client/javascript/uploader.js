@@ -70,6 +70,22 @@ module.exports = function(){
       $('.canel-button').trigger('click');
       $('#patient_information').empty().closest('fieldset').hide();
       $('#patient_vcf').empty().closest('fieldset').hide();
+      $('#dummy-buttons').hide();
+    });
+
+    $('#dummy-upload-button').on('click',function(e){
+      e.preventDefault();
+      $('#upload-button').trigger('click');
+    });
+
+    $('#dummy-submit-all-button').on('click',function(e){
+      e.preventDefault();
+      $('#submit-all-button').trigger('click');
+    });
+
+    $('#dummy-cancel-all-button').on('click',function(e){
+      e.preventDefault();
+      $('#cancel-all-button').trigger('click');
     });
 
 
@@ -329,61 +345,64 @@ module.exports = function(){
                 throw new Error('Input File not in proper Format, could not find header information');
             }).then(function(){
               //Render the html async to add it to the page
-              templates.uploadpage.vcf(options)
-              .then(function(renderedHtml){
-                $('#patient_information').append(renderedHtml).closest('fieldset').show();
-                return templates.uploadpage.progress(options);
-              }).then(function(renderedHtml){
-                $('#patient_vcf').append(renderedHtml).closest('fieldset').show();
-              }).then(function(){
-                dynamicHandlers();
-              }).then(function(){
-                $('.patient_id').trigger('keyup');
-              }).then(function(){
+              return templates.uploadpage.vcf(options)
+            }).then(function(renderedHtml){
+              $('#patient_information').append(renderedHtml).closest('fieldset').show();
+              return templates.uploadpage.progress(options);
+            }).then(function(renderedHtml){
+              return $('#patient_vcf').append(renderedHtml).closest('fieldset').show();
+            }).then(function(){
+              return dynamicHandlers();
+            }).then(function(){
+              return $('.patient_id').trigger('keyup');
+            }).then(function(){
               //set contect for latter referal
-                data.context = $(document).find('#fileNum' + Id);
-                //add event listeners to the internal cancel
-                data.context.find('.cancel-button').on('click',function(event){
-                  event.preventDefault();
-                  if (jqXHR) {
-                    jqXHR.abort();
-                    data.context.find('.progress').hide().children('span').css({'width':'0%'});
-                    data.context.find('p').removeClass('working').addClass('canceled').append("&nbsp&nbsp<span class='error'><i>Upload Canceled</i></span>");
+              data.context = $(document).find('#fileNum' + Id);
+              //add event listeners to the internal cancel
+              data.context.find('.cancel-button').on('click',function(event){
+                event.preventDefault();
+                if (jqXHR) {
+                  jqXHR.abort();
+                  data.context.find('.progress').hide().children('span').css({'width':'0%'});
+                  data.context.find('p').removeClass('working').addClass('canceled').append("&nbsp&nbsp<span class='error'><i>Upload Canceled</i></span>");
 
-                  }
-                  $(document).find('.fileNum' + Id).parent().remove();
-                  $(this).closest('#fileNum' + Id).parent().remove();
-                  $(document).find('.patient_id').trigger('keyup');
-                  
+                }
+                $(document).find('.fileNum' + Id).parent().remove();
+                $(this).closest('#fileNum' + Id).parent().remove();
+                $(document).find('.patient_id').trigger('keyup');
+                
 
-                });
+              })
+              //add event listener to the hidden submit button
+              data.context.find('.submit-button').on('click',function(event){
+                event.preventDefault();
+                //validate the form and return a promise
+                validateForm(data,Id)
+                .then(function(uploadData){
+                  //submit the form with the validated data for the specific file.
+                  $('#dummy-buttons').hide();
+                  data.formData = uploadData;
+                  data.context.find('p').addClass('working');
+                  $(document).find('#info-fields').hide();
+                  $('#upload-button').hide(200);
+                  $('submit-all-button').off('click');
 
-                //add event listener to the hidden submit button
-                data.context.find('.submit-button').on('click',function(event){
-                  event.preventDefault();
-                  //validate the form and return a promise
-                  validateForm(data,Id)
-                  .then(function(uploadData){
-                    //submit the form with the validated data for the specific file.
-                    data.formData = uploadData;
-                    data.context.find('p').addClass('working');
-                    $(document).find('#info-fields').hide();
-                    $('#upload-button').hide(200);
-                    $('submit-all-button').off('click');
+                  jqXHR = data.submit();
 
-                    jqXHR = data.submit();
-
-                  }).catch(function(err){
-                    console.log(err);
-                  });
+                }).catch(function(err){
+                  console.log(err);
                 });
               });
+            }).then(function(){
+                  $('#dummy-buttons').show();
             }).catch(function(err){
               $('#error-display-message').text(err.message).parents().find('#error-display-box').slideDown(300);
             });
 
             return promise;
           };
+
+          ///Read Data
           reader.readAsDataURL(data.files[0].slice(0,10*1024*10));
         }
       }, 
