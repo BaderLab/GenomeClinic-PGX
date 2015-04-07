@@ -35,10 +35,6 @@ var projects = require('./projects'),
 			return patients();
 		} else if (location == '/config'){
 			return config();
-		} else if (location == '/panel'){
-			return templates.construction().then(function(renderedHtml){
-				$('#main').html(renderedHtml);
-			});
 		} else if (location == '/statuspage'){
 			return status();
 		} else if (location.search(/\/haplotypes/) !== -1){

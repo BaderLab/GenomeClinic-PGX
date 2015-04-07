@@ -23,8 +23,8 @@ module.exports = function(app,dbFunctions,logger){
 		'/browsepatients/id/:patientID',
 		'/haplotypes',
 		'/haplotypes/new',
-		'/haplotypes/current/:hapid',
-		'/markers'
+		'/haplotypes/current/:hapid'//,
+		//'/markers'
 	];
 
 	app.get(renderRoutes,utils.isLoggedIn,function(req,res){
@@ -165,5 +165,9 @@ module.exports = function(app,dbFunctions,logger){
 		}).catch(function(err){
 			res.redirect('/failure');
 		});
+	});
+
+	app.get('/markers*',utils.isLoggedIn,function(req,res){
+		utils.render(req,res,'construction');
 	});
 };

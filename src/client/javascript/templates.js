@@ -2,9 +2,7 @@
  * @author Patrick Magee
  */
 var $ = require('jquery');
-var notfound = require("../templates/404notfound.hbs"),
-	construction = require('../templates/construction.hbs'),
-	index = require('../templates/index.hbs'),
+var index = require('../templates/index.hbs'),
 	navbar = require('../templates/navbar.hbs'),
 	login = require('../templates/login.hbs'),
 	signup = require('../templates/signup.hbs'),
@@ -41,8 +39,6 @@ var _t = function(t){
 
 //Return object with All the templates
 module.exports = {
-	notfound:_t(notfound),
-	construction:_t(construction),
 	index:_t(index),
 	navbar:_t(navbar),
 	login:_t(login),

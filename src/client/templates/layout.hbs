@@ -33,7 +33,7 @@
                 <ul class="dropdown">
                   <li><a href="/upload" id="webapp-add-new-patient"><i class="fi-torso size-24"></i>&nbsp&nbsp&nbsp Add Patient</a></li>
                   <li><a href="/projects" id="webapp-add-new-project"><i class="fi-page-multiple size-24"></i>&nbsp&nbsp&nbsp My Projects</a></li>
-                  <li><a href="/construction" id="webapp-add-new-panel"><i class="fa fa-stethoscope fa-2x"></i>&nbsp&nbsp&nbsp Gene Panel</a></li>
+                  <li><a href="/panels" id="webapp-add-new-panel"><i class="fa fa-stethoscope fa-2x"></i>&nbsp&nbsp&nbsp Gene Panel</a></li>
                   <li><a href="/haplotypes" id="webapp-haplotypes"><i class="fa fa-asterisk fa-2x"></i>&nbsp&nbsp Manage Haplotypes</a></li>
                    <li><a href="/markers" id="webapp-markers"><b class="icon-text size-16">rS</b>&nbsp&nbsp&nbsp Manage Markers</a></li>
                 </ul>
@@ -77,6 +77,36 @@
       </nav>
     </div>
     <div id="main" style="min-height:100%">
+      {{#if notfound}}
+        <div class="row" style="padding-top: 200px;">
+          <div class="large-6 large-centered columns">
+            <div class="row">
+              <div class="large-4 columns">
+                <i class="fa fa-gears" style="font-size: 6em;"></i>
+              </div>
+              <div class="large-8 columns">
+                <h2><em>404 Not Found!</em></h2>
+                <h4 class="subheader">There's nothing here!</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      {{/if}}
+      {{#if construction}}
+        <div class="row" style="padding-top: 200px;">
+          <div class="large-6 large-centered columns">
+            <div class="row">
+              <div class="large-4 columns">
+                <i class="fa fa-wrench" style="font-size: 6em;"></i>
+              </div>
+              <div class="large-8 columns">
+                <h2><em>In development</em></h2>
+                <h4 class="subheader">Come back soon!</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      {{/if}}
     </div>
     <!-- Footer - modified from the Foundation website -->
     <div class="zurb-footer-bottom">
@@ -91,9 +121,11 @@
       </div>
     </div>
     <script type="text/javascript" src="/static/js/vendor/vendor.bundle.min.js"></script>
-    <script type="text/javascript" src="/static/js/bundle.min.js"></script>
-    {{#each script}}
-    <script type="text/javascript" src="{{src}}"></script>
+    {{#each src}}
+    <script type="text/javascript" src="{{this}}"></script>
     {{/each}}
+    <script type="text/javascript">
+      $(document).foundation();
+    </script>
   </body>
 </html>
