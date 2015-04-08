@@ -21,6 +21,20 @@
 	</div>
 {{/if}}
 {{#if patients}}
+	{{#if pgx}}
+	<div class="row">
+		<div class="large-12 columns">
+			<div class="row collapse prefix-radius">
+				<div class="large-2 columns">
+					<span class="prefix">Search</span>
+				</div>
+				<div class="large-4 left columns">
+					<input type="text" id="search-box">
+				</div>
+			</div>
+		</div>
+	</div>
+	{{/if}}
 	<div class="row">
 		<div class="small-12 medium-12 large-12 small-centered medium-centered large-centered columns">
 			<table class="small-12 medium-12 large-12">
@@ -32,7 +46,7 @@
 						<th class="text-center">Age</th>
 						<th class="text-center">Date Uploaded</th>
 						{{#	if project}}
-						<th class="text-center">Remove</th>
+						<th class="text-center edit">Remove</th>
 						{{/if}}
 					</tr>
 				</thead>
@@ -45,7 +59,7 @@
 						<td class="text-center">{{age}}</td>
 						<td class="text-center">{{completed}}</td>
 						{{#if @root.project}}
-						<td class="text-center">
+						<td class="text-center edit" style="display:none">
 							<div class="switch radius tiny">
 	  							<input id="removeSwitch-{{@index}}" type="checkbox" name="remove-{{@index}}" data-id="{{patient_id}}">
 	  							<label for="removeSwitch-{{@index}}"></label>
