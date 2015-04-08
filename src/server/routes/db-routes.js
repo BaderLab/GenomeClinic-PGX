@@ -94,87 +94,6 @@ module.exports = function(app,dbFunctions,queue){
 		});
 	});
 
-
-	//==================================================================
-	//Check Haplotypes
-	//==================================================================
-	app.get('/database/haplotypes/getgenes',utils.isLoggedIn,function(req,res){
-		dbFunctions.getPGXGenes().then(function(result){
-			if (result)
-				res.send(result);
-			else 
-				res.send(undefined);
-		}).catch(function(err){
-			console.log(err);
-		});
-	});
-
-	app.get('/database/haplotypes/getgenes/:gene',utils.isLoggedIn,function(req,res){
-		var gene = req.params.gene;
-		dbFunctions.getPGXGenes(req.params.gene).then(function(result){
-			var out = {};
-			if (result){
-				out.gene = gene;
-				var uniqIDS = [];
-				var haplotypes = result[gene];
-				for (var hap in haplotypes){
-					if (haplotypes.hasOwnProperty(hap)){
-						for (var i=0; i < haplotypes[hap].length; i++){
-							if (uniqIDS.indexOf(haplotypes[hap][i]===-1));
-								uniqIDS.push(haplotypes[hap][i]);
-						}
-					}
-				}
-				dbFunctions.getPGXCoords(uniqIDS).then(function(coords){
-					var o,ho = {};
-					if(coords){
-						for (var hap in haplotypes){
-							if (haplotypes.hasOwnProperty(hap)){
-								for (var i=0; i < haplotypes[hap].length; i++){
-
-									o = coords[haplotypes[hap][i]];
-									if (o !== undefined){
-										o.id = haplotypes[hap][i];
-										haplotypes[hap][i] = o;
-									}	
-									
-								}
-								ho[hap] = {'markers':haplotypes[hap]};
-							}
-						}
-						out.haplotypes = ho;
-						res.send(out);
-					} else {
-						res.send(undefined);
-					}
-				});
-			} else {
-				res.send(undefined);
-			}
-		});
-	});
-
-	app.get('/database/markers/getmarkers',utils.isLoggedIn,function(req,res){
-		dbFunctions.getPGXCoords().then(function(result){
-			if (result)
-				res.send(result);
-			else
-				res.send(undefined);
-		});
-	});
-
-
-	app.get('/database/markers/getmarkers/:marker',utils.isLoggedIn,function(req,res){
-		var marker = req.params.marker;
-		dbFunctions.getPGXCoords(marker).then(function(result){
-			if (result)
-				res.send(result);
-			else 
-				res.send(undefined);
-		});
-	})
-
-
 	//==================================================================
 	//Generic Database routes
 	//==================================================================
@@ -200,7 +119,6 @@ module.exports = function(app,dbFunctions,queue){
 	/* checkt to see whether the content within the body is within the database
 	 *  returns true/false */
 	app.post('/database/checkInDatabase',utils.isLoggedIn,function(req,res){
-		console.log(req.body);
 		var options = req.body;
 		if (options.collection == dbConstants.PATIENTS.COLLECTION && options.field == dbConstants.PATIENTS.ID_FIELD){
 			for (var i=queue.queue.length-1; i>= 0; i--){

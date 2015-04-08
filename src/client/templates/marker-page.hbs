@@ -1,8 +1,8 @@
 <div class="row" style="padding-top: 30px;">  
 	<div class="large-12 columns">
 		<h2><b>rS</b>&nbspManage Haplotypes</h2>
-		<h5 class="subheader">Displaying all available phase infomration</h5>
-		<p>Select any of the available genes below to modify the phasing information for that specific gene, adding new haplotypes,markers,etc or additionally create a new haplotype.</p>
+		<h5 class="subheader">Displaying all available markers</h5>
+		<p>Select any of the available markers below to modify the coordinate information for that specific marker. Additionally you can add a new marker to collection as well. Adding markers does not add them to any haploytpye immediately, but can be achieved by managing haplotypes.</p>
 		<div class="row">
 			<div class="large-12 columns" id="new-marker" style="display:none">
 				<form id="new-marker-form">
@@ -74,11 +74,24 @@
 					  	</div>
 			  		</div>
 	  			</form>
+	  			<hr>
 			</div>
         	<div class="large-3 columns left" id="add-new-maker">
           		<a href="#" id="marker-new" class="button alert radius left" id="add-new-haplotype">Add New Marker</a>
         	</div>
       	</div> 
+	</div>
+</div>
+<div class="row">
+	<div class="large-12 columns">
+		<div class="row collapse prefix-radius">
+			<div class="large-2 columns">
+				<span class="prefix">Search</span>
+			</div>
+			<div class="large-4 left columns">
+				<input type="text" id="search-box">
+			</div>
+		</div>
 	</div>
 </div>
 <div class="row">
