@@ -1,0 +1,88 @@
+{{!-- Put quotes around attributes that may have spaces, or handlebars will 
+      only output the first word. --}}
+{{#if useFull}}
+<div class="row">	
+	<div class="large-12 columns">
+		<h2><i class="fi-torsos-all"></i> All Patients (<strong><em>{{patients.length}}</em></strong>)</h2>
+	</div>
+</div>
+{{else}}
+<div class="row">	
+	<div class="large-12 columns">
+		<h4><i class="fi-torsos-all"></i>Patients(<strong><em id='number-of-patients'>{{patients.length}}</em></strong>)</h4>
+	</div>
+</div>
+{{/if}}
+{{#if pgx}}
+	<div class="row">
+		<div class="large-12 columns">
+			<h5 style="margin-top: 30px;">Select a patient row to display the results from pharacogenomic analysis for that specific patient.</h5>
+		</div>
+	</div>
+{{/if}}
+{{#if patients}}
+	{{#if pgx}}
+	<div class="row">
+		<div class="large-12 columns">
+			<div class="row collapse prefix-radius">
+				<div class="large-2 columns">
+					<span class="prefix">Search</span>
+				</div>
+				<div class="large-4 left columns">
+					<input type="text" id="search-box">
+				</div>
+			</div>
+		</div>
+	</div>
+	{{/if}}
+	<div class="row">
+		<div class="small-12 medium-12 large-12 small-centered medium-centered large-centered columns">
+			<table class="small-12 medium-12 large-12">
+				<thead>
+					<tr>
+						<th>Patient Alias</th>
+						<th>ID</th>
+						<th class="text-center">Sex</th>
+						<th class="text-center">Age</th>
+						<th class="text-center">Date Uploaded</th>
+						{{#	if project}}
+						<th class="text-center edit">Remove</th>
+						{{/if}}
+					</tr>
+				</thead>
+				<tbody>
+					{{#each patients}}
+					<tr class="patient-row" id="row-{{@index}}"	>
+						<td class="webapp-patient-alias">{{patient_alias}}</a></td>
+						<td class="webapp-patient-id">{{patient_id}}</td>
+						<td class="text-center">{{sex}}</td>
+						<td class="text-center">{{age}}</td>
+						<td class="text-center">{{completed}}</td>
+						{{#if @root.project}}
+						<td class="text-center edit" style="display:none">
+							<div class="switch radius tiny">
+	  							<input id="removeSwitch-{{@index}}" type="checkbox" name="remove-{{@index}}" data-id="{{patient_id}}">
+	  							<label for="removeSwitch-{{@index}}"></label>
+							</div> 
+						</td>
+						{{/if}}
+					</tr>
+					{{/each}}
+				</tbody>
+			</table>
+		</div>	
+	</div>
+{{else}}
+	<div class="row">
+		<div class="small-12 large-12">
+			<div data-alert class="alert-box radius secondary" id="error-display-box">
+		      <!-- Alert message goes here -->
+		      <div class="row">
+		          <div class="small-11 columns">
+		              <p id="error-display-message">There does not appear to be anything here</p>
+		          </div>
+		        </div>
+		    </div>
+		</div>
+	</div>
+{{/if}}

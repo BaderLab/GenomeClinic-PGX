@@ -1,0 +1,176 @@
+    <div class="row">
+    	<div class="large-12 columns" style="margin-top:20px">
+
+    	<a href="/projects" class="button radius"><i class="fa fa-arrow-left"></i>&nbspBack</a>
+    	<div class="row">
+	    	<div class="large-9 columns">
+	    		<h2><i class="fi-book"></i>&nbsp{{project_id}}</h2>
+	    	</div>
+        {{#if isOwner}}
+        <div class="large-5 columns right edit" style="display:none">
+          <ul class="button-group radius even-3 edit" style="display:none">
+            <li>
+              <a href="#" id="submit-changes" class="button text-center success radius edit" style="display:none;">Submit</a>
+            </li>
+            <li>
+              <a href="#" id="cancel-changes" class="button radius text-center edit" style="display:none">Cancel</a>
+            </li>
+            <li>
+              <a href="#" id="delete-project" class="button radius alert edit text-center" style="display:none">Delete</a>
+            </li>
+          </ul>
+        </div>
+        {{/if}}
+	    </div>
+	    
+    	<fieldset>
+    		<legend>Project Information</legend>
+        <div class="row">
+          <div class="large-10 columns">
+    		    <h4>Created on: {{date}}</h4>
+          </div>
+          {{#if isOwner}}
+          <div class="large-2 columns text-center">
+            <a href="#" id="edit-page"><i class="fi-pencil size-24" style="color:#A2A2A2"></i></a>
+          </div>
+          {{/if}}
+        </div>
+        <div class="row">
+          <div class="large-12 columns" id="fixed-details">
+        		{{#if keywords}}
+
+        		<h4>Project Keywords</h4>
+        		<p>{{keywords}}</p>
+        		{{/if}}
+        		{{#if description}}
+        		<h4>Project Description</h4>
+        		<p>{{description}}</p>
+        		{{/if}}
+        		<h4>Authorized Users</h4>
+            <span class="button radius secondary" data-id="{{owner}}">{{owner}}</span>
+    	    	{{#each users}}
+    	    		<span class="button radius secondary" data-id="{{this}}">{{this}}</span>
+    	    	{{/each}}
+          </div>
+        </div>
+        {{#if isOwner}}
+        <div class="row">
+          <div class="large-12 columns edit" style="display:none;" id="change-details">
+            <h4>Project Keywords</h4>
+            <input type="text" id="keywords" value="{{keywords}}">
+            <h4>Project Description</h4>
+            <textarea id="description" rows=5>{{description}}</textarea>
+            <div class="row collapse prefix-radius postfix-radius">
+              <div class="large-3 columns">
+                <span class="prefix">Add Authorized User</span>
+              </div>
+              <div class="large-8 columns">
+                <input type="text" id='new-user' name='new-user'>
+                <small class="error" style="display:none">That user does not exist</small>
+              </div>
+              <div class="large-1 columns">
+                <a href="#" class="postfix button secondary" id="add-auth-user"><i class="fi-plus"></i></a>
+              </div>
+            </div>
+
+            <div class="large-12 columns">
+              <table class="large-12">
+                <thead>
+                  <tr>
+                    <th class="large-9">Email</th>
+                    <th class="large-3 text-center">Remove</th>
+                  </tr>
+                <tbody id='auth-users'>
+                  <tr>
+                    <td>Owner</td>
+                    <td class="text-center">Cannot Remove</td>
+                  </tr>
+                  {{#each users}}
+                  <tr>
+                    <td class="auth-user-email" data-id="{{this}}">{{this}}</td>
+                    <td class='text-center'><a href="#"><i class="fi-x size-16"></i></td>
+                  </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+            </div>
+            <a href="#" style="display-none" class="confirm"></a>
+            <a href="#" style="display-none" class="cancel"></a>
+          </div>
+        </div>
+        {{/if}}
+      </fieldset>
+      {{#if isOwner}}
+    	<div class="row">
+    		<div class="large-4 columns">
+    			<a href="#" class="button alert radius edit" id="add-patients"  style="display:none">Add Patients to Project</a>
+    		</div>
+    		<div class="large-8 columns right">
+    			<a href="#" class="button alert radius right edit" id="remove-patients"  style="display:none">Remove Patients From Project</a>
+    		</div>
+    	</div>
+
+    	<div id="add-patients-modal" class="reveal-modal large" data-reveal>
+		  	<h2>Select Which patients you would like to add</h2>
+		  	<div class="row">
+                <div class="large-12 columns" id='patient_id_links' style="min-height:100px;margin-bottom:20px">
+                  <h4>Patients to add to project (click to remove)</h4>
+                </div>
+          	</div>
+
+          	<div class="row collapse prefix-radius">
+              <div class="large-2 columns">
+                <span class="prefix">Search</span>
+              </div>
+              <div class="large-6 columns left">
+                <input type="text" id="searchBox" name="searchBox">
+              </div>
+            </div>
+          	<div class="row">
+          		<div class="scrollit large-12 columns" id="patient-information">
+          		</div>
+            </div>
+
+		  	<div class="row">
+		  		<div class='large-6 columns'>
+		  			<a href="#" class="large-12 button radius success confirm">Confirm</a>
+		  		</div>
+		  		<div class="large-6 columns">
+		  			<a href="#" class="large-12 button radius alert cancel">Cancel</a>
+		  		</div>
+		  	</div>
+		  	<a class="close-reveal-modal">&#215;</a>
+		</div>
+
+		<div id="confirm-removal" class="reveal-modal large" data-reveal>
+		  <h3></h3>
+		  <div class="row">
+		  	<div class='large-6 columns'>
+		  		<a href="#" class="large-12 button radius success confirm">Confirm</a>
+		  	</div>
+		  	<div class="large-6 columns">
+		  		<a href="#"class="large-12 button radius alert cancel">Cancel</a>
+		  	</div>
+		  </div>
+		  <a class="close-reveal-modal">&#215;</a>
+		</div>
+    {{/if}}
+		<div class="row">
+      <div class="small-12 columns">
+          <div data-alert class="alert-box radius secondary" id="error-display-box"  style="display:none">
+          <!-- Alert message goes here -->
+          	<div class="row">
+              	<div class="small-11 columns">
+                 		<p id="error-display-message"></p>
+              	</div>
+              	<div class="small-1 columns">
+                  	<a href="#" class='close-box'><i class="fi-x size-16" style="color:#606060"></i></a>
+              	</div>
+          	</div>
+      	</div>
+  	</div>
+  </div>
+	<div class="row">
+		<div class="large-12 columns" id="patients-table">
+		</div>
+	</div>

@@ -1,0 +1,222 @@
+.size-12 { font-size: 12px; }
+      
+.size-14 { font-size: 14px; }
+
+.size-16 { font-size: 16px; }
+
+.size-18 { font-size: 18px; }
+
+.size-21 { font-size: 21px; }
+
+.size-24 { font-size: 24px; }
+
+.size-36 { font-size: 36px; }
+
+.size-48 { font-size: 48px; }
+
+.size-60 { font-size: 60px; }
+
+.size-72 { font-size: 72px; }
+
+.size-84 { font-size: 84px; }
+
+.size-96 { font-size: 96px; }
+
+.size-200 { font-size: 200px; }
+
+
+.spacer {
+  margin-top: 10px;
+  margin-bottom:10px;
+}
+
+.sex {
+  font-weight: bold;
+  text-align: center;
+}
+
+.age {
+  font-weight:bold;
+  text-align:center;
+}
+
+#webapp-title-description {
+  position: relative;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+#webapp-github-icon {
+	padding: 4px 15px;
+	line-height: 0px;
+}
+
+/* Adjust the button padding to match other "has-form" buttons. 
+ * Use !important to override has-dropdown !important padding rules. */
+#webapp-plus-icon {
+	padding-left: 12px;
+	padding-right: 12px !important;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+/* Remove the caret from the Foundation dropdown style */
+#webapp-plus-icon::after {
+  display: none;
+}
+
+/* Adjust the button padding to match other "has-form" buttons. */
+#webapp-status-page {
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+#webapp-search-field {
+	border-top-left-radius: 3px;
+	border-bottom-left-radius: 3px;
+}
+
+#webapp-search-button {
+	border-top-right-radius: 3px;
+	border-bottom-right-radius: 3px;
+}
+
+#webapp-submit-variant-request {
+  position: relative;
+  float: left;
+}
+
+#webapp-cancel-variant-request {
+  position: relative;
+  float: left;
+}
+
+#webapp-app-main {
+  min-height: 130%;
+  height: auto;
+}
+
+#webapp-new-search {
+  display: none;
+  position: relative;
+  float: left;
+}
+
+#webapp-patient-board {
+  border: 2px solid #DFDFDF;
+  padding: 10px 10px 10px;
+  box-shadow: 0 0 5px #888;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+
+th:hover {
+  background: #BCBCBC; 
+}
+/* Borrowed from the Zurb footer on the Foundation website. */
+.zurb-footer-bottom {
+  background: #444;
+  padding: 20px 10px 10px; }
+  .zurb-footer-bottom .design-border {
+    border-bottom: 1px solid #484848;
+    padding-bottom: 5px;
+    margin-bottom: 25px; }
+  .zurb-footer-bottom ul.zurb-links {
+    margin: 0;
+    display: inline-block;
+    padding-bottom: 0px; }
+    .zurb-footer-bottom ul.zurb-links li {
+      display: block;
+      float: left;
+      margin-left: 6px;
+      text-transform: uppercase;
+      font-weight: 700;
+      font-size: 0.75rem; }
+      .zurb-footer-bottom ul.zurb-links li a {
+        color: #999;
+        padding: 3px 6px; }
+        .zurb-footer-bottom ul.zurb-links li a:hover {
+          color: #DDD; }
+  .zurb-footer-bottom p.copyright {
+  	float: right;
+    margin: 0px;
+    font-size: 0.75rem;
+    color: #999; }
+
+/* Thinner font with better character spacing for improved readability and look. */
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif !important;
+  font-weight: 300 !important;
+  letter-spacing: 0.5px;
+}
+
+/* Add some space before and after subheaders. */
+.subheader {
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+
+/* Show the hover cursor and change shading when you hover on this table row. */
+tr.patient-row:hover {
+  cursor: pointer;
+  background-color: #B2D1FF;
+}
+
+tr.project-row:hover {
+  cursor: pointer;
+  background-color: #B2D1FF;
+}
+
+tr.haplotype-row:hover {
+  cursor: pointer;
+  background-color: #B2D1FF;
+}
+
+/* Different styling for alternate genotype calls (not reference). */
+td.variant-alt {
+  font-style: italic;
+  color: red;
+}
+
+/* This table row should be distinguished by a different background colour. */
+tr.patient-genotype-row {
+  /* override foundation table alternating row grey style using !important */
+  background-color: #EBFAFF !important;
+}
+
+.scrollit {
+  overflow: scroll;
+  height:250px;
+}
+/* Formatting for haplotype expansion "+" buttons. */
+.haplotype-expand {
+  color: #FFAD99;
+  font-size: 18pt;
+  transition: 0.3s ease-in-out;
+  transform: rotate(45deg);
+}
+
+/* Set standard spacing for the horizontal rule. */
+hr {
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+
+.marker-field:disabled {
+  background-color: #FFFFFF
+}
+
+.marker-row:hover {
+  cursor: pointer;
+  background-color: #B2D1FF;
+}
+
+.static-marker-field {
+  margin-bottom:0px;
+  text-align:center;
+}
+
+}

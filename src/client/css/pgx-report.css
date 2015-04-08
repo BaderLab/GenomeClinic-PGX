@@ -1,0 +1,93 @@
+.row {
+	width:100%;
+	margin-right:0;
+	margin-left:0;
+}	
+
+.columns {
+	padding-left:0;
+	padding-right:0;
+	display:inline-block;
+}
+.large-1 {
+	width: 8%;
+}
+.large-2 {
+	width: 15.5%;
+}
+.large-3 {
+	width: 24%;
+}
+.large-4 {
+	width: 32.5%;
+}
+.large-5 {
+	width: 40.5%;
+}
+.large-6 {
+	width: 49%;
+}
+.large-7 {
+	width: 58%;
+}
+.large-8 {
+	width: 66%;
+}
+.large-9 {
+	width: 74%;
+}
+.large-10 {
+	width: 82.5%;
+}
+.large-11 {
+	width: 91%;
+}
+.large-12 {
+	width: 100%;
+}
+
+p {
+	font-size:8px;
+	font-family: Verdana;
+}
+.center {
+	text-align:center;
+}
+
+table {
+	font-size: 8px;
+	text-align: center;
+}
+
+table, tr {
+	border: 1px solid black;
+	border-collapse: collapse;
+}
+
+th {
+	background-color:#dbdbdb;
+}
+
+.variant-alt {
+	color: red;
+	font-style: italic; 
+}
+
+.patient {
+	background-color: #c2edff;
+}
+
+.spacer {
+	margin-bottom: 20px;
+}
+
+hr {
+	border:0px;
+	color:black;
+	background-color: black;
+	height: 1px;
+}
+
+div {
+	font-family: Tahoma, Geneva, sans-serif;
+}
