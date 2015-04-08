@@ -81,9 +81,9 @@ module.exports = function(app,dbFunctions){
 	});
 
 
-	app.get('/panels',utils.isLoggedIn,function(req,res){
+	/*app.get('/panels',utils.isLoggedIn,function(req,res){
 		utils.render(req,res,'construction');
-	});
+	});*/
 	//==================================================================
 	//Handle 404 routes
 	//==================================================================
