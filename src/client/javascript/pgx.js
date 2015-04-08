@@ -407,8 +407,9 @@ var pgx =  {
 		return Promise.resolve(pgxData);
 	},
 	/* Displays the processed PGx data for this specific patient. */
-	loadPGx: function(selectedPatientID,selectedPatientAlias) {
+	loadPGx: function(selectedPatientAlias) {
 		var self = this;
+		var selectedPatientID = window.location.pathname.split('/').pop();
 		// NOTE: rendering the handlebars template triggers the handlebars block
 		// helpers, which dynamically render the HTML.
 		self.generatePgxResults(selectedPatientID,selectedPatientAlias)
@@ -427,13 +428,9 @@ var pgx =  {
 	generatePgxResults: function(selectedPatientID,selectedPatientAlias){
 		var self = this;
 		return Promise.resolve($.ajax({
-			url: "/pgx",
-			type: "POST",
+			url: "/database/pgx/" + selectedPatientID,
+			type: "GET",
 			contentType: "application/json",
-			dataType: "json",
-			data: JSON.stringify({
-				"patient_id": selectedPatientID
-			})
 		}))
 		.then(function(result) {
 			return self.processPGXResponse(selectedPatientAlias, selectedPatientID, result);
@@ -524,13 +521,13 @@ var pgx =  {
 			e.preventDefault();
 			$(this).text("Generating...")
 			Promise.resolve($.ajax({
-				url: "pgx/report",
+				url: window.location.pathname + '/report',
 				type: "POST",
 				dataType: 'json',
 				contentType:'application/json',
 				data:JSON.stringify(self.templateData)
 			})).then(function(result){
-				return $('#direct_download').attr('href',"pgx/download/" + result.name);
+				return $('#direct_download').attr('href',window.location.pathname + '/download/' + result.name);
 				
 			}).then(function(){
 				return $('#direct_download').get(0).click();

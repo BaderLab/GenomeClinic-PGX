@@ -4,8 +4,20 @@
       	<h2><i class="fi-page-multiple"></i>&nbsp&nbspAdd New Project</h2>
         <div class="row">
           <div class="large-12 columns">
-            <form id="webapp-add-new-project" style="margin-top:40px">
-              <fieldset>
+            <form id="webapp-add-new-project">
+              <div class="row">
+                <div class="large-4 columns right">
+                  <ul class="button-group radius even-2" >
+                    <li>
+                      <a href="#" id="submit-new-project" class="button text-center success radius" style="margin-bottom:0px">Submit</a>
+                    </li>
+                    <li>
+                      <a href="/projects/new" id="cancel-changes" class="button radius text-center" style="margin-bottom:0px">Cancel</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <fieldset style="margin-top:0px">
                 <legend>Project Information </legend>
                 <div class="row">
                 <div class="small-12 columns">
@@ -90,11 +102,6 @@
                     <div class="large-3 columns right">
                       <a href="#" id="remove-all-visible" class="tiny button radius alert right">Remove All Patients</a>
                     </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="large-4 columns">
-                    <a href="#" class="button alert round large-12" id="submit-new-project">Submit</a>
                   </div>
                 </div>
               </fieldset>

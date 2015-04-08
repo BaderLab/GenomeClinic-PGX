@@ -6,22 +6,29 @@ module.exports = {
 			return next();
 		res.redirect('/login');
 	},
-	render:function(req,res,notFound,scripts){
+	render:function(req,res,type,scripts){
 		var template;
+		template = 'layout.hbs';
+		if (!scripts)
+			scripts = [];
+
 		var _o = {
 			title:'PGX webapp',
 			cache:true
 		};
-		if (notFound)
-			template = 'notfound.hbs'
-		else
-			template = 'layout.hbs'
-
-		if (req.isAuthenticated()){
+		if (type == "construction")
+			_o.construction = true;
+		else if (type == 'notfound') {
+			_o.notfound = true;
+		} else {
+			scripts.push("/static/js/bundle.min.js");
+		}
+		
+		if (scripts)
+			_o.src = scripts;
+		if (req.isAuthenticated()) {
 			_o.authenticated = true;
 			_o.user = req.user.username;
-			if (scripts)
-				_o.scripts = scripts;
 			res.render(template,_o);
 		} else {
 			res.render(template,_o);

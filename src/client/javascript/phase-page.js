@@ -202,7 +202,7 @@ module.exports = function(){
 
 			if (value !== "" && curValues.indexOf(value) === -1 ){
 				Promise.resolve($.ajax({
-					url:"/database/haplotypes/getmarkers/" + value,
+					url:"/database/markers/getmarkers/" + value,
 					type:"GET",
 					contentType:"application/json"
 				})).then(function(result){

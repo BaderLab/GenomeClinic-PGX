@@ -13,7 +13,8 @@ var projects = require('./projects'),
 	config = require('./config'),
 	authentication = require('./authentication'),
 	patients = require('./patients'),
-	phasing = require('./phase-page');
+	phasing = require('./phase-page'),
+	markers =  require('./markers-page');
 
 
 
@@ -29,18 +30,16 @@ var projects = require('./projects'),
 			return authentication(location);
 		} else if (location == '/upload'){
 			return uploader();
-		} else if (location == '/projects'){
+		} else if (location.match(/^\/projects+/)!== null){
 			return projects();
-		} else if (location == '/browsepatients'){
+		} else if (location.match(/^\/browsepatients+/)!== null){
 			return patients();
 		} else if (location == '/config'){
 			return config();
-		} else if (location == '/panel'){
-			return templates.construction().then(function(renderedHtml){
-				$('#main').html(renderedHtml);
-			});
 		} else if (location == '/statuspage'){
 			return status();
+		} else if (location == '/markers'){
+			return markers();
 		} else if (location.search(/\/haplotypes/) !== -1){
 			return phasing();
 		}

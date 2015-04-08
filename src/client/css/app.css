@@ -204,3 +204,19 @@ hr {
   margin-top: 50px;
   margin-bottom: 50px;
 }
+
+.marker-field:disabled {
+  background-color: #FFFFFF
+}
+
+.marker-row:hover {
+  cursor: pointer;
+  background-color: #B2D1FF;
+}
+
+.static-marker-field {
+  margin-bottom:0px;
+  text-align:center;
+}
+
+}

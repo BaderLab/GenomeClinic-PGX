@@ -620,10 +620,14 @@ var dbFunctions = function(logger,DEBUG){
 	/*remove project from collection */
 
 	this.removeProject = function(project){
+		var _this = this;
 		var query = {};
 		logInfo("removing %s project from database", project);
 		query[dbConstants.PROJECTS.ID_FIELD] = project;
-		return removeDocument(dbConstants.PROJECTS.COLLECTION,query,[[dbConstants.PROJECTS.ID_FIELD,1]]);
+		return removeDocument(dbConstants.PROJECTS.COLLECTION,query,[[dbConstants.PROJECTS.ID_FIELD,1]])
+		.then(function(){
+			return _this.removePatientsFromProject(project);
+		});
 	};
 
 
@@ -644,11 +648,15 @@ var dbFunctions = function(logger,DEBUG){
 	 * is no longer associated with the previous project in any way and will not show up in the project
 	 * screen. */
 	this.removePatientsFromProject = function(project, patients){
+		var query = {};
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(project) == "[object String]", "Invalid Project Name");
-		assert(Object.prototype.toString.call(patients) == "[object Array]", "Patients must be an array");
-		var query = {};
-		query[dbConstants.PATIENTS.ID_FIELD] = {$in:patients};
+		if (patients){
+			assert(Object.prototype.toString.call(patients) == "[object Array]", "Patients must be an array");
+			query[dbConstants.PATIENTS.ID_FIELD] = {$in:patients};
+		} else {
+			query[dbConstants.PROJECTS.ARRAY_FIELD] = project;
+		}
 		var doc = {};
 		doc[dbConstants.PROJECTS.ARRAY_FIELD] = project;
 		doc = {$pull:doc};

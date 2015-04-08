@@ -7,9 +7,19 @@
 	    		<h2><i class="fi-book"></i>&nbsp{{project_id}}</h2>
 	    	</div>
         {{#if isOwner}}
-	    	<div class="large-3 columns">
-	    		<a href="#" class="button radius right" id='delete-project'>Delete Project</a>
-	    	</div>
+        <div class="large-5 columns right edit" style="display:none">
+          <ul class="button-group radius even-3 edit" style="display:none">
+            <li>
+              <a href="#" id="submit-changes" class="button text-center success radius edit" style="display:none;">Submit</a>
+            </li>
+            <li>
+              <a href="#" id="cancel-changes" class="button radius text-center edit" style="display:none">Cancel</a>
+            </li>
+            <li>
+              <a href="#" id="delete-project" class="button radius alert edit text-center" style="display:none">Delete</a>
+            </li>
+          </ul>
+        </div>
         {{/if}}
 	    </div>
 	    
@@ -45,7 +55,7 @@
         </div>
         {{#if isOwner}}
         <div class="row">
-          <div class="large-12 columns" style="display:none;" id="change-details">
+          <div class="large-12 columns edit" style="display:none;" id="change-details">
             <h4>Project Keywords</h4>
             <input type="text" id="keywords" value="{{keywords}}">
             <h4>Project Description</h4>
@@ -83,14 +93,9 @@
                   {{/each}}
                 </tbody>
               </table>
-            <div class="row">
-              <div class='large-6 columns' style="margin-top:40px">
-                <a href="#" class="button radius large-12 left confirm success">Submit</a>
-              </div>
-              <div class='large-6 columns' style="margin-top:40px">
-                <a href="#" class="button radius alert large-12 right cancel">cancel</a>
-              </div>
             </div>
+            <a href="#" style="display-none" class="confirm"></a>
+            <a href="#" style="display-none" class="cancel"></a>
           </div>
         </div>
         {{/if}}
@@ -98,10 +103,10 @@
       {{#if isOwner}}
     	<div class="row">
     		<div class="large-4 columns">
-    			<a href="#" class="button alert radius" id="add-patients">Add Patients to Project</a>
+    			<a href="#" class="button alert radius edit" id="add-patients"  style="display:none">Add Patients to Project</a>
     		</div>
     		<div class="large-8 columns right">
-    			<a href="#" class="button alert radius right" id="remove-patients">Remove Patients From Project</a>
+    			<a href="#" class="button alert radius right edit" id="remove-patients"  style="display:none">Remove Patients From Project</a>
     		</div>
     	</div>
 

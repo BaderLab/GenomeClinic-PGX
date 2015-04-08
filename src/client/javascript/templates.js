@@ -2,9 +2,7 @@
  * @author Patrick Magee
  */
 var $ = require('jquery');
-var notfound = require("../templates/404notfound.hbs"),
-	construction = require('../templates/construction.hbs'),
-	index = require('../templates/index.hbs'),
+var index = require('../templates/index.hbs'),
 	navbar = require('../templates/navbar.hbs'),
 	login = require('../templates/login.hbs'),
 	signup = require('../templates/signup.hbs'),
@@ -26,7 +24,9 @@ var notfound = require("../templates/404notfound.hbs"),
 	phase_current = require('../templates/phase-current.hbs'),
 	phase_new = require('../templates/phase-add-gene.hbs'),
 	phase_add_row = require('../templates/phase-add-marker-row.hbs'),
-	phase_add_haplotype = require('../templates/phase-add-haplotype.hbs');
+	phase_add_haplotype = require('../templates/phase-add-haplotype.hbs'),
+	marker_page = require('../templates/marker-page.hbs'),
+	marker_add_row = require('../templates/marker-add-marker.hbs');
 
 /* return a promisfied version of the template that accepts a single parameter
  * o to render the template */
@@ -41,8 +41,6 @@ var _t = function(t){
 
 //Return object with All the templates
 module.exports = {
-	notfound:_t(notfound),
-	construction:_t(construction),
 	index:_t(index),
 	navbar:_t(navbar),
 	login:_t(login),
@@ -73,5 +71,9 @@ module.exports = {
 		row:_t(phase_add_row),
 		haplotype:_t(phase_add_haplotype),
 		new:_t(phase_new)
+	},
+	markers:{
+		index:_t(marker_page),
+		row:_t(marker_add_row)
 	}
 };

@@ -76,21 +76,14 @@ module.exports = function(app,dbFunctions){
 	//==================================================================
 
 	//new projects
-	app.get('/projects', utils.isLoggedIn, function(req,res){
-		utils.render(req,res);
-	});
-	//statusPage routes
-	app.get('/statuspage',utils.isLoggedIn,function(req,res){
-		utils.render(req,res);
-	});
-
-	//browse all patients and serve patient page
-	app.get('/browsepatients',utils.isLoggedIn,function(req,res){
+	app.get(['/statuspage'], utils.isLoggedIn, function(req,res){
 		utils.render(req,res);
 	});
 
 
-
+	/*app.get('/panels',utils.isLoggedIn,function(req,res){
+		utils.render(req,res,'construction');
+	});*/
 	//==================================================================
 	//Handle 404 routes
 	//==================================================================
@@ -99,7 +92,7 @@ module.exports = function(app,dbFunctions){
 	 * Essentially its sayin, anything coming in will be sent to 404notfound
 	 */
 	app.get(/^\/(.+)/, function(req,res){
-		utils.render(req,res,true);
+		utils.render(req,res,'notfound');
 	});
 };
 

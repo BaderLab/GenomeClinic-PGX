@@ -1,14 +1,19 @@
 {{!-- NOTE: Put quotes around attributes that may have spaces, or handlebars
 	  will only output the first word. --}}
-<div class="row">	
+<div class="row" style="margin-top:30px">	
 	<div class="large-12 columns">
-		{{#if patientAlias}}
-		<h2><i class="fi-torso"></i> {{patientAlias}} (<em>{{patientID}}</em>)</h2>
-		{{else}}
-		<h2><i class="fi-torso"></i> <em>{{patientID}}</em></h2>
-		{{/if}}
+		<a href="/browsepatients" class="button radius"><i class="fa fa-arrow-left"></i>&nbspBack</a>
+		<div class="row">
+			<div class="large-12 columns">
+				{{#if patientAlias}}
+				<h2><i class="fi-torso"></i> {{patientAlias}} (<em>{{patientID}}</em>)</h2>
+				{{else}}
+				<h2><i class="fi-torso"></i> <em>{{patientID}}</em></h2>
+				{{/if}}
+			</div>
+		</div>
 	</div>
-	<div class="row">
+	<div class="row" style="padding-left:10px">
 		<div class="large-10 columns">
 			<h5 style="margin-top: 30px;">Pharmacogenomic results based on phased and unphased genotypes from this sample.</h5>
 			<h6 style="margin-bottom: 40px;"><em><a href="#" id="collapse-all-haplotypes">Show less</a></em></h6></p>
