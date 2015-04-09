@@ -238,7 +238,13 @@ var dbFunctions = function(logger,DEBUG){
 //Public functions
 //=======================================================================================
 //=======================================================================================
-
+	this.getAdminEmail = function(){
+		assert.notStrictEqual(db,undefined);
+		return find(dbConstants.DB.ADMIN_COLLECTION,{})
+		.then(function(result){
+			return result[0]['admin-email'];
+		});
+	}
 
 	//=======================================================================================
 	//Connection and Initializaition

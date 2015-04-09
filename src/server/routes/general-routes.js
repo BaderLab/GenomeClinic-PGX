@@ -46,18 +46,12 @@ module.exports = function(app,dbFunctions){
 	//config form
 	//==================================================================
 	app.get("/config", utils.isLoggedIn, function(req,res){
-		var promise = new Promise.resolve(configured);
-		if (! configured) {
-			promise = dbFunctions.isConfigured();
-		}
-		promise.then(function(resolved_config){
-			if (resolved_config){
-				if(!configured)
-					configured = resolved_config;
-				res.redirect('/');
-			} else {
+		dbFunctions.getAdminEmail()
+		.then(function(result){
+			if (result === req.user.username)
 				utils.render(req,res);
-			}
+			else
+				utils.render(req,res,'notfound');
 		});
 	});
 

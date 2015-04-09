@@ -51,6 +51,10 @@
                   <li><label>Account Actions</li></label>
                   <li><a href="/setpassword"><i class="fi-lock size-16"></i>&nbsp&nbsp Change Password</a></li>
                   <li><a href="/logout"><i class="fa fa-sign-out" style="size:16;"></i>&nbsp&nbspLog Out</a></li>
+                  {{#if admin}}
+                  <li><label>Admin actions</labels></li>
+                  <li><a href="/config"><i class="fa fa-gears" style="size:16;"></i>&nbsp&nbspConfigure Admin Settings</a></li>
+                  {{/if}}
                 </ul> 
               </li>
             </ul>
