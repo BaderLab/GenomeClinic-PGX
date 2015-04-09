@@ -49,9 +49,21 @@ module.exports = function(app,dbFunctions){
 		dbFunctions.getAdminEmail()
 		.then(function(result){
 			if (result === req.user.username)
-				utils.render(req,res);
-			else
-				utils.render(req,res,'notfound');
+				utils.render(req,res);	
+			else {
+				if (configured === undefined){
+					dbFunctions.isConfigured()
+					.then(function(result){
+						console.log(result);
+						if ( result )
+							utils.render(req,res,'notfound');
+						else
+							utils.render(req,res);
+					});
+				} else {
+					utils.render(req,res,'notfound');
+				} 
+			}
 		});
 	});
 
