@@ -1,7 +1,7 @@
 {{#each markers}}
 <div class="row">
 	<div class="large-12 columns">
-		<form data-abide='ajax' class="marker-row">
+		<form data-abide='ajax' class="marker-row" data-name="{{@key}}">
 			<fieldset style="margin-top:8px;margin-bottom:8px;">
 				<div class="large-3 columns">
 					<p style="margin-bottom:0px" class="marker-name">{{@key}}</p>
@@ -28,9 +28,10 @@
 				</div>
 				<div class="row">
 					<div class="large-4 columns right edit"  style="margin-top:15px;display:none">
-              			<ul class="button-group radius even-2" >									
+              			<ul class="button-group radius even-3" >									
               				<li><button type="submit" class="success tiny radius button" style="margin-bottom:0px;">submit</a></li>
 							<li><a href="#" class="tiny radius button cancel" style="margin-bottom:0px;">cancel</a></li>
+							<li><a href="#" class="tiny alert button delete" style="margin-bottom:0px;">delete</a></li>
 						</ul>
 					</div>
 				</div>

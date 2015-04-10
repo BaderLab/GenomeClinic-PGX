@@ -1,6 +1,6 @@
 <div class="row" style="padding-top: 30px;">  
 	<div class="large-12 columns">
-		<h2><b>rS</b>&nbspManage Haplotypes</h2>
+		<h2><b>rS</b>&nbspManage Markers</h2>
 		<h5 class="subheader">Displaying all available markers</h5>
 		<p>Select any of the available markers below to modify the coordinate information for that specific marker. Additionally you can add a new marker to collection as well. Adding markers does not add them to any haploytpye immediately, but can be achieved by managing haplotypes.</p>
 		<div class="row">
@@ -82,6 +82,18 @@
       	</div> 
 	</div>
 </div>
+<div id="confirm-delete" class="reveal-modal large" data-reveal>
+	<h4></h4>
+	<h6 class="subheader">Deleting this marker may have unexepected consequences. Esnure there are no current markers which rely on the use of this marker, otherwise proper reports will not be able to be generated.</h6>
+	<div class="row">
+		<div class="large-6 columns">
+			<a href="#" class="large-12 success button radius">Confirm</a>
+		</div>
+		<div class="large-6 columns">
+			<a href="#" class="large-12 alert button radius cancel">Cancel</a>
+		</div>
+	</div>
+</div>
 <div class="row">
 	<div class="large-12 columns">
 		<div class="row collapse prefix-radius">
@@ -95,6 +107,19 @@
 	</div>
 </div>
 <div class="row">
+	<div class="large-12 columns">
+		<table class="large-12">
+			<thead>
+				<tr>
+					<th class="large-3">Marker Id</th>
+					<th class="text-center large-2">Chromosome</th>
+					<th class="text-center large-2">Position</th>
+					<th class="text-center large-2">Reference</th>
+					<th class="text-center large-3">Alternate</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
 	<div class="large-12 columns" id="markers">
 	</div>
 </div>
