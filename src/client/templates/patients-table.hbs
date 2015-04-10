@@ -2,20 +2,20 @@
       only output the first word. --}}
 {{#if useFull}}
 <div class="row">	
-	<div class="large-12 columns">
+	<div class="large-12 small-12 medium-12 columns">
 		<h2><i class="fi-torsos-all"></i> All Patients (<strong><em>{{patients.length}}</em></strong>)</h2>
 	</div>
 </div>
 {{else}}
 <div class="row">	
-	<div class="large-12 columns">
+	<div class="large-12 small-12 medium-12  columns">
 		<h4><i class="fi-torsos-all"></i>Patients(<strong><em id='number-of-patients'>{{patients.length}}</em></strong>)</h4>
 	</div>
 </div>
 {{/if}}
 {{#if pgx}}
 	<div class="row">
-		<div class="large-12 columns">
+		<div class="large-12 small-12 medium-12  columns">
 			<h5 style="margin-top: 30px;">Select a patient row to display the results from pharacogenomic analysis for that specific patient.</h5>
 		</div>
 	</div>
@@ -23,12 +23,12 @@
 {{#if patients}}
 	{{#if pgx}}
 	<div class="row">
-		<div class="large-12 columns">
+		<div class="large-12 small-12 medium-12  columns">
 			<div class="row collapse prefix-radius">
-				<div class="large-2 columns">
+				<div class="large-2 medium-3 small-4 columns">
 					<span class="prefix">Search</span>
 				</div>
-				<div class="large-4 left columns">
+				<div class="large-4 medium-7 small-8 left columns">
 					<input type="text" id="search-box">
 				</div>
 			</div>
@@ -74,7 +74,7 @@
 	</div>
 {{else}}
 	<div class="row">
-		<div class="small-12 large-12">
+		<div class="small-12 medium-12 large-12">
 			<div data-alert class="alert-box radius secondary" id="error-display-box">
 		      <!-- Alert message goes here -->
 		      <div class="row">

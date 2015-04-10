@@ -1,33 +1,39 @@
 {{#each markers}}
 <div class="row">
-	<div class="large-12 columns">
+	<div class="large-12 medium-12 small-12 columns">
 		<form data-abide='ajax' class="marker-row" data-name="{{@key}}">
 			<fieldset style="margin-top:8px;margin-bottom:8px;">
-				<div class="large-3 columns">
-					<p style="margin-bottom:0px" class="marker-name">{{@key}}</p>
+				<div class="large-3 medium-3 small-12 columns">
+					<p style="margin-bottom:0px" class="marker-name show-for-medium-up">{{@key}}</p>
+					<label class="show-for-small-only text-center"><b>Marker ID</b></label>
+					<p style="margin-bottom:0px" class="show-for-small-only text-center">{{@key}}</p>
 				</div> 
-				<div class="large-2 columns">
+				<div class="large-2 medium-2 small-12 columns">
+					<label class="show-for-small-only text-center"><b>Chromosome</b></label>
 					<p class="static-marker-field chr" style="margin-bottom:0px">{{chr}}</p>
 					<input class="edit" name="chr" type='text' style="margin-bottom:0px;display:none;" value="{{chr}}" pattern="chromosomes" required>
 					<small class="error" style="display:none">Valid Chromosome Required</small>
 				</div>
-				<div class="large-2 columns">
+				<div class="large-2 medium-2 small-12 columns">
+					<label class="show-for-small-only text-center"><b>Position</b></label>
 					<p class="static-marker-field pos" style="margin-bottom:0px">{{pos}}</p>
 					<input class="edit" name="pos" type='number' style="margin-bottom:0px;display:none;" value="{{pos}}" required>
 					<small class="error">Valid Position required</small>
 				</div>
-				<div class="large-2 columns">
+				<div class="large-2 medium-2 small-12 columns">
+					<label class="show-for-small-only text-center"><b>Reference</b></label>
 					<p class="static-marker-field ref" style="margin-bottom:0px">{{ref}}</p>
 					<input class="edit" name="ref" type='text' pattern="ref" style="margin-bottom:0px;display:none;" value="{{ref}}" required>
 					<small class="error">Only one valid reference allele can be provided</small>
 				</div>
-				<div class="large-3 columns">
+				<div class="large-3 medium-2 small-12 columns">
+					<label class="show-for-small-only text-center"><b>Alternate</b></label>
 					<p class="static-marker-field alt" style="margin-bottom:0px">{{alt}}</p>
 					<input class="edit" name=alt type='text' pattern="alleles" style="margin-bottom:0px;display:none;" value="{{alt}}" required>
 					<small class="error">Valid Allele required</small>
 				</div>
 				<div class="row">
-					<div class="large-4 columns right edit"  style="margin-top:15px;display:none">
+					<div class="large-4 medium-6 small-12 columns right edit"  style="margin-top:15px;display:none">
               			<ul class="button-group radius even-3" >									
               				<li><button type="submit" class="success tiny radius button" style="margin-bottom:0px;">submit</a></li>
 							<li><a href="#" class="tiny radius button cancel" style="margin-bottom:0px;">cancel</a></li>
