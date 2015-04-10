@@ -10,6 +10,33 @@ var $ = require("jquery"),
 
 module.exports = function(){
 
+
+	//confirm whether or not the user would like to delete the selected marker
+	var confirmDeleteHanlder = function(){
+		$('#confirm-delete').find('.cancel').on('click',function(e){
+			e.preventDefault();
+			$(this).closest('#confirm-delete').data('value','').foundation('reveal','close');
+		});
+
+		$('#confirm-delete').find('.success').on('click',function(e){
+			e.preventDefault();
+			var name = $(this).closest('#confirm-delete').data('value');
+			Promise.resolve($.ajax({
+				url:"/markers/current/" + name + "/delete",
+				type:"POST",
+				contentType:"application/json",
+				dataType:'json'
+			})).then(function(result){
+				if (result['status'] == 'ok'){
+					$('.marker-row[data-name=' + name +']').closest('.row').remove();
+					$('#confirm-delete').foundation('reveal','close');
+				} else {
+					console.log(result);
+				}
+			});
+		});
+	};
+
 	/* handlers for each marker row, loaded individually
 	 * or all at once. */
 	var markerRowHandler = function(context){
@@ -38,7 +65,13 @@ module.exports = function(){
 				$(this).find('.edit').show().closest(this).find('.static-marker-field').hide();
 		});
 
-
+		sel.find(".delete").on('click',function(e){
+			e.preventDefault();
+			$('#confirm-delete').data('value', $(this).closest(sel).find('.marker-name').text())
+			.find('h4').text('Are you sure you want to delete the marker ' + $(this).closest(sel).find('.marker-name').text() + "?")
+			.closest('#confirm-delete').foundation('reveal','open');
+			//
+		});
 		//Cancel the current modifications, reset the values of the input to the previous values
 		//and close the edit fields
 		sel.find('.cancel').on('click.button',function(e){
@@ -178,7 +211,10 @@ module.exports = function(){
 					doc[form.id].ref = form.ref;
 					return templates.markers.row({markers:doc});
 				}).then(function(renderedHtml){
-					$('#markers').prepend(renderedHtml);
+					return $('#markers').prepend(renderedHtml);
+				}).then(function(){
+					markerRowHandler($("#markers").filter(':first'));
+					$('#cancel-new-marker').trigger('click');
 				}).catch(function(err){
 					console.log(err)
 				})
@@ -227,6 +263,7 @@ module.exports = function(){
 			utility.bioAbide();
 			statichandlers();
 			markerRowHandler();
+			confirmDeleteHanlder();
 		}).then(function(){
 			utility.refresh();
 		});

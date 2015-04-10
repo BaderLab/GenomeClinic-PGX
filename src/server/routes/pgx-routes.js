@@ -40,7 +40,7 @@ module.exports = function(app,dbFunctions,logger){
 			if (result)
 				next();
 			else
-				res.render(req,res,true);
+				utils.render(req,res,'notfound');
 		});
 	});
 
@@ -51,7 +51,7 @@ module.exports = function(app,dbFunctions,logger){
 			if (result)
 				next();
 			else
-				utils.render(req,res,true);
+				utils.render(req,res,'notfound');
 		});
 	});
 
@@ -210,12 +210,25 @@ module.exports = function(app,dbFunctions,logger){
 		dbFunctions.updatePGXCoord(marker,info)
 		.then(function(result){
 			if (result){
+
 				res.redirect('/success');
 			} else {
 				res.redirect('/failure');
 			}
 		}).catch(function(err){
 			res.redirect('/failure');
+		});
+	});
+
+	//Delete the seleceted marker
+	app.post('/markers/current/:marker/delete',utils.isLoggedIn,function(req,res){
+		var marker = req.params.marker;
+		dbFunctions.removePGXCoords(marker)
+		.then(function(result){
+			if (result){
+				res.redirect('/success');
+			} else
+				res.redirect('/failure');
 		});
 	});
 
