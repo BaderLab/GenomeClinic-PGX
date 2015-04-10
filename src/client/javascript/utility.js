@@ -59,7 +59,6 @@ module.exports = {
 					field:field,
 					value:value
 				};
-				console.log(options);
 			var promise = Promise.resolve($.ajax({
 				url:'/database/checkInDatabase',
 				contentType:'application/json',

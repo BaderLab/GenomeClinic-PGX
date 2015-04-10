@@ -969,6 +969,21 @@ var dbFunctions = function(logger,DEBUG){
 		});
 	};
 
+	//remove the selected marker
+	this.removePGXCoords = function(rsID){
+		assert.notStrictEqual(db,undefined);
+		assert(Object.prototype.toString.call(rsID) == "[object String]");
+		var query = {};
+		query[dbConstants.PGX.COORDS.ID_FIELD] = rsID;
+		return removeDocument(dbConstants.PGX.COORDS.COLLECTION,query,[[dbConstants.PGX.COORDS.ID_FIELD,1]]);
+
+	};
+
+
+	/*retrieve the selected Haplotype Gene(s). Accepts an array or string, or no
+	 * arugment. If an array or string is passed it will search for all of the genes
+	 * in that are named, while if no arguments are passed it will retrieve ALL
+	 * of the genes */
 	this.getPGXGenes = function(geneName){
 		assert.notStrictEqual(db,undefined);
 		var query = {};
@@ -987,6 +1002,7 @@ var dbFunctions = function(logger,DEBUG){
 		});
 	};
 
+	//Remove the specified Gene
 	this.removePGXGene = function(geneName){
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(geneName) == "[object String]");
@@ -996,6 +1012,7 @@ var dbFunctions = function(logger,DEBUG){
 
 	}
 
+	//Update the specified gene with the requqired parameter Doc
 	this.updatePGXGene = function(geneName,doc){
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(geneName) == "[object String]");
@@ -1006,6 +1023,7 @@ var dbFunctions = function(logger,DEBUG){
 		return this.update(dbConstants.PGX.GENES.COLLECTION,query,doc);
 	};
 
+	//Update the specified marker with the required parameter Doc
 	this.updatePGXCoord = function(rsID,doc){
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(rsID) == "[object String]");
@@ -1022,7 +1040,7 @@ var dbFunctions = function(logger,DEBUG){
 
 		assert.notStrictEqual(db, undefined);  // ensure we're connected first
 		var self = this;
-		var pgxCoords, pgxGenes,currentPatientCollectionID;
+		var pgxCoords, pgxGenes,currentPatientCollectionID,pgxGenesRemoved = [];
 		var query= {};
 		query[dbConstants.PATIENTS.ID_FIELD]= patientID;
 
@@ -1034,9 +1052,33 @@ var dbFunctions = function(logger,DEBUG){
 			pgxGenes = result;
 			return self.getPGXCoords();
 		}).then(function(result){
+			//Ensure that only genes are being provided that have complete marker information
+			//if genes are lacking marker information remove them and put them in a separate array
+			var haplotypes;
+			pgxCoords = result;
+			var genes = Object.keys(pgxGenes);
+			var markers = Object.keys(pgxCoords);
+			for (var i=0; i<genes.length; i++ ){
+				hap = Object.keys(pgxGenes[genes[i]]);
+				for (var j=0; j < hap.length; j++){
+					for ( var k = 0; k < pgxGenes[genes[i]][hap[j]].length; k++ ){
+						if (markers.indexOf(pgxGenes[genes[i]][hap[j]][k]) === -1 ){
+							if (pgxGenesRemoved.indexOf(genes[i])=== -1 ){
+								pgxGenesRemoved.push(genes[i]);
+							}
+						}
+					}
+				}
+				
+			}
+			for (i = 0; i< pgxGenesRemoved.length; i++){
+				delete pgxGenes[pgxGenesRemoved[i]];
+			}
+			return pgxCoords;
+		}).then(function(result){
 			// build search query
 			query = {'$or' : []};
-			pgxCoords = result;
+			
 			var tempCoords;
 			var keys = Object.keys(result);
 			for ( var i = 0; i < keys.length; i++){
@@ -1053,6 +1095,7 @@ var dbFunctions = function(logger,DEBUG){
 			doc.pgxGenes = pgxGenes;
 			doc.pgxCoordinates = pgxCoords;
 			doc.patientID = patientID;
+			doc.pgxGenesRemoved = pgxGenesRemoved;
 
 			var opts = {"_id":0};
 			opts[dbConstants.DB.REPORT_FOOTER] = 1;

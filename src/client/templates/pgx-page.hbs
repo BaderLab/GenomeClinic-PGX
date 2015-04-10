@@ -3,6 +3,23 @@
 <div class="row" style="margin-top:30px">	
 	<div class="large-12 columns">
 		<a href="/browsepatients" class="button radius"><i class="fa fa-arrow-left"></i>&nbspBack</a>
+		{{#if errMessage}}
+		<div class="row">
+	      <div class="small-12 columns">
+	        <div data-alert class="alert-box radius secondary" id="error-display-box">
+	        <!-- Alert message goes here -->
+	          <div class="row">
+	            <div class="small-11 columns">
+	            	<h4>Warning</h4>
+	              	<p id="error-display-message">There is incomplete or missing marker information for the following genes: {{errMessage}}, preventing them from accurately being displayed in the report. In order to display the PGX analysis for these genes, please review the their related markers and provide the missing information</p>
+	            </div>
+	          	<div class="small-1 columns">
+	            	<a href="#" class='close-box'><i class="fi-x size-16" style="color:#606060"></i></a>
+	          	</div>
+	        	</div>
+	    	</div>
+	  	</div>
+	  	{{/if}}
 		<div class="row">
 			<div class="large-12 columns">
 				{{#if patientAlias}}

@@ -14,6 +14,7 @@ var pgx =  {
 	globalPGXData: {},
 	// Original colour of the haplotype variant table collapse button
 	originalCollapseButtonColor: "rgb(0, 123, 164)",
+	pgxGenesRemoved : undefined,
 	/*
 	 * Compute the Levenshtein distance (edit distance) between the two given strings.
 	 * Sources:
@@ -417,11 +418,14 @@ var pgx =  {
 			return self.convertTotemplateData();
 		}).then(function(result){
 			self.templateData = result;
+			if (self.pgxGenesRemoved)
+				result.errMessage = self.pgxGenesRemoved.join(", ")
 			return templates.pgx(result);
 		}).then(function(html) {
 			$('#main').html(html);
 			self.addEventListeners();
 		}).then(function(){
+
 			utility.refresh();
 		});
 	},
@@ -433,6 +437,8 @@ var pgx =  {
 			contentType: "application/json",
 		}))
 		.then(function(result) {
+			if (result.pgxGenesRemoved.length !== 0)
+				self.pgxGenesRemoved = result.pgxGenesRemoved;
 			return self.processPGXResponse(selectedPatientAlias, selectedPatientID, result);
 		})
 		.then(function(result) {
@@ -466,6 +472,11 @@ var pgx =  {
 			$(element).css("color", self.originalCollapseButtonColor);
 			$(element).css("transform", "rotate(0deg)");
 		};
+
+		$('.alert-box').find('.close-box').on('click',function(e){
+			e.preventDefault();
+			$(this).closest('.alert-box').slideUp();
+		});
 
 		$("i.haplotype-expand").on("click", function(event) {
 			// prevent default <a href="#"> click event (jumps to top of page)
