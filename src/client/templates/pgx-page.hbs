@@ -1,7 +1,7 @@
 {{!-- NOTE: Put quotes around attributes that may have spaces, or handlebars
 	  will only output the first word. --}}
 <div class="row" style="margin-top:30px">	
-	<div class="large-12 columns">
+	<div class="large-12 medium-12 small-12 columns">
 		<a href="/browsepatients" class="button radius"><i class="fa fa-arrow-left"></i>&nbspBack</a>
 		{{#if errMessage}}
 		<div class="row">
@@ -21,7 +21,7 @@
 	  	</div>
 	  	{{/if}}
 		<div class="row">
-			<div class="large-12 columns">
+			<div class="small-12 columns">
 				{{#if patientAlias}}
 				<h2><i class="fi-torso"></i> {{patientAlias}} (<em>{{patientID}}</em>)</h2>
 				{{else}}
@@ -31,11 +31,11 @@
 		</div>
 	</div>
 	<div class="row" style="padding-left:10px">
-		<div class="large-10 columns">
+		<div class="large-10 small-12 medium-8 columns">
 			<h5 style="margin-top: 30px;">Pharmacogenomic results based on phased and unphased genotypes from this sample.</h5>
 			<h6 style="margin-bottom: 40px;"><em><a href="#" id="collapse-all-haplotypes">Show less</a></em></h6></p>
 		</div>
-		<div class="large-2 columns">
+		<div class="large-2 small-12 medium-4 columns">
 			<a href="#" id="direct_download" style="display:none;">test</a>
 			<a href="#" id="download" class="button radius size-12">Download</a>
 		</div>
@@ -44,13 +44,12 @@
 </div>
 {{#pgxGenes}}
 <div class="row">
-	<div class="large-12 columns">
+	<div class="large-12 small-12 medium-12 columns">
 			<div class="row">
-				<div class="large-2 columns">
+				<div class="large-2 small-12 medium-4 columns">
 					<h3><strong>{{gene}}</strong></h3>
 				</div>
-				<div class="large-9 columns">
-
+				<div class="large-9 small-12 medium-7 columns">
 					<h3>
 					{{#if possibleHaplotypes}}
 					<em class="haplo-present">
@@ -62,14 +61,14 @@
 					{{/if}}
 					</h3>
 				</div>
-				<div class="large-1 columns">
+				<div class="large-1 small-12 medium-1 columns">
 					<a href="#"><i class="fa fa-plus haplotype-expand" gene="{{gene}}" expanded="yes"></i></a>
 				</div>
 			</div>
 			
 			{{!-- The next div is for sliding. Tables cannot slide using JQuery. See http://stackoverflow.com/questions/467336/how-to-use-slidedown-or-show-function-on-a-table-row --}}
 			
-			<div id="table{{gene}}" class="haplotype-expand-div">
+			<div id="table{{gene}}" class="haplotype-expand-div small-12 medium-12 large-12 columns">
 				<table>
 					<thead>
 						<tr>

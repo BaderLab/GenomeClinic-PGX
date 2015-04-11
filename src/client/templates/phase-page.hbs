@@ -1,31 +1,31 @@
 <div class="row" style="padding-top: 30px;">  
-	<div class="large-12 columns">
+	<div class="large-12 small-12 medium-12 columns">
 		<h2><i class="fa fa-asterisk"></i>&nbspManage Haplotypes</h2>
 		<h5 class="subheader">Displaying all available phase infomration</h5>
 		<p>Select any of the available genes below to modify the phasing information for that specific gene, adding new haplotypes,markers,etc or additionally create a new haplotype.</p>
 		<div class="row">
-        	<div class="large-3 columns">
-          		<a href="haplotypes/new" class="button alert radius left" id="add-new-haplotype">Add New Haplotype</a>
+        	<div class="large-3 medium-6 small-12 columns">
+          		<a href="haplotypes/new" class="small-12 medium-12 large-12 button alert radius left" id="add-new-haplotype">Add New Haplotype</a>
         	</div>
       	</div> 
 	</div>
 </div>
 <div class="row">
-	<div class="large-12 columns" style="margin-top:30px">
+	<div class="large-12 small-12 medium-12 columns" style="margin-top:30px">
 		{{#if haplotypes}}
 		<div class="row collapse prefix-radius">
-			<div class="large-2 columns">
+			<div class="large-2 medium-3 small-4 columns">
 				<span class="prefix">Search</span>
 			</div>
-			<div class="large-4 left columns">
+			<div class="large-4 medium-7 small-8 left columns">
 				<input type="text" id="search-box">
 			</div>
 		</div>
 		<table id="haplotype-table" class="large-12">
 			<thead>
 				<tr>
-					<th class="large-6">Gene</th>
-					<th class="large-3 text-center">Number of Haplotypes</th>
+					<th class="large-6 small-6 medium-6">Gene</th>
+					<th class="large-3 small-6 medium-6text-center">Number of Haplotypes</th>
 					<th class="large-3 text-center">Number of Markers</th>
 				</tr>
 			</thead>
