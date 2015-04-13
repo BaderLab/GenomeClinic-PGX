@@ -233,6 +233,72 @@ var dbFunctions = function(logger,DEBUG){
 		return promise;
 	};
 
+	this.checkDefaultMarkers = function(){
+		var coords,toAdd=[];
+		var _this = this;
+		assert.notStrictEqual(db,undefined);
+		return fs.statAsync(nodeConstants.SERVER_DIR + "/" + dbConstants.PGX.COORDS.DEFAULT)
+		.then(function(result){
+			return coords = require(nodeConstants.SERVER_DIR + "/" + dbConstants.PGX.COORDS.DEFAULT);
+		}).each(function(item){
+			return _this.checkInDatabase(dbConstants.PGX.COORDS.COLLECTION,dbConstants.PGX.COORDS.ID_FIELD,item[dbConstants.PGX.COORDS.ID_FIELD])
+
+			.then(function(result){
+				if (!result){
+					toAdd.push(item);
+				}
+			});
+		}).then(function(){
+			if (toAdd.length  > 0){
+				logInfo(toAdd.length.toString() + " default markers found on startup that are not present in the database. Adding new markers");
+				var o = {
+					documents : toAdd,
+					collectionName : dbConstants.PGX.COORDS.COLLECTION
+				};
+				return _this.insertMany(o).then(function(){
+					logInfo("Markers added successfully upon startup");
+				})
+			} else {
+				logInfo("No New Markers found on startup, nothing added to database");
+			}
+		}).catch(function(err){
+			console.log(err);
+			logErr("error ecnountered when adding new default makrers on startup", err);
+		});
+	};
+
+	this.checkDefaultGenes = function(){
+		var genes,toAdd=[];
+		var _this = this;
+		assert.notStrictEqual(db,undefined);
+		return fs.statAsync(nodeConstants.SERVER_DIR + "/" + dbConstants.PGX.GENES.DEFAULT)
+		.then(function(result){
+			return genes = require(nodeConstants.SERVER_DIR + "/" + dbConstants.PGX.GENES.DEFAULT);
+		}).each(function(item){
+			return _this.checkInDatabase(dbConstants.PGX.GENES.COLLECTION,dbConstants.PGX.GENES.ID_FIELD,item[dbConstants.PGX.GENES.ID_FIELD])
+			.then(function(result){
+				if (!result){
+					toAdd.push(item);
+				}
+			})
+		}).then(function(){
+			if (toAdd.length  > 0){
+				logInfo(toAdd.length.toString() + " default genes found on startup that are not present in the database. Adding new genes");
+				var o = {
+					documents : toAdd,
+					collectionName : dbConstants.PGX.GENES.COLLECTION
+				};
+				return _this.insertMany(o).then(function(){
+					logInfo("Genes added successfully upon startup");
+				})
+			} else {
+				logInfo("No New Genes found on startup, nothing added to database");
+			}
+		}).catch(function(err){
+			console.log(err);
+			logErr("error ecnountered when adding new default Genes on startup", err);
+		});
+	};
 //=======================================================================================
 //=======================================================================================
 //Public functions
@@ -259,6 +325,7 @@ var dbFunctions = function(logger,DEBUG){
 	/* Connect to the DB and initialize it using defaults if the DB has not been
 	 * initialized already. if silent exists, will not print to console.*/
 	this.connectAndInitializeDB= function(silent) {
+		var _this = this;
 		var promise= new Promise(function(resolve, reject) {
 			// Connect to MongoDB
 			connect().then(function(result) {
@@ -272,7 +339,7 @@ var dbFunctions = function(logger,DEBUG){
 				 		if (!silent){
 				 			logInfo("initializing database.");
 				 		}
-				 		createInitCollections()
+				 		return createInitCollections()
 				 			.catch(function(err) {
 			 					reject(err);
 			 				});
@@ -280,8 +347,16 @@ var dbFunctions = function(logger,DEBUG){
 				 		if (!silent)
 				 			logInfo("database has already been initialized.");
 				 	}
+				 	
+				 }).then(function(){
+				 	console.log('here');
+				 	return _this.checkDefaultMarkers();
+				 }).then(function(){
+				 	return _this.checkDefaultGenes();
+				 }).then(function(){
 				 	resolve();
 				 }).catch(function(err) {
+				 	console.log(err);
 				 	reject(err);
 				 });
 			}).catch(function(err) {
