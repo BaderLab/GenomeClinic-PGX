@@ -349,7 +349,6 @@ var dbFunctions = function(logger,DEBUG){
 				 	}
 				 	
 				 }).then(function(){
-				 	console.log('here');
 				 	return _this.checkDefaultMarkers();
 				 }).then(function(){
 				 	return _this.checkDefaultGenes();
