@@ -12,17 +12,32 @@ The web server is built as an [express](http://expressjs.com/) app and utilizes 
 
 ## Annovar Installation
 
-Simply follow the instrcutions on the annovar website to install. Additionally there are several annotation libraries that the webserver expects to be installed. To install these simply run the following commands:
+Simply follow the instrcutions on the annovar website to install. Additionally there are several annotation libraries that the webserver expects to be installed. We have included a convienient script that will download the required libraries for you, assuming that annovar has already been installed. To do so run the script in a terminal with one argument directing the script to the annovar folder.
 
 ```shell
-perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar knowngene humandb/
-perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar ljb26_all humandb/
-perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar cg69 humandb/
-perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar esp6500_all humandb/
-perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar 1000g2014sep_all humandb/
-perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar clinvar_20140929 humandb/
-perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar snp138 humandb/
+./download_annovar_modules.sh /path/to/annovar
 ```
+
+You will need approximaetly 35gb of hard disk space to accomodate all of the databases once they are downloaded and unpacked. 
+
+Optionally, if you did not want to downalod all of the annotations, simply pick the annotations you want to download from the list below of currently supported annotations
+
+1. knowngene
+2. ljb26_all
+3. cg69
+4. esp6500_all
+5. 1000g2014sep_all
+6. clinvar_20140929
+7. snp138
+
+Use the following command to download each database individually
+
+
+```shell
+/path/to/annovar/annotate_variation.pl -buildver hg19 -downdb -webfrom annovar [database] humandb/
+```
+
+Then once you start the server for the first time, check off the databses that were installed from the configuration page to let the server know which annotations to inlcude.
 
 ## MongoDB setup
 
