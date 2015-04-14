@@ -3,7 +3,6 @@
  */
 var $ = require('jquery');
 var index = require('../templates/index.hbs'),
-	navbar = require('../templates/navbar.hbs'),
 	login = require('../templates/login.hbs'),
 	signup = require('../templates/signup.hbs'),
 	recover = require('../templates/recover.hbs'),
@@ -42,7 +41,6 @@ var _t = function(t){
 //Return object with All the templates
 module.exports = {
 	index:_t(index),
-	navbar:_t(navbar),
 	login:_t(login),
 	signup:_t(signup),
 	recover:_t(recover),
