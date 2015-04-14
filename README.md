@@ -105,7 +105,7 @@ If you possess an https certificate and would like to use only https routes, the
 
 The server by default operates on ports 80 and 443 (for https traffic). You can modify this with the `--httpsport` and `--httpport` commands followed by the desired port number. We do not recommend you to use non standard ports, unless you must. For a complete list of options run
 
-`node server.js -h`
+`node webapp.js -h`
 
 ## Killing the Server
 
@@ -113,7 +113,7 @@ The server can be terminated by typing "CTRL-C" in a Unix terminal.
 
 If you are going to run the server in the background, like this
 
-`node server.js &`
+`node webapp.js &`
 
 we advise that you terminate the server using a SIGINT, allowing the server to exit gracefully:
 
