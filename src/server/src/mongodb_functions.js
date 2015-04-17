@@ -233,6 +233,24 @@ var dbFunctions = function(logger,DEBUG){
 		return promise;
 	};
 
+	this.aggregate = function(collectionName,aggArray){
+		assert.notStrictEqual(db,undefined);
+		assert(Object.prototype.toString.call(aggArray) == "[object Array]",
+			"Invalid Options, aggregate requires an array");
+
+		var promise = new Promise(function(resolve,reject){
+			db.collection(collectionName)
+			.aggregate(aggArray)
+			.toArray(function(err,doc){
+				if (err){
+					reject(err)
+				}
+				resolve(doc);
+			});
+		});
+
+	}
+
 	this.checkDefaultMarkers = function(){
 		var coords,toAdd=[];
 		var _this = this;
@@ -878,6 +896,7 @@ var dbFunctions = function(logger,DEBUG){
 	 * not listed in that project. this is used for adding patients to an existing 
 	 * project */
 	this.findAllPatientsNinProject = function(project,username,options){
+		var _this = this;
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(project) == "[object String]", "Invalid Project Name");
 		//find all the availble projects for this person
