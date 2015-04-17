@@ -15,9 +15,6 @@ module.exports = function(app,dbFunctions,logger){
 		'/dosing/current/:geneID',
 		'/dosing/new'
 	]
-
-
-
 	//==========================================================
 	// Parameterd
 	//==========================================================
