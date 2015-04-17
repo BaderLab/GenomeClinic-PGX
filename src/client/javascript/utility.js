@@ -109,6 +109,15 @@ module.exports = {
 	},
 	chrRegex:/^(1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|X|Y|M|m|y|x)$/,
 	allelesRegex:/^[,\sacgtn\-ACGTN]+$/,
+	matchSearch :function(input){
+		var val = $('#search-box').val();
+		var re = new RegExp(val,'i');
+		if ( val === '' )
+			return true;
+		else if (input.match(re) !== null)
+			return true;
+		return false;
+	}
 };
 
 

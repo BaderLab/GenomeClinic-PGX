@@ -239,9 +239,8 @@ var dbFunctions = function(logger,DEBUG){
 			"Invalid Options, aggregate requires an array");
 
 		var promise = new Promise(function(resolve,reject){
-			db.collection(collectionName)
-			.aggregate(aggArray)
-			.toArray(function(err,doc){
+			var collection = db.collection(collectionName)
+			collection.aggregate(aggArray,function(err,doc){
 				if (err){
 					reject(err)
 				}
@@ -249,7 +248,8 @@ var dbFunctions = function(logger,DEBUG){
 			});
 		});
 
-	}
+		return promise;
+	};
 
 	this.checkDefaultMarkers = function(){
 		var coords,toAdd=[];
@@ -1315,6 +1315,13 @@ var dbFunctions = function(logger,DEBUG){
 		logInfo('changing password for user', {'user':user});
 		return this.update(dbConstants.USERS.COLLECTION,query,doc);
 	};
+
+	this.drugs = {
+		getGenes : function(){
+			var aggArray = [{$group:{_id:'$' + dbConstants.DRUGS.DOSING.FIRST_GENE, interactions:{$sum:1}}}];
+			return self.aggregate(dbConstants.DRUGS.DOSING.COLLECTION,aggArray);
+		}
+	}
 };
 
 module.exports= new dbFunctions();

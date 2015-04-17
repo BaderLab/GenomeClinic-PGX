@@ -25,8 +25,9 @@ var index = require('../templates/index.hbs'),
 	phase_add_row = require('../templates/phase-add-marker-row.hbs'),
 	phase_add_haplotype = require('../templates/phase-add-haplotype.hbs'),
 	marker_page = require('../templates/marker-page.hbs'),
-	marker_add_row = require('../templates/marker-add-marker.hbs');
-
+	marker_add_row = require('../templates/marker-add-marker.hbs'),
+	dosing_page = require('../templates/dosing-page.hbs'),
+	dosing_current = require('../templates/dosing-current.hbs');
 /* return a promisfied version of the template that accepts a single parameter
  * o to render the template */
 var _t = function(t){
@@ -73,5 +74,9 @@ module.exports = {
 	markers:{
 		index:_t(marker_page),
 		row:_t(marker_add_row)
+	},
+	drugs:{
+		index:_t(dosing_page),
+		current:_t(dosing_current)
 	}
 };
