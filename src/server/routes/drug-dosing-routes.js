@@ -16,18 +16,44 @@ module.exports = function(app,dbFunctions,logger){
 		'/dosing/new'
 	]
 
-	app.use(renderRoutes,utils.isLoggedIn, function(req,res){
+
+
+	//==========================================================
+	// Parameterd
+	//==========================================================
+	app.param('geneID',function(req,res,next,geneID){
+		dbFunctions.checkInDatabase(constants.dbConstants.DRUGS.DOSING.COLLECTION,constants.dbConstants.DRUGS.DOSING.FIRST_GENE,geneID)
+		.then(function(result){
+			if (result)
+				next();
+			else
+				utils.render(req,res,'notfound');
+		});
+	});	
+
+
+
+
+	app.get(renderRoutes,utils.isLoggedIn, function(req,res){
 		utils.render(req,res);
 	});
-
 
 	//==========================================================
 	//Dosing main page routes 
 	//==========================================================
 
-	app.use('/database/dosing/genes', function(req,res){
+
+	app.get('/database/dosing/genes/:geneID',utils.isLoggedIn, function(req,res){
+		dbFunctions.drugs.getGeneDosing(req.params.geneID).then(function(result){
+			res.send(result);
+		});
+	});
+
+	app.get('/database/dosing/genes', utils.isLoggedIn, function(req,res){
 		dbFunctions.drugs.getGenes().then(function(result){
 			res.send(result);
 		});
 	});
+	
+
 };

@@ -233,7 +233,7 @@ var dbFunctions = function(logger,DEBUG){
 		return promise;
 	};
 
-	this.aggregate = function(collectionName,aggArray){
+	var aggregate = function(collectionName,aggArray){
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(aggArray) == "[object Array]",
 			"Invalid Options, aggregate requires an array");
@@ -1318,8 +1318,24 @@ var dbFunctions = function(logger,DEBUG){
 
 	this.drugs = {
 		getGenes : function(){
+			assert.notStrictEqual(db,undefined);
 			var aggArray = [{$group:{_id:'$' + dbConstants.DRUGS.DOSING.FIRST_GENE, interactions:{$sum:1}}}];
-			return self.aggregate(dbConstants.DRUGS.DOSING.COLLECTION,aggArray);
+			return aggregate(dbConstants.DRUGS.DOSING.COLLECTION,aggArray);
+		},
+
+		getGeneDosing : function(gene){
+			assert.notStrictEqual(db,undefined);
+			assert(Object.prototype.toString.call(gene) == '[object String]',"Invalid Gene Name. Gene name must be a string");	
+			var match, opt = {};
+			var aggArray = [];
+			match = {$match:{$or:[]}};
+			opt[dbConstants.DRUGS.DOSING.FIRST_GENE] = gene;
+			match['$match']['$or'].push(opt);
+			opt = {};
+			opt[dbConstants.DRUGS.DOSING.SECOND_GENE] = gene;
+			match['$match']['$or'].push(opt);
+			aggArray.push(match);
+			return aggregate(dbConstants.DRUGS.DOSING.COLLECTION,aggArray);
 		}
 	}
 };
