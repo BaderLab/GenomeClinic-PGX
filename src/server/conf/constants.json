@@ -88,6 +88,35 @@
 				"COLLECTION":"pgxGenes",
 				"ID_FIELD":"gene"
 			}
+		},
+		"DRUGS":{
+			"REPORT":{
+				"DEFAULT":"views/default_dosing_report.hbs"
+			},
+			"DOSING":{
+				"DEFAULT":"lib/conf/dosing_guidelines.json",
+				"COLLECTION":"drugRecomendations",
+				"DRUG_FIELD":"drug",
+				"FIRST_CLASS":"class_1",
+				"SECOND_CLASS":"class_2",
+				"FIRST_GENE":"pgx_1",
+				"SECOND_GENE":"pgx_2",
+				"RECOMENDATION":"red",
+				"PMID":"pubmed",
+				"RISK":"risk"
+			},
+			"CLASSES":{
+				"DEFAULT":"therapeutic_classes.json",
+				"COLLECTION":"therapeuticClasses",
+				"ID_FIELD":"Therapeutic_Class"
+			},
+			"DRUGS":{
+				"DEFAULT":"druglist.json",
+				"COLLECTION":"drugsMain"	
+			},
+			"HAPLOCLASS":{
+				"COLLECTION":"haploClass"
+			}
 		}
 	},
 	"nodeConstants":{
