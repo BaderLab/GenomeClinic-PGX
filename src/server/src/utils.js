@@ -8,16 +8,18 @@ module.exports = {
 			return next();
 		res.redirect('/login');
 	},
-	render:function(req,res,type,scripts){
+	render:function(req,res,type,_o,scripts){
 		var template;
 		template = 'layout.hbs';
 		if (!scripts)
 			scripts = [];
-
-		var _o = {
-			title:'PGX webapp',
-			cache:true
+		if (!_o){
+			var _o = {};
 		};
+
+		_o.title = 'PGX webapp',
+		_o.cache = true
+
 		if (type == "construction")
 			_o.construction = true;
 		else if (type == 'notfound') {

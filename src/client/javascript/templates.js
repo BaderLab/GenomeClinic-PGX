@@ -27,7 +27,8 @@ var index = require('../templates/index.hbs'),
 	marker_page = require('../templates/marker-page.hbs'),
 	marker_add_row = require('../templates/marker-add-marker.hbs'),
 	dosing_page = require('../templates/dosing-page.hbs'),
-	dosing_current = require('../templates/dosing-current.hbs');
+	dosing_current = require('../templates/dosing-current.hbs'),
+	spinner = require('../templates/spinner.hbs');
 /* return a promisfied version of the template that accepts a single parameter
  * o to render the template */
 var _t = function(t){
@@ -42,6 +43,7 @@ var _t = function(t){
 //Return object with All the templates
 module.exports = {
 	index:_t(index),
+	spinner:_t(spinner),
 	login:_t(login),
 	signup:_t(signup),
 	recover:_t(recover),

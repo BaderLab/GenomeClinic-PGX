@@ -251,6 +251,9 @@ var dbFunctions = function(logger,DEBUG){
 		return promise;
 	};
 
+	this.find = find;
+	this.aggregate = aggregate;
+	
 	this.checkDefaultMarkers = function(){
 		var coords,toAdd=[];
 		var _this = this;

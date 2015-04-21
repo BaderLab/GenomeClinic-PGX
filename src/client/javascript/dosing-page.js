@@ -22,27 +22,48 @@ module.exports = function(){
 			});
 		},
 		current:function(){
-			var originalCollapseButtonColor = "rgb(0, 123, 164)";
-			var expand= function(element) {
-				$(element).data("expanded", true);
-				$(element).css("color", "#FFAD99");
-				$(element).css("transform", "rotate(45deg)");
-				$(element).closest('.drug-cont').find('.interactions').slideToggle();
-			};
+			$('#search-box').on('keyup',function(){
+				var values = $('.drug-cont');
+				for (var i =0; i<values.length; i++){
+					if (utility.matchSearch($(values[i]).data('drug'))){
+						$(values[i]).show();
+					} else {
+						$(values[i]).hide();
+					}
+				}
+			});
 
-			var collapse= function(element) {
-				$(element).data("expanded", false);
-				$(element).css("color", originalCollapseButtonColor);
-				$(element).css("transform", "rotate(0deg)");
-				$(element).closest('.drug-cont').find('.interactions').slideToggle();
-			};
-
-			$('.drug-expand').on('click',function(e){
+			$('#toggle-all').on('click',function(e){
 				e.preventDefault();
-				if ($(this).data('expanded')){
-					collapse(this);
+				if ($(this).data('state') == 'less'){
+					$('.minimize').trigger('click');
+					$(this).text('Show more').data('state','more');
 				} else {
-					expand(this);
+					$('.expand').trigger('click');
+					$(this).text('Show less').data('state','less');
+				}
+			});
+			$('.minimize').on('click',function(e){
+				e.preventDefault();
+				var _this = this;
+				if ($(this).closest('.drug-cont').find('fieldset').length > 5){
+					$(this).closest('.drug-cont').find('.interactions').hide().closest('.drug-cont').find(this).hide().siblings('.expand').show();	
+				} else {
+					$(this).closest('.drug-cont').find('.interactions').slideUp('slow',function(){
+						$(_this).hide().siblings('.expand').show();
+					});
+				}
+			});
+
+			$('.expand').on('click',function(e){
+				e.preventDefault();
+				var _this = this;
+				if ($(this).closest('.drug-cont').find('fieldset').length > 5){
+					$(this).closest('.drug-cont').find('.interactions').show().closest('.drug-cont').find(this).hide().siblings('.minimize').show();	
+				} else {
+					$(this).closest('.drug-cont').find('.interactions').slideDown('slow',function(){
+						$(_this).hide().siblings('.minimize').show();
+					});
 				}
 			});
 		}
@@ -65,34 +86,29 @@ module.exports = function(){
 			}).then(function(){
 				staticHanlders.index();
 			});
-		} else if (location.search(/^\/dosing\/current\/.*/) !== -1 ){
-			var gene = location.split('/').splice(-1)[0]
-			promise = Promise.resolve($.ajax({
-				url:"/database/dosing/genes/" + gene,
+		} else if (location.search(/^\/dosing\/current\/.*/) !== -1 ){	
+			var gene = location.split('/').splice(-1)[0];
+			templates.spinner().then(function(renderedHtml){
+				$('#main').html(renderedHtml);
+			}).then(function(){
+				//This templating occasionally can take a long time, therefore it is being done
+				//on the server to hopefully speed up the process
+				return Promise.resolve($.ajax({
+				url:"/dosing/current/"+ gene + "/content",
 				type:'GET',
-				contentyType:'application/json',
-				dataType:'json'
-			})).then(function(result){
-				//Arrange the output by drug.
-				var drugOutput = {};
-				var drug;
-				for ( var i=0; i<result.length; i++ ){
-					drug = result[i].drug
-					if (!drugOutput.hasOwnProperty(drug)){
-						drugOutput[drug] = [];
-					}
-					drugOutput[drug].push(result[i]);
-				}
-				return drugOutput;
+				dataType:'json'}));
 			}).then(function(result){
 				console.log(result);
-				var o = {};
-				o.drugs = result;
-				o.gene = gene.toUpperCase()	;
-				return templates.drugs.current(o);
+				return templates.drugs.current(result);
 			}).then(function(renderedHtml){
 				return $('#main').html(renderedHtml);
 			}).then(function(){
+				var selects = $('select');
+				var val;
+				for (var i = 0; i < selects.length; i++ ){
+					val = $(selects[i]).data('originalvalue');
+					$(selects[i]).val(val);
+				}
 				staticHanlders.current();
 			});	
 		}

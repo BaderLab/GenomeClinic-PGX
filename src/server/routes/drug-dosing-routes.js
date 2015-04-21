@@ -38,8 +38,31 @@ module.exports = function(app,dbFunctions,logger){
 	//==========================================================
 	//Dosing main page routes 
 	//==========================================================
-
-
+	app.get('/dosing/current/:geneID/content',function(req,res){
+		var options={};
+		dbFunctions.drugs.getGeneDosing(req.params.geneID).then(function(result){
+			var drugOutput = {};
+			var drug;
+			for ( var i=0; i<result.length; i++ ){
+				drug = result[i].drug
+				if (!drugOutput.hasOwnProperty(drug)){
+					drugOutput[drug] = [];
+				}
+				drugOutput[drug].push(result[i]);
+			}
+			return options.drugs = drugOutput;
+		}).then(function(){
+			var query = [{$group:{_id:null,classes:{$push:'$' + constants.dbConstants.DRUGS.CLASSES.ID_FIELD}}}];
+			return dbFunctions.aggregate(constants.dbConstants.DRUGS.CLASSES.COLLECTION,query);
+			//add dropdown menu selections
+		}).then(function(result){
+			options.classes = result[0].classes;
+			options.risk = ['Low','Medium','High'];
+			options.gene = req.params.geneID;
+		}).then(function(){
+			res.send(options);
+		});
+	})
 	app.get('/database/dosing/genes/:geneID',utils.isLoggedIn, function(req,res){
 		dbFunctions.drugs.getGeneDosing(req.params.geneID).then(function(result){
 			res.send(result);
