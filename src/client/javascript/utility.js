@@ -73,7 +73,8 @@ module.exports = {
 		return promise;
 	},
 
-	refresh : function(){
+	refresh : function(opt){
+		if (opt) return $(document).foundation(opt);
 		$(document).foundation();
 	},
 	getUserInfo : function() {

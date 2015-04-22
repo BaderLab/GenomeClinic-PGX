@@ -46,7 +46,5 @@ var projects = require('./projects'),
 		} else if (location.search(/^\/dosing/) !== -1){
 			return dosing();
 		}
-	}).then(function(){
-		utility.refresh();
 	});
 })();

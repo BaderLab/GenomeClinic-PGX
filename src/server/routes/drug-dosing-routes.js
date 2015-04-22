@@ -63,6 +63,36 @@ module.exports = function(app,dbFunctions,logger){
 			res.send(options);
 		});
 	})
+
+	app.post('/dosing/current/:geneID/new-interaction',function(req,res){
+		var doc = req.body;
+		var query = {};
+		query[constants.dbConstants.DRUGS.DOSING.DRUG_FIELD] = doc.drug;
+		query[constants.dbConstants.DRUGS.DOSING.FIRST_GENE] = req.params.geneID;
+		query[constants.dbConstants.DRUGS.DOSING.FIRST_CLASS] = doc.class_1;
+		query[constants.dbConstants.DRUGS.DOSING.SECOND_CLASS] = (doc.class_2 === undefined ? {$exists:false}:doc.class_2);
+		query[constants.dbConstants.DRUGS.DOSING.SECOND_GENE] = (doc.class_2 === undefined ? {$exists:false}:doc.class_2);
+		dbFunctions.findOne(constants.dbConstants.DRUGS.DOSING.COLLECTION,query).then(function(result){
+			if (result == null){
+				dbFunctions.insert(constants.dbConstants.DRUGS.DOSING.COLLECTION,doc)
+				.then(function(result){
+					req.flash('statusCode','200');
+					req.flash('message','Item successfully inserted');
+					res.redirect('/success');
+				}).catch(function(err){
+					req.flash('error',err.toString());
+					res.flash('message','unable to insert item into database');
+					res.flash('statusCode','500')
+					res.redirect('/failure');
+				});
+			} else {
+				req.flash('error','Item Exists alread');
+				req.flash('statusCode','202');
+				res.redirect('/failure')
+			};
+		});
+	});
+
 	app.get('/database/dosing/genes/:geneID',utils.isLoggedIn, function(req,res){
 		dbFunctions.drugs.getGeneDosing(req.params.geneID).then(function(result){
 			res.send(result);
