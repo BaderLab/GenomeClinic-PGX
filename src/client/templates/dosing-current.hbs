@@ -175,7 +175,8 @@
 	</div>
 </div>
 <div class="row">
-	<div class="large-12 small-12 medium-12 columns" id="main_content">
+	<div class="large-12 small-12 medium-12 columns" id="main_content" data-unitialized={{unitialized}}>
+	{{#unless unitialized}}
 		{{#each drugs}}
 		<fieldset class="drug-cont" data-drug="{{@key}}">
 		{{!--<div class="drug-cont" data-drug="{{drug}}">--}}
@@ -305,5 +306,6 @@
 		{{!--</div>--}}
 		</fieldset>
 		{{/each}}
+	{{/unless}}
 	</div>
 </div>

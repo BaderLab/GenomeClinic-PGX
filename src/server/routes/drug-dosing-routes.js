@@ -14,7 +14,7 @@ module.exports = function(app,dbFunctions,logger){
 		'/dosing',
 		'/dosing/current/:geneID',
 		'/dosing/new'
-	]
+	];
 	//==========================================================
 	// Parameterd
 	//==========================================================
@@ -44,13 +44,18 @@ module.exports = function(app,dbFunctions,logger){
 			var drugOutput = {};
 			var drug;
 			for ( var i=0; i<result.length; i++ ){
-				drug = result[i].drug
+				drug = result[i].drug;
 				if (!drugOutput.hasOwnProperty(drug)){
 					drugOutput[drug] = [];
 				}
+				if (result[i].unitialized){
+					options.unitialized = true;
+				}
 				drugOutput[drug].push(result[i]);
 			}
-			return options.drugs = drugOutput;
+
+			options.drugs = drugOutput;
+			return options;
 		}).then(function(){
 			var query = [{$group:{_id:null,classes:{$push:'$' + constants.dbConstants.DRUGS.CLASSES.ID_FIELD}}}];
 			return dbFunctions.aggregate(constants.dbConstants.DRUGS.CLASSES.COLLECTION,query);
@@ -62,35 +67,53 @@ module.exports = function(app,dbFunctions,logger){
 		}).then(function(){
 			res.send(options);
 		});
-	})
+	});
 
 	app.post('/dosing/current/:geneID/new-interaction',function(req,res){
+		var unitialized = req.query.unitialized;
 		var doc = req.body;
 		var query = {};
-		query[constants.dbConstants.DRUGS.DOSING.DRUG_FIELD] = doc.drug;
-		query[constants.dbConstants.DRUGS.DOSING.FIRST_GENE] = req.params.geneID;
-		query[constants.dbConstants.DRUGS.DOSING.FIRST_CLASS] = doc.class_1;
-		query[constants.dbConstants.DRUGS.DOSING.SECOND_CLASS] = (doc.class_2 === undefined ? {$exists:false}:doc.class_2);
-		query[constants.dbConstants.DRUGS.DOSING.SECOND_GENE] = (doc.class_2 === undefined ? {$exists:false}:doc.class_2);
-		dbFunctions.findOne(constants.dbConstants.DRUGS.DOSING.COLLECTION,query).then(function(result){
-			if (result == null){
-				dbFunctions.insert(constants.dbConstants.DRUGS.DOSING.COLLECTION,doc)
-				.then(function(result){
-					req.flash('statusCode','200');
-					req.flash('message','Item successfully inserted');
-					res.redirect('/success');
-				}).catch(function(err){
-					req.flash('error',err.toString());
-					res.flash('message','unable to insert item into database');
-					res.flash('statusCode','500')
+		if ( unitialized ){
+			console.log('here');
+			query[constants.dbConstants.DRUGS.DOSING.FIRST_GENE] = req.params.geneID;
+			query[constants.dbConstants.DRUGS.DOSING.UNITIALIZED] = true;
+			dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,doc)
+			.then(function(result){
+				req.flash('statusCode','200');
+				req.flash('message','Item successfully inserted');
+				res.redirect('/success');
+			}).catch(function(err){
+				req.flash('error',err.toString());
+				res.flash('message','unable to insert item into database');
+				res.flash('statusCode','500');
+				res.redirect('/failure');
+			});
+		} else {
+			query[constants.dbConstants.DRUGS.DOSING.DRUG_FIELD] = doc.drug;
+			query[constants.dbConstants.DRUGS.DOSING.FIRST_GENE] = req.params.geneID;
+			query[constants.dbConstants.DRUGS.DOSING.FIRST_CLASS] = doc.class_1;
+			query[constants.dbConstants.DRUGS.DOSING.SECOND_CLASS] = (doc.class_2 === undefined ? {$exists:false}:doc.class_2);
+			query[constants.dbConstants.DRUGS.DOSING.SECOND_GENE] = (doc.class_2 === undefined ? {$exists:false}:doc.class_2);
+			dbFunctions.findOne(constants.dbConstants.DRUGS.DOSING.COLLECTION,query).then(function(result){
+				if (result === null){
+					dbFunctions.insert(constants.dbConstants.DRUGS.DOSING.COLLECTION,doc)
+					.then(function(result){
+						req.flash('statusCode','200');
+						req.flash('message','Item successfully inserted');
+						res.redirect('/success');
+					}).catch(function(err){
+						req.flash('error',err.toString());
+						res.flash('message','unable to insert item into database');
+						res.flash('statusCode','500');
+						res.redirect('/failure');
+					});
+				} else {
+					req.flash('error','Item Exists alread');
+					req.flash('statusCode','202');
 					res.redirect('/failure');
-				});
-			} else {
-				req.flash('error','Item Exists alread');
-				req.flash('statusCode','202');
-				res.redirect('/failure')
-			};
-		});
+				}
+			});
+		}
 	});
 
 	app.get('/database/dosing/genes/:geneID',utils.isLoggedIn, function(req,res){

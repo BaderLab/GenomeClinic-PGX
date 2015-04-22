@@ -103,7 +103,8 @@
 				"SECOND_GENE":"pgx_2",
 				"RECOMENDATION":"red",
 				"PMID":"pubmed",
-				"RISK":"risk"
+				"RISK":"risk",
+				"UNITIALIZED":"unitialized"
 			},
 			"CLASSES":{
 				"DEFAULT":"therapeutic_classes.json",

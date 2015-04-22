@@ -7,7 +7,7 @@ module.exports = function(){
 		abide: {
 			validators:{
 				requiredIf:function(el,required,parent){
-					var from = document.getElementById(el.getAttribute(this.add_namespace('data-requiredIf'))).value
+					var from = document.getElementById(el.getAttribute(this.add_namespace('data-requiredIf'))).value;
 					var val = el.value;
 					if (from === "None") from = "";
 					if (val === "None") val = "";
@@ -19,7 +19,7 @@ module.exports = function(){
 				}
 			}
 		}
-	}
+	};
 	var staticHanlders = {
 		index:function(){
 			$('#search-box').on('keyup',function(){
@@ -124,13 +124,15 @@ module.exports = function(){
 					if (fields[i].value !== "" && fields[i].value !== "None")
 						doc[fields[i].name] = fields[i].value;
 				}
+				var unitialized = $('#main_content').data('unitialized') === true ? true:false;
 				Promise.resolve($.ajax({
-					url:window.location.pathname + '/new-interaction',
+					url:window.location.pathname + '/new-interaction?unitialized='+unitialized,
 					type:"POST",
 			 		contentType:"application/json",
 			 		datatype:"json",
 					data:JSON.stringify(doc)
 				})).then(function(result){
+					$('#main_content').data('unitialized',false);
 					console.log(result);
 				}).catch(function(err){
 					console.log(err);
@@ -174,7 +176,6 @@ module.exports = function(){
 				type:'GET',
 				dataType:'json'}));
 			}).then(function(result){
-				console.log(result);
 				return templates.drugs.current(result);
 			}).then(function(renderedHtml){
 				return $('#main').html(renderedHtml);
