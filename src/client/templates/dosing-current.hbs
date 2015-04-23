@@ -149,6 +149,24 @@
 				</form>
 			</div>
 		</div>
+	</div>
+</div>
+<div class="row">
+  <div class="small-12 columns">
+    <div data-alert class="alert-box radius secondary" id="error-display-box"  style="display:none">
+    <!-- Alert message goes here -->
+      <div class="row">
+        <div class="small-11 columns">
+          <p id="error-display-message"></p>
+        </div>
+      	<div class="small-1 columns">
+        	<a href="#" class='close-box'><i class="fi-x size-16" style="color:#606060"></i></a>
+      	</div>
+    	</div>
+	</div>
+</div>
+<div class="row">
+	<div class="large-12 small-12 medium-12 columns">
 		<div class="row">
 			<div class="large-12 small-12 medium-12 columns">
 				<h2>Interactions</h2>
@@ -194,7 +212,12 @@
 				{{#each this}}
 					<form data-abide="ajax" data-id="{{_id}}">
 						<fieldset>
-							<h5>Primary Gene</h5>
+							<div class="small-10 large-11 medium-10 columns">
+								<h5>Primary Gene</h5>
+							</div>
+							<div class="small-2 large-1 medium-2 columns">
+								<a href="#" class="edit-table right button tiny secondary radius"><i class="fi-pencil size-16" style="color:#A2A2A2"></i></a>
+							</div>
 							<div class="row">
 								<div class="large-6 small-12 medium-12 columns">
 									<div class="row collapse prefix-radius">
@@ -280,7 +303,7 @@
 										<div class="large-8 small-8 medium-8 columns left">
 											<select name="risk" disabled="disabled" data-originalvalue="{{risk}}" value="{{risk}}" id="{{@index}}_risk">
 												<option></option>
-												{{#each @root.risk}}
+												{{#each @root.allRisk}}
 												<option>{{this}}</option>
 												{{/each}}
 											</select>
@@ -296,6 +319,15 @@
 											<textarea name="rec" rows=4 data-originalvalue="{{rec}}" disabled="disabled" id="{{@index}}_rec">{{rec}}</textarea>
 										</div>
 									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="large-4 small-12 medium-6 columns right">
+									<ul class="button-group even-3 form-triggers" style="display:none">
+										<li><a href="#" class="button success tiny submit-changes">Submit</a></li>
+										<li><a href="#" class="button tiny cancel-changes">Cancel</a></li>
+										<li><a href="#" class="button tiny alert delete-table">Delete</a></li>
+									</ul>
 								</div>
 							</div>
 						</fieldset>

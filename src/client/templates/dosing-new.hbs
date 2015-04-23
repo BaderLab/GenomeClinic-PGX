@@ -1,0 +1,142 @@
+{{#if drug}}
+<fieldset class="drug-cont" data-drug="{{drug}}">
+{{!--<div class="drug-cont" data-drug="{{drug}}">--}}
+	<div class="row">
+		<div class="large-11 small-10 medium-11 columns">
+			<h3><strong>{{drug}}</strong></h3>
+		</div>
+		<div class="large-1 small-2 medium-1 columns">
+			<a href="#" class="minimize"><i class="fa fa-chevron-up fa-2x" style="color:black"></i></a>
+			<a href="#" style="display:none" class="expand"><i class="fa fa-chevron-down fa-2x" style="color:black;"></i></a>
+		</div>
+	</div>
+	<div class="row">
+		<div class="large-12 small-12 medium-12 columns interactions">
+{{/if}}
+			<form data-abide="ajax" data-id="{{_id}}">
+				<fieldset>
+					<div class="small-10 large-11 medium-10 columns">
+						<h5>Primary Gene</h5>
+					</div>
+					<div class="small-2 large-1 medium-2 columns">
+						<a href="#" class="edit-table right button secondary tiny"><i class="fi-pencil size-16" style="color:#A2A2A2"></i></a>
+					</div>
+					<div class="row">
+						<div class="large-6 small-12 medium-12 columns">
+							<div class="row collapse prefix-radius">
+								<div class="large-4 small-4 medium-4 columns">
+									<span class="prefix">Gene Name</span>
+								</div>
+								<div class="large-8 small-8 medium-8 columns">
+									<input class="edit" type="text" name="pgx_1" data-originalvalue="{{pgx_1}}" value="{{pgx_1}}" disabled id="{{num}}_pgx_1">
+								</div>
+							</div>
+						</div>
+						<div class="large-6 small-12 medium-12 columns">
+							<div class="row collapse prefix-radius">
+								<div class="large-4 small-4 medium-4 columns">
+									<span class="prefix">Therapeutic Class</span>
+								</div>
+								<div class="large-8 small-8 medium-8 columns">
+									<select name="class_1" disabled=disabled data-originalvalue="{{class_1}}" value="{{class_1}}" id="{{num}}_class_1">
+										<option></option>
+										{{#each classes}}
+										<option>{{this}}</option>
+										{{/each}}
+									</select>
+								</div>
+							</div>
+						</div>
+						<div class="large-6 small-12 medium-12 columns left">
+							<div class="row collapse prefix-radius">
+								<div class="large-4 small-4 medium-4 columns">
+									<span class="prefix">Haplotype</span>
+								</div>
+								<div class="large-8 small-8 medium-8 columns">
+									<input class="edit" type="text" name="hap_1" data-originalvalue="{{hap_1}}" value="{{hap_1}}" disabled id="{{num}}_hap_1">
+								</div>
+							</div>
+						</div>
+					</div>
+					<h5>Secondary Gene</h5>
+					<div class="row">
+						<div class="large-6 small-12 medium-12 columns">
+							<div class="row collapse prefix-radius">
+								<div class="large-4 small-4 medium-4 columns">
+									<span class="prefix">Gene Name</span>
+								</div>
+								<div class="large-8 small-8 medium-8 columns">
+									<input class="edit" type="text" name="pgx_2" data-originalvalue="{{pgx_2}}" value="{{pgx_2}}" disabled id="{{num}}_pgx_2">
+								</div>
+							</div>
+						</div>
+						<div class="large-6 small-12 medium-12 columns">
+							<div class="row collapse prefix-radius">
+								<div class="large-4 small-4 medium-4 columns">
+									<span class="prefix">Therapeutic Class</span>
+								</div>
+								<div class="large-8 small-8 medium-8 columns">
+									<select name="class_2" disabled=disabled data-originalvalue="{{class_2}}" value="{{class_2}}" id="{{num}}_class_2">
+										<option></option>
+										{{#each classes}}
+										<option>{{this}}</option>
+										{{/each}}
+									</select>
+								</div>
+							</div>
+						</div>
+						<div class="large-6 small-12 medium-12 columns left">
+							<div class="row collapse prefix-radius">
+								<div class="large-4 small-4 medium-4 columns">
+									<span class="prefix">Haplotype</span>
+								</div>
+								<div class="large-8 small-8 medium-8 columns">
+									<input class="edit" type="text" name="hap_2" data-originalvalue="{{hap_2}}" value="{{hap_2}}" disabled id="{{num}}_hap_2">
+								</div>
+							</div>
+						</div>
+					</div>
+					<hr>
+					<div class="row">
+						<div class="large-6 small-12 medium-6 columns">
+							<div class="row collapse prefix-radius">
+								<div class="large-4 small-4 medium-4 columns">
+									<span class="prefix">Risk</span>
+								</div>
+								<div class="large-8 small-8 medium-8 columns left">
+									<select name="risk" disabled="disabled" data-originalvalue="{{risk}}" value="{{risk}}" id="{{num}}_risk">
+										<option></option>
+										{{#each allRisk}}
+										<option>{{this}}</option>
+										{{/each}}
+									</select>
+								</div>
+							</div>
+						</div>
+						<div class="large-12 small-12 medium-12 columns">
+							<div class="row collapse prefix-radius">
+								<div class="large-2 small-4 medium-4 columns">
+									<span class="prefix">Recomendation</span>
+								</div>
+								<div class="large-10 small-8 medium-8 columns">
+									<textarea name="rec" rows=4 data-originalvalue="{{rec}}" disabled="disabled" id="{{num}}_rec">{{rec}}</textarea>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="large-4 small-12 medium-6 columns right">
+							<ul class="button-group even-3 form-triggers" style="display:none">
+								<li><a href="#" class="button success tiny submit-changes">Submit</a></li>
+								<li><a href="#" class="button tiny cancel-changes">Cancel</a></li>
+								<li><a href="#" class="button tiny alert delete-table">Delete</a></li>
+							</ul>
+						</div>
+					</div>
+				</fieldset>
+			</form>
+{{#if drug}}
+		</div>
+	</div>
+</fieldset>
+{{/if}}

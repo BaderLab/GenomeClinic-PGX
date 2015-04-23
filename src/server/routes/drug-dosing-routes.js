@@ -70,23 +70,26 @@ module.exports = function(app,dbFunctions,logger){
 	});
 
 	app.post('/dosing/current/:geneID/new-interaction',function(req,res){
-		var unitialized = req.query.unitialized;
+		var unitialized = req.query.unitialized === true;;
+		var options,promise;
 		var doc = req.body;
 		var query = {};
+		//If it is unitialized, replace the unitialized document with a new one.
 		if ( unitialized ){
-			console.log('here');
+			var newDoc = {};
 			query[constants.dbConstants.DRUGS.DOSING.FIRST_GENE] = req.params.geneID;
 			query[constants.dbConstants.DRUGS.DOSING.UNITIALIZED] = true;
-			dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,doc)
-			.then(function(result){
-				req.flash('statusCode','200');
-				req.flash('message','Item successfully inserted');
-				res.redirect('/success');
-			}).catch(function(err){
-				req.flash('error',err.toString());
-				res.flash('message','unable to insert item into database');
-				res.flash('statusCode','500');
-				res.redirect('/failure');
+			newDoc.$unset = {unitialized:1};
+			newDoc.$set = doc;
+			
+			promise = dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,newDoc)
+			.then(function(){
+				return dbFunctions.findOne(constants.dbConstants.DRUGS.DOSING.COLLECTION, doc).then(function(result){
+					if (result)
+						options = result;
+					else
+						throw new Error("Could Not update unitialized document");
+				});
 			});
 		} else {
 			query[constants.dbConstants.DRUGS.DOSING.DRUG_FIELD] = doc.drug;
@@ -94,26 +97,37 @@ module.exports = function(app,dbFunctions,logger){
 			query[constants.dbConstants.DRUGS.DOSING.FIRST_CLASS] = doc.class_1;
 			query[constants.dbConstants.DRUGS.DOSING.SECOND_CLASS] = (doc.class_2 === undefined ? {$exists:false}:doc.class_2);
 			query[constants.dbConstants.DRUGS.DOSING.SECOND_GENE] = (doc.class_2 === undefined ? {$exists:false}:doc.class_2);
-			dbFunctions.findOne(constants.dbConstants.DRUGS.DOSING.COLLECTION,query).then(function(result){
+			promise = dbFunctions.findOne(constants.dbConstants.DRUGS.DOSING.COLLECTION,query).then(function(result){
 				if (result === null){
-					dbFunctions.insert(constants.dbConstants.DRUGS.DOSING.COLLECTION,doc)
+					return dbFunctions.insert(constants.dbConstants.DRUGS.DOSING.COLLECTION,doc)
 					.then(function(result){
-						req.flash('statusCode','200');
-						req.flash('message','Item successfully inserted');
-						res.redirect('/success');
-					}).catch(function(err){
-						req.flash('error',err.toString());
-						res.flash('message','unable to insert item into database');
-						res.flash('statusCode','500');
-						res.redirect('/failure');
+						options = result;
 					});
 				} else {
-					req.flash('error','Item Exists alread');
-					req.flash('statusCode','202');
-					res.redirect('/failure');
+					throw new Error("Entry for the provided genes and therapeutic classes already exists within the database. Please modify the existing entry or change the parameters.");
 				}
 			});
 		}
+
+		//return the rest of the information
+		promise.then(function(){
+			var query = [{$group:{_id:null,classes:{$push:'$' + constants.dbConstants.DRUGS.CLASSES.ID_FIELD}}}];
+			return dbFunctions.aggregate(constants.dbConstants.DRUGS.CLASSES.COLLECTION,query);
+			//add dropdown menu selections
+		}).then(function(result){
+			options.classes = result[0].classes;
+			options.allRisk = ['Low','Medium','High'];
+			options.gene = req.params.geneID;
+		}).then(function(){
+			options.statusCode = 200;
+			options.message = 'Item successfully inserted';
+			res.send(options);
+		}).catch(function(err){
+			req.flash('error',err.toString());
+			req.flash('message',err.message);
+			req.flash('statusCode','500');
+			res.redirect('/failure');
+		});
 	});
 
 	app.get('/database/dosing/genes/:geneID',utils.isLoggedIn, function(req,res){

@@ -20,6 +20,23 @@ module.exports = function(){
 			}
 		}
 	};
+
+	var setSelects = function(el){
+		var context;
+		if (el){
+			context = $(el);
+		} else {
+			context = $(document);
+		}
+		var selects = context.find('select');
+		var val;
+		for (var i = 0; i < selects.length; i++ ){
+			val = $(selects[i]).data('originalvalue');
+			$(selects[i]).val(val);
+		}
+
+	};
+
 	var staticHanlders = {
 		index:function(){
 			$('#search-box').on('keyup',function(){
@@ -38,31 +55,133 @@ module.exports = function(){
 				window.location.replace(location);
 			});
 		},
-		current:function(){
-			$('#search-box').on('keyup',function(){
-				var values = $('.drug-cont');
-				for (var i =0; i<values.length; i++){
-					if (utility.matchSearch($(values[i]).data('drug'))){
-						$(values[i]).show();
-					} else {
-						$(values[i]).hide();
+		current:function(el){
+			var _this = this;
+			var context;
+			if ( !el ){
+				context = $(document);
+				$('.close-box').on('click',function(e){
+					e.preventDefault();
+					$('#error-display-box').slideUp();
+				});
+				//who page handlers
+				$('#search-box').on('keyup',function(){
+					var values = $('.drug-cont');
+					for (var i =0; i<values.length; i++){
+						if (utility.matchSearch($(values[i]).data('drug'))){
+							$(values[i]).show();
+						} else {
+							$(values[i]).hide();
+						}
 					}
-				}
-			});
-			//Show or hide all drug tabs
-			$('#toggle-all').on('click',function(e){
-				e.preventDefault();
-				if ($(this).data('state') == 'less'){
-					$('.minimize').trigger('click');
-					$(this).text('Show more').data('state','more');
-				} else {
-					$('.expand').trigger('click');
-					$(this).text('Show less').data('state','less');
-				}
-			});
+				});
+				//Show or hide all drug tabs
+				$('#toggle-all').on('click',function(e){
+					e.preventDefault();
+					if ($(this).data('state') == 'less'){
+						$('.minimize').trigger('click');
+						$(this).text('Show more').data('state','more');
+					} else {
+						$('.expand').trigger('click');
+						$(this).text('Show less').data('state','less');
+					}
+				});
+
+				$('#new-interaction').on('click',function(e){
+					e.preventDefault();
+					$(this).hide().siblings('#new-interaction-triggers').show();
+					$('#new-interaction-form').slideDown();
+				});
+
+				//submit the new interaction field
+				$('#new-interaction-trigger-submit').on('click',function(e){
+					e.preventDefault();
+					$('#new-interaction-form').submit();//submit').trigger('click');
+				});
+
+
+				//cancel the new interaction form reseting and hiding it
+				$('#new-interaction-cancel-trigger').on('click',function(e){
+					e.preventDefault();
+					$(this).closest("#new-interaction-triggers").hide().siblings('#new-interaction').show();
+					document.getElementById('new-interaction-form').reset();//.trigger('click');
+					$('#new-interaction-form').slideUp();
+				});
+
+				/* When the form is considered valid, trigger this event handler
+				 * submitting the serialized data to the server for entry. The
+				 * server will additionally check to see if there are any identical
+				 * entires already in existence. If there are, it will return false
+				 * and data will not be entered but inform the user an entry similar
+				 * to that already exists */
+				$('#new-interaction-form').on('valid.fndtn.abide', function () {
+					var fields = $(this).serializeArray();
+					var drug;
+					var doc = {};
+					doc.pgx_1 = window.location.pathname.split('/').splice(-1)[0];
+					for ( var i = 0; i< fields.length; i++ ){
+						if (fields[i].value !== "" && fields[i].value !== "None")
+							doc[fields[i].name] = fields[i].value;
+					}
+					doc.drug = doc.drug.toLowerCase();
+					if (doc.pgx_1) doc.pgx_1 = doc.pgx_1.toLowerCase();
+					if (doc.pgx_2) doc.pgx_2 = doc.pgx_2.toLowerCase();
+					var unitialized = $('#main_content').data('unitialized') === true ? 'true':'false';
+					Promise.resolve($.ajax({
+						url:window.location.pathname + '/new-interaction?unitialized='+unitialized,
+						type:"POST",
+				 		contentType:"application/json",
+				 		dataType:"json",
+						data:JSON.stringify(doc)
+					})).then(function(result){
+						var promise;
+						if (result.statusCode == 200){
+							$('#main_content').data('unitialized','false');
+							var currentDrugCont = $('.drug-cont');
+							var currentDrugs=[];
+							var drug = result.drug;
+							result.num = $('#main_content').find('form').length;
+							for (var i=0; i<currentDrugCont.length; i++ ){
+								currentDrugs.push($(currentDrugCont[i]).data('drug'));
+							}
+							if (currentDrugs.indexOf(drug) !== -1 ){
+								delete result.drug
+								promse = templates.drugs.new(result).then(function(renderedHtml){
+									$('.drug-cont[data-drug=' + drug).append(renderedHtml);
+								}).then(function(){
+									var context = $('.drug-cont[data-drug='+ drug + ']').find('form[data-id=' +result._id+']');
+									console.log(context);
+									_this.current(context);
+									setSelects(context);
+								})
+							} else {
+								promise = templates.drugs.new(result).then(function(renderedHtml){
+									return $('#main_content').append(renderedHtml);
+								}).then(function(){
+									_this.current('.drug-cont[data-drug=' + drug+ ']');
+									setSelects('.drug-cont[data-drug=' + drug+ ']');
+								});
+							}
+							
+							return promise.then(function(){
+								$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();
+							});
+						} else {
+							$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();
+						}
+					}).then(function(){
+						$('#new-interaction-cancel-trigger').trigger('click');						
+					}).catch(function(err){
+						$('#error-display-message').text(err.toString()).closest('#error-display-box').slideDown();
+					});
+				});
+
+			} else {
+				context = $(el);
+			}
 			//when the arrow is clicked the drug tab is mimized. If there are a large number
 			//Of interactions then there is no animation it is simply hidden
-			$('.minimize').on('click',function(e){
+			context.find('.minimize').on('click',function(e){
 				e.preventDefault();
 				var _this = this;
 				if ($(this).closest('.drug-cont').find('fieldset').length > 5){
@@ -75,7 +194,7 @@ module.exports = function(){
 			});
 			//when the arrow is clicked the drug tab is expanded. If there are a large number
 			//Of interactions then there is no animation it is simply hidden
-			$('.expand').on('click',function(e){
+			context.find('.expand').on('click',function(e){
 				e.preventDefault();
 				var _this = this;
 				if ($(this).closest('.drug-cont').find('fieldset').length > 5){
@@ -87,57 +206,33 @@ module.exports = function(){
 				}
 			});
 
-			//Trigger the new interaction field to come out
-			$('#new-interaction').on('click',function(e){
+			context.find(".edit-table").on('click',function(e){
 				e.preventDefault();
-				$(this).hide().siblings('#new-interaction-triggers').show();
-				$('#new-interaction-form').slideDown();
+				$(this).hide();
+				$(this).closest('form').find('input,select,textarea').prop('disabled',false);
+				$(this).closest('form').find('.form-triggers').show();
 			});
 
-			//submit the new interaction field
-			$('#new-interaction-trigger-submit').on('click',function(e){
+			context.find(".submit-changes").on('click',function(e){
 				e.preventDefault();
-				$('#new-interaction-form').submit();//submit').trigger('click');
 			});
 
-
-			//cancel the new interaction form reseting and hiding it
-			$('#new-interaction-cancel-trigger').on('click',function(e){
+			context.find('.cancel-changes').on('click',function(e){
+				var newVal;
 				e.preventDefault();
-				$(this).closest("#new-interaction-triggers").hide().siblings('#new-interaction').show();
-				document.getElementById('new-interaction-form').reset();//.trigger('click');
-				$('#new-interaction-form').slideUp();
-			});
-
-			/* When the form is considered valid, trigger this event handler
-			 * submitting the serialized data to the server for entry. The
-			 * server will additionally check to see if there are any identical
-			 * entires already in existence. If there are, it will return false
-			 * and data will not be entered but inform the user an entry similar
-			 * to that already exists */
-			$('#new-interaction-form').on('valid.fndtn.abide', function () {
-				var fields = $(this).serializeArray();
-				console.log(fields);
-				var doc = {};
-				doc.pgx_1 = window.location.pathname.split('/').splice(-1)[0];
-				for ( var i = 0; i< fields.length; i++ ){
-					if (fields[i].value !== "" && fields[i].value !== "None")
-						doc[fields[i].name] = fields[i].value;
+				$(this).closest('form').find('input,select,textarea').prop('disabled',true);
+				var inputFields = $(this).closest('form').find('input,textarea,select');
+				for (var i=0; i < inputFields.length; i++ ){
+					newVal = $(inputFields[i]).data('originalvalue');
+					$(inputFields[i]).val(newVal);
 				}
-				var unitialized = $('#main_content').data('unitialized') === true ? true:false;
-				Promise.resolve($.ajax({
-					url:window.location.pathname + '/new-interaction?unitialized='+unitialized,
-					type:"POST",
-			 		contentType:"application/json",
-			 		datatype:"json",
-					data:JSON.stringify(doc)
-				})).then(function(result){
-					$('#main_content').data('unitialized',false);
-					console.log(result);
-				}).catch(function(err){
-					console.log(err);
-				});
-  			});
+				$(this).closest('.form-triggers').hide().closest('form').find('.edit-table').show();
+			});
+
+			context.find(".delete-table").on('click',function(e){
+				e.preventDefault();
+
+			});
   		}
 	};
 
@@ -176,18 +271,14 @@ module.exports = function(){
 				type:'GET',
 				dataType:'json'}));
 			}).then(function(result){
+				console.log(result);
 				return templates.drugs.current(result);
 			}).then(function(renderedHtml){
 				return $('#main').html(renderedHtml);
 			}).then(function(){
 				//set the values of the select tags to the value contained in the 
 				//original value data element
-				var selects = $('select');
-				var val;
-				for (var i = 0; i < selects.length; i++ ){
-					val = $(selects[i]).data('originalvalue');
-					$(selects[i]).val(val);
-				}
+				setSelects();
 				return utility.refresh(abideOptions);
 			}).then(function(){
 				return staticHanlders.current();

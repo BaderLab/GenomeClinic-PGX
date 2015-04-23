@@ -6,7 +6,7 @@
 module.exports = function(app){
 	//route to send information in the event of a login failure
 	app.get('/failure',function(req,res){
-		var response ={status:'failed',error:req.flash('error'),redirectURL:undefined,statusCode:req.flash('statusCode')};
+		var response ={status:'failed',error:req.flash('error'),redirectURL:undefined,statusCode:req.flash('statusCode'),message:req.flash('message')[0]};
 		res.send(JSON.stringify(response));
 	});
 
