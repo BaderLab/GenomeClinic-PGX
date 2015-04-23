@@ -123,7 +123,7 @@
 									</div>
 									<div class="large-8 small-8 medium-8 columns left">
 										<select name="risk" required id="new_risk">
-											{{#each risk}}
+											{{#each allRisk}}
 											<option>{{this}}</option>
 											{{/each}}
 										</select>
@@ -212,6 +212,20 @@
 				{{#each this}}
 					<form data-abide="ajax" data-id="{{_id}}">
 						<fieldset>
+							<div class="row">
+							  	<div class="small-12 columns">
+							    	<div data-alert class="alert-box radius secondary" style="display:none">
+							    	<!-- Alert message goes here -->
+							      	<div class="row">
+							        	<div class="small-11 columns">
+							        	  	<p></p>
+							        	</div>
+							      		<div class="small-1 columns">
+							        		<a href="#" class='close-box'><i class="fi-x size-16" style="color:#606060"></i></a>
+							      		</div>
+							    	</div>
+								</div>
+							</div>
 							<div class="small-10 large-11 medium-10 columns">
 								<h5>Primary Gene</h5>
 							</div>
@@ -225,7 +239,8 @@
 											<span class="prefix">Gene Name</span>
 										</div>
 										<div class="large-8 small-8 medium-8 columns">
-											<input class="edit" type="text" name="pgx_1" data-originalvalue="{{pgx_1}}" value="{{pgx_1}}" disabled id="{{@index}}_pgx_1">
+											<input class="edit" type="text" name="pgx_1" data-originalvalue="{{pgx_1}}" value="{{pgx_1}}" disabled id="{{@index}}_pgx_1" required>
+											<small class="error">Required</small>
 										</div>
 									</div>
 								</div>
@@ -235,15 +250,18 @@
 											<span class="prefix">Therapeutic Class</span>
 										</div>
 										<div class="large-8 small-8 medium-8 columns">
-											<select name="class_1" disabled=disabled data-originalvalue="{{class_1}}" value="{{class_1}}" id="{{@index}}_class_1">
+											<select name="class_1" disabled=disabled data-originalvalue="{{class_1}}" value="{{class_1}}" id="{{@index}}_class_1" required>
 												<option></option>
 												{{#each @root.classes}}
 												<option>{{this}}</option>
 												{{/each}}
 											</select>
+											<small class="error">Required</small>
 										</div>
 									</div>
 								</div>
+							</div>
+							<div class="row">
 								<div class="large-6 small-12 medium-12 columns left">
 									<div class="row collapse prefix-radius">
 										<div class="large-4 small-4 medium-4 columns">
@@ -263,7 +281,8 @@
 											<span class="prefix">Gene Name</span>
 										</div>
 										<div class="large-8 small-8 medium-8 columns">
-											<input class="edit" type="text" name="pgx_2" data-originalvalue="{{pgx_2}}" value="{{pgx_2}}" disabled id="{{@index}}_pgx_2">
+											<input class="edit" type="text" name="pgx_2" data-originalvalue="{{pgx_2}}" value="{{pgx_2}}" disabled id="{{@index}}_pgx_2" data-requiredIf="{{@index}}_class_2" data-abide-validator="requiredIf">
+											<small class="error">Gene name required</small>
 										</div>
 									</div>
 								</div>
@@ -273,15 +292,18 @@
 											<span class="prefix">Therapeutic Class</span>
 										</div>
 										<div class="large-8 small-8 medium-8 columns">
-											<select name="class_2" disabled=disabled data-originalvalue="{{class_2}}" value="{{class_2}}" id="{{@index}}_class_2">
+											<select name="class_2" disabled=disabled data-originalvalue="{{class_2}}" value="{{class_2}}" id="{{@index}}_class_2" data-requiredIf="{{@index}}_pgx_2" data-abide-validator="requiredIf">
 												<option></option>
 												{{#each @root.classes}}
 												<option>{{this}}</option>
 												{{/each}}
 											</select>
+											<small class="error">Therapeutic class required</small>
 										</div>
 									</div>
 								</div>
+							</div>
+							<div class="row">
 								<div class="large-6 small-12 medium-12 columns left">
 									<div class="row collapse prefix-radius">
 										<div class="large-4 small-4 medium-4 columns">
@@ -301,12 +323,13 @@
 											<span class="prefix">Risk</span>
 										</div>
 										<div class="large-8 small-8 medium-8 columns left">
-											<select name="risk" disabled="disabled" data-originalvalue="{{risk}}" value="{{risk}}" id="{{@index}}_risk">
+											<select name="risk" disabled="disabled" data-originalvalue="{{risk}}" value="{{risk}}" id="{{@index}}_risk" required>
 												<option></option>
 												{{#each @root.allRisk}}
 												<option>{{this}}</option>
 												{{/each}}
 											</select>
+											<small class="error">Required</small>
 										</div>
 									</div>
 								</div>
@@ -316,7 +339,8 @@
 											<span class="prefix">Recomendation</span>
 										</div>
 										<div class="large-10 small-8 medium-8 columns">
-											<textarea name="rec" rows=4 data-originalvalue="{{rec}}" disabled="disabled" id="{{@index}}_rec">{{rec}}</textarea>
+											<textarea name="rec" rows=4 data-originalvalue="{{rec}}" disabled="disabled" id="{{@index}}_rec" required>{{rec}}</textarea>
+											<small class="error">Required</small>
 										</div>
 									</div>
 								</div>
@@ -324,7 +348,7 @@
 							<div class="row">
 								<div class="large-4 small-12 medium-6 columns right">
 									<ul class="button-group even-3 form-triggers" style="display:none">
-										<li><a href="#" class="button success tiny submit-changes">Submit</a></li>
+										<li><button type="submit" class="button success tiny submit-changes">Submit</button></li>
 										<li><a href="#" class="button tiny cancel-changes">Cancel</a></li>
 										<li><a href="#" class="button tiny alert delete-table">Delete</a></li>
 									</ul>

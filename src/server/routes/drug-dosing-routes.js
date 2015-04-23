@@ -3,6 +3,7 @@ var Promise = require('bluebird');
 var fs = require('fs');
 var constants = require("../lib/conf/constants.json");
 var genReport  = require('../lib/pgx-report');
+var ObjectID = require("mongodb").ObjectID;
 
 
 module.exports = function(app,dbFunctions,logger){
@@ -28,6 +29,20 @@ module.exports = function(app,dbFunctions,logger){
 		});
 	});	
 
+	app.param('uniqID',function(req,res,next,uniqID){
+		var oID = new ObjectID(uniqID);
+		dbFunctions.checkInDatabase(constants.dbConstants.DRUGS.DOSING.COLLECTION,"_id",oID)
+		.then(function(result){
+			if (result) {
+				next();
+			} else {
+				req.flash('statusCode', '404');
+				req.flash('message','Could not find ID for table');
+				req.flash('error','Entry not found');
+				res.redirect('/failure');
+			}
+		});
+	});
 
 
 
@@ -62,15 +77,15 @@ module.exports = function(app,dbFunctions,logger){
 			//add dropdown menu selections
 		}).then(function(result){
 			options.classes = result[0].classes;
-			options.risk = ['Low','Medium','High'];
+			options.allRisk = ['Low','Medium','High'];
 			options.gene = req.params.geneID;
 		}).then(function(){
 			res.send(options);
 		});
 	});
 
-	app.post('/dosing/current/:geneID/new-interaction',function(req,res){
-		var unitialized = req.query.unitialized === true;;
+	app.post('/dosing/current/:geneID/new-interaction',utils.isLoggedIn, function(req,res){
+		var unitialized = req.query.unitialized === 'true';
 		var options,promise;
 		var doc = req.body;
 		var query = {};
@@ -128,6 +143,59 @@ module.exports = function(app,dbFunctions,logger){
 			req.flash('statusCode','500');
 			res.redirect('/failure');
 		});
+	});
+	
+	//Update a current dosing table, but only if the update does not conflict with an already existant dosing table
+	app.post('/database/dosing/genes/:geneID/update/:uniqID',utils.isLoggedIn,function(req,res){
+		var doc = req.body;
+		var query = {};
+		var gene = req.params.geneID;
+		var uniqID = req.params.uniqID;
+		var oID = new ObjectID(uniqID);
+		query[constants.dbConstants.DRUGS.DOSING.DRUG_FIELD] = doc.drug;
+		query[constants.dbConstants.DRUGS.DOSING.FIRST_GENE] = doc.pgx_1;
+		query[constants.dbConstants.DRUGS.DOSING.FIRST_CLASS] = doc.class_1;
+		query[constants.dbConstants.DRUGS.DOSING.SECOND_CLASS] = (doc.class_2 === undefined ? {$exists:false}:doc.class_2);
+		query[constants.dbConstants.DRUGS.DOSING.SECOND_GENE] = (doc.pgx_2 === undefined ? {$exists:false}:doc.pgx_2);
+		query['_id'] = {$ne:oID};
+		dbFunctions.findOne(constants.dbConstants.DRUGS.DOSING.COLLECTION,query).then(function(result){
+			if (result === null){
+				var update = {$set:{},$unset:{}};
+				//required fields
+				update.$set[constants.dbConstants.DRUGS.DOSING.FIRST_GENE] = doc.pgx_1;
+				update.$set[constants.dbConstants.DRUGS.DOSING.FIRST_CLASS] = doc.class_1;
+				update.$set[constants.dbConstants.DRUGS.DOSING.RECOMENDATION] = doc.rec;
+				update.$set[constants.dbConstants.DRUGS.DOSING.RISK] = doc.risk;
+
+				//optional required,ents
+				if (doc.pgx_2 === undefined ) update.$unset[constants.dbConstants.DRUGS.DOSING.SECOND_GENE]=1;
+				else update.$set[constants.dbConstants.DRUGS.DOSING.SECOND_GENE]=doc.pgx_2;
+				if (doc.class_2 === undefined) update.$unset[constants.dbConstants.DRUGS.DOSING.SECOND_CLASS]=1;
+				else update.$set[constants.dbConstants.DRUGS.DOSING.SECOND_CLASS]=doc.class_2;
+				if (doc.hap_1 === undefined) update.$unset[constants.dbConstants.DRUGS.DOSING.FIRST_HAP]=1;
+				else update.$set[constants.dbConstants.DRUGS.DOSING.FIRST_HAP]=doc.hap_1;
+				if (doc.pgx_2 === undefined ) update.$unset[constants.dbConstants.DRUGS.DOSING.SECOND_HAP]=1;
+				else update.$set[constants.dbConstants.DRUGS.DOSING.SECOND_HAP]=doc.hap_2;
+				return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,{_id:oID},update)
+				.then(function(result){
+					req.flash('statusCode','200');
+					req.flash('message','Item successfully updated');
+					res.redirect("/success");
+				}).catch(function(err){
+					req.flash('statusCode','500');
+					req.flash('message',err.message);
+					req.flash('error',err.toString());
+					res.redirect('/failure');
+				});
+			} else {
+				req.flash('statusCode','202');
+				req.flash('message',"Entry for the provided genes and therapeutic classes already exists within the database. Please modify the existing entry or change the parameters.");
+				req.flash('error',"Error: Duplicate Entry");
+				res.redirect('/failure');
+			}
+		});
+
+
 	});
 
 	app.get('/database/dosing/genes/:geneID',utils.isLoggedIn, function(req,res){

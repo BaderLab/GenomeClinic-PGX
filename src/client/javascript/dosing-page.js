@@ -60,10 +60,6 @@ module.exports = function(){
 			var context;
 			if ( !el ){
 				context = $(document);
-				$('.close-box').on('click',function(e){
-					e.preventDefault();
-					$('#error-display-box').slideUp();
-				});
 				//who page handlers
 				$('#search-box').on('keyup',function(){
 					var values = $('.drug-cont');
@@ -146,11 +142,11 @@ module.exports = function(){
 							}
 							if (currentDrugs.indexOf(drug) !== -1 ){
 								delete result.drug
-								promse = templates.drugs.new(result).then(function(renderedHtml){
+								promise = templates.drugs.new(result).then(function(renderedHtml){
 									$('.drug-cont[data-drug=' + drug).append(renderedHtml);
 								}).then(function(){
 									var context = $('.drug-cont[data-drug='+ drug + ']').find('form[data-id=' +result._id+']');
-									console.log(context);
+									context.foundation(abideOptions);
 									_this.current(context);
 									setSelects(context);
 								})
@@ -158,6 +154,7 @@ module.exports = function(){
 								promise = templates.drugs.new(result).then(function(renderedHtml){
 									return $('#main_content').append(renderedHtml);
 								}).then(function(){
+									$('.drug-cont[data-drug=' + drug+ ']').foundation(abideOptions);
 									_this.current('.drug-cont[data-drug=' + drug+ ']');
 									setSelects('.drug-cont[data-drug=' + drug+ ']');
 								});
@@ -170,7 +167,7 @@ module.exports = function(){
 							$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();
 						}
 					}).then(function(){
-						$('#new-interaction-cancel-trigger').trigger('click');						
+						$('#new-interaction-cancel-trigger').trigger('click');					
 					}).catch(function(err){
 						$('#error-display-message').text(err.toString()).closest('#error-display-box').slideDown();
 					});
@@ -179,6 +176,11 @@ module.exports = function(){
 			} else {
 				context = $(el);
 			}
+
+			context.find('.close-box').on('click',function(e){
+					e.preventDefault();
+					$(this).closest('.alert-box').slideUp();
+				});
 			//when the arrow is clicked the drug tab is mimized. If there are a large number
 			//Of interactions then there is no animation it is simply hidden
 			context.find('.minimize').on('click',function(e){
@@ -213,8 +215,39 @@ module.exports = function(){
 				$(this).closest('form').find('.form-triggers').show();
 			});
 
-			context.find(".submit-changes").on('click',function(e){
+			context.find(".submit-changes").closest('form').on('valid.fndtn.abide',function(e){
 				e.preventDefault();
+				var _this = $(this);
+				var fields = $(this).serializeArray();
+				var doc = {};
+				var gene = window.location.pathname.split('/').splice(-1)[0];
+				var id = $(this).data('id');
+				doc.drug = $(this).closest('.drug-cont').data('drug');
+				for ( var i = 0; i< fields.length; i++ ){
+					if (fields[i].value !== "" && fields[i].value !== "None")
+						doc[fields[i].name] = fields[i].value;
+				}
+				if (doc.pgx_1) doc.pgx_1 = doc.pgx_1.toLowerCase();
+				if (doc.pgx_2) doc.pgx_2 = doc.pgx_2.toLowerCase();
+				Promise.resolve($.ajax({
+					url:"/database/dosing/genes/" + gene + "/update/" + id,
+					type:"POST",
+					contentType:'application/json',
+					dataType:'json',
+					data:JSON.stringify(doc)
+				})).then(function(result){
+					if (result.statusCode == 200){
+						for ( var i = 0; i< fields.length; i++ ){
+							$(_this).find('[name=' + fields[i].name + ']').data('originalvalue',fields[i].value)
+						}
+						$(_this).find('input,select,textarea').prop('disabled',true);
+						$(_this).find('.form-triggers').hide();
+						$(_this).find('.edit-table').show();
+					} else {
+						$(_this).find('.alert-box').find('p').text(result.message).closest('.alert-box').slideDown();
+					}
+				});
+
 			});
 
 			context.find('.cancel-changes').on('click',function(e){
@@ -231,7 +264,6 @@ module.exports = function(){
 
 			context.find(".delete-table").on('click',function(e){
 				e.preventDefault();
-
 			});
   		}
 	};
@@ -271,7 +303,6 @@ module.exports = function(){
 				type:'GET',
 				dataType:'json'}));
 			}).then(function(result){
-				console.log(result);
 				return templates.drugs.current(result);
 			}).then(function(renderedHtml){
 				return $('#main').html(renderedHtml);

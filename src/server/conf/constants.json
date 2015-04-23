@@ -101,10 +101,12 @@
 				"SECOND_CLASS":"class_2",
 				"FIRST_GENE":"pgx_1",
 				"SECOND_GENE":"pgx_2",
-				"RECOMENDATION":"red",
+				"RECOMENDATION":"rec",
 				"PMID":"pubmed",
 				"RISK":"risk",
-				"UNITIALIZED":"unitialized"
+				"UNITIALIZED":"unitialized",
+				"FIRST_HAP":"hap_1",
+				"SECOND_HAP":"hap_2"
 			},
 			"CLASSES":{
 				"DEFAULT":"therapeutic_classes.json",

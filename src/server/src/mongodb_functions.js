@@ -622,8 +622,6 @@ var dbFunctions = function(logger,DEBUG){
 			"Invalid collection");
 		assert(Object.prototype.toString.call(field) == "[object String]",
 			"Invalid collection");
-		assert(Object.prototype.toString.call(value) == "[object String]",
-			"Invalid collection");
 		var query = {};
 		query[field] = value;
 		return this.findOne(collection,query).then(function(result){
