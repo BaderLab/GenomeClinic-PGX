@@ -197,7 +197,37 @@ module.exports = function(app,dbFunctions,logger){
 
 
 	});
+	
+	app.post('/database/dosing/genes/:geneID/deleteid/:uniqID',utils.isLoggedIn,function(req,res){
+		var _id = new ObjectID(req.params.uniqID);
+		dbFunctions.drugs.removeSingleEntry(_id)
+		.then(function(){
+			req.flash('statusCode','200')
+			req.flash('message','successfully removed 1 entry related to ' + req.params.geneID);
+			res.redirect('/success');
+		}).catch(function(err){
+			console.log(err.stack);
+			req.flash('statusCode','500');
+			req.flash('error',err.toString());
+			req.flash('message','unable to remove entries');
+			res.redirect('/failure');
+		});
+	});
 
+	app.post('/database/dosing/genes/:geneID/deleteall',utils.isLoggedIn,function(req,res){
+		var gene = req.params.geneID;
+		dbFunctions.drugs.removeGeneEntry(gene)
+		.then(function(){
+			req.flash('statusCode','200');
+			req.flash('message','successfully deleted all dosing recomendations for ' + gene);
+			res.redirect('/success');
+		}).catch(function(err){
+			req.flash('statusCode','500');
+			req.flash('error',err.toString());
+			req.flash('message','unable to remove all entries relating to ' + gene );
+			res.redirect('/failure');
+		});
+	});
 	app.get('/database/dosing/genes/:geneID',utils.isLoggedIn, function(req,res){
 		dbFunctions.drugs.getGeneDosing(req.params.geneID).then(function(result){
 			res.send(result);

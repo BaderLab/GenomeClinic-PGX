@@ -254,7 +254,7 @@ var dbFunctions = function(logger,DEBUG){
 
 	/* find and remove a patient where options are the query to submit
  	* returns a promise */
-	var removeDocument = function(collectionName,options,sort){
+	var removeDocument = function(collectionName,options){
 		assert.notStrictEqual(db, undefined); // ensure we're connected first
 
 		// validate input
@@ -264,7 +264,7 @@ var dbFunctions = function(logger,DEBUG){
 		logInfo('removing document from collection', {'collection':collectionName,query:options});
 		var promise = new Promise(function(resolve,reject){
 			var collection = db.collection(collectionName);
-			collection.findAndRemove(options,sort,function(err,doc){
+			collection.remove(options,function(err,doc){
 				if (err){
 					reject(err);
 				} else {
@@ -835,7 +835,7 @@ var dbFunctions = function(logger,DEBUG){
 		var query = {};
 		logInfo("removing %s project from database", project);
 		query[dbConstants.PROJECTS.ID_FIELD] = project;
-		return removeDocument(dbConstants.PROJECTS.COLLECTION,query,[[dbConstants.PROJECTS.ID_FIELD,1]])
+		return removeDocument(dbConstants.PROJECTS.COLLECTION,query)
 		.then(function(){
 			return _this.removePatientsFromProject(project);
 		});
@@ -956,7 +956,7 @@ var dbFunctions = function(logger,DEBUG){
 		}).catch(function(err){
 				logInfo("No Variant collection found");
 		}).then(function(){
-			return removeDocument(dbConstants.PATIENTS.COLLECTION,query,[[dbConstants.PATIENTS.ID_FIELD,1]]);
+			return removeDocument(dbConstants.PATIENTS.COLLECTION,query);
 		}).then(function(){
 			failure[dbConstants.FAILURE.ANNO_COMPLETE] = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 			failure[dbConstants.FAILURE.FAIL_FIELD] = true;
@@ -1181,7 +1181,7 @@ var dbFunctions = function(logger,DEBUG){
 		assert(Object.prototype.toString.call(rsID) == "[object String]");
 		var query = {};
 		query[dbConstants.PGX.COORDS.ID_FIELD] = rsID;
-		return removeDocument(dbConstants.PGX.COORDS.COLLECTION,query,[[dbConstants.PGX.COORDS.ID_FIELD,1]]);
+		return removeDocument(dbConstants.PGX.COORDS.COLLECTION,query);
 
 	};
 
@@ -1214,7 +1214,7 @@ var dbFunctions = function(logger,DEBUG){
 		assert(Object.prototype.toString.call(geneName) == "[object String]");
 		var query = {};
 		query[dbConstants.PGX.GENES.ID_FIELD] = geneName;
-		return removeDocument(dbConstants.PGX.GENES.COLLECTION,query,[[dbConstants.PGX.GENES.ID_FIELD,1]]);
+		return removeDocument(dbConstants.PGX.GENES.COLLECTION,query);
 
 	};
 
@@ -1449,6 +1449,24 @@ var dbFunctions = function(logger,DEBUG){
 			match.$match.$or.push(opt);
 			aggArray.push(match);
 			return aggregate(dbConstants.DRUGS.DOSING.COLLECTION,aggArray);
+		},//Remve one docutment based on the unique _id
+		removeSingleEntry : function(id){
+			assert.notStrictEqual(db,undefined);
+			assert.notStrictEqual(id,undefined);
+			if (Object.prototype.toString.call(id) == '[object String]')
+				id = new ObjectID(id)
+			var o = {
+				_id : id
+			};
+			return removeDocument(dbConstants.DRUGS.DOSING.COLLECTION,o);
+		},
+		removeGeneEntry : function(gene){
+			assert.notStrictEqual(db,undefined);
+			assert(Object.prototype.toString.call(gene) == '[object String]', "Requires Gene name to be a string");
+
+			var o = {};
+			o[dbConstants.DRUGS.DOSING.FIRST_GENE] = gene;
+			return removeDocument(dbConstants.DRUGS.DOSING.COLLECTION,o);
 		}
 	};
 };

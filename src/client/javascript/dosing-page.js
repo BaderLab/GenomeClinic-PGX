@@ -21,6 +21,7 @@ module.exports = function(){
 		}
 	};
 
+	//When A Recomendation is loaded the originalValue of the Selects need to be set. this will set them for all elements supplied
 	var setSelects = function(el){
 		var context;
 		if (el){
@@ -37,7 +38,35 @@ module.exports = function(){
 
 	};
 
+	//Reveal a modal and confirm whether or not the action should be continued
+	//returns a promce
+	var confirmAction = function(title,message){
+		var promise  = new Promise(function(resolve,reject){
+			$('#confirm-delete').find('h4').text(title);
+			$('#confirm-delete').find('h6').text(message);
+			$('#confirm-delete').foundation('reveal','open');
+
+			$('#confirm-delete').find('.success').on('click',function(e){
+				e.preventDefault();
+				$('#confirm-delete').foundation('reveal','close');
+				resolve(true);
+			});
+
+			$('#confirm-delete').find('.cancel').on('click',function(e){
+				e.preventDefault();
+				$('#confirm-delete').foundation('reveal','close');
+				resolve(false);
+			});
+
+		});
+		return promise;
+	};
+
+
+	/* all page handlers for working with dosing tables and drug recomendations */
 	var staticHanlders = {
+		/* main page hanlders, contains a list of all the genes that are that have dosing
+		 * information  and the number of interactions tehre are recomendations for*/
 		index:function(){
 			$('#search-box').on('keyup',function(){
 				var currentRows = $('.dose-row');
@@ -48,16 +77,21 @@ module.exports = function(){
 						$(currentRows[i]).show();
 				}
 			});
-
+			//when you click on a dose row, open the curent dosing information
 			$('.dose-row').on('click',function(e){
 				e.preventDefault();
 				var location = '/dosing/current/' + $(this).data('name');
 				window.location.replace(location);
 			});
 		},
+		/* Handlers for currently existsing dose tables. This function contains both the handlers
+		 * for each dosing form, as well as the entire page. You can define the elemetts of the page
+		 * to apply to function to byh passing in el as the only argument */
 		current:function(el){
 			var _this = this;
 			var context;
+			//This fucnt
+			// Whole page handlers
 			if ( !el ){
 				context = $(document);
 				//who page handlers
@@ -82,7 +116,7 @@ module.exports = function(){
 						$(this).text('Show less').data('state','less');
 					}
 				});
-
+				//Button to set new interactions
 				$('#new-interaction').on('click',function(e){
 					e.preventDefault();
 					$(this).hide().siblings('#new-interaction-triggers').show();
@@ -141,7 +175,7 @@ module.exports = function(){
 								currentDrugs.push($(currentDrugCont[i]).data('drug'));
 							}
 							if (currentDrugs.indexOf(drug) !== -1 ){
-								delete result.drug
+								delete result.drug;
 								promise = templates.drugs.new(result).then(function(renderedHtml){
 									$('.drug-cont[data-drug=' + drug).append(renderedHtml);
 								}).then(function(){
@@ -149,7 +183,7 @@ module.exports = function(){
 									context.foundation(abideOptions);
 									_this.current(context);
 									setSelects(context);
-								})
+								});
 							} else {
 								promise = templates.drugs.new(result).then(function(renderedHtml){
 									return $('#main_content').append(renderedHtml);
@@ -170,6 +204,33 @@ module.exports = function(){
 						$('#new-interaction-cancel-trigger').trigger('click');					
 					}).catch(function(err){
 						$('#error-display-message').text(err.toString()).closest('#error-display-box').slideDown();
+					});
+				});
+
+				/* Delete all the interactions related to the Primary Gene. Submits a POST request to the database
+				 * after the deletion is confirmed by revealing a modal */
+
+				$('#delete-all').on('click',function(e){
+					e.preventDefault();
+					var gene = window.location.pathname.split('/').splice(-1)[0];
+					confirmAction("Are you sure you want to delete all dosing recomendations for " + gene,"This will permanately delete all entries and they will no longer be available for report generation")
+					.then(function(result){
+						if (result){
+							Promise.resolve($.ajax({
+								url:'/database/dosing/genes/' + gene + '/deleteall', 
+								type:'POST',
+								contentType:'application/json',
+								dataType:'json'
+							})).then(function(result){
+								if (result.statusCode == 200){
+									window.location.replace('/dosing');
+								} else {
+									$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();
+								}
+							}).catch(function(err){
+								$('#error-display-message').text(err.message).closest('#error-display-box').slideDown();
+							});
+						}
 					});
 				});
 
@@ -208,6 +269,7 @@ module.exports = function(){
 				}
 			});
 
+			// Make a dose table editable
 			context.find(".edit-table").on('click',function(e){
 				e.preventDefault();
 				$(this).hide();
@@ -215,6 +277,7 @@ module.exports = function(){
 				$(this).closest('form').find('.form-triggers').show();
 			});
 
+			// Submit the chagnes to the current dose table to the server
 			context.find(".submit-changes").closest('form').on('valid.fndtn.abide',function(e){
 				e.preventDefault();
 				var _this = $(this);
@@ -238,7 +301,7 @@ module.exports = function(){
 				})).then(function(result){
 					if (result.statusCode == 200){
 						for ( var i = 0; i< fields.length; i++ ){
-							$(_this).find('[name=' + fields[i].name + ']').data('originalvalue',fields[i].value)
+							$(_this).find('[name=' + fields[i].name + ']').data('originalvalue',fields[i].value);
 						}
 						$(_this).find('input,select,textarea').prop('disabled',true);
 						$(_this).find('.form-triggers').hide();
@@ -249,7 +312,8 @@ module.exports = function(){
 				});
 
 			});
-
+			
+			//cancel the chagens, restoring the original values to each field
 			context.find('.cancel-changes').on('click',function(e){
 				var newVal;
 				e.preventDefault();
@@ -262,8 +326,38 @@ module.exports = function(){
 				$(this).closest('.form-triggers').hide().closest('form').find('.edit-table').show();
 			});
 
+			//delet the specified dose table after confirming its removal
 			context.find(".delete-table").on('click',function(e){
 				e.preventDefault();
+				var form = $(this).closest('form');
+				var id = form.data('id');
+				var gene = window.location.pathname.split('/').splice(-1)[0];
+				confirmAction("Are you sure you want to delete the selected dosing table?","Once deleted it will no longer show up on any subsequent reports")
+				.then(function(result){
+					if (result){
+						Promise.resolve($.ajax({
+							url:"/database/dosing/genes/" + gene + "/deleteid/" + id,
+							type:"POST",
+							contentyType:"application/json",
+							dataType:'json'
+						})).then(function(result){
+							if (result.statusCode == 200){	
+								$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();
+								form.slideUp('slow',function(){
+									var remainingFormCount = form.closest('.drug-cont').find('form').length;
+									if ( remainingFormCount == 1 )
+										form.closest('.drug-cont').remove();
+									else
+										form.remove();
+								});
+							} else {
+								$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();
+							}
+						}).catch(function(err){
+							$('#error-display-message').text(err.message).closest('#error-display-box').slideDown();
+						});
+					}
+				});
 			});
   		}
 	};
@@ -319,7 +413,7 @@ module.exports = function(){
 			});
 		}
 
-		return promise
+		return promise;
 	};
 	return main();	
 };
