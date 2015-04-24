@@ -109,7 +109,7 @@
 				"SECOND_HAP":"hap_2"
 			},
 			"CLASSES":{
-				"DEFAULT":"therapeutic_classes.json",
+				"DEFAULT":"lib/conf/therapeutic_classes.json",
 				"COLLECTION":"therapeuticClasses",
 				"ID_FIELD":"Therapeutic_Class"
 			},

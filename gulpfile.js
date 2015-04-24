@@ -100,7 +100,9 @@ var paths = {
 		conf:{
 			src:[
 				'src/server/conf/api.js',
-				'src/server/conf/pgx*'
+				'src/server/conf/pgx*',
+				'src/server/conf/dosing_guidelines.json',
+				'src/server/conf/therapeutic_classes.json'
 			],
 			dest:'build/lib/conf'
 		},

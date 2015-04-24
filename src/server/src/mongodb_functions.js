@@ -165,11 +165,53 @@ var dbFunctions = function(logger,DEBUG){
 					}).catch(function(err){
 						logInfo(err.message);
 					});
-				})
-				.then(function(result) {
+				}).then(function(){
+					//create non unique indexes based on pgx_1
+					currentDocument = {};
+					currentDocument[dbConstants.DRUGS.DOSING.FIRST_GENE] = 1;
+					currentDocument[dbConstants.drug.DOSING.FISRT_CLASS] = 1;
+					currentDocument[dbConstants.drug.DOSING.SECOND_CLASS] = 1;
+					currentDocument[dbConstants.drug.DOSING.SECOND_GENE] = 1;
+					logInfo("Creating unique index therapeutic classes");
+					return self.createIndex(dbConstants.DRUGS.DOSING.COLLECTION,currentDocument);
+				}).then(function(){
+					logInfo("Checking for default drug recomendation information");
+					return fs.statAsync(nodeConstants.SERVER_DIR + '/' + dbConstants.DRUGS.DOSING.DEFAULT)
+					.then(function(result){
+						var dosing = require(nodeConstants + '/' + dbConstants.DRUGS.DOSING.DEFAULT);
+						var o = {
+							documents: dosing,
+							collectionName: dbConstants.DRUGS.DOSING.COLLECTION
+						};
+						return self.insertMany(o);
+					}).then(function(){
+						logInfo("Default dosing recomendations found and inserted into database");
+					}).catch(function(err){
+						logInfo(dbConstants.DRUGS.DOSING.DEFAULT + " was not found and could not be added to the databse");
+					});
+				}).then(function(){
+					currentDocument = {};
+					currentDocument[dbConstants.DRUGS.CLASSES.ID_FIELD] = 1;
+					logInfo("Creating unique index therapeutic classes");
+					return self.createIndex(dbConstants.DRUGS.CLASSES.COLLECTION,currentDocument,{unique:true});
+				}).then(function(){
+					logInfo("Checking for default therapeutic class information");
+					return fs.statAsync(nodeConstants.SERVER_DIR + '/' + dbConstants.DRUGS.CLASSES.DEFAULT)
+					.then(function(result){
+						var dosing = require(nodeConstants + '/' + dbConstants.DRUGS.CLASSES.DEFAULT);
+						var o = {
+							documents: dosing,
+							collectionName: dbConstants.DRUGS.CLASSES.COLLECTION
+						};
+						return self.insertMany(o);
+					}).then(function(){
+						logInfo("Default dosing recomendations found and inserted into database");
+					}).catch(function(err){
+						logInfo(dbConstants.DRUGS.CLASSES.DEFAULT + " was not found and could not be added to the databse");
+					});
+				}).then(function(result) {
 					resolve();
-				})
-				.catch(function(err) {
+				}).catch(function(err) {
 					logErr(err);
 					reject(err);
 				});
@@ -239,10 +281,10 @@ var dbFunctions = function(logger,DEBUG){
 			"Invalid Options, aggregate requires an array");
 
 		var promise = new Promise(function(resolve,reject){
-			var collection = db.collection(collectionName)
+			var collection = db.collection(collectionName);
 			collection.aggregate(aggArray,function(err,doc){
 				if (err){
-					reject(err)
+					reject(err);
 				}
 				resolve(doc);
 			});
@@ -260,7 +302,8 @@ var dbFunctions = function(logger,DEBUG){
 		assert.notStrictEqual(db,undefined);
 		return fs.statAsync(nodeConstants.SERVER_DIR + "/" + dbConstants.PGX.COORDS.DEFAULT)
 		.then(function(result){
-			return coords = require(nodeConstants.SERVER_DIR + "/" + dbConstants.PGX.COORDS.DEFAULT);
+			coords = require(nodeConstants.SERVER_DIR + "/" + dbConstants.PGX.COORDS.DEFAULT);
+			return coords;
 		}).each(function(item){
 			return _this.checkInDatabase(dbConstants.PGX.COORDS.COLLECTION,dbConstants.PGX.COORDS.ID_FIELD,item[dbConstants.PGX.COORDS.ID_FIELD])
 
@@ -278,7 +321,7 @@ var dbFunctions = function(logger,DEBUG){
 				};
 				return _this.insertMany(o).then(function(){
 					logInfo("Markers added successfully upon startup");
-				})
+				});
 			} else {
 				logInfo("No New Markers found on startup, nothing added to database");
 			}
@@ -294,14 +337,15 @@ var dbFunctions = function(logger,DEBUG){
 		assert.notStrictEqual(db,undefined);
 		return fs.statAsync(nodeConstants.SERVER_DIR + "/" + dbConstants.PGX.GENES.DEFAULT)
 		.then(function(result){
-			return genes = require(nodeConstants.SERVER_DIR + "/" + dbConstants.PGX.GENES.DEFAULT);
+			genes = require(nodeConstants.SERVER_DIR + "/" + dbConstants.PGX.GENES.DEFAULT);
+			return genes;
 		}).each(function(item){
 			return _this.checkInDatabase(dbConstants.PGX.GENES.COLLECTION,dbConstants.PGX.GENES.ID_FIELD,item[dbConstants.PGX.GENES.ID_FIELD])
 			.then(function(result){
 				if (!result){
 					toAdd.push(item);
 				}
-			})
+			});
 		}).then(function(){
 			if (toAdd.length  > 0){
 				logInfo(toAdd.length.toString() + " default genes found on startup that are not present in the database. Adding new genes");
@@ -311,13 +355,79 @@ var dbFunctions = function(logger,DEBUG){
 				};
 				return _this.insertMany(o).then(function(){
 					logInfo("Genes added successfully upon startup");
-				})
+				});
 			} else {
 				logInfo("No New Genes found on startup, nothing added to database");
 			}
 		}).catch(function(err){
 			console.log(err);
 			logErr("error ecnountered when adding new default Genes on startup", err);
+		});
+	};
+
+	this.checkDefaultDosing = function(){
+		var dosing, classes, toAdd = [];
+		var _this  = this;
+		assert.notStrictEqual(db,undefined);
+		return fs.statAsync(nodeConstants.SERVER_DIR + "/" + dbConstants.DRUGS.DOSING.DEFAULT)
+		.then(function(){
+			dosing = require(nodeConstants.SERVER_DIR + "/" + dbConstants.DRUGS.DOSING.DEFAULT);
+			return dosing;
+		}).each(function(item){
+			var query = {};
+			query[dbConstants.DRUGS.DOSING.FISRT_GENE] = item[dbConstants.DRUGS.DOSING.FISRT_GENE];
+			query[dbConstants.DRUGS.DOSING.FISRT_CLASS] = item[dbConstants.DRUGS.DOSING.FISRT_CLASS];
+			query[dbConstants.DRUGS.DOSING.SECOND_GENE] = item[dbConstants.DRUGS.DOSING.SECOND_GENE] === undefined ? {$exists:false}:item[dbConstants.DRUGS.DOSING.SECOND_GENE];
+			query[dbConstants.DRUGS.DOSING.SECOND_CLASS] = item[dbConstants.DRUGS.DOSING.SECOND_CLASS] === undefined ? {$exists:false}:item[dbConstants.DRUGS.DOSING.SECOND_CLASS];
+			return _this.findOne(dbConstants.DRUGS.DOSING.COLLECTION,query).then(function(result){
+				if (result === null){
+					toAdd.push(item);
+				}
+			});
+		}).then(function(){
+			if (toAdd.length > 0){
+				logInfo(toAdd.length.toString() + " New Dosing Guidelines found at starting up. Adding them to the database");
+				var o = {
+					documents : toAdd,
+					collectionName: dbConstants.DRUGS.DOSING.COLLECTION				
+				};
+				return _this.insertMany(o).then(function(){
+					logInfo(toAdd.length.toString() + " Dosing Guidelines successfully added");
+				});
+			} else {
+				logInfo("No new Dosing Guidelines Found");
+			}
+		}).catch(function(err){
+			logErr("error encountered when adding new default dosing guidelines on startup");
+		}).then(function(){
+			toAdd = [];
+			fs.statAsync(nodeConstants.SERVER_DIR + "/" + dbConstants.DRUGS.CLASSES.DEFAULT);
+		}).then(function(){
+			classes = require(nodeConstants.SERVER_DIR + "/" + dbConstants.DRUGS.CLASSES.DEFAULT);
+			return classes;
+		}).each(function(item){
+			var query = {};
+			query[dbConstants.DRUGS.CLASSES.ID_FIELD] = item[dbConstants.DRUGS.CLASSES.ID_FIELD];
+			return _this.findOne(dbConstants.DRUGS.CLASSES.COLLECTION,query).then(function(result){
+				if (result === null){
+					toAdd.push(item);
+				}
+			});
+		}).then(function(){
+			if (toAdd.length > 0){
+				logInfo(toAdd.length.toString() + " New therapeutic classes Guidelines found at start up. Adding them to the database");
+				var o = {
+					documents : toAdd,
+					collectionName: dbConstants.DRUGS.CLASSES.COLLECTION				
+				};
+				return _this.insertMany(o).then(function(){
+					logInfo(toAdd.length.toString() + " therapeutic classes successfully added");
+				});
+			} else {
+				logInfo("No new therapeutic classes found");
+			}
+		}).catch(function(err){
+			logErr("error encountered when adding new default therapeutic classes on startup");
 		});
 	};
 //=======================================================================================
@@ -331,7 +441,7 @@ var dbFunctions = function(logger,DEBUG){
 		.then(function(result){
 			return result[0]['admin-email'];
 		});
-	}
+	};
 
 	//=======================================================================================
 	//Connection and Initializaition
@@ -373,6 +483,8 @@ var dbFunctions = function(logger,DEBUG){
 				 	return _this.checkDefaultMarkers();
 				 }).then(function(){
 				 	return _this.checkDefaultGenes();
+				 }).then(function(){
+				 	return _this.checkDefaultDosing();
 				 }).then(function(){
 				 	resolve();
 				 }).catch(function(err) {
@@ -1104,7 +1216,7 @@ var dbFunctions = function(logger,DEBUG){
 		query[dbConstants.PGX.GENES.ID_FIELD] = geneName;
 		return removeDocument(dbConstants.PGX.GENES.COLLECTION,query,[[dbConstants.PGX.GENES.ID_FIELD,1]]);
 
-	}
+	};
 
 	//Update the specified gene with the requqired parameter Doc
 	this.updatePGXGene = function(geneName,doc){
@@ -1113,7 +1225,7 @@ var dbFunctions = function(logger,DEBUG){
 		assert(Object.prototype.toString.call(doc) == "[object Object]");
 
 		var query = {};
-		query[dbConstants.PGX.GENES.ID_FIELD] = geneName
+		query[dbConstants.PGX.GENES.ID_FIELD] = geneName;
 		return this.update(dbConstants.PGX.GENES.COLLECTION,query,doc);
 	};
 
@@ -1123,9 +1235,9 @@ var dbFunctions = function(logger,DEBUG){
 		assert(Object.prototype.toString.call(rsID) == "[object String]");
 		assert(Object.prototype.toString.call(doc) == "[object Object]");
 		var query = {};
-		query[dbConstants.PGX.COORDS.ID_FIELD] = rsID
+		query[dbConstants.PGX.COORDS.ID_FIELD] = rsID;
 		return this.update(dbConstants.PGX.COORDS.COLLECTION,query,doc);
-	}
+	};
 
 	/* Find all PGx variants for a specific patient ID.
 	 * NOTE: patient ID is the user-specified ID, not the internal collection ID.
@@ -1331,14 +1443,14 @@ var dbFunctions = function(logger,DEBUG){
 			var aggArray = [];
 			match = {$match:{$or:[]}};
 			opt[dbConstants.DRUGS.DOSING.FIRST_GENE] = gene;
-			match['$match']['$or'].push(opt);
+			match.$match.$or.push(opt);
 			opt = {};
 			opt[dbConstants.DRUGS.DOSING.SECOND_GENE] = gene;
-			match['$match']['$or'].push(opt);
+			match.$match.$or.push(opt);
 			aggArray.push(match);
 			return aggregate(dbConstants.DRUGS.DOSING.COLLECTION,aggArray);
 		}
-	}
+	};
 };
 
 module.exports= new dbFunctions();
