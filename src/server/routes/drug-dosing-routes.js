@@ -44,8 +44,6 @@ module.exports = function(app,dbFunctions,logger){
 		});
 	});
 
-
-
 	app.get(renderRoutes,utils.isLoggedIn, function(req,res){
 		utils.render(req,res);
 	});
@@ -157,7 +155,7 @@ module.exports = function(app,dbFunctions,logger){
 		query[constants.dbConstants.DRUGS.DOSING.FIRST_CLASS] = doc.class_1;
 		query[constants.dbConstants.DRUGS.DOSING.SECOND_CLASS] = (doc.class_2 === undefined ? {$exists:false}:doc.class_2);
 		query[constants.dbConstants.DRUGS.DOSING.SECOND_GENE] = (doc.pgx_2 === undefined ? {$exists:false}:doc.pgx_2);
-		query['_id'] = {$ne:oID};
+		query._id = {$ne:oID};
 		dbFunctions.findOne(constants.dbConstants.DRUGS.DOSING.COLLECTION,query).then(function(result){
 			if (result === null){
 				var update = {$set:{},$unset:{}};
@@ -228,6 +226,41 @@ module.exports = function(app,dbFunctions,logger){
 			res.redirect('/failure');
 		});
 	});
+
+	app.post('/dosing/new/:newGene',utils.isLoggedIn,function(req,res){
+		var newGene = req.params.newGene;
+		var newDoc = {unitialized:true};
+		newDoc[constants.dbConstants.DRUGS.DOSING.FIRST_GENE] = newGene;
+		dbFunctions.checkInDatabase(constants.dbConstants.DRUGS.DOSING.COLLECTION,constants.dbConstants.DRUGS.DOSING.FIRST_GENE,newGene)
+		.then(function(exists){
+			if (!exists){
+				dbFunctions.insert(constants.dbConstants.DRUGS.DOSING.COLLECTION, newDoc)
+				.then(function(result){
+					if (result) {
+						req.flash('statusCode','200'),
+						req.flash('message','Gene successfully inserted to dosing tables');
+						res.redirect('/success');
+					} else {
+						req.flash('statusCode','500');
+						req.flash('error',"Unable to insert new document");
+						req.flash('message','unable to insert new gene ' + newGene );
+						res.redirect('/failure');
+					}
+				}).catch(function(err){
+					req.flash('statusCode','500');
+					req.flash('error',err.toString());
+					req.flash('message','unable to remove all entries relating to ' + newGene );
+					res.redirect('/failure');
+				});
+			} else {
+				req.flash('statusCode', '500');
+				req.flash('message',"The Gene you supplied already exists, please provide another");
+				req.flash('error','Gene already exists');
+				res.redirect('/failure');
+			}
+		});
+	});
+
 	app.get('/database/dosing/genes/:geneID',utils.isLoggedIn, function(req,res){
 		dbFunctions.drugs.getGeneDosing(req.params.geneID).then(function(result){
 			res.send(result);

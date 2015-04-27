@@ -68,6 +68,11 @@ module.exports = function(){
 		/* main page hanlders, contains a list of all the genes that are that have dosing
 		 * information  and the number of interactions tehre are recomendations for*/
 		index:function(){
+			$('.close-box').on('click',function(e){
+				e.preventDefault();
+				$(this).closest('#error-display-box').slideUp();
+			});
+			
 			$('#search-box').on('keyup',function(){
 				var currentRows = $('.dose-row');
 				for (var i=0; i < currentRows.length; i++ ){
@@ -82,6 +87,37 @@ module.exports = function(){
 				e.preventDefault();
 				var location = '/dosing/current/' + $(this).data('name');
 				window.location.replace(location);
+			});
+
+			$('#add-new-gene').on('click',function(e){
+				e.preventDefault();
+				$(this).hide().siblings('#submit-new-gene').show()
+				$("#submit-new-gene-form").show();
+			});
+
+			$('#submit-new-gene-form').on('valid.fndtn.abide',function(e){
+				console.log('here');
+				var val = $('#new-gene-name').val();
+				Promise.resolve($.ajax({
+					url:'/dosing/new/' + val,
+					type:"POST",
+					contentType:'application/json',
+					dataType:'json'
+				})).then(function(result){
+					console.log
+					if (result.statusCode == 200){
+						console.log(result);
+						window.location.replace('/dosing/current/' + val);
+					} else {
+						$('#error-display-message').text(result.message);
+						$('#error-display-box').slideDown();
+					}
+				});
+			});
+
+			$("#submit-new-gene").on('click',function(e){
+				e.preventDefault();
+				$('#submit-new-gene-form').submit();
 			});
 		},
 		/* Handlers for currently existsing dose tables. This function contains both the handlers
