@@ -5,8 +5,8 @@
 
 var $ = require("jquery"),
 	templates = require('./templates'),
-	utility = require('./utility'),
-	Handlebars = require('hbsfy/runtime');
+	utility = require('./utility');
+//Handlebars = require('hbsfy/runtime');
 
 ///// main object to be returned
 var pgx =  {
@@ -418,6 +418,7 @@ var pgx =  {
 			return self.convertTotemplateData();
 		}).then(function(result){
 			self.templateData = result;
+			templateData = result;
 			if (self.pgxGenesRemoved)
 				result.errMessage = self.pgxGenesRemoved.join(", ")
 			return templates.pgx(result);
@@ -431,6 +432,7 @@ var pgx =  {
 	},
 	generatePgxResults: function(selectedPatientID,selectedPatientAlias){
 		var self = this;
+
 		return Promise.resolve($.ajax({
 			url: "/database/pgx/" + selectedPatientID,
 			type: "GET",
@@ -452,6 +454,7 @@ var pgx =  {
 		})
 		.then(function(result) {
 			self.globalPGXData= result;  // set the globally-scoped PGX Data
+			gl = result;
 			return result;
 		});
 	},
@@ -613,7 +616,7 @@ var pgx =  {
 			if (i == possibleHaplotypeKeys.length - 1)
 				o.after = '';
 			else
-				o.after = ',';
+				o.after = ' /';
 
 			o.string = pgx.globalPGXData.possibleHaplotypesStringRep[gene][possibleHaplotypeKeys[i]].closestMatch;
 			out.push(o);
