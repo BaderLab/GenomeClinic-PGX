@@ -1,0 +1,193 @@
+<div class="row" style="padding-top: 30px;">  
+	<div class="large-12 small-12 medium-12 columns">
+		<h2><i class="fa fa-medkit"></i>&nbsp Dosing Recomendations for {{patientID}}</h2>
+		<div class="row">
+			<div class="large-12 small-12 medium-12 columns">
+				<form data-abide="ajax" id="drug-rec-form">
+					<fieldset>
+						<legend>Physician Information</legend>
+						<h5 class="subheader">Referring Physician:</h5>
+						<div class="row">
+							<div class="large-6 small-12 medium-6 columns">
+								<div class="row collapse prefix-radius">
+									<div class="large-4 small-4 medium-4 columns">
+										<span class='prefix'>First Name</span>
+									</div>
+									<div class="large-8 small-8 medium-8 columns">
+										<input name="drfirstname" type="text">
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="large-6 small-12 medium-6 columns">
+								<div class="row collapse prefix-radius">
+									<div class="large-4 small-4 medium-4 columns">
+										<span class='prefix'>Last Name</span>
+									</div>
+									<div class="large-8 small-8 medium-8 columns">
+										<input name="drlastname" type="text">
+									</div>
+								</div>
+							</div>
+						</div>
+						<br>
+						<div class="row">
+							<div class="large-12 small-12 medium-12 columns">
+								<div class="row collapse prefix-radius">
+									<div class="large-2 small-4 medium-2 columns">
+										<span class='prefix'>Address</span>
+									</div>
+									<div class="large-10 small-8 medium-10 columns">
+										<input name="draddress" type="text">
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="large-6 small-12 medium-6 columns">
+								<div class="row collapse prefix-radius">
+									<div class="large-4 small-4 medium-4 columns">
+										<span class='prefix'>City</span>
+									</div>
+									<div class="large-8 small-8 medium-8 columns">
+										<input name="drcity" type="text">
+									</div>
+								</div>
+							</div>
+							<div class="large-6 small-12 medium-6 columns">
+								<div class="row collapse prefix-radius">
+									<div class="large-4 small-4 medium-4 columns">
+										<span class='prefix'>Region</span>
+									</div>
+									<div class="large-8 small-8 medium-8 columns">
+										<input name="drregion" type="text">
+									</div>
+								</div>
+							</div>
+							<div class="large-6 small-12 medium-6 columns left">
+								<div class="row collapse prefix-radius">
+									<div class="large-4 small-4 medium-4 columns">
+										<span class='prefix'>Postal Code</span>
+									</div>
+									<div class="large-8 small-8 medium-8 columns">
+										<input name="drpostal" type="text">
+									</div>
+								</div>
+							</div>
+						</div>
+					</fieldset>
+					<fieldset>
+						<legend>Patient Information</legend>
+						<div class="row">
+							<div class="large-6 small-12 medium-6 columns">
+								<div class="row collapse prefix-radius">
+									<div class="large-4 small-4 medium-4 columns">
+										<span class='prefix'>First Name</span>
+									</div>
+									<div class="large-8 small-8 medium-8 columns">
+										<input name="patientfirstname" type="text">
+									</div>
+								</div>
+							</div>
+							<div class="large-6 small-12 medium-6 columns">
+								<div class="row collapse prefix-radius">
+									<div class="large-4 small-4 medium-4 columns">
+										<span class='prefix'>Last Name</span>
+									</div>
+									<div class="large-8 small-8 medium-8 columns">
+										<input name="patientlastnamne" type="text">
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="large-6 small-12 medium-6 columns">
+								<div class="row collapse prefix-radius">
+									<div class="large-4 small-4 medium-4 columns">
+										<span class="prefix">D.O.B</span>
+									</div>
+									<div class="large-2 small-2 medium-2 columns">
+										<input name="patientdobdate" type="text" placeholder="DD">
+									</div>
+									<div class="large-2 small-2 medium-2 columns">
+										<input name="patientdobmonth" type="text" placeholder="MM">
+									</div>
+									<div class="large-4 small-4 medium-4 columns left">
+										<input name="patientdobyear" type="text" placeholder="YYYY">
+									</div>
+								</div>
+							</div>
+							<div class="large-6 small-12 medium-6 columns">
+								<input name="sex" style="display:none" type="text" value="">
+								<div class="row collapse prefix-radius">
+									<div class="large-4 small-4 medium-3 columns">
+										<span class="prefix">Sex</span>
+									</div>
+									<div class="large-2 small-2 medium-2 columns">
+										<a href="#" class="button secondary small large-12 small-12 medium-12">M</a>
+									</div>
+									<div class="large-2 small-2 medium-2 columns">
+										<a href="#" class="button secondary small large-12 small-12 medium-12">M</a>
+									</div>
+									<div class="large-2 small-2 medium-2 columns left">
+										<a href="#" class="button small large-12 small-12 medium-12">N/A</a>
+									</div>
+									<!--
+								        <ul class="button-group even-3 radius sex-switch">
+								          <li><a href="#" class="button secondary tiny">M</a></li>
+								          <li><a href="#" class="button secondary tiny">F</a></li>
+								          <li><a href="#" class="button small tiny">N/A</a></li>
+								        </ul>
+								    </div>-->
+								</div>
+						    </div>
+						</div>
+						<div class="row">
+							<div class="large-6 small-6 medium-6 columns">
+								<div class="row collapse prefix-radius">
+									<div class="large-4 small-4 medium-4 columns">
+										<span class="prefix">Age</span>
+									</div>
+									<div class="large-8 small-8 medium-8 columns">
+										<input type="text" name="patientage">
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="large-6 small-6 medium-6 columns">
+								<div class="row collapse prefix-radius">
+									<div class="large-4 small-4 medium-4 columns">
+										<span class="prefix">Height (cm)</span>
+									</div>
+									<div class="large-8 small-8 medium-8 columns">
+										<input type="text" name="patientheight">
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="large-6 small-6 medium-6 columns">
+								<div class="row collapse prefix-radius">
+									<div class="large-4 small-4 medium-4 columns">
+										<span class="prefix">Weigth (kg)</span>
+									</div>
+									<div class="large-8 small-8 medium-8 columns">
+										<input type="text" name="patientweight">
+									</div>
+								</div>
+							</div>
+						</div>
+					</fieldset>
+					<fieldset>
+						<legend>PGX Results</legend>
+					</fieldset>
+					<fieldset>
+						<legend>Drug Recomendations</legend>
+					</fieldset>
+				</form>
+			</div>
+		</div>
+	<div>
+<div>

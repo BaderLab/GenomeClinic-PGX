@@ -21,6 +21,7 @@ module.exports = function(app,dbFunctions,logger){
 	var renderRoutes = [
 		'/browsepatients',
 		'/browsepatients/id/:patientID',
+		'/browsepatients/dosing/:patientID',
 		'/haplotypes',
 		'/haplotypes/new',
 		'/haplotypes/current/:hapid',

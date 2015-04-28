@@ -75,6 +75,10 @@ module.exports = function() {
 		} else if (location.match(/^\/browsepatients\/id\/.*/) !== null){
 			pgx.loadPGx();
 
+		} else if (location.match(/^\/browsepatients\/dosing\/.*/) !== null){
+			templates.drugs.rec().then(function(renderedHtml){
+				$('#main').html(renderedHtml);
+			});
 		}
 	}
 	return main();
