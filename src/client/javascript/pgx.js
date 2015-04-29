@@ -432,7 +432,6 @@ var pgx =  {
 	},
 	generatePgxResults: function(selectedPatientID,selectedPatientAlias){
 		var self = this;
-
 		return Promise.resolve($.ajax({
 			url: "/database/pgx/" + selectedPatientID,
 			type: "GET",

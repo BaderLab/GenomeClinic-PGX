@@ -272,6 +272,14 @@ module.exports = function(app,dbFunctions,logger){
 			res.send(result);
 		});
 	});
+
+	app.get('/database/dosing/classes',utils.isLoggedIn,function(req,res){
+		var query = [{$group:{_id:null,classes:{$push:'$' + constants.dbConstants.DRUGS.CLASSES.ID_FIELD}}}];
+		dbFunctions.aggregate(constants.dbConstants.DRUGS.CLASSES.COLLECTION,query).then(function(result){
+			console.log(result);
+			res.send(result);
+		});
+	});
 	
 
 };
