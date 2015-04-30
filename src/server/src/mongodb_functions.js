@@ -1436,16 +1436,18 @@ var dbFunctions = function(logger,DEBUG){
 			return aggregate(dbConstants.DRUGS.DOSING.COLLECTION,aggArray);
 		},
 
-		getGeneDosing : function(gene){
+		getGeneDosing : function(gene,tClass){
 			assert.notStrictEqual(db,undefined);
 			assert(Object.prototype.toString.call(gene) == '[object String]',"Invalid Gene Name. Gene name must be a string");	
 			var match, opt = {};
 			var aggArray = [];
 			match = {$match:{$or:[]}};
 			opt[dbConstants.DRUGS.DOSING.FIRST_GENE] = gene;
+			if (tClass) opt[dbConstants.DRUGS.DOSING.FIRST_CLASS] = tClass;
 			match.$match.$or.push(opt);
 			opt = {};
 			opt[dbConstants.DRUGS.DOSING.SECOND_GENE] = gene;
+			if (tClass) opt[dbConstants.DRUGS.DOSING.SECOND_CLASS] = tClass;
 			match.$match.$or.push(opt);
 			aggArray.push(match);
 			return aggregate(dbConstants.DRUGS.DOSING.COLLECTION,aggArray);

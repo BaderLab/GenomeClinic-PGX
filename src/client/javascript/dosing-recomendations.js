@@ -35,30 +35,40 @@ module.exports = {
 			var rows = $('.gene-row'),gene;
 			for (var i = 0; i < rows.length; i++){
 				gene = $(rows[i]).find('.gene-name').text();
-				if (result.hasOwnProperty(gene))
+				if (result.hasOwnProperty(gene)){
 					$(rows[i]).find('select').val(result[gene].class);
+				}
 			}
 		});
+	},
 
 
 	getRecomendations : function(){
 		var tableValues = this.serializeTable();
 		Promise.resolve($.ajax({
-			url:'/database/dosing/recomendations',
+			url:'/database/dosing/recomendations/current',
 			type:'POST',
 			dataType:'json',
 			contentType:'application/json',
 			data:JSON.stringify(tableValues)
 		})).then(function(result){
-			
+			console.log(result);
+
 		})
-	}
-
-
-
 	},
 	//handlers
 	staticHandlers : function(){
+		var _this = this;
+		$('.therapeutic-class').on('change',function(){
+			_this.getRecomendations();
+		})
+
+		//submit form
+		//$('form').on(valid.fndtn.abide,function(){
+
+		//})
+
+		
 
 	},
 
@@ -98,7 +108,8 @@ module.exports = {
 		}).then(function(renderedHtml){
 				$('#main').html(renderedHtml);
 		}).then(function(){
-			_this.getHaploRecs();
+			_this.staticHandlers();
+		}).then(function(){
 			utility.refresh();
 		});
 

@@ -306,7 +306,36 @@ module.exports = function(app,dbFunctions,logger){
 		}).then(function(){
 			res.send(output);
 		});
-	})
+	});
+
+	app.post('/database/dosing/recomendations/current',utils.isLoggedIn,function(req,res){
+		var data = req.body;
+		var query = {$in:[]}
+		var out = [];
+		var geneClass = {};
+		Promise.each(data,function(item){
+			geneClass[item.gene] = item.class;
+			return dbFunctions.drugs.getGeneDosing(item.gene,item.class).then(function(result){
+				out = out.concat(result);
+			});
+		}).then(function(){
+			var drugArrOut = {};
+			for (var i = 0; i < out.length; i++){
+				if (out[i][constants.dbConstants.DRUGS.DOSING.SECOND_GENE]){
+					if (geneClass[out[i].drug] == out[i][constants.dbConstants.DRUGS.DOSING.SECOND_GENE]) {
+						if (!drugArrOut.hasOwnProperty(out[i].drug))
+							drugArrOut[out[i].drug] = [];
+						drugArrOut[out[i].drug].push(out[i]);
+					}
+				} else {
+					if (!drugArrOut.hasOwnProperty(out[i].drug))
+							drugArrOut[out[i].drug] = [];
+					drugArrOut[out[i].drug].push(out[i]);
+				}
+			}
+			res.send(drugArrOut);	
+		});
+	});
 	
 
 };
