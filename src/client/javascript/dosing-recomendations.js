@@ -5,7 +5,56 @@ var pgx = require('./pgx'),
 
 module.exports = {
 	//helpers
+	serializeTable : function(){
+		var output = [];
+		var temp;
+		var rows = $('.gene-row');
+		for (var i = 0; i < rows.length; i++ ){
+			temp = {};
+			temp.gene = $(rows[i]).find('.gene-name').text();
+			temp.hap = {
+				allele_1:$(rows[i]).find(".allele_1").val(),
+				allele_2:$(rows[i]).find(".allele_2").val(),
+			}
+			temp.class = $(rows[i]).find('.therapeutic-class').val();
+			output.push(temp);
+		}
+		return output;
+	},
+
 	getHaploRecs : function(){
+		//this is a preliminary search in an attempt to cut down the amount of searching that must be done.
+		var tableValues =  this.serializeTable();
+		Promise.resolve($.ajax({
+			url:'/database/dosing/classes/current',
+			type:'POST',
+			dataType:'json',
+			contentType:'application/json',
+			data:JSON.stringify(tableValues)
+		})).then(function(result){
+			var rows = $('.gene-row'),gene;
+			for (var i = 0; i < rows.length; i++){
+				gene = $(rows[i]).find('.gene-name').text();
+				if (result.hasOwnProperty(gene))
+					$(rows[i]).find('select').val(result[gene].class);
+			}
+		});
+
+
+	getRecomendations : function(){
+		var tableValues = this.serializeTable();
+		Promise.resolve($.ajax({
+			url:'/database/dosing/recomendations',
+			type:'POST',
+			dataType:'json',
+			contentType:'application/json',
+			data:JSON.stringify(tableValues)
+		})).then(function(result){
+			
+		})
+	}
+
+
 
 	},
 	//handlers
@@ -15,6 +64,7 @@ module.exports = {
 
 	//render
 	render : function(){
+		var _this = this;
 		var pgxTemplateData, therapeuticClasses, drugRecomendations;
 		//load information on patient and generate pgx info.
 		var location = window.location.pathname
@@ -22,17 +72,17 @@ module.exports = {
 		pgx.generatePgxResults(patientID).then(function(result){
 			return pgx.convertTotemplateData(result);
 		}).then(function(result){
+			var genes = [];
 			for (var gene in result.pgxGenes){
 				if (result.pgxGenes.hasOwnProperty(gene)){
-					if (result.pgxGenes[gene].haplotypes.length == 0){
-						delete result.pgxGenes[gene];
-					} else {
-						result.pgxGenes[gene].hap1 = result.pgxGenes[gene].haplotypes[0].name;
-						result.pgxGenes[gene].hap2 = result.pgxGenes[gene].haplotypes[0].name;
+					if (result.pgxGenes[gene].possibleHaplotypes.length !== 0){
+						result.pgxGenes[gene].hap1 = result.pgxGenes[gene].possibleHaplotypes[0].string;
+						result.pgxGenes[gene].hap2 = result.pgxGenes[gene].possibleHaplotypes[0].string;
+						genes.push(result.pgxGenes[gene]);
 					}
 				}
 			}
-			console.log(result);
+			result.pgxGenes = genes;
 			pgxTemplateData= result;
 		}).then(function(){
 			return Promise.resolve($.ajax({
@@ -48,6 +98,7 @@ module.exports = {
 		}).then(function(renderedHtml){
 				$('#main').html(renderedHtml);
 		}).then(function(){
+			_this.getHaploRecs();
 			utility.refresh();
 		});
 

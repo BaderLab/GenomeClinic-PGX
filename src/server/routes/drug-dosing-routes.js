@@ -204,7 +204,6 @@ module.exports = function(app,dbFunctions,logger){
 			req.flash('message','successfully removed 1 entry related to ' + req.params.geneID);
 			res.redirect('/success');
 		}).catch(function(err){
-			console.log(err.stack);
 			req.flash('statusCode','500');
 			req.flash('error',err.toString());
 			req.flash('message','unable to remove entries');
@@ -276,10 +275,38 @@ module.exports = function(app,dbFunctions,logger){
 	app.get('/database/dosing/classes',utils.isLoggedIn,function(req,res){
 		var query = [{$group:{_id:null,classes:{$push:'$' + constants.dbConstants.DRUGS.CLASSES.ID_FIELD}}}];
 		dbFunctions.aggregate(constants.dbConstants.DRUGS.CLASSES.COLLECTION,query).then(function(result){
-			console.log(result);
 			res.send(result);
 		});
 	});
+
+	app.post('/database/dosing/classes/current',utils.isLoggedIn,function(req,res){
+		var data = req.body;
+		var output = {};
+		Promise.each(data,function(item){
+			var query = {$or:[]};
+			var temp = {};
+			temp[constants.dbConstants.DRUGS.DOSING.FIRST_HAP] = {
+				allele_1:item.hap.allele_1,
+				allele_2:item.hap.allele_2
+			}
+			query.$or.push(temp);
+			temp[constants.dbConstants.DRUGS.DOSING.FIRST_HAP] = {
+				allele_1:item.hap.allele_2,
+				allele_2:item.hap.allele_1
+			}
+			query.$or.push(temp);
+			query[constants.dbConstants.DRUGS.DOSING.FIRST_GENE] = item.gene; 
+			return dbFunctions.findOne(constants.dbConstants.DRUGS.DOSING.COLLECTION,query).then(function(result){
+				if (result){
+					output[result[constants.dbConstants.DRUGS.DOSING.FIRST_GENE]] = {
+						class:result[constants.dbConstants.DRUGS.DOSING.FIRST_CLASS]
+					}
+				}
+			});
+		}).then(function(){
+			res.send(output);
+		});
+	})
 	
 
 };

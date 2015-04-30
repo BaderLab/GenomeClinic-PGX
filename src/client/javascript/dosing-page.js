@@ -185,11 +185,26 @@ module.exports = function(){
 					var drug;
 					var doc = {};
 					doc.pgx_1 = window.location.pathname.split('/').splice(-1)[0];
+					var hap_1 = {};
+					var hap_2 = {};
 					for ( var i = 0; i< fields.length; i++ ){
 						if (fields[i].value !== "" && fields[i].value !== "None")
-							doc[fields[i].name] = fields[i].value;
+							if (fields[i].name.search('hap_1-')!== -1 ) {
+								hap_1[fields[i].name.split('-')[2]] = fields[i].value
+							} else if (fields[i].name.search('hap_2-')!== -1 ) {
+								hap_2[fields[i].name.split('-')[2]] = fields[i].value
+							} else {
+								doc[fields[i].name] = fields[i].value;
+							}
 					}
+					//For now Allow a single haplotype to be attributed with a single drug recomendation
+					//Later chgange this to allow for multiple haplotypes
+					
+					
+
 					doc.drug = doc.drug.toLowerCase();
+					if (Object.keys(hap_1).length > 0) doc.hap_1 = hap_1;
+					if (Object.keys(hap_2).length > 0) doc.hap_2 = hap_2;
 					if (doc.pgx_1) doc.pgx_1 = doc.pgx_1.toLowerCase();
 					if (doc.pgx_2) doc.pgx_2 = doc.pgx_2.toLowerCase();
 					var unitialized = $('#main_content').data('unitialized') === true ? 'true':'false';
@@ -322,10 +337,23 @@ module.exports = function(){
 				var gene = window.location.pathname.split('/').splice(-1)[0];
 				var id = $(this).data('id');
 				doc.drug = $(this).closest('.drug-cont').data('drug');
+				var hap_1 = {};
+				var hap_2 = {};
+				var name;
 				for ( var i = 0; i< fields.length; i++ ){
 					if (fields[i].value !== "" && fields[i].value !== "None")
-						doc[fields[i].name] = fields[i].value;
+						if (fields[i].name.search('hap_1-') !== -1){
+							hap_1[fields[i].name.split('-')[2]] = fields[i].value;
+						} else if (fields[i].name.search('hap_2-') !== -1){
+							hap_2[fields[i].name.split('-')[2]] = fields[i].value;
+						} else {
+							doc[fields[i].name] = fields[i].value;
+						}
 				}
+				console.log(hap_1);
+				console.log(hap_2);
+				if (Object.keys(hap_1).length > 0) doc.hap_1 = hap_1;
+				if (Object.keys(hap_2).length > 0) doc.hap_2 = hap_2;
 				if (doc.pgx_1) doc.pgx_1 = doc.pgx_1.toLowerCase();
 				if (doc.pgx_2) doc.pgx_2 = doc.pgx_2.toLowerCase();
 				Promise.resolve($.ajax({
@@ -433,6 +461,7 @@ module.exports = function(){
 				type:'GET',
 				dataType:'json'}));
 			}).then(function(result){
+				console.log(result);
 				return templates.drugs.current(result);
 			}).then(function(renderedHtml){
 				return $('#main').html(renderedHtml);

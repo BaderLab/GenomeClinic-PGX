@@ -69,8 +69,13 @@
 								<div class="large-4 small-4 medium-4 columns">
 									<span class="prefix">Haplotype</span>
 								</div>
-								<div class="large-8 small-8 medium-8 columns">
-									<input class="edit" type="text" name="hap_1" data-originalvalue="{{hap_1}}" value="{{hap_1}}" disabled id="{{num}}_hap_1">
+								<div class="large-4 small-4 medium-4 columns">
+									<input type="text" name="hap_1-allele_1" id="{{num}}-hap_1-allele_1" placeholder="Allele 1" data-requiredIf="{{num}}-hap_1-allele_2" data-abide-validator="requiredIf" {{#if hap_1}}value="{{hap_1.allele_1}}" data-originalValue="{{hap_1.allele_1}}"{{else}}data-originalValue=""{{/if}} disabled="disabled">
+									<small class="error">Valid Haplotype Required</small>
+								</div>
+								<div class="large-4 small-4 medium-4 columns">
+									<input type="text" name="hap_1-allele_2"  id="{{num}}-hap_1-allele_2" placeholder="Allele 2" data-requiredIf="{{num}}-hap_1-allele_1" data-abide-validator="requiredIf" {{#if hap_1}}value="{{hap_1.allele_2}}" data-originalValue="{{hap_1.allele_2}}"{{else}}data-originalValue=""{{/if}} disabled="disabled">
+									<small class="error">Valid Haplotype Required</small>
 								</div>
 							</div>
 						</div>
@@ -111,8 +116,13 @@
 								<div class="large-4 small-4 medium-4 columns">
 									<span class="prefix">Haplotype</span>
 								</div>
-								<div class="large-8 small-8 medium-8 columns">
-									<input class="edit" type="text" name="hap_2" data-originalvalue="{{hap_2}}" value="{{hap_2}}" disabled id="{{num}}_hap_2">
+								<div class="large-4 small-4 medium-4 columns">
+									<input type="text" name="hap_2-allele_1" id="{{num}}-hap_2-allele_1" placeholder="Allele 1" data-requiredIf="{{num}}-hap_2-allele_2" data-abide-validator="requiredIf" {{#if hap_2}}value="{{hap_2.allele_1}}" data-originalValue="{{hap_2.allele_1}}"{{else}}data-originalValue=""{{/if}} disabled="disabled">
+									<small class="error">Valid Haplotype Required</small>
+								</div>
+								<div class="large-4 small-4 medium-4 columns">
+									<input type="text" name="hap_2-allele_2"  id="{{num}}-hap_2-allele_2" placeholder="Allele 2" data-requiredIf="{{num}}-hap_2-allele_1" data-abide-validator="requiredIf" {{#if hap_2}}value="{{hap_2.allele_2}}" data-originalValue="{{hap_2.allele_2}}"{{else}}data-originalValue=""{{/if}} disabled="disabled">
+									<small class="error">Valid Haplotype Required</small>
 								</div>
 							</div>
 						</div>
