@@ -14,7 +14,7 @@ module.exports = {
 			temp.gene = $(rows[i]).find('.gene-name').text();
 			temp.hap = {
 				allele_1:$(rows[i]).find(".allele_1").val(),
-				allele_2:$(rows[i]).find(".allele_2").val(),
+				allele_2:$(rows[i]).find(".allele_2").val()
 			}
 			temp.class = $(rows[i]).find('.therapeutic-class').val();
 			output.push(temp);
@@ -39,7 +39,7 @@ module.exports = {
 					$(rows[i]).find('select').val(result[gene].class);
 				}
 			}
-		});
+		});1
 	},
 
 
@@ -53,16 +53,58 @@ module.exports = {
 			data:JSON.stringify(tableValues)
 		})).then(function(result){
 			console.log(result);
+			return templates.drugs.rec.recs({drugs:result})
+		}).then(function(renderedHtml){
+			$('#drug-recomendations').html(renderedHtml);
 
-		})
+		}).then(function(){
+			utility.refresh($("#drug-recomendations"));
+		});
 	},
 	//handlers
 	staticHandlers : function(){
 		var _this = this;
+		var removeRow = function(ele){
+			ele.on('click',function(e){
+				e.preventDefault();
+				var context = $(this).closest('tbody');
+				$(this).closest('tr').remove()
+				if (!$(context).find('tr').length){
+					$(context).closest('table').hide();
+				}
+			});
+		};
+
 		$('.therapeutic-class').on('change',function(){
 			_this.getRecomendations();
-		})
+		});
 
+		//prevent form from being submitted prematurely
+		$('form').on("keyup keypress", function(e) {
+		  var code = e.keyCode || e.which; 
+		  if (code  == 13) {               
+		    e.preventDefault();
+		    return false;
+		  }
+		});
+
+		/* Eventually link to db with current drug list to offer suggestions
+		*/
+		$('#patient-add-drug').on('click',function(e){
+			e.preventDefault();
+			var val = $('#patient-new-drug').val();
+			if (val !== ""){
+				$('#patient-new-drug').val('');
+				var html = "<tr><td class='patient-drug-name'>" + val + "</td><td class='text-center'><a href='#'><i class='fi-x'></i></a></td></tr>"
+				$('#patient-drug-table').find('tbody').append(html);
+				removeRow($('#patient-drug-table').find('tbody').last('tr').find('a'));
+				if (!$('#patient-drug-table').is(":visible")){
+					$('#patient-drug-table').show();
+				}
+				
+
+			}
+		});
 		//submit form
 		//$('form').on(valid.fndtn.abide,function(){
 
@@ -107,6 +149,8 @@ module.exports = {
 			return templates.drugs.rec.index(pgxTemplateData);
 		}).then(function(renderedHtml){
 				$('#main').html(renderedHtml);
+		}).then(function(){
+			_this.getRecomendations();		
 		}).then(function(){
 			_this.staticHandlers();
 		}).then(function(){

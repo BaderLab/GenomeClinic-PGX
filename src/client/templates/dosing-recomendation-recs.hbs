@@ -1,6 +1,41 @@
-{{#each drug}}
-		<legend>{{@key}}</legend>
-		{{#each root.@key}}
+		{{#each drugs}}
+		{{#each this}}
+		<fieldset>
+			<legend>{{drug}}</legend>
+				<table class="large-12 small-12 medium-12">
+					<thead>
+						<tr>
+							<th>Therapeutic Risk</th>
+							<th>Primary Gene</th>
+							<th>Therapeutic Class</th>
+							{{#if pgx_2}}
+							<th>Secondary Gene</th>
+							<th>Therapeutic Class</th>
+							{{/if}}
+							<th>Pubmed ID</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>{{risk}}</td>
+							<td>{{pgx_1}}</td>
+							<td>{{class_1}}</td>
+							{{#if pgx_2}}
+							<td>{{pgx_2}}</td>
+							<td>{{class_2}}</td>
+							{{/if}}
+							<td><a href="http://www.ncbi.nlm.nih.gov/pubmed/{{pubmed}}"</a></td>
+						</tr>
+					</tbody>
+				</table>
+				<div class="row">
+					<div class="large-12 small-12 medium-12 columns">
+						<label><b>Dosing Recomendation</b></label>
+						<textarea name='{{drug}}-recomendation' rows=5 required>{{rec}}</textarea>
+						<small class="error">Required</small>
+					</div>
+				</div>
+		</fieldset>
 		{{/each}}
-{{/each}}
+		{{/each}}
 

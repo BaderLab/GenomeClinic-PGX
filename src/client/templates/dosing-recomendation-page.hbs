@@ -114,6 +114,7 @@
 								</div>
 							</div>
 						</div>
+						<br>
 						<div class="row">
 							<div class="large-6 small-12 medium-6 columns">
 								<div class="row collapse prefix-radius">
@@ -160,7 +161,7 @@
 							</div>
 						</div>
 						<div class="row">
-							<div class="large-6 small-6 medium-6 columns">
+							<div class="large-6 small-12 medium-6 columns">
 								<div class="row collapse prefix-radius">
 									<div class="large-4 small-4 medium-4 columns">
 										<span class="prefix"><b style="color:red">*</b> Height (cm)</span>
@@ -173,7 +174,7 @@
 							</div>
 						</div>
 						<div class="row">
-							<div class="large-6 small-6 medium-6 columns">
+							<div class="large-6 small-12 medium-6 columns">
 								<div class="row collapse prefix-radius">
 									<div class="large-4 small-4 medium-4 columns">
 										<span class="prefix"><b style="color:red">*</b> Weigth (kg)</span>
@@ -185,9 +186,64 @@
 								</div>
 							</div>
 						</div>
+						<hr>
+						<div class="row">
+							<div class="large-6 small-12 medium-6 columns">
+								<div class="row collapse prefix-radius">
+									<div class="large-4 small-4 medium-4 columns">
+										<span class="prefix"><b style="color:red">*</b>Sample Type</span>
+									</div>
+									<div class="large-8 small-8 medium-8 columns">
+										<select name="patient-sample-type">
+											<option selected="selected">NA</option>
+											<option>Blood</option>
+											<option>Saliva</option>
+											<option>Tissue</option>
+											<option>Other</option>
+										</select>
+										<small class="error">Required</small>
+									</div>
+								</div>
+							</div>
+						</div>
+						<hr>
+						<div class="row">
+							<div class="large-12 small-12 medium-12 columns">
+								<div class="row collapse prefix-radius postfix-radius">
+									<div class="large-2 small-4 medium-2 columns">
+										<span class="prefix">Current Medications</span>
+									</div>
+									<div class="large-8 small-6 medium-8 columns">
+										<input type="text" id="patient-new-drug" placeholder="Provide one drug name at a time">
+									</div>
+									<div class="large-2 small-2 medium-2 columns">
+										<a href="#" id="patient-add-drug" class="button secondary postfix"><i class="fi-plus"></i></a>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="large-6 small-12 medium-6 columns">
+								<table class="large-12 small-12 medium-12" id="patient-drug-table" style="display:none">
+									<thead>
+										<tr>
+											<th>Medication name</th>
+											<th>Remove</th>
+										</tr>
+									</thead>
+									<tbody>
+									</tbody>
+								</table>
+							</div>
+						</div>
 					</fieldset>
 					<fieldset>
-						<legend><b style="color:red">*</b> Summary</legend>
+						<legend><b style="color:red">*</b> Reason for Testing</legend>
+						<textarea name="patient-reason-for-test" rows="5" required></textarea>
+						<small class="error">Required</small>
+					</fieldset>
+					<fieldset>
+						<legend><b style="color:red">*</b> Report Summary</legend>
 						<textarea name="summary" rows="5" required></textarea>
 						<small class="error">Required</small>
 					</fieldset>
@@ -224,9 +280,11 @@
 							</div>
 						</div>
 					</fieldset>
-					<fieldset>
-						<legend>Drug Recomendations</legend>
-					</fieldset>
+					<h3>Drug Recomendations</h3>
+					<div class="row">
+						<div class="large-12 small-12 medium-12 columns" id="drug-recomendations">
+						</div>
+					<div>
 					<div class="row">
 						<div class="large-3 small-12 medium-4 right columns">
 							<button type="submit" class="button radius large-12 small-12 medium-12">Generate Report</button>
