@@ -2,14 +2,13 @@ var utils = require('../lib/utils');
 var Promise = require('bluebird');
 var fs = require('fs');
 var constants = require("../lib/conf/constants.json");
-var genReport  = require('../lib/pgx-report');
 var ObjectID = require("mongodb").ObjectID;
-var genReport = require('../src/genReport');
+var genReport = require('../lib/genReport');
 
 /* Collection of routes associated with drug dosing recomendations
  * the report generation, and the ui modification of the recomendations
  *
- *@author Patrick Magee*//
+ *@author Patrick Magee*/
 module.exports = function(app,dbFunctions,logger){
 	//Ensure the dbfunctions module is loaded
 	if (!dbFunctions)
@@ -392,8 +391,8 @@ module.exports = function(app,dbFunctions,logger){
 
 	/* Generate the dosing recomendation report */
 	app.post('/browsepatients/dosing/:patientID/report', utils.isLoggedIn,function(req,res){
-
-		utils.render(req,res,'construction');
+		req.flash('statusCode','500');
+		res.redirect('/failure');
 		/*var info = req.body;
 		var options = {
 			top:'1cm',
@@ -411,7 +410,8 @@ module.exports = function(app,dbFunctions,logger){
 	app.get('/browsepatients/dosing/:patientID/download/:id',utils.isLoggedIn,function(req,res){
 		var file = req.params.id;
 		var path = constants.nodeConstants.SERVER_DIR + '/' + constants.nodeConstants.TMP_UPLOAD_DIR + '/' + file;
-		utils.render(req,res,'construction');
+		req.flash('statusCode','500');
+		res.redirect('/failure');
 		/*logger.info("Sending Report file: " + path + " to user: " + req.user[constants.dbConstants.USERS.ID_FIELD]); 
 		res.download(path,file,function(err){
 			if (err){

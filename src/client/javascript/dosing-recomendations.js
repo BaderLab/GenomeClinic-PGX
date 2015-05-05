@@ -179,6 +179,7 @@ module.exports = {
 		//submit form
 		$('form').on('valid.fndtn.abide',function(){
 			var formInfo = _this.serializeForm();
+			$(this).find('button').text('Generating...')
 			Promise.resolve($.ajax({
 				url:window.location.pathname + '/report',
 				type:"POST",
@@ -186,7 +187,14 @@ module.exports = {
 				contentType:'application/json',
 				data:JSON.stringify(formInfo)
 			})).then(function(result){
-				console.log(result);
+				if (result.name){
+					open(window.pathname.location + '/download' + result.name);
+					
+				}
+			}).then(function(){
+				$('form').find('button').text('Generate Report');
+			}).catch(function(err){
+				console.log(err);
 			});
 		});
 	},
