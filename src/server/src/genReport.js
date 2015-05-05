@@ -4,21 +4,27 @@ var constants = require("./conf/constants.json");
 var cons = Promise.promisifyAll(require('consolidate'));
 var fs = Promise.promisifyAll(require('fs'));
 
-/* Generate a pdf version of the PGX report that the user can download
- * This report utilizes PhantomJS */
-module.exports = function(req,res){
-	var name;
-	var path;
+module.exports = function(req,res,reportName,template,options){
+	var name,path,top,bottom,left,right,format,orientation;
+	options = options === undefined ? {}: options;
+	top = options.top !== undefined ? options.top : '1cm';
+	bottom = options.bottom !== undefined ? options.bottom : '1cm';
+	left = options.left !== undefined ? options.left : '1cm';
+	right = options.right !== undefined ? options.right : '1cm';
+	format = options.format !== undefined ? options.format : "A4";
+	orientation = options.orientation !== undefined ? options.format : "portrait";
+
+	
 	var promise = Promise.resolve()
 	.then(function(){
 		var date = new Date();
-		name = req.body.patientID + "_report_"+ date.getDay().toString() + "_" + date.getMonth().toString() + "_" + date.getUTCFullYear().toString() + 
+		name = reportName + "_report_"+ date.getDay().toString() + "_" + date.getMonth().toString() + "_" + date.getUTCFullYear().toString() + 
 		"_" + date.getTime().toString();
 		path = constants.nodeConstants.SERVER_DIR + '/' + constants.nodeConstants.TMP_UPLOAD_DIR + '/' + name;
 		var opts = req.body;
 		opts.user = req.user[constants.dbConstants.USERS.ID_FIELD];
-		opts.date = date.toDateString();
-		return cons.handlebarsAsync(constants.nodeConstants.SERVER_DIR + '/views/pgx-report.hbs',opts);
+		opts.date = date.getDay().toString() + '/' + date.getMonth().toString() + '/' + date.getUTCFullYear().toString();
+		return cons.handlebarsAsync(template,opts);
 	}).then(function(html){
 		return fs.writeFileAsync(path + '.html',html)
 	}).then(function(){
@@ -26,13 +32,13 @@ module.exports = function(req,res){
 			phantom.create(function(ph){
 				ph.createPage(function(page){
 					page.set('paperSize',{
-						format: "A4",
-						orientation:'portrait',
+						format: format,
+						orientation:orientation,
 						margin:{
-							top:'2cm',
-							bottom:'2cm',
-							left:'1cm',
-							right:'1cm'
+							top:top,
+							bottom:bottom,
+							left:left,
+							right:right
 						}
 					});
 					page.set('viewportSize',{width:290,height:350});

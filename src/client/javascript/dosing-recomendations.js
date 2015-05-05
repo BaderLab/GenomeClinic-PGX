@@ -22,6 +22,75 @@ module.exports = {
 		return output;
 	},
 
+
+	serializeInputs : function(){
+		var output = {};
+		var temp,field;
+		var fields = $('form').serializeArray();
+		var currDrugs = $('.patient-drug-name');
+		output.patient = {};
+		output.dr = {};
+		for (var i = 0; i < fields.length; i++){
+			if (fields[i].name.search(/^dr/) !== -1){
+				field = fields[i].name.replace(/^dr-/,"");
+				field = field.split('-');
+				if (field.length > 1){
+					if (! output.dr.hasOwnProperty(field[0])) {
+						output.dr[field[0]] = {};
+					}
+					output.dr[field[0]][field[1]] = fields[i].value;
+				} else {
+					output.dr[field[0]] = fields[i].value;
+				}
+			} else if ( fields[i].name.search(/^patient/) !== -1){
+				field = fields[i].name.replace(/^patient-/,"");
+				field = field.split('-');
+				if (field.length > 1){
+					if (! output.patient.hasOwnProperty(field[0])) {
+						output.patient[field[0]] = {};
+					}
+					output.patient[field[0]][field[1]] = fields[i].value;
+				} else {
+					output.patient[field[0]] = fields[i].value;
+				}
+			} else {
+				output[fields[i].name] = fields[i].value;
+			}
+		}
+		if (currDrugs.length > 0 ){
+			output.patient.medications = [];
+			for (var i = 0; i < currDrugs.length; i ++ ){
+				output.patient.medication.push($(currDrugs[i]).text());
+			}
+		}
+		return output;
+	},
+	serializeRecomendations : function(){
+		var output = {};
+		var temp,drug;
+		var fields = $('.recomendation-field');
+		for (var i = 0; i < fields.length; i++ ){
+			drug = $(fields[i]).find('.drug-name').text();
+			if (!output.hasOwnProperty(drug)){
+				output[drug] = [];
+			}
+			temp = {};
+			temp.rec = $(fields[i]).find(".recomendation-rec").val();
+			temp.risk = $(fields[i]).find(".recomendation-risk").text();
+			output[drug].push(temp);
+		}
+
+		return output;
+	},
+
+	serializeForm : function(){
+		var output  = this.serializeInputs();
+		output.recomendations = this.serializeRecomendations();
+		output.genes = this.serializeTable();
+
+		return output;
+	},
+
 	getHaploRecs : function(){
 		//this is a preliminary search in an attempt to cut down the amount of searching that must be done.
 		var tableValues =  this.serializeTable();
@@ -44,6 +113,7 @@ module.exports = {
 
 
 	getRecomendations : function(){
+		var _this =  this;
 		var tableValues = this.serializeTable();
 		Promise.resolve($.ajax({
 			url:'/database/dosing/recomendations/current',
@@ -55,7 +125,7 @@ module.exports = {
 			console.log(result);
 			return templates.drugs.rec.recs({drugs:result})
 		}).then(function(renderedHtml){
-			$('#drug-recomendations').html(renderedHtml);
+			return $('#drug-recomendations').html(renderedHtml);
 
 		}).then(function(){
 			utility.refresh($("#drug-recomendations"));
@@ -105,10 +175,26 @@ module.exports = {
 
 			}
 		});
-		//submit form
-		//$('form').on(valid.fndtn.abide,function(){
 
-		//})
+		//submit form
+		$('form').on('valid.fndtn.abide',function(){
+			var formInfo = _this.serializeForm();
+			Promise.resolve($.ajax({
+				url:window.location.pathname + '/generatereport',
+				type:"POST",
+				dataType:'json',
+				contentType:'application/json',
+				data:JSON.stringify(formInfo)
+			})).then(function(result){
+				console.log(result);
+			});
+		});
+
+		$('form').on('invalid.fndtn.abide',function(){
+			var formInfo = _this.serializeForm();
+			console.log(formInfo);
+		});
+
 
 		
 
@@ -150,11 +236,11 @@ module.exports = {
 		}).then(function(renderedHtml){
 				$('#main').html(renderedHtml);
 		}).then(function(){
-			_this.getRecomendations();		
+			return _this.getRecomendations();		
+		}).then(function(){
+			return utility.refresh();
 		}).then(function(){
 			_this.staticHandlers();
-		}).then(function(){
-			utility.refresh();
 		});
 
 	}

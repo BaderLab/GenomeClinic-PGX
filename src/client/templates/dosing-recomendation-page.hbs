@@ -7,6 +7,7 @@
 				<form data-abide="ajax" id="drug-rec-form">
 					<div class="row">
 						<div class="large-3 small-12 medium-4 right columns">
+							<a href="#" id="download-pdf" style="display:none"></a>
 							<button type="submit" class="button radius large-12 small-12 medium-12">Generate Report</button>
 						</div>
 					</div>
@@ -194,7 +195,7 @@
 										<span class="prefix"><b style="color:red">*</b>Sample Type</span>
 									</div>
 									<div class="large-8 small-8 medium-8 columns">
-										<select name="patient-sample-type">
+										<select name="patient-sampletype">
 											<option selected="selected">NA</option>
 											<option>Blood</option>
 											<option>Saliva</option>
@@ -239,7 +240,7 @@
 					</fieldset>
 					<fieldset>
 						<legend><b style="color:red">*</b> Reason for Testing</legend>
-						<textarea name="patient-reason-for-test" rows="5" required></textarea>
+						<textarea name="patient-reason" rows="5" required></textarea>
 						<small class="error">Required</small>
 					</fieldset>
 					<fieldset>

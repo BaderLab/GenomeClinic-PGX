@@ -5,7 +5,7 @@ var utils = require('../lib/utils');
 var Promise = require('bluebird');
 var fs = require('fs');
 var constants = require("../lib/conf/constants.json");
-var genReport  = require('../lib/pgx-report');
+var genReport  = require('../lib/genReport');
 
 
 module.exports = function(app,dbFunctions,logger){
@@ -21,7 +21,6 @@ module.exports = function(app,dbFunctions,logger){
 	var renderRoutes = [
 		'/browsepatients',
 		'/browsepatients/id/:patientID',
-		'/browsepatients/dosing/:patientID',
 		'/haplotypes',
 		'/haplotypes/new',
 		'/haplotypes/current/:hapid',
@@ -65,9 +64,9 @@ module.exports = function(app,dbFunctions,logger){
 	});
 	
 	//Accept information to generate the report for a speciifc patient
-	app.post("/browsepatients/id/:patiendID/report", utils.isLoggedIn, function(req,res){
+	app.post("/browsepatients/id/:patientID/report", utils.isLoggedIn, function(req,res){
 		logger.info("Generating PGX report for " + req.params.patientID);
-		genReport(req,res).catch(function(err){
+		genReport(req,res,req.params.patientID,constants.nodeConstants.DEFAULT_PGX_REPORT).catch(function(err){
 			logger.error("Failed to generate report for " + req.body.patientID,err);
 		});
 	});

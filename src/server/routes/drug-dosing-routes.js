@@ -14,7 +14,8 @@ module.exports = function(app,dbFunctions,logger){
 	var renderRoutes = [
 		'/dosing',
 		'/dosing/current/:geneID',
-		'/dosing/new'
+		'/dosing/new',
+		'/browsepatients/dosing/:patientID'
 	];
 	//==========================================================
 	// Parameterd
@@ -81,6 +82,7 @@ module.exports = function(app,dbFunctions,logger){
 			res.send(options);
 		});
 	});
+
 
 	app.post('/dosing/current/:geneID/new-interaction',utils.isLoggedIn, function(req,res){
 		var unitialized = req.query.unitialized === 'true';
@@ -337,5 +339,10 @@ module.exports = function(app,dbFunctions,logger){
 		});
 	});
 	
+
+	app.post('/browsepatients/dosing/:patientID/generatereport', utils.isLoggedIn,function(req,res){
+		var info = req.body;
+		res.send(info);
+	});
 
 };

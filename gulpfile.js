@@ -23,7 +23,8 @@ var gulp = require('gulp'),
 	runSequence = require('run-sequence'),
 	replace = require('gulp-replace'),
 	path = require('path'),
-	exec = require('child_process').exec;;
+	exec = require('child_process').exec,
+	constants = require("./src/server/conf/constants.json");
 
 
 /* all paths for use */
@@ -50,8 +51,7 @@ var paths = {
 		views:{
 			src:[
 				'src/client/templates/layout.hbs',
-				'src/client/templates/pgx-report.hbs',
-				'src/client/templates/notfound.hbs'
+				'src/client/templates/' + constants.nodeConstants.DEFAULT_PGX_REPORT,
 				],
 			dest:'build/views'
 		},
@@ -93,7 +93,7 @@ var paths = {
 				'src/server/src/parseVCF.js',
 				'src/server/src/queue.js',
 				'src/server/src/utils.js',
-				'src/server/src/pgx-report.js'
+				'src/server/src/genReport.js'
 			],
 			dest:'build/lib'
 		},
@@ -206,7 +206,7 @@ gulp.task('server-cons',function(){
 		dir = dir.replace(/\\/g,"\\\\");
 	}
 	return gulp.src(paths.server.cons.src)
-	.pipe( replace(/\{\{DIR\}\}/, dir) )
+	.pipe( replace(/\{\{DIR\}\}/g, dir) )
 	.pipe( gulp.dest(paths.server.cons.dest) );
 });
 
