@@ -391,43 +391,44 @@ module.exports = function(app,dbFunctions,logger){
 
 	/* Generate the dosing recomendation report */
 	app.post('/browsepatients/dosing/:patientID/report', utils.isLoggedIn,function(req,res){
-		req.flash('statusCode','500');
-		res.redirect('/failure');
-		/*var info = req.body;
+		//req.flash('statusCode','500');
+		//res.redirect('/failure');
+		
 		var options = {
-			top:'1cm',
-			bottom:'1cm',
-			left:'1cm',
-			rigth:'1cm'
+			top:'20px',
+			bottom:'20px',
+			left:'20px',
+			rigth:'20px'
 		};
+
 		logger.info("Generating PGX report for " + req.params.patientID);
-		genReport(req,res,req.params.patientID,constants.DRUGS.REPORT.DEFAULT,options).catch(function(err){
+		genReport(req,res,req.params.patientID,constants.dbConstants.DRUGS.REPORT.DEFAULT,options).catch(function(err){
 			logger.error("Failed to generate report for " + req.params.patientID,err);
-		});*/
+		});
 	});
 
 	/* Download the dosing recomendation report */
 	app.get('/browsepatients/dosing/:patientID/download/:id',utils.isLoggedIn,function(req,res){
 		var file = req.params.id;
 		var path = constants.nodeConstants.TMP_UPLOAD_DIR + '/' + file;
-		req.flash('statusCode','500');
-		res.redirect('/failure');
-		/*logger.info("Sending Report file: " + path + " to user: " + req.user[constants.dbConstants.USERS.ID_FIELD]); 
+		//req.flash('statusCode','500');
+		//res.redirect('/failure');
+		logger.info("Sending Report file: " + path + " to user: " + req.user[constants.dbConstants.USERS.ID_FIELD]); 
 		res.download(path,file,function(err){
 			if (err){
 				logger.error("Report file: " + path + " failed to send to user:  " + req.user[constants.dbConstants.USERS.ID_FIELD],err);
 			} else {
 				var html = path.replace(/.pdf$/,'.html');
-				fs.unlink(html,function(err){
-					if (err)
-						logger.error("Failed to remove report file: " + html,err);
-				});
-				fs.unlink(path,function(err){
-					if (err)
-						logger.error("Failed to remove report file: " + path,err);
-				});
+				//fs.unlink(html,function(err){
+				//	if (err)
+				//		logger.error("Failed to remove report file: " + html,err);
+				//});
+				//fs.unlink(path,function(err){
+				//	if (err)
+				//		logger.error("Failed to remove report file: " + path,err);
+				//});
 			}
-		}); */
+		});
 
 	});
 

@@ -188,7 +188,7 @@ module.exports = {
 				data:JSON.stringify(formInfo)
 			})).then(function(result){
 				if (result.name){
-					open(window.pathname.location + '/download' + result.name);	
+					open(window.location.pathname + '/download/' + result.name);	
 				}
 			}).then(function(){
 				$('form').find('button').text('Generate Report');

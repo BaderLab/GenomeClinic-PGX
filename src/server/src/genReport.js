@@ -42,7 +42,7 @@ module.exports = function(req,res,reportName,template,options){
 							right:right
 						}
 					});
-					page.set('viewportSize',{width:290,height:350});
+					//page.set('viewportSize',{width:290,height:350});
 					page.open(path + '.html',function(status){
 						if (status !== "success") {
 							throw new Error("file did not open properly");

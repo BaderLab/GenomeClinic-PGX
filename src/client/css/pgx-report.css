@@ -1,50 +1,74 @@
-.row {
-	width:100%;
-	margin-right:0;
-	margin-left:0;
-}	
+/*-- our cleafix hack -- */ 
+.row:before, 
+.row:after {
+	width: 100%;
+    clear:both;
+    margin-right: 0px;
+    margin-left: 0px;
+}
 
+
+/*
+.col-2{ width: 16.66%; }
+.col-3{ width: 33.33%; }
+.col-4{ width: 50%;    }
+.col-5{ width: 66.66%; }
+.col-6{ width: 83.33%; }
+.col-7{ width: 100%;   }
+
+*/
+
+/*.row {
+	width:100%;
+	margin-right:0px;
+	margin-left:0px;
+}	
+*/
 .columns {
-	padding-left:0;
-	padding-right:0;
+	padding-left:0px;
+	padding-right:0px;
+	margin-left:0px;
+	margin-right:0px;
 	display:inline-block;
 }
+
 .col-1 {
-	width: 8%;
+	width: 8.33%;
 }
 .col-2 {
-	width: 15.5%;
+	width: 16.666%;
 }
 .col-3 {
-	width: 24%;
+	width: 25%;
 }
 .col-4 {
-	width: 32.5%;
+	width: 33.33%;
 }
 .col-5 {
-	width: 40.5%;
+	width: 41.66%;
 }
 .col-6 {
-	width: 49%;
+	width:50%;
 }
 .col-7 {
-	width: 58%;
+	width:58.333%;
 }
 .col-8 {
-	width: 66%;
+	width: 66.66%;
 }
 .col-9 {
-	width: 74%;
+	width: 75%;
 }
 .col-10 {
-	width: 82.5%;
+	width:83.33%;
 }
 .col-11 {
-	width: 91%;
+	width: 91.66%;
 }
 .col-12 {
 	width: 100%;
-}
+} 
+
 
 p {
 	font-size:8px;
