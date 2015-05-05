@@ -1,8 +1,14 @@
+/* Functions and handlers for working with the Dosing recomendations UI
+ * these functions enable the user to update, delete or add dosing
+ * recomendations.
+ *@author Patrick Magee */
+
 var $ = require("jquery"),
 	templates = require('./templates'),
 	utility = require('./utility');
 
 module.exports = function(){
+	//add new methods to adbide validation
 	var abideOptions = {
 		abide: {
 			validators:{
@@ -39,7 +45,7 @@ module.exports = function(){
 	};
 
 	//Reveal a modal and confirm whether or not the action should be continued
-	//returns a promce
+	//returns a promise
 	var confirmAction = function(title,message){
 		var promise  = new Promise(function(resolve,reject){
 			$('#confirm-delete').find('h4').text(title);
@@ -68,11 +74,15 @@ module.exports = function(){
 		/* main page hanlders, contains a list of all the genes that are that have dosing
 		 * information  and the number of interactions tehre are recomendations for*/
 		index:function(){
+			/* Close the error display box */
 			$('.close-box').on('click',function(e){
 				e.preventDefault();
 				$(this).closest('#error-display-box').slideUp();
 			});
-			
+				
+			/* whenever a key is pressed within the serach box search through the current
+			 * rows for genes that match the value present in the search box. Hide those that
+			 * do not match */
 			$('#search-box').on('keyup',function(){
 				var currentRows = $('.dose-row');
 				for (var i=0; i < currentRows.length; i++ ){
@@ -82,21 +92,25 @@ module.exports = function(){
 						$(currentRows[i]).show();
 				}
 			});
-			//when you click on a dose row, open the curent dosing information
+			//when you click on a dose row, navigate to the current dosing information 
 			$('.dose-row').on('click',function(e){
 				e.preventDefault();
 				var location = '/dosing/current/' + $(this).data('name');
 				window.location.replace(location);
 			});
 
+
+			/* Handler to show the form to add a new gene */
 			$('#add-new-gene').on('click',function(e){
 				e.preventDefault();
 				$(this).hide().siblings('#submit-new-gene').show()
 				$("#submit-new-gene-form").show();
 			});
 
+			/* Once the Gene form has been validated send the form information
+			 * to the server to be added to the databse. Upon a succesful entry
+			 * navigate to the new gene's drug recomendation page */
 			$('#submit-new-gene-form').on('valid.fndtn.abide',function(e){
-				console.log('here');
 				var val = $('#new-gene-name').val();
 				Promise.resolve($.ajax({
 					url:'/dosing/new/' + val,
@@ -104,7 +118,6 @@ module.exports = function(){
 					contentType:'application/json',
 					dataType:'json'
 				})).then(function(result){
-					console.log
 					if (result.statusCode == 200){
 						console.log(result);
 						window.location.replace('/dosing/current/' + val);
@@ -288,7 +301,7 @@ module.exports = function(){
 			} else {
 				context = $(el);
 			}
-
+			//Close the message box
 			context.find('.close-box').on('click',function(e){
 					e.preventDefault();
 					$(this).closest('.alert-box').slideUp();
@@ -350,8 +363,6 @@ module.exports = function(){
 							doc[fields[i].name] = fields[i].value;
 						}
 				}
-				console.log(hap_1);
-				console.log(hap_2);
 				if (Object.keys(hap_1).length > 0) doc.hap_1 = hap_1;
 				if (Object.keys(hap_2).length > 0) doc.hap_2 = hap_2;
 				if (doc.pgx_1) doc.pgx_1 = doc.pgx_1.toLowerCase();

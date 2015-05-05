@@ -9,40 +9,40 @@
 	padding-right:0;
 	display:inline-block;
 }
-.large-1 {
+.col-1 {
 	width: 8%;
 }
-.large-2 {
+.col-2 {
 	width: 15.5%;
 }
-.large-3 {
+.col-3 {
 	width: 24%;
 }
-.large-4 {
+.col-4 {
 	width: 32.5%;
 }
-.large-5 {
+.col-5 {
 	width: 40.5%;
 }
-.large-6 {
+.col-6 {
 	width: 49%;
 }
-.large-7 {
+.col-7 {
 	width: 58%;
 }
-.large-8 {
+.col-8 {
 	width: 66%;
 }
-.large-9 {
+.col-9 {
 	width: 74%;
 }
-.large-10 {
+.col-10 {
 	width: 82.5%;
 }
-.large-11 {
+.col-11 {
 	width: 91%;
 }
-.large-12 {
+.col-12 {
 	width: 100%;
 }
 

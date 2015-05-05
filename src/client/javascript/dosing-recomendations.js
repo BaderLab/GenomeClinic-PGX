@@ -180,7 +180,7 @@ module.exports = {
 		$('form').on('valid.fndtn.abide',function(){
 			var formInfo = _this.serializeForm();
 			Promise.resolve($.ajax({
-				url:window.location.pathname + '/generatereport',
+				url:window.location.pathname + '/report',
 				type:"POST",
 				dataType:'json',
 				contentType:'application/json',
@@ -189,15 +189,6 @@ module.exports = {
 				console.log(result);
 			});
 		});
-
-		$('form').on('invalid.fndtn.abide',function(){
-			var formInfo = _this.serializeForm();
-			console.log(formInfo);
-		});
-
-
-		
-
 	},
 
 	//render

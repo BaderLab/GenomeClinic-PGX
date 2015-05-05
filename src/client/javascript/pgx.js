@@ -547,7 +547,7 @@ var pgx =  {
 		});
 	},
 
-	//Yes I know this is wasteful, However I really dont want to break any of the previous code
+	//Convert the templated data within the global pgx field into a more usable format
 	convertTotemplateData:function(){
 		var self = this;
 		var promise = new Promise(function(resolve,reject){

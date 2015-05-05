@@ -13,10 +13,12 @@ module.exports = function(passport,dbFunctions,opts){
 	if (!dbFunctions)
 		dbFunctions = require('../models/mongodb_functions');
 
+
+	/* Method to serialize new user */
 	passport.serializeUser(function(user,done){
 		done(null,user[dbConstants.USERS.ID_FIELD]);
 	});
-
+	/* Method to deserialize new user */
 	passport.deserializeUser(function(id,done){
 		dbFunctions.findUserById(id).then(function(user){
 			done(null,user);
@@ -25,12 +27,15 @@ module.exports = function(passport,dbFunctions,opts){
 		});
 	});
 
+	//If the server was started with the option to signum, run this route
 	if (opts.signup){
+		/* attache the local signup method to the passport instance */
 		passport.use('local-signup', new LocalStrategy({
 			usernameField:dbConstants.USERS.ID_FIELD,
 			passwordField:dbConstants.USERS.PASSWORD_FIELD,
 			passReqToCallback: true
 		},
+			//Adds a new user to the usre database is if there is  not already one that exists
 			function(req,username,password,done){
 				process.nextTick(function(){
 					dbFunctions.findUserById(username)
@@ -52,7 +57,7 @@ module.exports = function(passport,dbFunctions,opts){
 			}
 		));
 	}
-
+	/* Sign on using the local database */
 	passport.use('local-login', new LocalStrategy({
 		usernameField:dbConstants.USERS.ID_FIELD,
 		passwordField:dbConstants.USERS.PASSWORD_FIELD,
@@ -81,6 +86,7 @@ module.exports = function(passport,dbFunctions,opts){
 		}
 	));
 
+	/* If oauth has been set up then use google's oath strategy */
 	if (opts.oauth){
 		var api = require('../lib/conf/api');
 		if (!api.googleAuth.clientID){
