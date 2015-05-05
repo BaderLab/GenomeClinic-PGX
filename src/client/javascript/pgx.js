@@ -540,13 +540,9 @@ var pgx =  {
 				contentType:'application/json',
 				data:JSON.stringify(self.templateData)
 			})).then(function(result){
-				return $('#direct_download').attr('href',window.location.pathname + '/download/' + result.name);
-				
-			}).then(function(){
-				return $('#direct_download').get(0).click();
+				open(window.location.pathname + "/download/" + result.name);		
 			}).then(function(){
 				$(_this).text("Download");
-				return $('#direct_download').attr('href','');
 			});
 		});
 	},

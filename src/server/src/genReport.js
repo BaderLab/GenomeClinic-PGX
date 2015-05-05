@@ -4,6 +4,7 @@ var constants = require("./conf/constants.json");
 var cons = Promise.promisifyAll(require('consolidate'));
 var fs = Promise.promisifyAll(require('fs'));
 
+/* Generate Reports based on the template provided and send the name of the report to the server */
 module.exports = function(req,res,reportName,template,options){
 	var name,path,top,bottom,left,right,format,orientation;
 	options = options === undefined ? {}: options;
@@ -64,6 +65,7 @@ module.exports = function(req,res,reportName,template,options){
 			name:name + '.pdf'
 		}
 		res.send(JSON.stringify(o));
+
 	}).catch(function(err){
 		throw new Error(err);
 	});
