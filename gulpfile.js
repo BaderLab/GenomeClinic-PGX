@@ -51,7 +51,8 @@ var paths = {
 		views:{
 			src:[
 				'src/client/templates/layout.hbs',
-				'src/client/templates/' + constants.nodeConstants.DEFAULT_PGX_REPORT,
+				'src/client/templates/pgx-report.hbs',
+				'src/client/templates/default-dosing-report.hbs'
 				],
 			dest:'build/views'
 		},

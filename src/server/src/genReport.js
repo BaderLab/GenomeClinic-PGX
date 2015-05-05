@@ -21,7 +21,7 @@ module.exports = function(req,res,reportName,template,options){
 		var date = new Date();
 		name = reportName + "_report_"+ date.getDay().toString() + "_" + date.getMonth().toString() + "_" + date.getUTCFullYear().toString() + 
 		"_" + date.getTime().toString();
-		path = constants.nodeConstants.SERVER_DIR + '/' + constants.nodeConstants.TMP_UPLOAD_DIR + '/' + name;
+		path = constants.nodeConstants.TMP_UPLOAD_DIR + '/' + name;
 		var opts = req.body;
 		opts.user = req.user[constants.dbConstants.USERS.ID_FIELD];
 		opts.date = date.getDay().toString() + '/' + date.getMonth().toString() + '/' + date.getUTCFullYear().toString();

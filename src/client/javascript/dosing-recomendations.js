@@ -15,7 +15,7 @@ module.exports = {
 			temp.hap = {
 				allele_1:$(rows[i]).find(".allele_1").val(),
 				allele_2:$(rows[i]).find(".allele_2").val()
-			}
+			};
 			temp.class = $(rows[i]).find('.therapeutic-class').val();
 			output.push(temp);
 		}
@@ -108,7 +108,7 @@ module.exports = {
 					$(rows[i]).find('select').val(result[gene].class);
 				}
 			}
-		});1
+		});
 	},
 
 
@@ -123,7 +123,7 @@ module.exports = {
 			data:JSON.stringify(tableValues)
 		})).then(function(result){
 			console.log(result);
-			return templates.drugs.rec.recs({drugs:result})
+			return templates.drugs.rec.recs({drugs:result});
 		}).then(function(renderedHtml){
 			return $('#drug-recomendations').html(renderedHtml);
 
@@ -138,7 +138,7 @@ module.exports = {
 			ele.on('click',function(e){
 				e.preventDefault();
 				var context = $(this).closest('tbody');
-				$(this).closest('tr').remove()
+				$(this).closest('tr').remove();
 				if (!$(context).find('tr').length){
 					$(context).closest('table').hide();
 				}
@@ -165,7 +165,7 @@ module.exports = {
 			var val = $('#patient-new-drug').val();
 			if (val !== ""){
 				$('#patient-new-drug').val('');
-				var html = "<tr><td class='patient-drug-name'>" + val + "</td><td class='text-center'><a href='#'><i class='fi-x'></i></a></td></tr>"
+				var html = "<tr><td class='patient-drug-name'>" + val + "</td><td class='text-center'><a href='#'><i class='fi-x'></i></a></td></tr>";
 				$('#patient-drug-table').find('tbody').append(html);
 				removeRow($('#patient-drug-table').find('tbody').last('tr').find('a'));
 				if (!$('#patient-drug-table').is(":visible")){
@@ -179,7 +179,7 @@ module.exports = {
 		//submit form
 		$('form').on('valid.fndtn.abide',function(){
 			var formInfo = _this.serializeForm();
-			$(this).find('button').text('Generating...')
+			$(this).find('button').text('Generating...');
 			Promise.resolve($.ajax({
 				url:window.location.pathname + '/report',
 				type:"POST",
@@ -188,8 +188,7 @@ module.exports = {
 				data:JSON.stringify(formInfo)
 			})).then(function(result){
 				if (result.name){
-					open(window.pathname.location + '/download' + result.name);
-					
+					open(window.pathname.location + '/download' + result.name);	
 				}
 			}).then(function(){
 				$('form').find('button').text('Generate Report');
@@ -204,7 +203,7 @@ module.exports = {
 		var _this = this;
 		var pgxTemplateData, therapeuticClasses, drugRecomendations;
 		//load information on patient and generate pgx info.
-		var location = window.location.pathname
+		var location = window.location.pathname;
 		var patientID = location.split('/').splice(-1)[0];
 		pgx.generatePgxResults(patientID).then(function(result){
 			return pgx.convertTotemplateData(result);
@@ -226,7 +225,7 @@ module.exports = {
 				url:"/database/dosing/classes",
 				type:"GET",
 				dataType:"json"
-			}))
+			}));
 		}).then(function(result){
 				therapeuticClasses = result;
 		}).then(function(){
@@ -243,4 +242,4 @@ module.exports = {
 		});
 
 	}
-}
+};

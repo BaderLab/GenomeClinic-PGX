@@ -112,15 +112,15 @@ var dbFunctions = function(logger,DEBUG){
 				//Add the default pgx data to the collection if its not there already and only if it exists.
 				.then(function(){
 					logInfo("Checking for default PGX information");
-					fs.statAsync(nodeConstants.SERVER_DIR + '/' + dbConstants.PGX.COORDS.DEFAULT)
+					fs.statAsync(dbConstants.PGX.COORDS.DEFAULT)
 					.then(function(){
 						// Make sure both the Genes and the Coords are available.
-						return fs.statAsync(nodeConstants.SERVER_DIR + '/' + dbConstants.PGX.GENES.DEFAULT);
+						return fs.statAsync(dbConstants.PGX.GENES.DEFAULT);
 					}).catch(function(err){
 						throw new Error("No Default Pgx Information detected, skipping step");
 					}).then(function(result){
-						var pgxCoords = require(nodeConstants.SERVER_DIR + '/' + dbConstants.PGX.COORDS.DEFAULT);
-						var pgxGenes = require(nodeConstants.SERVER_DIR + '/' + dbConstants.PGX.GENES.DEFAULT);
+						var pgxCoords = require(dbConstants.PGX.COORDS.DEFAULT);
+						var pgxGenes = require(dbConstants.PGX.GENES.DEFAULT);
 						var o,rsIds;
 						var coordIds = [];
 						//Get a list of all the coordinate ids
@@ -176,9 +176,9 @@ var dbFunctions = function(logger,DEBUG){
 					return self.createIndex(dbConstants.DRUGS.DOSING.COLLECTION,currentDocument);
 				}).then(function(){
 					logInfo("Checking for default drug recomendation information");
-					return fs.statAsync(nodeConstants.SERVER_DIR + '/' + dbConstants.DRUGS.DOSING.DEFAULT)
+					return fs.statAsync(dbConstants.DRUGS.DOSING.DEFAULT)
 					.then(function(result){
-						var dosing = require(nodeConstants + '/' + dbConstants.DRUGS.DOSING.DEFAULT);
+						var dosing = require(dbConstants.DRUGS.DOSING.DEFAULT);
 						var o = {
 							documents: dosing,
 							collectionName: dbConstants.DRUGS.DOSING.COLLECTION
@@ -196,9 +196,9 @@ var dbFunctions = function(logger,DEBUG){
 					return self.createIndex(dbConstants.DRUGS.CLASSES.COLLECTION,currentDocument,{unique:true});
 				}).then(function(){
 					logInfo("Checking for default therapeutic class information");
-					return fs.statAsync(nodeConstants.SERVER_DIR + '/' + dbConstants.DRUGS.CLASSES.DEFAULT)
+					return fs.statAsync(dbConstants.DRUGS.CLASSES.DEFAULT)
 					.then(function(result){
-						var dosing = require(nodeConstants + '/' + dbConstants.DRUGS.CLASSES.DEFAULT);
+						var dosing = require(dbConstants.DRUGS.CLASSES.DEFAULT);
 						var o = {
 							documents: dosing,
 							collectionName: dbConstants.DRUGS.CLASSES.COLLECTION
@@ -300,9 +300,9 @@ var dbFunctions = function(logger,DEBUG){
 		var coords,toAdd=[];
 		var _this = this;
 		assert.notStrictEqual(db,undefined);
-		return fs.statAsync(nodeConstants.SERVER_DIR + "/" + dbConstants.PGX.COORDS.DEFAULT)
+		return fs.statAsync(dbConstants.PGX.COORDS.DEFAULT)
 		.then(function(result){
-			coords = require(nodeConstants.SERVER_DIR + "/" + dbConstants.PGX.COORDS.DEFAULT);
+			coords = require(dbConstants.PGX.COORDS.DEFAULT);
 			return coords;
 		}).each(function(item){
 			return _this.checkInDatabase(dbConstants.PGX.COORDS.COLLECTION,dbConstants.PGX.COORDS.ID_FIELD,item[dbConstants.PGX.COORDS.ID_FIELD])
@@ -335,9 +335,9 @@ var dbFunctions = function(logger,DEBUG){
 		var genes,toAdd=[];
 		var _this = this;
 		assert.notStrictEqual(db,undefined);
-		return fs.statAsync(nodeConstants.SERVER_DIR + "/" + dbConstants.PGX.GENES.DEFAULT)
+		return fs.statAsync(dbConstants.PGX.GENES.DEFAULT)
 		.then(function(result){
-			genes = require(nodeConstants.SERVER_DIR + "/" + dbConstants.PGX.GENES.DEFAULT);
+			genes = require(dbConstants.PGX.GENES.DEFAULT);
 			return genes;
 		}).each(function(item){
 			return _this.checkInDatabase(dbConstants.PGX.GENES.COLLECTION,dbConstants.PGX.GENES.ID_FIELD,item[dbConstants.PGX.GENES.ID_FIELD])
@@ -369,9 +369,9 @@ var dbFunctions = function(logger,DEBUG){
 		var dosing, classes, toAdd = [];
 		var _this  = this;
 		assert.notStrictEqual(db,undefined);
-		return fs.statAsync(nodeConstants.SERVER_DIR + "/" + dbConstants.DRUGS.DOSING.DEFAULT)
+		return fs.statAsync(dbConstants.DRUGS.DOSING.DEFAULT)
 		.then(function(){
-			dosing = require(nodeConstants.SERVER_DIR + "/" + dbConstants.DRUGS.DOSING.DEFAULT);
+			dosing = require(dbConstants.DRUGS.DOSING.DEFAULT);
 			return dosing;
 		}).each(function(item){
 			var query = {};
@@ -401,9 +401,9 @@ var dbFunctions = function(logger,DEBUG){
 			logErr("error encountered when adding new default dosing guidelines on startup");
 		}).then(function(){
 			toAdd = [];
-			fs.statAsync(nodeConstants.SERVER_DIR + "/" + dbConstants.DRUGS.CLASSES.DEFAULT);
+			fs.statAsync(dbConstants.DRUGS.CLASSES.DEFAULT);
 		}).then(function(){
-			classes = require(nodeConstants.SERVER_DIR + "/" + dbConstants.DRUGS.CLASSES.DEFAULT);
+			classes = require(dbConstants.DRUGS.CLASSES.DEFAULT);
 			return classes;
 		}).each(function(item){
 			var query = {};

@@ -74,7 +74,7 @@ module.exports = function(app,dbFunctions,logger){
 	//Send the report to the user, delete the report after it was sent.
 	app.get('/browsepatients/id/:patientID/download/:id',utils.isLoggedIn,function(req,res){
 		var file = req.params.id;
-		var path = constants.nodeConstants.SERVER_DIR + '/' + constants.nodeConstants.TMP_UPLOAD_DIR + '/' + file;
+		var path = constants.nodeConstants.TMP_UPLOAD_DIR + '/' + file;
 		logger.info("Sending Report file: " + path + " to user: " + req.user[constants.dbConstants.USERS.ID_FIELD]); 
 		res.download(path,file,function(err){
 			if (err){

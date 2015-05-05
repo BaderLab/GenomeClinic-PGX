@@ -24,7 +24,7 @@ module.exports = function(app,dbFunctions,logger){
 		'/browsepatients/dosing/:patientID'
 	];
 	//==========================================================
-	// Parameterd
+	// Parameters
 	//==========================================================
 	/* Whenever geneID parameter is included in a url first ensure that the
 	 * gene ID exists prior to loading information */
@@ -276,7 +276,7 @@ module.exports = function(app,dbFunctions,logger){
 				dbFunctions.insert(constants.dbConstants.DRUGS.DOSING.COLLECTION, newDoc)
 				.then(function(result){
 					if (result) {
-						req.flash('statusCode','200'),
+						req.flash('statusCode','200');
 						req.flash('message','Gene successfully inserted to dosing tables');
 						res.redirect('/success');
 					} else {
@@ -409,7 +409,7 @@ module.exports = function(app,dbFunctions,logger){
 	/* Download the dosing recomendation report */
 	app.get('/browsepatients/dosing/:patientID/download/:id',utils.isLoggedIn,function(req,res){
 		var file = req.params.id;
-		var path = constants.nodeConstants.SERVER_DIR + '/' + constants.nodeConstants.TMP_UPLOAD_DIR + '/' + file;
+		var path = constants.nodeConstants.TMP_UPLOAD_DIR + '/' + file;
 		req.flash('statusCode','500');
 		res.redirect('/failure');
 		/*logger.info("Sending Report file: " + path + " to user: " + req.user[constants.dbConstants.USERS.ID_FIELD]); 

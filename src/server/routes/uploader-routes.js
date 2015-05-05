@@ -33,8 +33,8 @@ module.exports = function(app,dbFunctions,queue){
 
 	//Configure the uploader to tell it what directories to use
 	uploader.configure({
-		tmpDir:nodeConstants.SERVER_DIR + '/' + nodeConstants.TMP_UPLOAD_DIR,
-		uploadDir:nodeConstants.SERVER_DIR + '/' + nodeConstants.VCF_UPLOAD_DIR,
+		tmpDir:nodeConstants.TMP_UPLOAD_DIR,
+		uploadDir:nodeConstants.VCF_UPLOAD_DIR,
 		uploadUrl:'/upload/vcf'
 	});
 	/* Event Handler that is triggered upon successful completion of the file upload

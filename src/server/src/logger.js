@@ -15,12 +15,12 @@ module.exports = function(useage){
 			transports:[
 				new (winston.transports.File)({
 					name:'info-file',
-					filename:nodeConstants.SERVER_DIR + "/" + nodeConstants.LOG_DIR + '/' + nodeConstants.INFO_LOG_PATH,
+					filename:nodeConstants.LOG_DIR + '/' + nodeConstants.INFO_LOG_PATH,
 					level:'info'
 				}),
 				new (winston.transports.File)({
 					name:'error-file',
-					filename:nodeConstants.SERVER_DIR + "/" + nodeConstants.LOG_DIR + '/' + nodeConstants.ERR_LOG_PATH,
+					filename:nodeConstants.LOG_DIR + '/' + nodeConstants.ERR_LOG_PATH,
 					level:'error'
 				})
 			]
@@ -30,12 +30,12 @@ module.exports = function(useage){
 			transports:[
 				new (winston.transports.File)({
 					name:'info-file',
-					filename:nodeConstants.SERVER_DIR + "/" + nodeConstants.LOG_DIR + '/' + nodeConstants.PARSE_INFO_LOG_PATH,
+					filename:nodeConstants.LOG_DIR + '/' + nodeConstants.PARSE_INFO_LOG_PATH,
 					level:'info'
 				}),
 				new (winston.transports.File)({
 					name:'error-file',
-					filename:nodeConstants.SERVER_DIR + "/" + nodeConstants.LOG_DIR + '/' + nodeConstants.PARSE_ERR_LOG_PATH,
+					filename:nodeConstants.LOG_DIR + '/' + nodeConstants.PARSE_ERR_LOG_PATH,
 					level:'error'
 				})
 			]
@@ -45,12 +45,12 @@ module.exports = function(useage){
 			transports:[
 				new (winston.transports.File)({
 					name:'info-file',
-					filename:nodeConstants.SERVER_DIR + "/" + nodeConstants.LOG_DIR + '/' + nodeConstants.ANNO_INFO_LOG_PATH,
+					filename:nodeConstants.LOG_DIR + '/' + nodeConstants.ANNO_INFO_LOG_PATH,
 					level:'info'
 				}),
 				new (winston.transports.File)({
 					name:'error-file',
-					filename:nodeConstants.SERVER_DIR + "/" + nodeConstants.LOG_DIR + '/' + nodeConstants.ANNO_ERR_LOG_PATH,
+					filename:nodeConstants.LOG_DIR + '/' + nodeConstants.ANNO_ERR_LOG_PATH,
 					level:'error'
 				})
 			]
@@ -60,12 +60,12 @@ module.exports = function(useage){
 			transports:[
 				new (winston.transports.File)({
 					name:'info-file',
-					filename:nodeConstants.SERVER_DIR + "/" + nodeConstants.LOG_DIR + '/' + nodeConstants.DB_INFO_LOG_PATH,
+					filename:nodeConstants.LOG_DIR + '/' + nodeConstants.DB_INFO_LOG_PATH,
 					level:'info'
 				}),
 				new (winston.transports.File)({
 					name:'error-flie',
-					filename:nodeConstants.SERVER_DIR + "/" + nodeConstants.LOG_DIR + '/' + nodeConstants.DB_ERR_LOG_PATH,
+					filename:nodeConstants.LOG_DIR + '/' + nodeConstants.DB_ERR_LOG_PATH,
 					level:'error'
 				})
 			]
