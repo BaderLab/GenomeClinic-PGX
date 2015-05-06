@@ -1,33 +1,239 @@
+<!-- sick kids color: #3daed6 -->
 <html class="no-js" lang="en">
   <head>
     <meta charset="utf-8"/>
     <link rel="stylesheet" type="text/css" href="../public/css/pgx-report.css" />
   </head>
-  <div class="row" style="marin-top:0px;margin-bottom:0px;">
-  		<div class="col-3 columns">
-  			<div style="max-width:100%">
-  				<img src="../public/img/SK_PMS_Web.jpg" style="width:100%"/>
-  			</div>
-  		</div>
-  		<div class="col-6 columns">
-  			<h2 style="padding-top:10px;padding-bottom:10px">PharmacoGenetics Report</h2>
-  		</div>
-  		<div class="col-3 columns">
-  			<div class="row" style="marin-top:0px;margin-bottom:0px;">
-  				<div class="col-3 columns">
-  					<p style="text-align:right">DATE</p>
-  				</div>
-  				<div class="col-9 columns">
-  					<p style="text-align:left">TEST</p>
-  				</div>
-  			</div>
-  			<div class="row" style="marin-top:0px;margin-bottom:0px;">
-  				<div class="col-4 columns">
-  					<p style="text-align:right">DATE</p>
-  				</div>
-  				<div class="col-8 columns">
-  					<p style="text-align:left">TEST</p>
-  				</div>
-  			</div>
-  		</div>
-  </div>
+  <body>
+	  <div class="row" style="marin-top:0px;margin-bottom:0px;">
+	  		<div class="col-3 columns">
+	  			<div style="max-width:100%">
+	  				<img src="../public/img/SK_PMS.jpg" style="width:100%"/>
+	  			</div>
+	  		</div>
+	  		<div class="col-5 columns">
+	  			<div class="row">
+	  				<div class="col-12 columns">
+	  					<h4 class="sickkids" style="padding-left:5px;margin-bottom:0px">PharmacoGenetics Report</h4	>
+	  				</div>
+	  			</div>
+	  		</div>
+	  		<div class="col-4 columns" style="margin-bottom:0; vertical-align:bottom;">
+	  			<div class="row" style="marin-top:0px;margin-bottom:0px;">
+	  				<div class="col-8 columns">
+	  					<p class="size-12 sickkids rspacer-1 thin right">Date:</p>
+	  				</div>
+	  				<div class="col-4 columns">
+	  					<p class="size-10 lspacer-1 thin right">{{date}}</p>
+	  				</div>
+	  			</div>
+	  			<div class="row" style="marin-top:0px;margin-bottom:0px;">
+	  				<div class="col-8 columns">
+	  					<p class="size-10 sickkids rspacer-1 thin right">Report Number:</p>
+	  				</div>
+	  				<div class="col-4 columns">
+	  					<p class="size-10 lspacer-1 thin right">{{reportNum}}</p>
+	  				</div>
+	  			</div>
+	  		</div>
+	  </div>
+	  <hr  color="#3DAED6" style="height:2px">
+	  <section style="margin:3%">
+	  	<div class="row">
+	  		<div class="col-8 columns">
+				<h5 class="sickkids thin">Patient Information</h5>
+				<div class="row">
+			  		<div class="col-6 columns">
+			  			<div class="row">
+			  				<div class="col-6 columns">
+			  					<p class="size-10 sickkids left">Name: </p>
+			  				</div>
+			  				<div class="col-6 columns">
+			  					<p class="size-10 left">{{patient.name.last}}, {{patient.name.first}}</p>
+			  				</div>
+			  			</div>
+			  			<div class="row">
+			  				<div class="col-6 columns">
+			  					<p class="size-10 sickkids left">MRN: </p>
+			  				</div>
+			  				<div class="col-6 columns">
+			  					<p class="size-10 left">{{patientID}}</p>
+			  				</div>
+			  			</div>
+			  			<div class="row">
+			  				<div class="col-6 columns">
+			  					<p class="size-10 sickkids left">Sex </p>
+			  				</div>
+			  				<div class="col-6 columns">
+			  					<p class="size-10 left">{{patient.sex}}</p>
+			  				</div>
+			  			</div>
+			  			<div class="row">
+			  				<div class="col-6 columns">
+			  					<p class="size-10 sickkids left">Sample Type: </p>
+			  				</div>
+			  				<div class="col-6 columns">
+			  					<p class="size-10 left">{{patient.sampletype}}</p>
+			  				</div>
+			  			</div>
+			  		</div>
+			  		<div class="col-6 columns">
+			  			<div class="row">
+			  				<div class="col-6 columns">
+			  					<p class="size-10 sickkids left">D.O.B: </p>
+			  				</div>
+			  				<div class="col-6 columns">
+			  					<p class="size-10 left">{{patient.dob.date}}/{{patient.dob.month}}/{{patient.dob.year}}</p>
+			  				</div>
+			  			</div>
+			  			<div class="row">
+			  				<div class="col-6 columns">
+			  					<p class="size-10 sickkids left">Weight (kg): </p>
+			  				</div>
+			  				<div class="col-6 columns">
+			  					<p class="size-10 left">{{patient.weight}}</p>
+			  				</div>
+			  			</div>
+			  			<div class="row">
+			  				<div class="col-6 columns">
+			  					<p class="size-10 sickkids left">Height (cm): </p>
+			  				</div>
+			  				<div class="col-6 columns">
+			  					<p class="size-10 left">{{patient.height}}</p>
+			  				</div>
+			  			</div>
+			  		</div>
+			  	</div>
+			  	<div class="row">
+			  		<div class="col-12 columns">
+			  			<div class="row">
+					  		<div class="col-4 columns">
+					  			<p class="size-10 left sickkids">Current Medication:</p>
+					  		</div>
+					  		<div class="col-8 columns">
+					  			<p class="size-10 left">{{patient.medications}}</p>
+					  		</div>
+					  	</div>
+					</div>
+			  	</div>
+		  	</div>
+		  	<div class="col-4 columns grey-border" style="background-color:#E8F2FF;">
+		  		<h5 class="sickkids thin lspacer-1 tspacer-1">Referring Physician</h5>
+		  		<div class="row lspacer-1 rspacer-2">
+		  			<div class="col-4 columns">
+		  				<p class="size-10 sickkids left">Name: </p>
+		  			</div>
+		  			<div class="col-8 columns">
+		  				<p class="size-10 left">Dr. {{dr.name.first}} {{dr.name.last}}</P>
+		  			</div>
+		  		</div>
+		  		<div class="row lspacer-1 rspacer-1">
+		  			<div class="col-4 columns">
+		  				<p class="size-10 sickkids left">Address: </p>
+		  			</div>
+		  			<div class="col-8 columns">
+		  				<p class="size-10 left">{{dr.address}}</P>
+		  			</div>
+		  		</div>
+		  		<div class="row lspacer-1 rspacer-1">
+		  			<div class="col-8 columns right">
+		  				<p class="size-10 left">{{dr.city}}, {{dr.region}}</P>
+		  			</div>
+		  		</div>
+		  		<div class="row lspacer-1 rspacer-1">
+		  			<div class="col-8 columns right">
+		  				<p class="size-10 left">{{dr.postal}}</P>
+		  			</div>
+		  		</div>
+		  	</div>
+	  	</div>
+	  	<div class="row tspacer-4">
+	  		<div class="col-12 columns">
+	  			<div class="row">
+	  				<div class="col-3 columns">
+	  					<p class="size-10 sickkids left">Reason for Testing: </p>
+	  				</div>
+	  				<div class="col-9 columns">
+	  					<p class="size-10 left">{{patient.reason}}</p>
+	  				</div>
+	  			</div>
+	  			<div class="row">
+	  				<div class="col-3 columns">
+	  					<p class="size-10 sickkids left">Medications of Interest: </p>
+	  				</div>
+	  				<div class="col-9 columns">
+	  					<p class="size-10 left">{{drugsOfInterest}}</p>
+	  				</div>
+	  			</div>
+	  		</div>
+	  	</div>
+	  </section>
+	  <hr color="#3DAED6" style="height:1px">
+	  <h4 class="sickkids thin lspacer-4">Summary</h4>
+	  <hr color="#3DAED6" style="height:1px">
+	  <section style="margin:3%">
+	  	<div class="row">
+	  		<div class="col-12 columns">
+	  			<textara class="size-10">{{summary}}</textarea>
+	  		</div>
+	  	</div>
+	  </section>
+	  <hr color="#3DAED6" style="height:1px">
+	  <h4 class="sickkids thin lspacer-4">Perscribing recomendations</h4>
+	  <hr color="#3DAED6" style="height:1px">
+	  <div class="row">
+	  	<div class="col-12 columns">
+	  		<table class="rec no-space col-12">
+	  			<tbody>
+	  				{{#each recomendations}}
+			  		<tr class="rec">
+			  			<td style="padding:1%;overflow:visible">
+			  				<div class="unbreakable" style="page-break-inside:avoid">
+				  				<div class="row">
+				  					<div class="col-8 columns">
+				  						<div class="row">
+				  							<div class="col-2 columns">
+				  								<p class="sickkids size-10 left">Drug: </p>
+				  							</div>
+				  							<div class="col-10 columns">
+				  								<p class="size-10 left">{{@key}}</p>
+				  							</div>
+				  						</div>
+				  					</div>
+				  					<div class="col-4 columns">
+				  						<div class="row">
+				  							<div class="col-8 columns">
+				  								<p class="sickkids size-10 left">Therapeutic Risk: </p>
+				  							</div>
+				  							<div class="col-4 columns">
+				  								<p class="size-10 left">{{risk}}</p>
+				  							</div>
+				  						</div>
+				  					</div>
+				  				</div>
+				  				<div class="row">
+				  					<div class="col-12 columns ">
+				  						<h5 class="sickkids thin">Dosing Recomendation:</h5>
+				  						<p class="size-10">{{rec}}</p>
+				  					</div>
+				  				</div>
+			  				</div>
+			  			</td>
+			  			{{/each}}
+			  		</tr>
+			  	</tbody>
+			  </table>
+			</div>
+		</div>
+		<br>
+		<hr color="#3DAED6" style="height:1px;page-break-before:always;">
+		<h4 class="sickkids thin lspacer-4">Perscribing recomendations</h4>
+		<hr color="#3DAED6" style="height:1px">
+		<div class="row">
+			<div class="col-12 columns">
+				<span style="margin:1%"><p class="size-10">Based on patient genetic profile and current knowledge in pharmacogentics, the following is a summary for future medication administration for this patient. For comprehensive future dosing recommendations, the pharmacogenetic consultation report should be reassessed.</p></span>
+			</div>
+		</div>
+	</body>
+</html> 
+

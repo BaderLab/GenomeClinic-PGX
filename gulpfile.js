@@ -235,9 +235,8 @@ gulp.task('server',function(next){
 
 //Added route for globally installing phantomJs dependency
 gulp.task("phantom",function(){
-	var cont = true;
+	/*var cont = true;
 	var platform = process.platform;
-	console.log(platform);
 	if (platform.search(/win[0-9]+/i) === -1){
 		var uid = process.getuid();
 		if (uid !== 0){
@@ -249,15 +248,18 @@ gulp.task("phantom",function(){
 	}
 	if (cont){
 		gutil.log(gutil.colors.bgGreen("Starting:"), gutil.colors.yellow("PhantomJS"),"Installation Starting");
-		exec('npm install -g phantomjs',function(err,stdout,stderr){
-			if (err)
+		exec('npm install -g phantomjs@2.0.0',function(err,stdout,stderr){
+			if (err){
+				
 				gutil.log(gutil.colors.bgRed("Error:"), gutil.colors.yellow("PhantomJS"),"Install failed");
-			else if (stderr)
+			} else if (stderr){
+				
 				gutil.log(gutil.colors.bgRed("Error:"), gutil.colors.yellow("PhantomJS"),"Install failed");
-			else 
+			} else {
 				gutil.log(gutil.colors.bgGreen("Success:"), gutil.colors.yellow("PhantomJS"),"Successfully installed");
+			}
 		});
-	}
+	} */
 });
 
 gulp.task('jshint',function(){

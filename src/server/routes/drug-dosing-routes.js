@@ -391,16 +391,12 @@ module.exports = function(app,dbFunctions,logger){
 
 	/* Generate the dosing recomendation report */
 	app.post('/browsepatients/dosing/:patientID/report', utils.isLoggedIn,function(req,res){
-		//req.flash('statusCode','500');
-		//res.redirect('/failure');
-		
 		var options = {
-			top:'20px',
-			bottom:'20px',
+			top:'1cm',
+			bottom:'1cm',
 			left:'20px',
 			rigth:'20px'
 		};
-
 		logger.info("Generating PGX report for " + req.params.patientID);
 		genReport(req,res,req.params.patientID,constants.dbConstants.DRUGS.REPORT.DEFAULT,options).catch(function(err){
 			logger.error("Failed to generate report for " + req.params.patientID,err);

@@ -40,9 +40,15 @@ module.exports = function(req,res,reportName,template,options){
 							bottom:bottom,
 							left:left,
 							right:right
-						}
+						},
+						footer: {
+            				height: "1cm",
+            				contents: ph.callback(function(pageNum, numPages) {
+                				return "<span style='float:right'><p style='font-size:10px'>page: " + pageNum + " / " + numPages + "</p></span>";
+            				})
+            			}
 					});
-					//page.set('viewportSize',{width:290,height:350});
+					page.set('viewportSize',{width:100,height:200});
 					page.open(path + '.html',function(status){
 						if (status !== "success") {
 							throw new Error("file did not open properly");

@@ -60,8 +60,9 @@ module.exports = {
 		if (currDrugs.length > 0 ){
 			output.patient.medications = [];
 			for (var i = 0; i < currDrugs.length; i ++ ){
-				output.patient.medication.push($(currDrugs[i]).text());
+				output.patient.medications.push($(currDrugs[i]).text());
 			}
+			output.patient.medications = output.patient.medications.join(", ");
 		}
 		return output;
 	},
@@ -71,15 +72,16 @@ module.exports = {
 		var fields = $('.recomendation-field');
 		for (var i = 0; i < fields.length; i++ ){
 			drug = $(fields[i]).find('.drug-name').text();
-			if (!output.hasOwnProperty(drug)){
+			/*if (!output.hasOwnProperty(drug)){
 				output[drug] = [];
-			}
+			} */
 			temp = {};
 			temp.rec = $(fields[i]).find(".recomendation-rec").val();
 			temp.risk = $(fields[i]).find(".recomendation-risk").text();
-			output[drug].push(temp);
+			//output[drug].push(temp);
+			output[drug] = temp;
 		}
-
+		output = Object.keys(output).length > 0 ? output : undefined;
 		return output;
 	},
 
@@ -87,6 +89,10 @@ module.exports = {
 		var output  = this.serializeInputs();
 		output.recomendations = this.serializeRecomendations();
 		output.genes = this.serializeTable();
+		if (output.recomendations){
+			output.drugsOfInterest = Object.keys(output.recomendations).join(", ");
+		}
+
 
 		return output;
 	},
