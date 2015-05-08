@@ -119,7 +119,6 @@ module.exports = function(){
 					dataType:'json'
 				})).then(function(result){
 					if (result.statusCode == 200){
-						console.log(result);
 						window.location.replace('/dosing/current/' + val);
 					} else {
 						$('#error-display-message').text(result.message);
@@ -136,14 +135,13 @@ module.exports = function(){
 		/* Handlers for currently existsing dose tables. This function contains both the handlers
 		 * for each dosing form, as well as the entire page. You can define the elemetts of the page
 		 * to apply to function to byh passing in el as the only argument */
-		current:function(el){
-			var _this = this;
-			var context;
-			//This fucnt
-			// Whole page handlers
-			if ( !el ){
-				context = $(document);
-				//who page handlers
+		current: {
+			page: function(){
+				_this = this;
+				if ( $('#future-recomendations').find('tbody').find('tr').length > 0 ){
+					$('#future-recomendations').show();
+				}
+
 				$('#search-box').on('keyup',function(){
 					var values = $('.drug-cont');
 					for (var i =0; i<values.length; i++){
@@ -168,6 +166,9 @@ module.exports = function(){
 					if (state == 'less') $(this).text('Show more').data('state','more');
 					else $(this).text('Show less').data('state','less');
 				});
+
+				//=====================================================
+				//new interactions;
 				//Button to set new interactions
 				$('#new-interaction').on('click',function(e){
 					e.preventDefault();
@@ -196,7 +197,7 @@ module.exports = function(){
 				 * entires already in existence. If there are, it will return false
 				 * and data will not be entered but inform the user an entry similar
 				 * to that already exists */
-				$('#new-interaction-form').on('valid.fndtn.abide', function () {
+				$('#new-interaction-form').on('valid.fndtn.abide', function (){
 					var fields = $(this).serializeArray();
 					var drug;
 					var doc = {};
@@ -216,8 +217,6 @@ module.exports = function(){
 					//For now Allow a single haplotype to be attributed with a single drug recomendation
 					//Later chgange this to allow for multiple haplotypes
 					
-					
-
 					doc.drug = doc.drug.toLowerCase();
 					if (Object.keys(hap_1).length > 0) doc.hap_1 = hap_1;
 					if (Object.keys(hap_2).length > 0) doc.hap_2 = hap_2;
@@ -273,6 +272,52 @@ module.exports = function(){
 						$('#error-display-message').text(err.toString()).closest('#error-display-box').slideDown();
 					});
 				});
+				
+				//*============================
+				// New Recomendation Form
+
+				$('#new-recomendation').on('click',function(e){
+					e.preventDefault();
+					$(this).hide().siblings('#new-recomendation-triggers').show();
+					$('#new-recomendation-form').slideDown();
+				});
+
+				//submit the new interaction field
+				$('#new-recomendation-trigger-submit').on('click',function(e){
+					e.preventDefault();
+					$('#new-recomendation-form').submit();//submit').trigger('click');
+				});
+
+
+				//cancel the new interaction form reseting and hiding it
+				$('#new-recomendation-cancel-trigger').on('click',function(e){
+					e.preventDefault();
+					$(this).closest("#new-recomendation-triggers").hide().siblings('#new-recomendation').show();
+					document.getElementById('new-recomendation-form').reset();//.trigger('click');
+					$('#new-recomendation-form').slideUp();
+				});
+
+
+				$("#new-recomendation-form").on('valid.fndtn.abide',function(){
+					var gene = window.location.pathname.split('/').splice(-1)[0];
+					var items = $(this).serializeArray();
+					var o = {};
+					for (var i = 0; i < items.length; i++ ){
+						o[items[i].name] = items[i].value;
+					}
+					o.Gene = gene;
+					/*Promise.resolve($.ajax({
+						url:'',
+						type:"POST"
+						contentyType:'',
+						dataType:'',
+						data:JSON.stringify(o)
+					}));*/
+
+				});	
+
+
+
 
 				/* Delete all the interactions related to the Primary Gene. Submits a POST request to the database
 				 * after the deletion is confirmed by revealing a modal */
@@ -301,134 +346,154 @@ module.exports = function(){
 					});
 				});
 
-			} else {
-				context = $(el);
-			}
-			//Close the message box
-			if (!context.is('tr')){
-				context.find('.drug-cont-header').on('click',function(){
-					var state = $(this).data('state');
-					console.log(state);
-					if (state === "open"){
-						$(this).closest('.drug-cont').find('.interactions').hide().closest('.drug-cont').find('.minimize').hide().siblings('.expand').show()
-						$(this).data('state','closed');
-					} else {
-						$(this).closest('.drug-cont').find('.interactions').show().closest('.drug-cont').find('.expand').hide().siblings('.minimize').show()
-						$(this).data('state','open');
-					}
-				});
-			}
+			},
+			generic:function(el){
+				_this = this;
+				var context;
+				if (!el) context = $(document);
+				else context = $(el);
 
-			context.find('.close-box').on('click',function(e){
+				context.find('.close-box').on('click',function(e){
+						e.preventDefault();
+						$(this).closest('.alert-box').slideUp();
+				});
+
+				// Make a dose table editable
+				context.find(".edit-table").on('click',function(e){
 					e.preventDefault();
-					$(this).closest('.alert-box').slideUp();
+					$(this).hide();
+					$(this).closest('form').find('input,select,textarea').prop('disabled',false);
+					$(this).closest('form').find('.form-triggers').show();
 				});
-			//when the arrow is clicked the drug tab is mimized. If there are a large number
-			//Of interactions then there is no animation it is simply hidde
 
-			// Make a dose table editable
-			context.find(".edit-table").on('click',function(e){
-				e.preventDefault();
-				$(this).hide();
-				$(this).closest('form').find('input,select,textarea').prop('disabled',false);
-				$(this).closest('form').find('.form-triggers').show();
-			});
+				//cancel the chagens, restoring the original values to each field
+				context.find('.cancel-changes').on('click',function(e){
+					var newVal;
+					e.preventDefault();
+					$(this).closest('form').find('input,select,textarea').prop('disabled',true);
+					var inputFields = $(this).closest('form').find('input,textarea,select');
+					for (var i=0; i < inputFields.length; i++ ){
+						newVal = $(inputFields[i]).data('originalvalue');
+						$(inputFields[i]).val(newVal);
+					}
+					$(this).closest('.form-triggers').hide().closest('form').find('.edit-table').show();
+				});
 
-			// Submit the chagnes to the current dose table to the server
-			context.find(".submit-changes").closest('form').on('valid.fndtn.abide',function(e){
-				e.preventDefault();
-				var _this = $(this);
-				var fields = $(this).serializeArray();
-				var doc = {};
-				var gene = window.location.pathname.split('/').splice(-1)[0];
-				var id = $(this).data('id');
-				doc.drug = $(this).closest('.drug-cont').data('drug');
-				var hap_1 = {};
-				var hap_2 = {};
-				var name;
-				for ( var i = 0; i< fields.length; i++ ){
-					if (fields[i].value !== "" && fields[i].value !== "None")
-						if (fields[i].name.search('hap_1-') !== -1){
-							hap_1[fields[i].name.split('-')[2]] = fields[i].value;
-						} else if (fields[i].name.search('hap_2-') !== -1){
-							hap_2[fields[i].name.split('-')[2]] = fields[i].value;
+			},
+			future : function(el){
+				_this = this;
+				var context;
+				if (!el) context = $('#future-recomendations');
+				else context = $(el);
+
+				context.find('submit-')
+
+			},
+			interactions : function(el){
+				_this = this;
+				var context;
+				if (!el) context = $('#main_content');
+				else context = $(el);
+
+				if (!context.is('tr')){
+					context.find('.drug-cont-header').on('click',function(){
+						var state = $(this).data('state');
+						if (state === "open"){
+							$(this).closest('.drug-cont').find('.interactions').hide().closest('.drug-cont').find('.minimize').hide().siblings('.expand').show()
+							$(this).data('state','closed');
 						} else {
-							doc[fields[i].name] = fields[i].value;
+							$(this).closest('.drug-cont').find('.interactions').show().closest('.drug-cont').find('.expand').hide().siblings('.minimize').show()
+							$(this).data('state','open');
 						}
+					});
 				}
-				if (Object.keys(hap_1).length > 0) doc.hap_1 = hap_1;
-				if (Object.keys(hap_2).length > 0) doc.hap_2 = hap_2;
-				if (doc.pgx_1) doc.pgx_1 = doc.pgx_1.toLowerCase();
-				if (doc.pgx_2) doc.pgx_2 = doc.pgx_2.toLowerCase();
-				Promise.resolve($.ajax({
-					url:"/database/dosing/genes/" + gene + "/update/" + id,
-					type:"POST",
-					contentType:'application/json',
-					dataType:'json',
-					data:JSON.stringify(doc)
-				})).then(function(result){
-					if (result.statusCode == 200){
-						for ( var i = 0; i< fields.length; i++ ){
-							$(_this).find('[name=' + fields[i].name + ']').data('originalvalue',fields[i].value);
-						}
-						$(_this).find('input,select,textarea').prop('disabled',true);
-						$(_this).find('.form-triggers').hide();
-						$(_this).find('.edit-table').show();
-					} else {
-						$(_this).find('.alert-box').find('p').text(result.message).closest('.alert-box').slideDown();
-					}
-				});
-
-			});
-			
-			//cancel the chagens, restoring the original values to each field
-			context.find('.cancel-changes').on('click',function(e){
-				var newVal;
-				e.preventDefault();
-				$(this).closest('form').find('input,select,textarea').prop('disabled',true);
-				var inputFields = $(this).closest('form').find('input,textarea,select');
-				for (var i=0; i < inputFields.length; i++ ){
-					newVal = $(inputFields[i]).data('originalvalue');
-					$(inputFields[i]).val(newVal);
-				}
-				$(this).closest('.form-triggers').hide().closest('form').find('.edit-table').show();
-			});
-
-			//delet the specified dose table after confirming its removal
-			context.find(".delete-table").on('click',function(e){
-				e.preventDefault();
-				var form = $(this).closest('form');
-				var id = form.data('id');
-				var gene = window.location.pathname.split('/').splice(-1)[0];
-				confirmAction("Are you sure you want to delete the selected dosing table?","Once deleted it will no longer show up on any subsequent reports")
-				.then(function(result){
-					if (result){
-						Promise.resolve($.ajax({
-							url:"/database/dosing/genes/" + gene + "/deleteid/" + id,
-							type:"POST",
-							contentyType:"application/json",
-							dataType:'json'
-						})).then(function(result){
-							if (result.statusCode == 200){	
-								$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();
-								form.slideUp('slow',function(){
-									var remainingFormCount = form.closest('.drug-cont').find('form').length;
-									if ( remainingFormCount == 1 )
-										form.closest('.drug-cont').remove();
-									else
-										form.remove();
-								});
+		
+				// Submit the chagnes to the current dose table to the server
+				context.find('form').on('valid.fndtn.abide',function(e){
+					e.preventDefault();
+					var _this = $(this);
+					var fields = $(this).serializeArray();
+					var doc = {};
+					var gene = window.location.pathname.split('/').splice(-1)[0];
+					var id = $(this).data('id');
+					doc.drug = $(this).closest('.drug-cont').data('drug');
+					var hap_1 = {};
+					var hap_2 = {};
+					var name;
+					for ( var i = 0; i< fields.length; i++ ){
+						if (fields[i].value !== "" && fields[i].value !== "None")
+							if (fields[i].name.search('hap_1-') !== -1){
+								hap_1[fields[i].name.split('-')[2]] = fields[i].value;
+							} else if (fields[i].name.search('hap_2-') !== -1){
+								hap_2[fields[i].name.split('-')[2]] = fields[i].value;
 							} else {
-								$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();
+								doc[fields[i].name] = fields[i].value;
 							}
-						}).catch(function(err){
-							$('#error-display-message').text(err.message).closest('#error-display-box').slideDown();
-						});
 					}
+					if (Object.keys(hap_1).length > 0) doc.hap_1 = hap_1;
+					if (Object.keys(hap_2).length > 0) doc.hap_2 = hap_2;
+					if (doc.pgx_1) doc.pgx_1 = doc.pgx_1.toLowerCase();
+					if (doc.pgx_2) doc.pgx_2 = doc.pgx_2.toLowerCase();
+					Promise.resolve($.ajax({
+						url:"/database/dosing/genes/" + gene + "/update/" + id,
+						type:"POST",
+						contentType:'application/json',
+						dataType:'json',
+						data:JSON.stringify(doc)
+					})).then(function(result){
+						if (result.statusCode == 200){
+							for ( var i = 0; i< fields.length; i++ ){
+								$(_this).find('[name=' + fields[i].name + ']').data('originalvalue',fields[i].value);
+							}
+							$(_this).find('input,select,textarea').prop('disabled',true);
+							$(_this).find('.form-triggers').hide();
+							$(_this).find('.edit-table').show();
+						} else {
+							$(_this).find('.alert-box').find('p').text(result.message).closest('.alert-box').slideDown();
+						}
+					});
+
 				});
-			});
-  		}
-	};
+				
+				
+
+				//delet the specified dose table after confirming its removal
+				context.find(".delete-table").on('click',function(e){
+					e.preventDefault();
+					var form = $(this).closest('form');
+					var id = form.data('id');
+					var gene = window.location.pathname.split('/').splice(-1)[0];
+					confirmAction("Are you sure you want to delete the selected dosing table?","Once deleted it will no longer show up on any subsequent reports")
+					.then(function(result){
+						if (result){
+							Promise.resolve($.ajax({
+								url:"/database/dosing/genes/" + gene + "/deleteid/" + id,
+								type:"POST",
+								contentyType:"application/json",
+								dataType:'json'
+							})).then(function(result){
+								if (result.statusCode == 200){	
+									$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();
+									form.slideUp('slow',function(){
+										var remainingFormCount = form.closest('.drug-cont').find('form').length;
+										if ( remainingFormCount == 1 )
+											form.closest('.drug-cont').remove();
+										else
+											form.remove();
+									});
+								} else {
+									$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();
+								}
+							}).catch(function(err){
+								$('#error-display-message').text(err.message).closest('#error-display-box').slideDown();
+							});
+						}
+					});
+				});
+			}
+		}
+	}
+		
 
 	/* Render The appropriate html depending on what the url is. Additionally
 	 * get the content and add all event listeners */
@@ -480,7 +545,10 @@ module.exports = function(){
 				setSelects();
 				return utility.refresh(abideOptions);
 			}).then(function(){
-				return staticHanlders.current();
+				staticHanlders.current.page();
+				staticHanlders.current.interactions();
+				staticHanlders.current.future();
+				staticHanlders.current.generic();
 			}).then(function(){
 				$('#toggle-all').trigger('click');
 			});

@@ -427,8 +427,44 @@
 			</div>
 		</div>
 		<div class="row">
+			<div class="large-4 small-12 medium-6 columns">
+				<a href="#" id="new-recomendation" class="button radius alert large-12 small-12 medium-12">New Recomendation</a>
+				<ul class="button-group even-2 radius" id="new-recomendation-triggers" style="display:none">
+					<li><a href="#" class="button success" id="new-recomendation-trigger-submit">Submit</a></li>
+					<li><a href="#" class="button" id="new-recomendation-cancel-trigger">Cancel</a></li>
+				</ul> 
+			</div>
 			<div class="large-12 small-12 medium-12 columns">
-				<table class="large-12 small-12 medium-12" id="future-recomendations"> 
+				<form data-abide="ajax" id="new-recomendation-form" style="display:none">
+					<fieldset>
+					<input value="{{gene}}" style="display:none" name="Gene">
+					<div class="large-6 small-12 medium-6 columns">
+						<div class="row collapse prefix-radius">
+							<div class="large-4 small-4 medium-4 columns">
+								<span class="prefix">Therapeutic Class</span>
+							</div>
+							<div class="large-8 small-8 medium-8 columns">
+								<select name="Therapeutic_Class" required>
+									{{#each classes}}
+									<option>{{this}}</option>
+									{{/each}}
+								</select>
+								<small class="error">Required</small>
+							</div>
+						</div>
+					</div>
+					<div class="large-12 small-12 medium-12 columns">
+						<label>Recomendation</label>
+						<textarea name="rec" rows=3 required></textarea>
+						<small class="error">Required</small>
+					</div>
+					</fieldset>
+				</form>
+			</div>
+		</div>
+		<div class="row">
+			<div class="large-12 small-12 medium-12 columns">
+				<table class="large-12 small-12 medium-12" id="future-recomendations" style="display:none"> 
 					<tbody>
 					</tbody>
 				</table>
