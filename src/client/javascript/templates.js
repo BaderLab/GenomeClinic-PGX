@@ -29,6 +29,7 @@ var index = require('../templates/index.hbs'),
 	dosing_page = require('../templates/dosing-page.hbs'),
 	dosing_current = require('../templates/dosing-current.hbs'),
 	dosing_new = require('../templates/dosing-new.hbs'),
+	dosing_future = require('../templates/dosing-future.hbs'),
 	dosing_rec_page = require('../templates/dosing-recomendation-page.hbs'),
 	dosing_rec_rec = require('../templates/dosing-recomendation-recs.hbs')
 	spinner = require('../templates/spinner.hbs');
@@ -84,6 +85,7 @@ module.exports = {
 		index:_t(dosing_page),
 		current:_t(dosing_current),
 		new:_t(dosing_new),
+		future:_t(dosing_future),
 		rec:{
 			index:_t(dosing_rec_page),
 			recs:_t(dosing_rec_rec)

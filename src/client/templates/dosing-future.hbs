@@ -1,0 +1,31 @@
+{{#each future}}
+<tr>
+	<td>
+		<form class="thereapeutic-class" data-_id="{{_id}}">
+			<div class="row">
+				<div class="large-11 small-10 medium-11 columns">
+						<h5><b>Therapeutic Class:</b> <em>{{Therapeutic_Class}}</em></h5>
+						<input name="Therapeutic_Class" disabled="disabled" style="display:none" value="{{Therapeutic_Class}}" data-originalvalue="{{Therapeutic_Class}}">
+				</div>
+				<div class="large-1 small-2 medium-1 columns">
+					<a href="#" class="edit-table right button tiny secondary radius"><i class="fi-pencil size-16" style="color:#A2A2A2"></i></a>
+				</div>
+			</div>
+			<div class="row">
+				<div class="large-12 small-12 medium-12 columns">
+						<textarea data-originalvalue="{{rec}}" disabled="disabled" name="rec" rows=3>{{rec}}</textarea>
+				</div>
+			</div>
+			<div class="row">
+				<div class="large-4 small-12 medium-6 columns right">
+					<ul class="button-group even-3 form-triggers" style="display:none">
+						<li><button type="submit" class="button success tiny submit-changes">Submit</button></li>
+						<li><a href="#" class="button tiny cancel-changes">Cancel</a></li>
+						<li><a href="#" class="button tiny alert delete-table">Delete</a></li>
+					</ul>
+				</div>
+			</div>
+		</form>
+	</td>
+</tr>
+{{/each}}

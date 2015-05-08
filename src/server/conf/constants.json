@@ -119,6 +119,13 @@
 			},
 			"HAPLOCLASS":{
 				"COLLECTION":"haploClass"
+			},
+			"FUTURE":{
+				"DEFAULT":"{{DIR}}/lib/conf/future_rec.json",
+				"COLLECTION":"futureRecomendations",
+				"ID_FIELD": "Gene",
+				"CLASS":"Therapeutic_Class",
+				"REC":"rec"
 			}
 		}
 	},

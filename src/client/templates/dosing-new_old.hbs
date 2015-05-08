@@ -1,28 +1,29 @@
 {{#if drug}}
-<table class="drug-cont large-12 small-12 medium-12" data-drug="{{drug}}">
+<table class="large-12 small-12 medium-12 drug-cont" data-drug="{{drug}}">
 	<thead>
-		<tr class="drug-cont-header" data-state="open">
+		<tr>
 			<th>
 				<div class="row">
 					<div class="large-11 small-10 medium-11 columns">
 						<h3><strong>{{drug}}</strong></h3>
 					</div>
 					<div class="large-1 small-2 medium-1 columns">
-						<i class="minimize fa fa-chevron-up fa-2x" style="color:black"></i>
-						<i class="expand fa fa-chevron-down fa-2x" style="color:black;display:none"></i>
+						<a href="#" class="minimize"><i class="fa fa-chevron-up fa-2x" style="color:black"></i></a>
+						<a href="#" style="display:none" class="expand"><i class="fa fa-chevron-down fa-2x" style="color:black;"></i></a>
 					</div>
 				</div>
 			</th>
 		</tr>
-	</thead>
+	<thead>
 	<tbody class="interactions">
 {{/if}}
 		<tr>
 			<td>
 				<div class="large-12 small-12 medium-12 columns">
 					<form data-abide="ajax" data-id="{{_id}}">
+					
 						<div class="row">
-					  		<div class="small-12 columns">
+						  	<div class="small-12 columns">
 						    	<div data-alert class="alert-box radius secondary" style="display:none">
 						    	<!-- Alert message goes here -->
 						      	<div class="row">
@@ -35,13 +36,11 @@
 						    	</div>
 							</div>
 						</div>
-						<div class="row">
-							<div class="small-10 large-11 medium-10 columns">
-								<h5><b>Primary Gene</b></h5>
-							</div>
-							<div class="small-2 large-1 medium-2 columns">
-								<a href="#" class="edit-table right button tiny secondary radius"><i class="fi-pencil size-16" style="color:#A2A2A2"></i></a>
-							</div>
+						<div class="small-10 large-11 medium-10 columns">
+							<h5>Primary Gene</h5>
+						</div>
+						<div class="small-2 large-1 medium-2 columns">
+							<a href="#" class="edit-table right button tiny secondary radius"><i class="fi-pencil size-16" style="color:#A2A2A2"></i></a>
 						</div>
 						<div class="row">
 							<div class="large-6 small-12 medium-12 columns">
@@ -79,20 +78,17 @@
 										<span class="prefix">Haplotype</span>
 									</div>
 									<div class="large-4 small-4 medium-4 columns">
-										<input type="text" name="{{num}}-hap_1-allele_1" id="{{num}}-hap_1-allele_1" placeholder="Allele 1" data-requiredIf="{{num}}-hap_1-allele_2" data-abide-validator="requiredIf" {{#if hap_1}}value="{{hap_1.allele_1}}" data-originalValue="{{hap_1.allele_1}}"{{else}}data-originalValue=""{{/if}} disabled="disabled">
+										<input type="text" name="hap_1-allele_1" id="{{num}}-hap_1-allele_1" placeholder="Allele 1" data-requiredIf="{{num}}-hap_1-allele_2" data-abide-validator="requiredIf" {{#if hap_1}}value="{{hap_1.allele_1}}" data-originalValue="{{hap_1.allele_1}}"{{else}}data-originalValue=""{{/if}} disabled="disabled">
 										<small class="error">Valid Haplotype Required</small>
 									</div>
 									<div class="large-4 small-4 medium-4 columns">
-										<input type="text" name="{{num}}-hap_1-allele_2"  id="{{num}}-hap_1-allele_2" placeholder="Allele 2" data-requiredIf="{{num}}-hap_1-allele_1" data-abide-validator="requiredIf" {{#if hap_1}}value="{{hap_1.allele_2}}" data-originalValue="{{hap_1.allele_2}}"{{else}}data-originalValue=""{{/if}} disabled="disabled">
+										<input type="text" name="hap_1-allele_2"  id="{{num}}-hap_1-allele_2" placeholder="Allele 2" data-requiredIf="{{num}}-hap_1-allele_1" data-abide-validator="requiredIf" {{#if hap_1}}value="{{hap_1.allele_2}}" data-originalValue="{{hap_1.allele_2}}"{{else}}data-originalValue=""{{/if}} disabled="disabled">
 										<small class="error">Valid Haplotype Required</small>
-									</div> <!--
-									<div class="large-8 small-8 medium-8 columns">
-										<input class="edit" type="text" name="hap_1" data-originalvalue="{{hap_1}}" value="{{hap_1}}" disabled id="{{num}}_hap_1">
-									</div> -->
+									</div>
 								</div>
 							</div>
 						</div>
-						<h5><b>Secondary Gene</b></h5>
+						<h5>Secondary Gene</h5>
 						<div class="row">
 							<div class="large-6 small-12 medium-12 columns">
 								<div class="row collapse prefix-radius">
@@ -139,7 +135,7 @@
 								</div>
 							</div>
 						</div>
-						<br>
+						<hr>
 						<div class="row">
 							<div class="large-6 small-12 medium-6 columns">
 								<div class="row collapse prefix-radius">
@@ -147,7 +143,7 @@
 										<span class="prefix">Risk</span>
 									</div>
 									<div class="large-8 small-8 medium-8 columns left">
-										<select name="risk" disabled="disabled" data-originalvalue="{{risk}}" value="{{risk}}" id="{{NUM}}_risk" required>
+										<select name="risk" disabled="disabled" data-originalvalue="{{risk}}" value="{{risk}}" id="{{num}}_risk" required>
 											<option></option>
 											{{#each allRisk}}
 											<option>{{this}}</option>
@@ -169,7 +165,7 @@
 								</div>
 							</div>
 						</div>
-						<div class="row">	
+						<div class="row">
 							<div class="large-4 small-12 medium-6 columns right">
 								<ul class="button-group even-3 form-triggers" style="display:none">
 									<li><button type="submit" class="button success tiny submit-changes">Submit</button></li>
@@ -177,7 +173,7 @@
 									<li><a href="#" class="button tiny alert delete-table">Delete</a></li>
 								</ul>
 							</div>
-						</div>
+						</div>	
 					</form>
 				</div>
 			</td>

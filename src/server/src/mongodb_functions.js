@@ -191,6 +191,27 @@ var dbFunctions = function(logger,DEBUG){
 					});
 				}).then(function(){
 					currentDocument = {};
+					currentDocument[dbConstants.DRUGS.FUTURE.ID_FIELD] = 1;
+					currentDocument[dbConstants.DRUGS.FUTURE.CLASS] = 1;
+					logInfo("Creating unique index for future recomendations");
+					return self.createIndex(dbConstants.DRUGS.CLASSES.COLLECTION,currentDocument,{unique:true});
+				}).then(function(){
+					logInfo("Checking for default future recomendations");
+					return fs.statAsync(dbConstants.DRUGS.FUTURE.DEFAULT)
+					.then(function(result){
+						var future = require(dbConstants.DRUGS.FUTURE.DEFAULT);
+						var o = {
+							documents:future,
+							collectionName: dbConstants.DRUGS.FUTURE.COLLECTION
+						}
+						return self.insertMany(o);
+					}).then(function(){
+						logInfo("Default future dosing recomendation foun and inserted into database");
+					}).catch(function(err){
+						logInfo(dbConstants.DRUGS.FUTURE.DEFAULT +  " was not found and could not be added to the database");
+					});
+				}).then(function(){
+					currentDocument = {};
 					currentDocument[dbConstants.DRUGS.CLASSES.ID_FIELD] = 1;
 					logInfo("Creating unique index therapeutic classes");
 					return self.createIndex(dbConstants.DRUGS.CLASSES.COLLECTION,currentDocument,{unique:true});
@@ -326,7 +347,6 @@ var dbFunctions = function(logger,DEBUG){
 				logInfo("No New Markers found on startup, nothing added to database");
 			}
 		}).catch(function(err){
-			console.log(err);
 			logErr("error ecnountered when adding new default makrers on startup", err);
 		});
 	};
@@ -360,13 +380,13 @@ var dbFunctions = function(logger,DEBUG){
 				logInfo("No New Genes found on startup, nothing added to database");
 			}
 		}).catch(function(err){
-			console.log(err);
+			
 			logErr("error ecnountered when adding new default Genes on startup", err);
 		});
 	};
 
 	this.checkDefaultDosing = function(){
-		var dosing, classes, toAdd = [];
+		var dosing, classes, future, toAdd = [];
 		var _this  = this;
 		assert.notStrictEqual(db,undefined);
 		return fs.statAsync(dbConstants.DRUGS.DOSING.DEFAULT)
@@ -375,12 +395,12 @@ var dbFunctions = function(logger,DEBUG){
 			return dosing;
 		}).each(function(item){
 			var query = {};
-			query[dbConstants.DRUGS.DOSING.FISRT_GENE] = item[dbConstants.DRUGS.DOSING.FISRT_GENE];
-			query[dbConstants.DRUGS.DOSING.FISRT_CLASS] = item[dbConstants.DRUGS.DOSING.FISRT_CLASS];
+			query[dbConstants.DRUGS.DOSING.FIRST_GENE] = item[dbConstants.DRUGS.DOSING.FIRST_GENE];
+			query[dbConstants.DRUGS.DOSING.FIRST_CLASS] = item[dbConstants.DRUGS.DOSING.FIRST_CLASS];
 			query[dbConstants.DRUGS.DOSING.SECOND_GENE] = item[dbConstants.DRUGS.DOSING.SECOND_GENE] === undefined ? {$exists:false}:item[dbConstants.DRUGS.DOSING.SECOND_GENE];
 			query[dbConstants.DRUGS.DOSING.SECOND_CLASS] = item[dbConstants.DRUGS.DOSING.SECOND_CLASS] === undefined ? {$exists:false}:item[dbConstants.DRUGS.DOSING.SECOND_CLASS];
 			return _this.findOne(dbConstants.DRUGS.DOSING.COLLECTION,query).then(function(result){
-				if (result === null){
+				if (!result){
 					toAdd.push(item);
 				}
 			});
@@ -401,7 +421,7 @@ var dbFunctions = function(logger,DEBUG){
 			logErr("error encountered when adding new default dosing guidelines on startup");
 		}).then(function(){
 			toAdd = [];
-			fs.statAsync(dbConstants.DRUGS.CLASSES.DEFAULT);
+			return fs.statAsync(dbConstants.DRUGS.CLASSES.DEFAULT);
 		}).then(function(){
 			classes = require(dbConstants.DRUGS.CLASSES.DEFAULT);
 			return classes;
@@ -428,8 +448,41 @@ var dbFunctions = function(logger,DEBUG){
 			}
 		}).catch(function(err){
 			logErr("error encountered when adding new default therapeutic classes on startup");
-		});
+		}).then(function(){
+			toAdd = [];
+			return fs.statAsync(dbConstants.DRUGS.FUTURE.DEFAULT);
+		}).then(function(){
+			future = require(dbConstants.DRUGS.FUTURE.DEFAULT);
+			return future;
+		}).each(function(item){
+			var query = {};
+			query[dbConstants.DRUGS.FUTURE.ID_FIELD] = item[dbConstants.DRUGS.FUTURE.ID_FIELD];
+			query[dbConstants.DRUGS.FUTURE.CLASS] = item[dbConstants.DRUGS.FUTURE.CLASS];
+			return _this.findOne(dbConstants.DRUGS.FUTURE.COLLECTION,query).then(function(result){
+				if (!result){
+					toAdd.push(item);
+				}
+			});
+		}).then(function(){
+			if (toAdd.length > 0){
+				logInfo(toAdd.length.toString() + " New future recomendations found at startup. Adding them to the database");
+				var o = {
+					documents: toAdd,
+					collectionName: dbConstants.DRUGS.FUTURE.COLLECTION
+				};
+				return _this.insertMany(o).then(function(){
+					logInfo(toAdd.length.toString() + " future recomendations successfully added");
+				});
+			} else {
+				logInfo("No new future recomendations found");
+			}
+		}).catch(function(err){
+			console.log(err);
+			logErr("error encountered when adding new default future recomendations on startup",err);
+		})
+
 	};
+
 //=======================================================================================
 //=======================================================================================
 //Public functions
@@ -488,7 +541,7 @@ var dbFunctions = function(logger,DEBUG){
 				 }).then(function(){
 				 	resolve();
 				 }).catch(function(err) {
-				 	console.log(err);
+				 	logErr("Error encountereed while initializing server",err);
 				 	reject(err);
 				 });
 			}).catch(function(err) {

@@ -97,6 +97,11 @@ module.exports = function(app,dbFunctions,logger){
 			options.allRisk = ['Low','Medium','High'];
 			options.gene = req.params.geneID;
 		}).then(function(){
+			var query	= {$match:{}}
+			query.$match[constants.dbConstants.DRUGS.FUTURE.ID_FIELD] = req.params.geneID;
+			return dbFunctions.aggregate(constants.dbConstants.DRUGS.FUTURE.COLLECTION,[query]);
+		}).then(function(result){
+			options.future = result;
 			res.send(options);
 		});
 	});

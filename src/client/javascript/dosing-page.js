@@ -157,13 +157,16 @@ module.exports = function(){
 				//Show or hide all drug tabs
 				$('#toggle-all').on('click',function(e){
 					e.preventDefault();
-					if ($(this).data('state') == 'less'){
-						$('.minimize').trigger('click');
-						$(this).text('Show more').data('state','more');
-					} else {
-						$('.expand').trigger('click');
-						$(this).text('Show less').data('state','less');
-					}
+					var tables = $('.drug-cont-header');
+					var state = $(this).data('state')
+					for (var i=0; i<tables.length; i++ ){
+						if (state == 'less' && $(tables[i]).data('state') == 'open')
+							$(tables[i]).trigger('click');
+						else if (state == 'more' && $(tables[i]).data('state') == 'closed')
+							$(tables[i]).trigger('click');
+					}	
+					if (state == 'less') $(this).text('Show more').data('state','more');
+					else $(this).text('Show less').data('state','less');
 				});
 				//Button to set new interactions
 				$('#new-interaction').on('click',function(e){
@@ -241,7 +244,7 @@ module.exports = function(){
 							if (currentDrugs.indexOf(drug) !== -1 ){
 								delete result.drug;
 								promise = templates.drugs.new(result).then(function(renderedHtml){
-									$('.drug-cont[data-drug=' + drug).append(renderedHtml);
+									$('.drug-cont[data-drug=' + drug).find('.interactions').append(renderedHtml);
 								}).then(function(){
 									var context = $('.drug-cont[data-drug='+ drug + ']').find('form[data-id=' +result._id+']');
 									context.foundation(abideOptions);
@@ -302,36 +305,26 @@ module.exports = function(){
 				context = $(el);
 			}
 			//Close the message box
+			if (!context.is('tr')){
+				context.find('.drug-cont-header').on('click',function(){
+					var state = $(this).data('state');
+					console.log(state);
+					if (state === "open"){
+						$(this).closest('.drug-cont').find('.interactions').hide().closest('.drug-cont').find('.minimize').hide().siblings('.expand').show()
+						$(this).data('state','closed');
+					} else {
+						$(this).closest('.drug-cont').find('.interactions').show().closest('.drug-cont').find('.expand').hide().siblings('.minimize').show()
+						$(this).data('state','open');
+					}
+				});
+			}
+
 			context.find('.close-box').on('click',function(e){
 					e.preventDefault();
 					$(this).closest('.alert-box').slideUp();
 				});
 			//when the arrow is clicked the drug tab is mimized. If there are a large number
-			//Of interactions then there is no animation it is simply hidden
-			context.find('.minimize').on('click',function(e){
-				e.preventDefault();
-				var _this = this;
-				if ($(this).closest('.drug-cont').find('fieldset').length > 5){
-					$(this).closest('.drug-cont').find('.interactions').hide().closest('.drug-cont').find(this).hide().siblings('.expand').show();	
-				} else {
-					$(this).closest('.drug-cont').find('.interactions').slideUp('slow',function(){
-						$(_this).hide().siblings('.expand').show();
-					});
-				}
-			});
-			//when the arrow is clicked the drug tab is expanded. If there are a large number
-			//Of interactions then there is no animation it is simply hidden
-			context.find('.expand').on('click',function(e){
-				e.preventDefault();
-				var _this = this;
-				if ($(this).closest('.drug-cont').find('fieldset').length > 5){
-					$(this).closest('.drug-cont').find('.interactions').show().closest('.drug-cont').find(this).hide().siblings('.minimize').show();	
-				} else {
-					$(this).closest('.drug-cont').find('.interactions').slideDown('slow',function(){
-						$(_this).hide().siblings('.minimize').show();
-					});
-				}
-			});
+			//Of interactions then there is no animation it is simply hidde
 
 			// Make a dose table editable
 			context.find(".edit-table").on('click',function(e){
@@ -461,6 +454,7 @@ module.exports = function(){
 		//Shows a currently existing dosing table
 		} else if (location.search(/^\/dosing\/current\/.*/) !== -1 ){	
 			var gene = location.split('/').splice(-1)[0];
+			var resultObj;
 			//this can occasionally take some time to render,
 			//therefore add a spinner to the page while its rendering to give
 			//the user something to look at
@@ -472,10 +466,14 @@ module.exports = function(){
 				type:'GET',
 				dataType:'json'}));
 			}).then(function(result){
-				console.log(result);
+				resultObj = result
 				return templates.drugs.current(result);
 			}).then(function(renderedHtml){
 				return $('#main').html(renderedHtml);
+			}).then(function(){
+				return templates.drugs.future(resultObj);
+			}).then(function(renderedHtml){
+				return $('#future-recomendations').find('tbody').append(renderedHtml);
 			}).then(function(){
 				//set the values of the select tags to the value contained in the 
 				//original value data element
@@ -484,8 +482,7 @@ module.exports = function(){
 			}).then(function(){
 				return staticHanlders.current();
 			}).then(function(){
-				
-
+				$('#toggle-all').trigger('click');
 			});
 		}
 
