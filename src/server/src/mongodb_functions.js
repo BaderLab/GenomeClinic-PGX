@@ -1505,15 +1505,19 @@ var dbFunctions = function(logger,DEBUG){
 			aggArray.push(match);
 			return aggregate(dbConstants.DRUGS.DOSING.COLLECTION,aggArray);
 		},//Remve one docutment based on the unique _id
-		removeSingleEntry : function(id){
+		removeSingleEntry : function(id,type){
 			assert.notStrictEqual(db,undefined);
 			assert.notStrictEqual(id,undefined);
+			assert.notStrictEqual(type,undefined);
+
+			
 			if (Object.prototype.toString.call(id) == '[object String]')
 				id = new ObjectID(id)
 			var o = {
 				_id : id
 			};
-			return removeDocument(dbConstants.DRUGS.DOSING.COLLECTION,o);
+			var collectionName = type === 'recomendation' ? dbConstants.DRUGS.FUTURE.COLLECTION : dbConstants.DRUGS.DOSING.COLLECTION;
+			return removeDocument(collectionName,o);
 		},
 		removeGeneEntry : function(gene){
 			assert.notStrictEqual(db,undefined);
@@ -1521,7 +1525,11 @@ var dbFunctions = function(logger,DEBUG){
 
 			var o = {};
 			o[dbConstants.DRUGS.DOSING.FIRST_GENE] = gene;
-			return removeDocument(dbConstants.DRUGS.DOSING.COLLECTION,o);
+			return removeDocument(dbConstants.DRUGS.DOSING.COLLECTION,o).then(function(){
+				var o = {};
+				o[dbConstants.DRUGS.FUTURE.ID_FIELD] = gene;
+				removeDocument(dbConstants.DRUGS.FUTURE.COLLECTION,o)
+			});
 		}
 	};
 };

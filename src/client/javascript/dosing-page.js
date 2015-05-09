@@ -44,6 +44,12 @@ module.exports = function(){
 
 	};
 
+	var pageOptions = {
+		location:undefined,
+		gene:undefined,
+		use:undefined
+	};
+
 	//Reveal a modal and confirm whether or not the action should be continued
 	//returns a promise
 	var confirmAction = function(title,message){
@@ -201,7 +207,7 @@ module.exports = function(){
 					var fields = $(this).serializeArray();
 					var drug;
 					var doc = {};
-					doc.pgx_1 = window.location.pathname.split('/').splice(-1)[0];
+					doc.pgx_1 = pageOptions.gene
 					var hap_1 = {};
 					var hap_2 = {};
 					for ( var i = 0; i< fields.length; i++ ){
@@ -224,7 +230,7 @@ module.exports = function(){
 					if (doc.pgx_2) doc.pgx_2 = doc.pgx_2.toLowerCase();
 					var unitialized = $('#main_content').data('unitialized') === true ? 'true':'false';
 					Promise.resolve($.ajax({
-						url:window.location.pathname + '/new-interaction?unitialized='+unitialized,
+						url:pageOptions.location + '/new-interaction?unitialized='+unitialized,
 						type:"POST",
 				 		contentType:"application/json",
 				 		dataType:"json",
@@ -254,8 +260,9 @@ module.exports = function(){
 								promise = templates.drugs.new(result).then(function(renderedHtml){
 									return $('#main_content').append(renderedHtml);
 								}).then(function(){
-									$('.drug-cont[data-drug=' + drug+ ']').foundation(abideOptions);
-									_this.current('.drug-cont[data-drug=' + drug+ ']');
+									utility.refresh(abideOptions,$('.drug-cont[data-drug=' + drug+ ']'));
+									_this.generic('.drug-cont[data-drug=' + drug+ ']');
+									_this.interactions('.drug-cont[data-drug=' + drug+ ']');
 									setSelects('.drug-cont[data-drug=' + drug+ ']');
 								});
 							}
@@ -299,21 +306,36 @@ module.exports = function(){
 
 
 				$("#new-recomendation-form").on('valid.fndtn.abide',function(){
-					var gene = window.location.pathname.split('/').splice(-1)[0];
 					var items = $(this).serializeArray();
 					var o = {};
 					for (var i = 0; i < items.length; i++ ){
 						o[items[i].name] = items[i].value;
 					}
-					o.Gene = gene;
-					/*Promise.resolve($.ajax({
-						url:'',
-						type:"POST"
-						contentyType:'',
-						dataType:'',
+					o.Gene = pageOptions.gene;
+					Promise.resolve($.ajax({
+						url:pageOptions.location + "/new-recomendation",
+						type:"POST",
+						contentType:'application/json',
+						dataType:'json',
 						data:JSON.stringify(o)
-					}));*/
-
+					})).then(function(result){
+						if (result.statusCode == 200){
+							templates.drugs.future({future:[result]}).then(function(renderedHtml){
+								return $('#future-recomendations').find('tbody').append(renderedHtml);
+							}).then(function(){
+								_this.generic($('#future-recomendations').find('tbody').last('tr'));
+								_this.future($('#future-recomendations').find('tbody').last('tr'));
+								utility.refresh(abideOptions,$('#future-recomendations').find('tbody').last('tr'));
+								$('#future-recomendations').show();
+								$('#error-display-message-2').text(result.message).closest('#error-display-box-2').slideDown()
+								$('#new-recomendation-cancel-trigger').trigger('click');
+							});
+						} else {
+							$('#error-display-message-2').text(result.message).closest('#error-display-box-2').slideDown();
+						}
+					}).catch(function(err){
+						$('#error-display-message-2').text(err.message).closest('#error-display-box-2').slideDown();
+					});
 				});	
 
 
@@ -324,12 +346,11 @@ module.exports = function(){
 
 				$('#delete-all').on('click',function(e){
 					e.preventDefault();
-					var gene = window.location.pathname.split('/').splice(-1)[0];
-					confirmAction("Are you sure you want to delete all dosing recomendations for " + gene,"This will permanately delete all entries and they will no longer be available for report generation")
+					confirmAction("Are you sure you want to delete all dosing recomendations for " + pageOptions.gene,"This will permanately delete all entries and they will no longer be available for report generation")
 					.then(function(result){
 						if (result){
 							Promise.resolve($.ajax({
-								url:'/database/dosing/genes/' + gene + '/deleteall', 
+								url:'/database/dosing/genes/' + pageOptions.gene + '/deleteall', 
 								type:'POST',
 								contentType:'application/json',
 								dataType:'json'
@@ -386,7 +407,65 @@ module.exports = function(){
 				if (!el) context = $('#future-recomendations');
 				else context = $(el);
 
-				context.find('submit-')
+				context.find("form").on("valid.fndtn.abide",function(){
+					var _this =this;
+					var o = {};
+					o.Therapeutic_Class = $(this).find('input[name=Therapeutic_Class]').val();
+					o.gene = pageOptions.gene
+					o.rec = $(this).find('textarea[name=rec]').val();
+					var id = $(this).data('id');
+
+					Promise.resolve($.ajax({
+						url:"/database/dosing/genes/" + pageOptions.gene + "/update/" + id + '?type=recomendation',
+						type:"POST",
+						contentType:"application/json",
+						dataType:'json',
+						data:JSON.stringify(o)
+					})).then(function(result){
+						if (result.statusCode == 200 ){
+							$(_this).find('textarea[name=rec]').data('originalvalue',o.rec);
+							$(_this).find('input[name=Therapeutic_Class]').data('originalvalue',o.Therapeutic_Class);
+							$(_this).find('input,select,textarea').prop('disabled',true);
+							$(_this).find('.form-triggers').hide();
+							$(_this).find('.edit-table').show();
+							$(_this).find('.alert-message').text(result.message).closest('.alert-box').slideDown();
+						} else {
+							$(_this).find('.alert-message').text(result.message).closest('.alert-box').slideDown();
+
+						}
+					}).catch(function(err){
+						$(_this).find('.alert-message').text(err.message).closest('.alert-box').slideDown();
+					});
+				});
+				
+				context.find(".delete-table").on('click',function(e){
+					e.preventDefault();
+					var id  = $(this).closest('form').data('id');
+					var row = $(this).closest('tr');
+					confirmAction("Are you sure you want to delete the selected recomendation table?","Once deleted it will no longer show up on any subsequent reports")
+					.then(function(result){
+						if (result){
+							Promise.resolve($.ajax({
+								url:"/database/dosing/genes/" + pageOptions.gene + "/deleteid/" + id  + '?type=recomendation',
+								type:"POST",
+								dataType:'json'
+							})).then(function(result){
+								if (result.statusCode == 200 ){
+									row.remove();
+									if ($('#future-recomendations').find('tbody').find('tr').length === 0){
+										$('#future-recomendations').hide();
+									}
+									$('#error-display-message-2').text(result.message).closest('#error-display-box-2').slideDown()
+
+								} else {
+									$('#error-display-message-2').text(result.message).closest('#error-display-box-2').slideDown()
+								}
+							}).catch(function(err){
+								$('#error-display-message-2').text(err.message).closest('#error-display-box-2').slideDown()
+							});
+						}
+					});
+				});
 
 			},
 			interactions : function(el){
@@ -435,7 +514,7 @@ module.exports = function(){
 					if (doc.pgx_1) doc.pgx_1 = doc.pgx_1.toLowerCase();
 					if (doc.pgx_2) doc.pgx_2 = doc.pgx_2.toLowerCase();
 					Promise.resolve($.ajax({
-						url:"/database/dosing/genes/" + gene + "/update/" + id,
+						url:"/database/dosing/genes/" + gene + "/update/" + id + '?type=interaction',
 						type:"POST",
 						contentType:'application/json',
 						dataType:'json',
@@ -467,9 +546,9 @@ module.exports = function(){
 					.then(function(result){
 						if (result){
 							Promise.resolve($.ajax({
-								url:"/database/dosing/genes/" + gene + "/deleteid/" + id,
+								url:"/database/dosing/genes/" + gene + "/deleteid/" + id + '?type=interaction',
 								type:"POST",
-								contentyType:"application/json",
+								contentType:"application/json",
 								dataType:'json'
 							})).then(function(result){
 								if (result.statusCode == 200){	
@@ -499,15 +578,19 @@ module.exports = function(){
 	 * get the content and add all event listeners */
 	var main = function(){
 		var promise;
-		var location = window.location.pathname;
+		pageOptions.location = window.location.pathname;
+		
 		//Shows all dosing
-		if(location === '/dosing'){
+		if(pageOptions.location === '/dosing'){
+
+			pageOptions.use = "index";
 			promise = Promise.resolve($.ajax({
 				url:'/database/dosing/genes',
 				type:'GET',
-				contentyType:'application/json',
+				contentType:'application/json',
 				dataType:'json'
 			})).then(function(result){
+
 				return templates.drugs.index({genes:result});
 			}).then(function(renderedHtml){
 				return $('#main').html(renderedHtml);
@@ -515,10 +598,12 @@ module.exports = function(){
 				utility.refresh();
 			}).then(function(){
 				staticHanlders.index();
+				
 			});
 		//Shows a currently existing dosing table
-		} else if (location.search(/^\/dosing\/current\/.*/) !== -1 ){	
-			var gene = location.split('/').splice(-1)[0];
+		} else if (pageOptions.location.search(/^\/dosing\/current\/.*/) !== -1 ){	
+			pageOptions.gene = pageOptions.location.split('/').splice(-1)[0];
+			pageOptions.use ="currentGene"
 			var resultObj;
 			//this can occasionally take some time to render,
 			//therefore add a spinner to the page while its rendering to give
@@ -527,7 +612,7 @@ module.exports = function(){
 				$('#main').html(renderedHtml);
 			}).then(function(){
 				return Promise.resolve($.ajax({
-				url:"/dosing/current/"+ gene + "/content",
+				url:"/dosing/current/"+ pageOptions.gene + "/content",
 				type:'GET',
 				dataType:'json'}));
 			}).then(function(result){
@@ -549,6 +634,7 @@ module.exports = function(){
 				staticHanlders.current.interactions();
 				staticHanlders.current.future();
 				staticHanlders.current.generic();
+
 			}).then(function(){
 				$('#toggle-all').trigger('click');
 			});

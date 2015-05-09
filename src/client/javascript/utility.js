@@ -73,9 +73,10 @@ module.exports = {
 		return promise;
 	},
 
-	refresh : function(opt){
-		if (opt) return $(document).foundation(opt);
-		$(document).foundation();
+	refresh : function(opt, el){
+		var context = el === undefined ? $(document):$(el);
+		if (opt) return context.foundation(opt);
+		context.foundation();
 	},
 	getUserInfo : function() {
 		return Promise.resolve($.ajax({
