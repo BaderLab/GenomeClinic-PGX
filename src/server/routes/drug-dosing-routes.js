@@ -303,7 +303,6 @@ module.exports = function(app,dbFunctions,logger){
 	 */
 	app.post('/database/dosing/genes/:geneID/deleteid/:uniqID',utils.isLoggedIn,function(req,res){
 		var type = req.query.type;
-		console.log(type);
 		var _id = new ObjectID(req.params.uniqID);
 		dbFunctions.drugs.removeSingleEntry(_id,type)
 		.then(function(){
