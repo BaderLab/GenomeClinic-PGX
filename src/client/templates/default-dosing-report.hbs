@@ -169,7 +169,7 @@
 	  	</div>
 	  </section>
 	  <hr color="#3DAED6" style="height:1px">
-	  <h4 class="sickkids thin lspacer-4">Summary</h4>
+	  <h5 class="sickkids thin lspacer-4">Summary</h5>
 	  <hr color="#3DAED6" style="height:1px">
 	  <section style="margin:3%">
 	  	<div class="row">
@@ -179,15 +179,16 @@
 	  	</div>
 	  </section>
 	  <hr color="#3DAED6" style="height:1px">
-	  <h4 class="sickkids thin lspacer-4">Perscribing recomendations</h4>
+	  <h5 class="sickkids thin lspacer-4">Perscribing recomendations</h4>
 	  <hr color="#3DAED6" style="height:1px">
 	  <div class="row">
 	  	<div class="col-12 columns">
+	  		{{#if  recomendations}}
 	  		<table class="rec no-space col-12">
 	  			<tbody>
 	  				{{#each recomendations}}
 			  		<tr class="rec">
-			  			<td style="padding:1%;overflow:visible">
+			  			<td style="padding:1%;overflow:visible unbreakable">
 			  				<div class="unbreakable" style="page-break-inside:avoid">
 				  				<div class="row">
 				  					<div class="col-8 columns">
@@ -214,7 +215,7 @@
 				  				<div class="row">
 				  					<div class="col-12 columns ">
 				  						<h5 class="sickkids thin">Dosing Recomendation:</h5>
-				  						<p class="size-10">{{rec}}</p>
+				  						<p class="size-10 unbreakable">{{rec}}</p>
 				  					</div>
 				  				</div>
 			  				</div>
@@ -222,16 +223,50 @@
 			  			{{/each}}
 			  		</tr>
 			  	</tbody>
-			  </table>
+			</table>
+			{{else}}
+			<div class="col-12 columns grey-border" style="background-color:#E8F2FF;">
+				<p class="size-10" style="padding:2%">There were no perscribing recomendations found corresponding to the patients genetic profile</p>
+			</div>
+			 {{/if}}
+
 			</div>
 		</div>
 		<br>
 		<hr color="#3DAED6" style="height:1px;page-break-before:always;">
-		<h4 class="sickkids thin lspacer-4">Perscribing recomendations</h4>
+		<h5 class="sickkids thin lspacer-4">Individualized Care Report: Summary of Drug-Gene Interactions for Future Prescribing</h4>
 		<hr color="#3DAED6" style="height:1px">
 		<div class="row">
 			<div class="col-12 columns">
 				<span style="margin:1%"><p class="size-10">Based on patient genetic profile and current knowledge in pharmacogentics, the following is a summary for future medication administration for this patient. For comprehensive future dosing recommendations, the pharmacogenetic consultation report should be reassessed.</p></span>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-12 columns">
+				{{#if future}}
+				<table class="rec no-space col-12">
+					<thead class="rec">
+						<tr class="rec">
+							<th class="size-12 sickkids col-2 rec" style="padding:1%">Gene</th>
+							<th class="size-12 sickkids col-4 rec" style="padding:1%">Patient Therapeutic status</th>
+							<th class="size-12 sickkids col-6 rec" style="padding:1%">Implications of Genetic Profile</th>
+						</tr>
+					</thead>
+					<tbody>
+					{{#each future}}
+						<tr class="rec">
+							<td class="size-10" style="padding:1%">{{Gene}}</td>
+							<td class="size-10" style="padding:1%">{{Therapeutic_Class}}</td>
+							<td class="size-10" style="padding:1%">{{rec}}</td}}
+						</tr>
+					{{/each}}
+					</tbody>
+				<table>
+				{{else}}
+				<div class="col-12 columns grey-border" style="background-color:#E8F2FF;">
+					<p class="size-10" style="padding:2%">There were no future recomendations found corresponding to the patients genetic profile</p>
+				</div>
+				{{/if}}
 			</div>
 		</div>
 	</body>

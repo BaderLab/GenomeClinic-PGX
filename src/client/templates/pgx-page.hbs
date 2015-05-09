@@ -21,26 +21,26 @@
 	  	</div>
 	  	{{/if}}
 		<div class="row">
-			<div class="small-12 columns">
+			<div class="large-9 small-12 medium-8 columns">
 				{{#if patientAlias}}
 				<h2><i class="fi-torso"></i> {{patientAlias}} (<em>{{patientID}}</em>)</h2>
 				{{else}}
 				<h2><i class="fi-torso"></i> <em>{{patientID}}</em></h2>
 				{{/if}}
+				<div class="row" style="padding-left:10px">
+					<div class="large-12 small-12 medium-12 columns" style="padding-left:0px">
+						<h5 style="margin-top: 30px;">Pharmacogenomic results based on phased and unphased genotypes from this sample.</h5>
+						<h6 style="margin-bottom: 40px;"><em><a href="#" id="collapse-all-haplotypes">Show less</a></em></h6></p>
+					</div>
+				</div>
+			</div>
+			<div class="large-3 small-12 medium-4 columns">
+				<a href="#" id="direct_download" style="display:none;">test</a>
+				<a href="#" id="download" class="button radius large-12 small-12 medium-12">Download</a></li>
+				<a href="/browsepatients/dosing/{{patientID}}" class="button success radius large-12 small-12 medium-12">Get Recomendations</a>
 			</div>
 		</div>
 	</div>
-	<div class="row" style="padding-left:10px">
-		<div class="large-10 small-12 medium-8 columns">
-			<h5 style="margin-top: 30px;">Pharmacogenomic results based on phased and unphased genotypes from this sample.</h5>
-			<h6 style="margin-bottom: 40px;"><em><a href="#" id="collapse-all-haplotypes">Show less</a></em></h6></p>
-		</div>
-		<div class="large-2 small-12 medium-4 columns">
-			<a href="#" id="direct_download" style="display:none;">test</a>
-			<a href="#" id="download" class="button radius size-12">Download</a>
-		</div>
-	</div>
-
 </div>
 {{#pgxGenes}}
 <div class="row">

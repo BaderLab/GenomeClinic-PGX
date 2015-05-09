@@ -469,9 +469,32 @@ module.exports = function(app,dbFunctions,logger){
 			left:'20px',
 			rigth:'20px'
 		};
-		logger.info("Generating PGX report for " + req.params.patientID);
-		genReport(req,res,req.params.patientID,constants.dbConstants.DRUGS.REPORT.DEFAULT,options).catch(function(err){
-			logger.error("Failed to generate report for " + req.params.patientID,err);
+		//Get future recomendations
+		
+		var temp,query,promise;
+		if (req.body.genes.length > 0 ){
+			query = {$match:{$or:[]}};
+			for (var i=0; i < req.body.genes.length; i++ ){
+				temp = {};
+				temp[constants.dbConstants.DRUGS.FUTURE.ID_FIELD] = req.body.genes[i].gene;
+				temp[constants.dbConstants.DRUGS.FUTURE.CLASS] = req.body.genes[i].class;
+				query.$match.$or.push(temp);
+			}	
+			promise = dbFunctions.aggregate(constants.dbConstants.DRUGS.FUTURE.COLLECTION,[query])
+				.then(function(result){
+					req.body.future = result.length > 0 ? result : undefined;
+				});
+		} else {
+			promise = Promise.resolve();
+		}
+
+		promise.then(function(){
+			logger.info("Generating PGX report for " + req.params.patientID);
+			return genReport(req,res,req.params.patientID,constants.dbConstants.DRUGS.REPORT.DEFAULT,options)
+			.catch(function(err){
+				console.log(err);
+				logger.error("Failed to generate report for " + req.params.patientID,err);
+			});
 		});
 	});
 
@@ -487,14 +510,18 @@ module.exports = function(app,dbFunctions,logger){
 				logger.error("Report file: " + path + " failed to send to user:  " + req.user[constants.dbConstants.USERS.ID_FIELD],err);
 			} else {
 				var html = path.replace(/.pdf$/,'.html');
-				//fs.unlink(html,function(err){
-				//	if (err)
-				//		logger.error("Failed to remove report file: " + html,err);
-				//});
-				//fs.unlink(path,function(err){
-				//	if (err)
-				//		logger.error("Failed to remove report file: " + path,err);
-				//});
+				fs.unlink(html,function(err){
+					if (err)
+						logger.error("Failed to remove report file: " + html,err);
+					else
+						logger.info("successfully removed report file: " + html);
+				});
+				fs.unlink(path,function(err){
+					if (err)
+						logger.error("Failed to remove report file: " + path,err);
+					else
+						logger.info("successfully removed report file: " + path);
+				});
 			}
 		});
 

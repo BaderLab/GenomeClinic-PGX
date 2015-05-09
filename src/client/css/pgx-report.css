@@ -110,12 +110,33 @@ th {
 	background-color:#dbdbdb;
 }
 
+th.rec {
+	background-color: #FFFFFF;
+}
+
 table.rec {
 	font-size: 12px;
 	text-align:left;
 	border: 0
 }
-tr.rec {
+
+thead.rec {
+	background-color: #ffffff;
+}
+
+
+thead tr.rec {
+	border-top:0px;
+	border-left:0px;
+	border-right:0px;
+	border-collapse: collapse;
+	border-bottom: 1px solid #3DAED6;
+	background-color: #FFFFFF;
+
+
+}
+
+tbody tr.rec {
 	border:0px;
 }
 
@@ -130,7 +151,7 @@ tr:nth-child(even) {
 	font-style: italic; 
 }
 
-.patient {
+tr.patient {
 	background-color: #c2edff;
 }
 
