@@ -1,10 +1,11 @@
+/* Grid */
 .row {
 	width:100%;
 	margin-right:0px;
 	margin-left:0px;
 	display:table;
 
-}	
+}
 .columns {
 	padding-left:0px;
 	padding-right:0px;
@@ -32,6 +33,7 @@
 	margin-bottom:0px;
 }
 
+/* Spacers */
 .lspacer-1 { margin-left:5px; }
 .lspacer-2 { margin-left:10px;}
 .lspacer-3 { margin-left:15px;}
@@ -60,29 +62,23 @@
 .size-21 { font-size: 21px; }
 .size-24 { font-size: 24px; }
 
-.unbreakable {
-	display:inline-block;
-}
-.unbreakable:after{
-	content:'';
-	display: block;
-	height: 0px;
-	visibility: hidden;
-}
+
 .grey-border {
 	outline: 1px solid #E6E6E6;
+	
 }
 
 /* Standard sickkids color class */
 .sickkids {
 	color:#3DAED6;
 }
+
+
 p {	
 	margin-top: 5px;
 	margin-bottom: 5px;
 	font-size:8px;
 	font-family: Verdana;
-	page-break-inside: avoid;
 }
 
 /* alignment css */
@@ -95,13 +91,9 @@ div.right {float:right; }
 /* table css */
 /* generic */
 
-table {
-	font-size: 8px;
-	text-align: center;
-}
+
 
 table, tr {
-	overflow: visible;
 	border: 1px solid black;
 	border-collapse: collapse;
 }
@@ -115,7 +107,6 @@ th.rec {
 }
 
 table.rec {
-	font-size: 12px;
 	text-align:left;
 	border: 0
 }
@@ -124,7 +115,6 @@ thead.rec {
 	background-color: #ffffff;
 }
 
-
 thead tr.rec {
 	border-top:0px;
 	border-left:0px;
@@ -132,8 +122,6 @@ thead tr.rec {
 	border-collapse: collapse;
 	border-bottom: 1px solid #3DAED6;
 	background-color: #FFFFFF;
-
-
 }
 
 tbody tr.rec {
@@ -143,6 +131,7 @@ tbody tr.rec {
 tr:nth-child(odd) {
 	background-color: #F5F5F5;
 }
+
 tr:nth-child(even) {
 	background-color: #FFFFFF;
 }
@@ -160,6 +149,17 @@ tr.patient {
 }
 
 div {
-	overflow: visible;
+
+	overflow:visible;
 	font-family: Tahoma, Geneva, sans-serif;
+}
+
+.recomendation {
+	margin-bottom: 10px;
+	page-break-inside: avoid;
+	padding:10px;
+}
+
+#recomendations section:nth-child(odd){
+	background-color: #F5F5F5;
 }

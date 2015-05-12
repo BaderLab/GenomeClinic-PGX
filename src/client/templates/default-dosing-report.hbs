@@ -38,33 +38,33 @@
 	  		</div>
 	  </div>
 	  <hr  color="#3DAED6" style="height:2px">
-	  <section style="margin:3%">
+	  <section style="margin:2%">
 	  	<div class="row">
 	  		<div class="col-8 columns">
 				<h5 class="sickkids thin">Patient Information</h5>
 				<div class="row">
 			  		<div class="col-6 columns">
 			  			<div class="row">
-			  				<div class="col-6 columns">
+			  				<div class="col-3 columns">
 			  					<p class="size-10 sickkids left">Name: </p>
 			  				</div>
-			  				<div class="col-6 columns">
+			  				<div class="col-9 columns">
 			  					<p class="size-10 left">{{patient.name.last}}, {{patient.name.first}}</p>
 			  				</div>
 			  			</div>
 			  			<div class="row">
-			  				<div class="col-6 columns">
+			  				<div class="col-3 columns">
 			  					<p class="size-10 sickkids left">MRN: </p>
 			  				</div>
-			  				<div class="col-6 columns">
-			  					<p class="size-10 left">{{mrn}}</p>
+			  				<div class="col-9 columns">
+			  					<p class="size-10 left">{{patient.mrn}}</p>
 			  				</div>
 			  			</div>
 			  			<div class="row">
-			  				<div class="col-6 columns">
+			  				<div class="col-3 columns">
 			  					<p class="size-10 sickkids left">Sex </p>
 			  				</div>
-			  				<div class="col-6 columns">
+			  				<div class="col-9 columns">
 			  					<p class="size-10 left">{{patient.sex}}</p>
 			  				</div>
 			  			</div>
@@ -127,7 +127,7 @@
 		  				<p class="size-10 left">Dr. {{dr.name.first}} {{dr.name.last}}</P>
 		  			</div>
 		  		</div>
-		  		<div class="row lspacer-1 rspacer-1">
+		  		<div class="row lspacer-1 rspacer-2">
 		  			<div class="col-4 columns">
 		  				<p class="size-10 sickkids left">Address: </p>
 		  			</div>
@@ -140,7 +140,7 @@
 		  				<p class="size-10 left">{{dr.city}}, {{dr.region}}</P>
 		  			</div>
 		  		</div>
-		  		<div class="row lspacer-1 rspacer-1">
+		  		<div class="row lspacer-1 rspacer-2">
 		  			<div class="col-8 columns right">
 		  				<p class="size-10 left">{{dr.postal}}</P>
 		  			</div>
@@ -171,7 +171,7 @@
 	  <hr color="#3DAED6" style="height:1px">
 	  <h5 class="sickkids thin lspacer-4">Summary</h5>
 	  <hr color="#3DAED6" style="height:1px">
-	  <section style="margin:3%">
+	  <section style="margin:2%">
 	  	<div class="row">
 	  		<div class="col-12 columns">
 	  			<textara class="size-10">{{summary}}</textarea>
@@ -181,57 +181,52 @@
 	  <hr color="#3DAED6" style="height:1px">
 	  <h5 class="sickkids thin lspacer-4">Perscribing recomendations</h4>
 	  <hr color="#3DAED6" style="height:1px">
-	  <div class="row">
-	  	<div class="col-12 columns">
-	  		{{#if  recomendations}}
-	  		<table class="rec no-space col-12">
-	  			<tbody>
-	  				{{#each recomendations}}
-			  		<tr class="rec">
-			  			<td style="padding:1%;overflow:visible unbreakable">
-			  				<div class="unbreakable" style="page-break-inside:avoid">
-				  				<div class="row">
-				  					<div class="col-8 columns">
-				  						<div class="row">
-				  							<div class="col-2 columns">
-				  								<p class="sickkids size-10 left">Drug: </p>
-				  							</div>
-				  							<div class="col-10 columns">
-				  								<p class="size-10 left">{{@key}}</p>
-				  							</div>
-				  						</div>
-				  					</div>
-				  					<div class="col-4 columns">
-				  						<div class="row">
-				  							<div class="col-8 columns">
-				  								<p class="sickkids size-10 left">Therapeutic Risk: </p>
-				  							</div>
-				  							<div class="col-4 columns">
-				  								<p class="size-10 left">{{risk}}</p>
-				  							</div>
-				  						</div>
-				  					</div>
-				  				</div>
-				  				<div class="row">
-				  					<div class="col-12 columns ">
-				  						<h5 class="sickkids thin">Dosing Recomendation:</h5>
-				  						<p class="size-10 unbreakable">{{rec}}</p>
-				  					</div>
-				  				</div>
-			  				</div>
-			  			</td>
-			  			{{/each}}
-			  		</tr>
-			  	</tbody>
-			</table>
-			{{else}}
-			<div class="col-12 columns grey-border" style="background-color:#E8F2FF;">
+	  <section id="recomendations">
+	  {{#if  recomendations}}
+	  {{#each recomendations}}
+	  	<section class="recomendation">
+	  	<div class="row">
+	  		<div class="col-12 columns">
+		  		<div class="row">
+		  			<div class="col-8 columns">
+						<div class="row">
+							<div class="col-2 columns">
+								<p class="sickkids size-10 left">Drug: </p>
+							</div>
+							<div class="col-10 columns">
+								<p class="size-10 left">{{@key}}</p>
+							</div>
+						</div>
+					</div>
+					<div class="col-4 columns">
+						<div class="row">
+							<div class="col-8 columns">
+								<p class="sickkids size-10 left">Therapeutic Risk: </p>
+							</div>
+							<div class="col-4 columns">
+								<p class="size-10 left">{{risk}}</p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-12 columns">
+		  				<h6 class="sickkids thin">Dosing Recomendation:</h6>
+		  				<p class="size-10">{{rec}}</p>
+		  			</div>
+		  		</div>
+		  	</div>
+		</div>
+		</section>
+		{{/each}}
+	  </section>
+	  {{else}}
+	  	<div class="row">
+		  	<div class="col-12 columns grey-border" style="background-color:#E8F2FF;">
 				<p class="size-10" style="padding:2%">There were no perscribing recomendations found corresponding to the patients genetic profile</p>
 			</div>
-			 {{/if}}
-
-			</div>
 		</div>
+		{{/if}}
 		<br>
 		<hr color="#3DAED6" style="height:1px;page-break-before:always;">
 		<h5 class="sickkids thin lspacer-4">Individualized Care Report: Summary of Drug-Gene Interactions for Future Prescribing</h4>

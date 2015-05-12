@@ -488,11 +488,11 @@ module.exports = function(app,dbFunctions,logger){
 			promise = Promise.resolve();
 		}
 
-		promise.then(function(){
+
+		promise.then(function(){	
 			logger.info("Generating PGX report for " + req.params.patientID);
 			return genReport(req,res,req.params.patientID,constants.dbConstants.DRUGS.REPORT.DEFAULT,options)
 			.catch(function(err){
-				console.log(err);
 				logger.error("Failed to generate report for " + req.params.patientID,err);
 			});
 		});
@@ -510,7 +510,7 @@ module.exports = function(app,dbFunctions,logger){
 				logger.error("Report file: " + path + " failed to send to user:  " + req.user[constants.dbConstants.USERS.ID_FIELD],err);
 			} else {
 				var html = path.replace(/.pdf$/,'.html');
-				fs.unlink(html,function(err){
+				/*fs.unlink(html,function(err){
 					if (err)
 						logger.error("Failed to remove report file: " + html,err);
 					else
@@ -521,7 +521,7 @@ module.exports = function(app,dbFunctions,logger){
 						logger.error("Failed to remove report file: " + path,err);
 					else
 						logger.info("successfully removed report file: " + path);
-				});
+				});*/
 			}
 		});
 
