@@ -81,29 +81,34 @@ var dbFunctions = function(logger,DEBUG){
 					return self.createIndex(dbConstants.PATIENTS.COLLECTION, currentDocument, {unique: true});
 				})
 				.then(function(result){
+					logInfo("Patients collection initialized and unique index added to " + dbConstants.PATIENTS.ID_FIELD);
 					// Patient Collection IDs are also unique
 					currentDocument= {};
 					currentDocument[dbConstants.PATIENTS.COLLECTION_ID]= -1;  // index in descending order
 					return self.createIndex(dbConstants.PATIENTS.COLLECTION, currentDocument, {unique: true});
 				})
 				.then(function(result){
+					logInfo("Unique index added to patients collection field " + dbConstants.PATIENTS.COLLECTION_ID);
 					var currentDocument = {};
 					currentDocument[dbConstants.USERS.ID_FIELD]=-1;
 					return self.createIndex(dbConstants.USERS.COLLECTION,currentDocument,{unique:true});
 				})
 				.then(function(result) {
+					logInfo("User Collection Initialized and unique index added to "+  dbConstants.USERS.ID_FIELD);
 					// Panel IDs are unique.
 					currentDocument= {};
 					currentDocument[dbConstants.PANELS.ID_FIELD]= 1;  // index in ascending order
 					return self.createIndex(dbConstants.PANELS.COLLECTION, currentDocument, {unique: true});
 				})
 				.then(function(result){
+					logInfo("Panel Collection Initialized and unique index added to " + dbConstants.PANELS.ID_FIELD);
 					// Panel Collection IDs are also unique
 					currentDocument= {};
 					currentDocument[dbConstants.PANELS.COLLECTION_ID]= -1;  // index in descending order
 					return self.createIndex(dbConstants.PANELS.COLLECTION, currentDocument, {unique: true});
 				})
 				.then(function(result){
+					logInfo("Unique index added panels collection field " + dbConstants.PANELS.ID_FIELD);
 					//project_id field should be unique
 					currentDocument = {};
 					currentDocument[dbConstants.PROJECTS.ID_FIELD] = 1; // index in ascending order
@@ -111,6 +116,7 @@ var dbFunctions = function(logger,DEBUG){
 				})
 				//Add the default pgx data to the collection if its not there already and only if it exists.
 				.then(function(){
+					logInfo("Project Collection Initialized and unique index added to " + dbConstants.PROJECTS.ID_FIELD);
 					logInfo("Checking for default PGX information");
 					fs.statAsync(dbConstants.PGX.COORDS.DEFAULT)
 					.then(function(){
@@ -119,6 +125,7 @@ var dbFunctions = function(logger,DEBUG){
 					}).catch(function(err){
 						throw new Error("No Default Pgx Information detected, skipping step");
 					}).then(function(result){
+						logInfo("Default PGX files found, checking database for current entries");
 						var pgxCoords = require(dbConstants.PGX.COORDS.DEFAULT);
 						var pgxGenes = require(dbConstants.PGX.GENES.DEFAULT);
 						var o,rsIds;
@@ -146,18 +153,22 @@ var dbFunctions = function(logger,DEBUG){
 						};
 						return self.insertMany(o)
 						.then(function(result){
+							logInfo("Default Coordinates successfully inserted into database");
 							currentDocument = {};
 							currentDocument[dbConstants.PGX.COORDS.ID_FIELD] = 1;
 							return self.createIndex(dbConstants.PGX.COORDS.COLLECTION,currentDocument,{unique:true});
 						}).then(function(){
+							logInfo("Added Unique index to PGX coordinate field");
 							o.documents = pgxGenes;
 							o.collectionName = dbConstants.PGX.GENES.COLLECTION;
 							return self.insertMany(o);
 						}).then(function(result){
+							logInfo("Default Genes and haplotypes successfully inserted into database");
 							currentDocument = {};
 							currentDocument[dbConstants.PGX.GENES.ID_FIELD] = 1;
 							return self.createIndex(dbConstants.PGX.GENES.COLLECTION,currentDocument,{unique:true});
 						}).then(function(){
+							logInfo("Added unique index to PGX gene field")
 							logInfo("Successfully added default PGX information");
 						}).catch(function(err){
 							logErr("Default PGX info was not successfully added",err);
@@ -169,10 +180,10 @@ var dbFunctions = function(logger,DEBUG){
 					//create non unique indexes based on pgx_1
 					currentDocument = {};
 					currentDocument[dbConstants.DRUGS.DOSING.FIRST_GENE] = 1;
-					currentDocument[dbConstants.drug.DOSING.FISRT_CLASS] = 1;
-					currentDocument[dbConstants.drug.DOSING.SECOND_CLASS] = 1;
-					currentDocument[dbConstants.drug.DOSING.SECOND_GENE] = 1;
-					logInfo("Creating unique index therapeutic classes");
+					currentDocument[dbConstants.DRUGS.DOSING.FISRT_CLASS] = 1;
+					currentDocument[dbConstants.DRUGS.DOSING.SECOND_CLASS] = 1;
+					currentDocument[dbConstants.DRUGS.DOSING.SECOND_GENE] = 1;
+					logInfo("Initializing Dosing recomendation collection and adding unique index to fields");
 					return self.createIndex(dbConstants.DRUGS.DOSING.COLLECTION,currentDocument);
 				}).then(function(){
 					logInfo("Checking for default drug recomendation information");
@@ -206,7 +217,7 @@ var dbFunctions = function(logger,DEBUG){
 						}
 						return self.insertMany(o);
 					}).then(function(){
-						logInfo("Default future dosing recomendation foun and inserted into database");
+						logInfo("Default future dosing recomendation found and inserted into database");
 					}).catch(function(err){
 						logInfo(dbConstants.DRUGS.FUTURE.DEFAULT +  " was not found and could not be added to the database");
 					});

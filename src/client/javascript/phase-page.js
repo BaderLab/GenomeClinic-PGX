@@ -21,7 +21,7 @@ module.exports = function(){
 			var haplotypes = $('fieldset');
 			//check if this is an input (in case of new entry)
 			var geneName = $('#gene-name').is('input') ? $('#gene-name').val() : $('#gene-name').text().substring(1);
-			geneName = geneName.toLowerCase();
+			geneName = geneName.toUpperCase();
 			if (geneName === ""){
 				$('#gene-name').addClass('error').siblings('small').text("Required").show();
 				err = true;
@@ -36,7 +36,7 @@ module.exports = function(){
 				outObj[currHap] = [];
 				var ids = $(haplotypes[i]).find("tbody").find(".marker-id");
 				for (var j = 0; j < ids.length; j++){
-					outObj[currHap].push($(ids[j]).text().toLowerCase());
+					outObj[currHap].push($(ids[j]).text().toUpperCase());
 				}
 			}
 			//If any errors were added, reject the submissions and do not continue
@@ -63,9 +63,9 @@ module.exports = function(){
 					if (form[i].name == 'pos')
 						doc[form[i].name] = parseInt(form[i].value);
 					else if(form[i].name == 'alt')
-						doc[form[i].name] = form[i].value.toLowerCase().split(/[\,\s]/g);
+						doc[form[i].name] = form[i].value.toUpperCase().split(/[\,\s]/g);
 					else
-						doc[form[i].name] = form[i].value.toLowerCase();
+						doc[form[i].name] = form[i].value.toUpperCase();
 				}
 
 			 	Promise.resolve($.ajax({
@@ -193,7 +193,7 @@ module.exports = function(){
 			e.preventDefault();
 			var curValues = [];
 			var _this = this;
-			var value = $(this).closest('.collapse').find('.haplo-add-new-context').val().toString().toLowerCase();
+			var value = $(this).closest('.collapse').find('.haplo-add-new-context').val().toString().toUpperCase();
 			var curIds = $(this).closest('fieldset').find('.marker-id');
 			for (var i=0; i< curIds.length; i++ ){
 				curValues.push($(curIds[i]).text());

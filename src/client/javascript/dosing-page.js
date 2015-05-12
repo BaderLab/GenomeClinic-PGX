@@ -223,11 +223,11 @@ module.exports = function(){
 					//For now Allow a single haplotype to be attributed with a single drug recomendation
 					//Later chgange this to allow for multiple haplotypes
 					
-					doc.drug = doc.drug.toLowerCase();
+					//doc.drug = doc.drug.toLowerCase();
 					if (Object.keys(hap_1).length > 0) doc.hap_1 = hap_1;
 					if (Object.keys(hap_2).length > 0) doc.hap_2 = hap_2;
-					if (doc.pgx_1) doc.pgx_1 = doc.pgx_1.toLowerCase();
-					if (doc.pgx_2) doc.pgx_2 = doc.pgx_2.toLowerCase();
+					if (doc.pgx_1) doc.pgx_1 = doc.pgx_1.toUpperCase();
+					if (doc.pgx_2) doc.pgx_2 = doc.pgx_2.toUpperCase();
 					var unitialized = $('#main_content').data('unitialized') === true ? 'true':'false';
 					Promise.resolve($.ajax({
 						url:pageOptions.location + '/new-interaction?unitialized='+unitialized,
@@ -511,8 +511,8 @@ module.exports = function(){
 					}
 					if (Object.keys(hap_1).length > 0) doc.hap_1 = hap_1;
 					if (Object.keys(hap_2).length > 0) doc.hap_2 = hap_2;
-					if (doc.pgx_1) doc.pgx_1 = doc.pgx_1.toLowerCase();
-					if (doc.pgx_2) doc.pgx_2 = doc.pgx_2.toLowerCase();
+					if (doc.pgx_1) doc.pgx_1 = doc.pgx_1.toUpperCase();
+					if (doc.pgx_2) doc.pgx_2 = doc.pgx_2.toUpperCase();
 					Promise.resolve($.ajax({
 						url:"/database/dosing/genes/" + gene + "/update/" + id + '?type=interaction',
 						type:"POST",
