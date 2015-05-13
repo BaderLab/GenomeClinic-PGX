@@ -92,8 +92,6 @@ module.exports = {
 		if (output.recomendations){
 			output.drugsOfInterest = Object.keys(output.recomendations).join(", ");
 		}
-
-
 		return output;
 	},
 
@@ -107,7 +105,6 @@ module.exports = {
 			contentType:'application/json',
 			data:JSON.stringify(tableValues)
 		})).then(function(result){
-			console.log(result);
 			var rows = $('.gene-row'),gene;
 			for (var i = 0; i < rows.length; i++){
 				gene = $(rows[i]).find('.gene-name').text();
@@ -241,7 +238,6 @@ module.exports = {
 		}).then(function(renderedHtml){
 				$('#main').html(renderedHtml);
 		}).then(function(){
-			_this.getHaploRecs();
 			return _this.getRecomendations();		
 		}).then(function(){
 			return utility.refresh();

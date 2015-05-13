@@ -62,16 +62,27 @@
 .size-21 { font-size: 21px; }
 .size-24 { font-size: 24px; }
 
+.separator {
+	border-bottom: 1px dotted #B0B0B0;
+}
 
 .grey-border {
 	outline: 1px solid #E6E6E6;
 	
+}	
+
+.green-back {
+	background-color: #006600;
+	color:#FFFFFF;
 }
 
-/* Standard sickkids color class */
-.sickkids {
-	color:#3DAED6;
+.lightgreen {	
+	color:#71A971;
 }
+
+
+/* Standard sickkids color class */
+
 
 
 p {	
@@ -83,8 +94,8 @@ p {
 
 /* alignment css */
 .center { text-align:center; }
-.right {text-align:right;}
-.left {text-align: left;}
+p.right hr.right td.right tr.right table.right textarea.right {text-align:right;}
+p.left hr.left td.left tr.left table.left textarea.left{text-align: left;}
 div.left {float:left;}
 div.right {float:right; }
 

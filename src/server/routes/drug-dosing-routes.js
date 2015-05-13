@@ -46,8 +46,6 @@ module.exports = function(app,dbFunctions,logger){
 			query[constants.dbConstants.DRUGS.DOSING.FIRST_CLASS] = gene.class;
 			var doc = {$set:{}}
 			doc.$set[constants.dbConstants.DRUGS.DOSING.FIRST_HAP] = gene.hap;
-			console.log(query);
-			console.log(doc);
 			return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,doc,{multi:true})
 			.then(function(result){
 				//Set all instances where the second gene and class are found
@@ -56,8 +54,6 @@ module.exports = function(app,dbFunctions,logger){
 				query[constants.dbConstants.DRUGS.DOSING.SECOND_CLASS] = gene.class;
 				var doc = {$set:{}}
 				doc.$set[constants.dbConstants.DRUGS.DOSING.FIRST_HAP] = gene.hap;
-				console.log(query);
-				console.log(doc);
 				return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION, query,doc,{multi:true});
 			});
 		});
@@ -541,7 +537,6 @@ module.exports = function(app,dbFunctions,logger){
 		} else {
 			promise = Promise.resolve();
 		}
-		setHapChoices(req);
 		promise.then(function(){	
 			logger.info("Generating PGX report for " + req.params.patientID);
 			return genReport(req,res,req.params.patientID,constants.dbConstants.DRUGS.REPORT.DEFAULT,options)
