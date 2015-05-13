@@ -14,6 +14,12 @@ module.exports = function(req,res,reportName,template,options){
 	right = options.right !== undefined ? options.right : '1cm';
 	format = options.format !== undefined ? options.format : "A4";
 	orientation = options.orientation !== undefined ? options.format : "portrait";
+	//get template dir and pass this information into the handlebars template,
+	//This can be used to ensure proper inclusion of CSS and other elements for non
+	//Default templates
+	req.body.DIR = template.replace(/\/([^\/])*$/,"");
+
+	
 
 	
 	var promise = Promise.resolve()
@@ -73,6 +79,7 @@ module.exports = function(req,res,reportName,template,options){
 		res.send(JSON.stringify(o));
 
 	}).catch(function(err){
+		console.log('error');
 		throw new Error(err);
 	});
 	return promise;

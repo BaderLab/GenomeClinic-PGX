@@ -66,7 +66,7 @@ module.exports = function(app,dbFunctions,logger){
 	//Accept information to generate the report for a speciifc patient
 	app.post("/browsepatients/id/:patientID/report", utils.isLoggedIn, function(req,res){
 		logger.info("Generating PGX report for " + req.params.patientID);
-		genReport(req,res,req.params.patientID,constants.nodeConstants.DEFAULT_PGX_REPORT).catch(function(err){
+		genReport(req,res,req.params.patientID,constants.dbConstants.PGX.REPORT.DEFAULT).catch(function(err){
 			logger.error("Failed to generate report for " + req.body.patientID,err);
 		});
 	});

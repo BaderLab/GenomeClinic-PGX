@@ -98,7 +98,6 @@ var pgx =  {
 	/* Use the GT field to determine if a variant is heterozygous or homozygous.
 	 * Returns a bool. */
 	isHom : function(variant) {
-		console.log(variant);
 		var homozygous= true;
 		// check that all/both genotype indices are identical
 		var firstIndex= variant.gt[0];

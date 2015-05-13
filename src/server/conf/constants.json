@@ -78,6 +78,9 @@
 			"PROJECT_ARRAY_FIELD":"tags"
 		},
 		"PGX":{
+			"REPORT":{
+				"DEFAULT":"{{DIR}}/views/default-pgx-report.hbs"
+			},
 			"COORDS":{
 				"DEFAULT":"{{DIR}}/lib/conf/pgx_coordinates.json",
 				"COLLECTION":"pgxCoordinates",
@@ -143,7 +146,6 @@
 		"ANNO_INFO_LOG_PATH":"anno_info.log",
 		"ANNO_ERR_LOG_PATH":"anno_err.log",
 		"DB_INFO_LOG_PATH":"db_info.log",
-		"DB_ERR_LOG_PATH":"db_err.log",
-		"DEFAULT_PGX_REPORT":"{{DIR}}/views/pgx-report.hbs"
+		"DB_ERR_LOG_PATH":"db_err.log"
 	}
 }

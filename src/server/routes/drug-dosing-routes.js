@@ -5,14 +5,63 @@ var constants = require("../lib/conf/constants.json");
 var ObjectID = require("mongodb").ObjectID;
 var genReport = require('../lib/genReport');
 
+
+
+
+
 /* Collection of routes associated with drug dosing recomendations
  * the report generation, and the ui modification of the recomendations
  *
  *@author Patrick Magee*/
 module.exports = function(app,dbFunctions,logger){
+
+
+
+
 	//Ensure the dbfunctions module is loaded
 	if (!dbFunctions)
 		dbFunctions = rquire("../models/mongodb_functions");
+
+
+
+
+	/* In order to allow for an easier time filling in forms
+	 * Remember the users previous selection for the form to be loaded
+	 * again */
+	var setHapChoices = function(req){
+		/*genes is an array with objects in the form of
+		 * { 
+		 *    gene  : gene name,
+		 *    class : Therapeutic Class,
+		 *    hap   : {
+		 *       		allele_1:Haplotype 1,
+		 *  			allele_2:Haplotype 2
+		 *            } 
+		 *	 } */
+		var genes = req.body.genes;
+		Promise.each(genes,function(gene){
+			//set all instances where the second gene and clas are found
+			var query = {};
+			query[constants.dbConstants.DRUGS.DOSING.FIRST_GENE] = gene.gene;
+			query[constants.dbConstants.DRUGS.DOSING.FIRST_CLASS] = gene.class;
+			var doc = {$set:{}}
+			doc.$set[constants.dbConstants.DRUGS.DOSING.FIRST_HAP] = gene.hap;
+			console.log(query);
+			console.log(doc);
+			return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,doc,{multi:true})
+			.then(function(result){
+				//Set all instances where the second gene and class are found
+				var query = {};
+				query[constants.dbConstants.DRUGS.DOSING.SECOND_GENE] = gene.gene;
+				query[constants.dbConstants.DRUGS.DOSING.SECOND_CLASS] = gene.class;
+				var doc = {$set:{}}
+				doc.$set[constants.dbConstants.DRUGS.DOSING.FIRST_HAP] = gene.hap;
+				console.log(query);
+				console.log(doc);
+				return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION, query,doc,{multi:true});
+			});
+		});
+	}
 
 
 	//Routes controlling the page navication
@@ -417,9 +466,15 @@ module.exports = function(app,dbFunctions,logger){
 			query.$or.push(temp);
 			query[constants.dbConstants.DRUGS.DOSING.FIRST_GENE] = item.gene; 
 			return dbFunctions.findOne(constants.dbConstants.DRUGS.DOSING.COLLECTION,query).then(function(result){
+				//console.log(result);
 				if (result){
 					output[result[constants.dbConstants.DRUGS.DOSING.FIRST_GENE]] = {
 						class:result[constants.dbConstants.DRUGS.DOSING.FIRST_CLASS]
+					}
+					if (result[constants.dbConstants.DRUGS.DOSING.SECOND_CLASS]){
+						output[result[constants.dbConstants.DRUGS.DOSING.SECOND_GENE]] = {
+							class:result[constants.dbConstants.DRUGS.DOSING.SECOND_CLASS]
+						};
 					}
 				}
 			});
@@ -470,7 +525,6 @@ module.exports = function(app,dbFunctions,logger){
 			rigth:'20px'
 		};
 		//Get future recomendations
-		
 		var temp,query,promise;
 		if (req.body.genes.length > 0 ){
 			query = {$match:{$or:[]}};
@@ -487,8 +541,7 @@ module.exports = function(app,dbFunctions,logger){
 		} else {
 			promise = Promise.resolve();
 		}
-
-
+		setHapChoices(req);
 		promise.then(function(){	
 			logger.info("Generating PGX report for " + req.params.patientID);
 			return genReport(req,res,req.params.patientID,constants.dbConstants.DRUGS.REPORT.DEFAULT,options)
@@ -502,15 +555,13 @@ module.exports = function(app,dbFunctions,logger){
 	app.get('/browsepatients/dosing/:patientID/download/:id',utils.isLoggedIn,function(req,res){
 		var file = req.params.id;
 		var path = constants.nodeConstants.TMP_UPLOAD_DIR + '/' + file;
-		//req.flash('statusCode','500');
-		//res.redirect('/failure');
 		logger.info("Sending Report file: " + path + " to user: " + req.user[constants.dbConstants.USERS.ID_FIELD]); 
 		res.download(path,file,function(err){
 			if (err){
 				logger.error("Report file: " + path + " failed to send to user:  " + req.user[constants.dbConstants.USERS.ID_FIELD],err);
 			} else {
 				var html = path.replace(/.pdf$/,'.html');
-				/*fs.unlink(html,function(err){
+				fs.unlink(html,function(err){
 					if (err)
 						logger.error("Failed to remove report file: " + html,err);
 					else
@@ -521,7 +572,7 @@ module.exports = function(app,dbFunctions,logger){
 						logger.error("Failed to remove report file: " + path,err);
 					else
 						logger.info("successfully removed report file: " + path);
-				});*/
+				});
 			}
 		});
 

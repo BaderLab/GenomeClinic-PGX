@@ -9,3 +9,4 @@ ssl/
 build/
 *.*~
 test/
+Private/
