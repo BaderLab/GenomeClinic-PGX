@@ -66,7 +66,14 @@ module.exports = function(app,dbFunctions,logger){
 	//Accept information to generate the report for a speciifc patient
 	app.post("/browsepatients/id/:patientID/report", utils.isLoggedIn, function(req,res){
 		logger.info("Generating PGX report for " + req.params.patientID);
-		genReport(req,res,req.params.patientID,constants.dbConstants.PGX.REPORT.DEFAULT).catch(function(err){
+		var options = {
+			top:'1cm',
+			bottom:'1cm',
+			left:'20px',
+			rigth:'20px'
+		};
+		console.log(req.body);
+		genReport(req,res,req.params.patientID,constants.dbConstants.PGX.REPORT.DEFAULT,options).catch(function(err){
 			logger.error("Failed to generate report for " + req.body.patientID,err);
 		});
 	});

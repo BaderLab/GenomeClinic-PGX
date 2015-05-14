@@ -101,6 +101,9 @@ div.right {float:right; }
 
 /* table css */
 /* generic */
+body {
+	font-family: Tahoma, Geneva, sans-serif;
+}
 
 
 tr {
@@ -169,19 +172,7 @@ tr.patient {
 }
 
 div {
-
 	overflow:visible;
-	font-family: Tahoma, Geneva, sans-serif;
-}
-
-.recomendation {
-	margin-bottom: 10px;
-	page-break-inside: avoid;
-	padding:10px;
-}
-
-#recomendations section:nth-child(odd){
-	background-color: #F5F5F5;
 }
 
 .risk-Low {

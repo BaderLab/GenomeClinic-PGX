@@ -16,15 +16,15 @@
 		  		<div class="col-4 columns grey-border">
 		  			<div class="row bspacer-2">
 		  				<div class="col-12 columns" style="background-color:#71a971">
-		  					<p class="size-10 lspacer-2">Information</P>
+		  					<p class="size-10 lspacer-2">Information</p>
 		  				</div>
-		  			</div class="row">
+		  			</div>
 			  		<div class="row separator">
 			  			<div class="col-4 columns">
 			  				<p class="lspacer-2 size-8 left thin"><b>REPORT DATE</b></p>
 			  			</div>
 			  			<div class="col-6 right columns">
-			  				<p class="rspacer-2 size-8 left thin">{{date}}</P>
+			  				<p class="rspacer-2 size-8 left thin">{{date}}</p>
 			  			</div>
 			  		</div>
 			  		<div class="row separator">
@@ -32,7 +32,7 @@
 			  				<p class="lspacer-2 size-8 left thin"><b>Report Number</b> </p>
 			  			</div>
 			  			<div class="col-6 right columns">
-			  				<p class="rspacer-2 size-8 left thin">{{reportNum}}</P>
+			  				<p class="rspacer-2 size-8 left thin">{{reportNum}}</p>
 			  			</div>
 			  		</div>
 			  		<div class="row bspacer-2">
@@ -40,12 +40,12 @@
 			  				<p class="lspacer-2 size-8 left thin"><b>Specimen Type</b> </p>
 			  			</div>
 			  			<div class="col-6 right columns">
-			  				<p class="rspacer-2 size-8 left thin">{{patient.sampletype}}</P>
+			  				<p class="rspacer-2 size-8 left thin">{{patient.sampletype}}</p>
 			  			</div>
 			  		</div>
 			  		<div class="row">
 		  				<div class="col-12 columns" style="background-color:#71a971">
-		  					<p class="size-10 lspacer-2">Referring Physician</P>
+		  					<p class="size-10 lspacer-2">Referring Physician</p>
 		  				</div>
 		  			</div>
 		  			<div class="row">
@@ -128,10 +128,10 @@
 				  	<div class="row lspacer-2">
 					  	<div class="col-12 columns">
 				  			<div class="row">
-						  		<div class="col-5 columns">
-						  			<p class="size-8 left"><b>CURRENT MEDIACATIONS</b></p>
+						  		<div class="col-3 columns">
+						  			<p class="size-8 left"><b>MEDIACATIONS</b></p>
 						  		</div>
-						  		<div class="col-7 columns">
+						  		<div class="col-9 columns">
 						  			<p class="size-8 left">{{patient.medications}}</p>
 						  		</div>
 						  	</div>
@@ -166,7 +166,7 @@
 						<td class="size-8" style="padding:1%">{{gene}}</td>
 						<td class="size-8" style="padding:1%">{{hap.allele_1}}</td>
 						<td class="size-8" style="padding:1%">{{hap.allele_2}}</td>
-						<td class="size-8" style="padding:1%">{{class}}</td}}
+						<td class="size-8" style="padding:1%">{{class}}</td>
 					</tr>
 				{{/each}}
 				</tbody>
@@ -176,9 +176,8 @@
 				<p class="size-10" style="padding:2%">There were no genes found in the PGx analsysis</p>
 			</div>
 			{{/if}}
-
 	  	</section>
-	  	<section style="page-break-before: always;>"
+	  	<section style="page-break-before: always;">
 			<h5 class="thin lspacer-1">Genes of Interest for Future Care</h5>
 			<hr color="#B0B0B0" style="height:1px">
 			<div class="row">
@@ -197,7 +196,7 @@
 							<tr class="rec">
 								<td class="size-8" style="padding:1%">{{Gene}}</td>
 								<td class="size-8" style="padding:1%">{{Therapeutic_Class}}</td>
-								<td class="size-8" style="padding:1%">{{rec}}</td}}
+								<td class="size-8" style="padding:1%">{{rec}}</td>
 							</tr>
 						{{/each}}
 						</tbody>
@@ -210,8 +209,8 @@
 				</div>
 			</div>
 		</section>
-		<br>
-		<section id="recomendations">
+		<br />
+		<section>
 		  	<h5 class="thin lspacer-1">Dosaging Recomendations</h5>
 		  	<hr color="#B0B0B0" style="height:1px">
 		  	{{#if  recomendations}}
@@ -220,7 +219,7 @@
 						<tr class="rec">
 							<th class="size-10  col-2 rec" style="padding:1%">Drug</th>
 							<th class="size-10  col-1 rec" style="padding:1%">Risk</th>
-							<th class="size-10  col-6 rec" style="padding:1%">Recomendation</th>
+							<th class="size-10  col-6 rec" style="padding:1%">Comments</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -228,7 +227,7 @@
 			  			<tr class="rec">
 							<td class="size-8" style="padding:1%">{{@key}}</td>
 							<td><div class="circle risk-{{risk}}"></div></td>
-							<td class="size-8" style="padding:1%">{{rec}}</td}}
+							<td class="size-8" style="padding:1%">{{rec}}</td>
 						</tr>
 					{{/each}}
 					</tbody>
@@ -270,7 +269,7 @@
 		  	<hr color="#B0B0B0" style="height:1px">
 		  	<div class="row">
 		  		<div class="col-12 columns">
-		  			<textara class="size-10">{{summary}}</textarea>
+		  			<textara class="size-8">{{summary}}</textarea>
 		  		</div>
 	  		</div>
 		</section>
