@@ -179,10 +179,7 @@ var dbFunctions = function(logger,DEBUG){
 				}).then(function(){
 					//create non unique indexes based on pgx_1
 					currentDocument = {};
-					currentDocument[dbConstants.DRUGS.DOSING.FIRST_GENE] = 1;
-					currentDocument[dbConstants.DRUGS.DOSING.FISRT_CLASS] = 1;
-					currentDocument[dbConstants.DRUGS.DOSING.SECOND_CLASS] = 1;
-					currentDocument[dbConstants.DRUGS.DOSING.SECOND_GENE] = 1;
+					currentDocument[dbConstants.DRUGS.DOSING.ID_FIELD] = 1;
 					logInfo("Initializing Dosing recomendation collection and adding unique index to fields");
 					return self.createIndex(dbConstants.DRUGS.DOSING.COLLECTION,currentDocument);
 				}).then(function(){
@@ -199,27 +196,6 @@ var dbFunctions = function(logger,DEBUG){
 						logInfo("Default dosing recomendations found and inserted into database");
 					}).catch(function(err){
 						logInfo(dbConstants.DRUGS.DOSING.DEFAULT + " was not found and could not be added to the databse");
-					});
-				}).then(function(){
-					currentDocument = {};
-					currentDocument[dbConstants.DRUGS.FUTURE.ID_FIELD] = 1;
-					currentDocument[dbConstants.DRUGS.FUTURE.CLASS] = 1;
-					logInfo("Creating unique index for future recomendations");
-					return self.createIndex(dbConstants.DRUGS.CLASSES.COLLECTION,currentDocument,{unique:true});
-				}).then(function(){
-					logInfo("Checking for default future recomendations");
-					return fs.statAsync(dbConstants.DRUGS.FUTURE.DEFAULT)
-					.then(function(result){
-						var future = require(dbConstants.DRUGS.FUTURE.DEFAULT);
-						var o = {
-							documents:future,
-							collectionName: dbConstants.DRUGS.FUTURE.COLLECTION
-						}
-						return self.insertMany(o);
-					}).then(function(){
-						logInfo("Default future dosing recomendation found and inserted into database");
-					}).catch(function(err){
-						logInfo(dbConstants.DRUGS.FUTURE.DEFAULT +  " was not found and could not be added to the database");
 					});
 				}).then(function(){
 					currentDocument = {};
@@ -396,8 +372,8 @@ var dbFunctions = function(logger,DEBUG){
 		});
 	};
 
-	this.checkDefaultDosing = function(){
-		var dosing, classes, future, toAdd = [];
+	/*this.checkDefaultDosing = function(){
+		var dosing, classes, toAdd = [];
 		var _this  = this;
 		assert.notStrictEqual(db,undefined);
 		return fs.statAsync(dbConstants.DRUGS.DOSING.DEFAULT)
@@ -492,7 +468,7 @@ var dbFunctions = function(logger,DEBUG){
 			logErr("error encountered when adding new default future recomendations on startup",err);
 		})
 
-	};
+	}; */
 
 //=======================================================================================
 //=======================================================================================
@@ -547,8 +523,6 @@ var dbFunctions = function(logger,DEBUG){
 				 	return _this.checkDefaultMarkers();
 				 }).then(function(){
 				 	return _this.checkDefaultGenes();
-				 }).then(function(){
-				 	return _this.checkDefaultDosing();
 				 }).then(function(){
 				 	resolve();
 				 }).catch(function(err) {
@@ -1493,49 +1467,66 @@ var dbFunctions = function(logger,DEBUG){
 		return this.update(dbConstants.USERS.COLLECTION,query,doc);
 	};
 
+	//Functions for drugs
 	this.drugs = {
 		getGenes : function(){
 			assert.notStrictEqual(db,undefined);
-			var aggArray = [{$group:{_id:'$' + dbConstants.DRUGS.DOSING.FIRST_GENE, interactions:{$sum:1}}}];
-			return aggregate(dbConstants.DRUGS.DOSING.COLLECTION,aggArray);
+			options = {};
+			options[dbConstants.DRUGS.DOSING.ID_FIELD] = 1;
+			return find(dbConstants.DRUGS.DOSING.COLLECTION,{},options);
 		},
 
-		getGeneDosing : function(gene,tClass){
+		getGeneDosing : function(gene){
 			assert.notStrictEqual(db,undefined);
-			assert(Object.prototype.toString.call(gene) == '[object String]',"Invalid Gene Name. Gene name must be a string");	
-			var match, opt = {};
-			var aggArray = [];
-			match = {$match:{$or:[]}};
-			opt[dbConstants.DRUGS.DOSING.FIRST_GENE] = gene;
-			if (tClass) opt[dbConstants.DRUGS.DOSING.FIRST_CLASS] = tClass;
-			match.$match.$or.push(opt);
-			opt = {};
-			opt[dbConstants.DRUGS.DOSING.SECOND_GENE] = gene;
-			if (tClass) opt[dbConstants.DRUGS.DOSING.SECOND_CLASS] = tClass;
-			match.$match.$or.push(opt);
-			aggArray.push(match);
-			return aggregate(dbConstants.DRUGS.DOSING.COLLECTION,aggArray);
-		},//Remve one docutment based on the unique _id
-		removeSingleEntry : function(id,type){
+			assert(Object.prototype.toString.call(gene) == '[object String]',"Invalid Gene Name. Gene name must be a string");
+			var query = {};
+			if (Object.prototype.toString.call(gene) == '[object Array]'){
+				query[dbConstants.DRUGS.ID_FIELD] = {$in:gene};
+			} else {
+				query[dbConstants.DRUGS.DOSING.ID_FIELD] = gene;
+			}
+			return 	find(dbConstants.DRUGS.DOSING.COLLECTION,query);
+		},
+
+		//Remove a recomendation from the databse. Removes a sinlge recomendation based on a Therapeutic Class
+		//This will remo
+		removeSingleEntry : function(gene,tclass,type,drug,gene2,tclass2){
 			assert.notStrictEqual(db,undefined);
 			assert.notStrictEqual(id,undefined);
 			assert.notStrictEqual(type,undefined);
+			query = {};
+			query[dbConstants.DRUGS.DOSING.ID_FIELD] = gene;
+			var update = {$unset:{}};
+			var updateString,backString;
+			if (type == 'recomendation'){
+				updateString = dbConstants.DRUGS.DOSING.RECOMENDATIONS + '.' + drug + '.' + tclass;
+				if (gene2){
+					updateString += ".secondary." + gene2 + '.' + tclass2;
+					// remove the corresponding second entry;
+					backString = dbConstants.DRUGS.DOSING.RECOMENDATIONS + '.' + drug + '.' + tclass2 + '.secondary.' + gene + '.' + tclass;
+				}
+			} else if (type == 'future') {
+				updateString = dbConstants.DRUGS.DOSING.FUTURE + '.' + tclass
+			} else if (type == 'haplotype' ){
+				updateString = dbConstants.DRUGS.DOSING.HAPLO + '.' + tclass
+			}
+			update.$unset[updateString] = "";
+			return self.update(dbConstants.DRUGS.DOSING.COLLECTION,query,update).then(function(){
+				if (backString && type == 'recomendation'){
+					update.$unset = {};
+					update.$unset[backString] = "";
+					query[dbConstants.DRUGS.DOSING.ID_FIELD] = gene2;
 
-			
-			if (Object.prototype.toString.call(id) == '[object String]')
-				id = new ObjectID(id)
-			var o = {
-				_id : id
-			};
-			var collectionName = type === 'recomendation' ? dbConstants.DRUGS.FUTURE.COLLECTION : dbConstants.DRUGS.DOSING.COLLECTION;
-			return removeDocument(collectionName,o);
+					return self.update(dbConstants.DRUGS.DOSING.COLLECTION,query,update);
+				}
+			})
 		},
 		removeGeneEntry : function(gene){
 			assert.notStrictEqual(db,undefined);
 			assert(Object.prototype.toString.call(gene) == '[object String]', "Requires Gene name to be a string");
 
 			var o = {};
-			o[dbConstants.DRUGS.DOSING.FIRST_GENE] = gene;
+			o[dbConstants.DRUGS.DOSING.ID_FIELD] = gene;
 			return removeDocument(dbConstants.DRUGS.DOSING.COLLECTION,o).then(function(){
 				var o = {};
 				o[dbConstants.DRUGS.FUTURE.ID_FIELD] = gene;

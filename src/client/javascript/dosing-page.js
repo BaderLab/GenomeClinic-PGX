@@ -208,56 +208,68 @@ module.exports = function(){
 					var drug;
 					var doc = {};
 					doc.pgx_1 = pageOptions.gene
-					var hap_1 = {};
-					var hap_2 = {};
+					var hap_1 = [];
+					var hap_2 = [];
 					for ( var i = 0; i< fields.length; i++ ){
 						if (fields[i].value !== "" && fields[i].value !== "None")
 							if (fields[i].name.search('hap_1-')!== -1 ) {
-								hap_1[fields[i].name.split('-')[2]] = fields[i].value
+								hap_1.push(fields[i].value)
 							} else if (fields[i].name.search('hap_2-')!== -1 ) {
-								hap_2[fields[i].name.split('-')[2]] = fields[i].value
+								hap_2.push(fields[i].value)
 							} else {
 								doc[fields[i].name] = fields[i].value;
 							}
 					}
-					//For now Allow a single haplotype to be attributed with a single drug recomendation
-					//Later chgange this to allow for multiple haplotypes
-					
-					//doc.drug = doc.drug.toLowerCase();
-					if (Object.keys(hap_1).length > 0) doc.hap_1 = hap_1;
-					if (Object.keys(hap_2).length > 0) doc.hap_2 = hap_2;
 					if (doc.pgx_1) doc.pgx_1 = doc.pgx_1.toUpperCase();
 					if (doc.pgx_2) doc.pgx_2 = doc.pgx_2.toUpperCase();
-					var unitialized = $('#main_content').data('unitialized') === true ? 'true':'false';
 					Promise.resolve($.ajax({
-						url:pageOptions.location + '/new-interaction?unitialized='+unitialized,
+						url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=interaction&newdoc=true',
 						type:"POST",
 				 		contentType:"application/json",
 				 		dataType:"json",
 						data:JSON.stringify(doc)
 					})).then(function(result){
 						var promise;
+						var hapDoc = {};
 						if (result.statusCode == 200){
-							$('#main_content').data('unitialized','false');
+							hapDoc[doc.class_1] = hap_1;
+							hapDoc[doc.class_2] = hap_2;
+							doc.haplotypes = hapDoc;
+							return Promise.resolve($.ajax({
+								url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=haplotype&newdoc=true',
+								type:"POST",
+				 				contentType:"application/json",
+				 				dataType:"json",
+								data:JSON.stringify(doc)
+							}))
+						} else {
+							throw new Error(result.message);
+						}
+					}).then(function(result){
+						if (result.statusCode == 200 ){
 							var currentDrugCont = $('.drug-cont');
 							var currentDrugs=[];
-							var drug = result.drug;
-							result.num = $('#main_content').find('form').length;
+							var num = $('#main_content').find('form').length;
+							if (hap_1.length > 0) doc.hap_1 = hap_1;
+							if (hap_2.length > 0) doc.hap_2 = hap_2;
+							doc.num = num;
+
 							for (var i=0; i<currentDrugCont.length; i++ ){
 								currentDrugs.push($(currentDrugCont[i]).data('drug'));
 							}
-							if (currentDrugs.indexOf(drug) !== -1 ){
-								delete result.drug;
-								promise = templates.drugs.new(result).then(function(renderedHtml){
+
+							if (currentDrugs.indexOf(doc.drug) !== -1 ){
+								delete doc.drug;
+								promise = templates.drugs.new(doc).then(function(renderedHtml){
 									$('.drug-cont[data-drug=' + drug).find('.interactions').append(renderedHtml);
 								}).then(function(){
-									var context = $('.drug-cont[data-drug='+ drug + ']').find('form[data-id=' +result._id+']');
+									var context = $('#form-' + num.toString())
 									context.foundation(abideOptions);
 									_this.current(context);
 									setSelects(context);
 								});
 							} else {
-								promise = templates.drugs.new(result).then(function(renderedHtml){
+								promise = templates.drugs.new(doc).then(function(renderedHtml){
 									return $('#main_content').append(renderedHtml);
 								}).then(function(){
 									utility.refresh(abideOptions,$('.drug-cont[data-drug=' + drug+ ']'));
@@ -311,16 +323,16 @@ module.exports = function(){
 					for (var i = 0; i < items.length; i++ ){
 						o[items[i].name] = items[i].value;
 					}
-					o.Gene = pageOptions.gene;
+					o = pageOptions.gene;
 					Promise.resolve($.ajax({
-						url:pageOptions.location + "/new-recomendation",
+						url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=recomednation&newdoc=true',
 						type:"POST",
 						contentType:'application/json',
 						dataType:'json',
 						data:JSON.stringify(o)
 					})).then(function(result){
 						if (result.statusCode == 200){
-							templates.drugs.future({future:[result]}).then(function(renderedHtml){
+							templates.drugs.future({future:[o]}).then(function(renderedHtml){
 								return $('#future-recomendations').find('tbody').append(renderedHtml);
 							}).then(function(){
 								_this.generic($('#future-recomendations').find('tbody').last('tr'));
@@ -612,9 +624,10 @@ module.exports = function(){
 				$('#main').html(renderedHtml);
 			}).then(function(){
 				return Promise.resolve($.ajax({
-				url:"/dosing/current/"+ pageOptions.gene + "/content",
-				type:'GET',
-				dataType:'json'}));
+					url:"/database/dosing/genes/"+ pageOptions.gene,
+					type:'GET',
+					dataType:'json'
+				}));
 			}).then(function(result){
 				resultObj = result
 				return templates.drugs.current(result);

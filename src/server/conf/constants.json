@@ -99,36 +99,18 @@
 			"DOSING":{
 				"DEFAULT":"{{DIR}}/lib/conf/dosing_guidelines.json",
 				"COLLECTION":"drugRecomendations",
-				"DRUG_FIELD":"drug",
-				"FIRST_CLASS":"class_1",
-				"SECOND_CLASS":"class_2",
-				"FIRST_GENE":"pgx_1",
-				"SECOND_GENE":"pgx_2",
-				"RECOMENDATION":"rec",
+				"ID_FIELD":"gene",
+				"RECOMENDATIONS":"recomendations",
+				"REC_FIELD" : "rec",
 				"PMID":"pubmed",
 				"RISK":"risk",
-				"UNITIALIZED":"unitialized",
-				"FIRST_HAP":"hap_1",
-				"SECOND_HAP":"hap_2"
+				"FUTURE":"future",
+				"HAPLO":"haplotypes"
 			},
 			"CLASSES":{
 				"DEFAULT":"{{DIR}}/lib/conf/therapeutic_classes.json",
 				"COLLECTION":"therapeuticClasses",
-				"ID_FIELD":"Therapeutic_Class"
-			},
-			"DRUGS":{
-				"DEFAULT":"druglist.json",
-				"COLLECTION":"drugsMain"	
-			},
-			"HAPLOCLASS":{
-				"COLLECTION":"haploClass"
-			},
-			"FUTURE":{
-				"DEFAULT":"{{DIR}}/lib/conf/future_rec.json",
-				"COLLECTION":"futureRecomendations",
-				"ID_FIELD": "Gene",
-				"CLASS":"Therapeutic_Class",
-				"REC":"rec"
+				"ID_FIELD":"Therapeutic_Class"	
 			}
 		}
 	},
