@@ -16,6 +16,7 @@ function createNestedObject(objString, refObj, doc){
 		if (refObj.hasOwnProperty(split[i]) && cont){
 			refObj = refObj[split[i]];
 			depthString.push(split[i]);
+			console.log(split[i]);
 		} else {
 			cont = false;
 			point[split[i]] = {};
@@ -25,12 +26,20 @@ function createNestedObject(objString, refObj, doc){
 	if (refObj.hasOwnProperty('secondary')){
 		point.secondary = refObj.secondary;
 	}
+
 	point.rec = doc.rec;
 	point.risk = doc.risk;
 	point.pubmed = doc.pubmed;
 
+	var headKey = Object.keys(newDoc);
+	if (headKey.length == 1){
+		depthString.push(headKey[0]);
+		newDoc = newDoc[headKey[0]];
+	}
 	return {cont:newDoc,depth:depthString.join('.')};
 }
+
+
 
 
 
@@ -39,13 +48,28 @@ function createNestedObject(objString, refObj, doc){
  *
  *@author Patrick Magee*/
 module.exports = function(app,dbFunctions,logger){
-
-
-
 	//Ensure the dbfunctions module is loaded
 	if (!dbFunctions)
 		dbFunctions = rquire("../models/mongodb_functions");
 
+
+	createNewDoc = function(gene){
+		var promise = new Promise(function(resolve,reject){
+			var newDoc = {};
+			newDoc[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = gene;
+			newDoc[constants.dbConstants.DRUGS.DOSING.RECOMENDATIONS] = {};
+			newDoc[constants.dbConstants.DRUGS.DOSING.HAPLO] = {};
+			newDoc[constants.dbConstants.DRUGS.DOSING.FUTURE] = {};
+			return dbFunctions.insert(constants.dbConstants.DRUGS.DOSING.COLLECTION,newDoc)
+			.then(function(result){
+				resolve(result);
+			}).catch(function(err){
+				reject(err);
+			})
+		});
+
+		return promise;
+	}
 	//Routes controlling the page navication
 	//Navigating to any of these routes will cause the layout page to be rendered
 	var renderRoutes = [
@@ -178,14 +202,24 @@ module.exports = function(app,dbFunctions,logger){
 					
 				} else {
 					update.$set[obj.depth]  = obj.cont;
+					if (doc.hap_1) update.$set[constants.dbConstants.DRUGS.DOSING.HAPLO + '.' + doc.class_1] = doc.hap_1; 
 					dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update)
 					.then(function(){
 						if (backstring){
 						 	query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = doc.pgx_2;
 						 	dbFunctions.drugs.getGeneDosing(doc.pgx_2).then(function(result){
+						 		if (!result){
+						 			return createNewDoc(doc.pgx_2).then(function(){
+						 				return dbFunctions.drugs.getGeneDosing(doc.pgx_2);
+						 			})
+								} else {
+									return result;
+								}
+							}).then(function(result){
 						 		var obj = createNestedObject(backstring,result,doc);
 						 		var update = {$set:{}};
 						 		update.$set[obj.depth] = obj.cont;
+						 		if (doc.hap_2) update.$set[constants.dbConstants.DRUGS.DOSING.HAPLO + '.' + doc.class_2] = doc.hap_2;
 						 		return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update);
 							});
 						}	
@@ -232,33 +266,7 @@ module.exports = function(app,dbFunctions,logger){
 				req.flash('error',err.toString());
 				res.redirect('/failure');
 			});
-		} else if (type == 'haplotypes'){
-			string = constants.dbConstants.DRUGS.DOSING.HAPLO + '.' + doc.class_1;
-			if (doc.pgx_2) backstring = constants.dbConstants.DRUGS.DOSING.HAPLO + "." + doc.class_2;
-			query = {};
-			query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
-			update = {$set:{}};
-			update.$set[string] = doc.haplotypes.hap_1;
-			dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update)
-			.then(function(){
-				if (backstring){
-					query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = doc.pgx_2;
-					update = {$set:{}};
-					update.$set[backstring] = doc.haplotypes.hap_2;
-					return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update)
-
-				}
-			}).then(function(){
-				req.flash('statusCode', '200');
-				req.flash('message', "Entry successfully added");
-				res.redirect('/success');
-			}).catch(function(err){
-				req.flash('statusCode','500');
-				req.flash('message','An error was encountered when attempting to insert the new entry into the database');
-				req.flash('error',err.toString());
-				res.redirect('/failure');
-			});
-		}
+		} 
 	});
 	
 
@@ -301,16 +309,10 @@ module.exports = function(app,dbFunctions,logger){
 	 * unitialized set to true. */
 	app.post('/dosing/new/:newGene',utils.isLoggedIn,function(req,res){
 		var newGene = req.params.newGene;
-		var newDoc = {};
-		newDoc[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = newGene;
-		newDoc[constants.dbConstants.DRUGS.DOSING.RECOMENDATIONS] = {};
-		newDoc[constants.dbConstants.DRUGS.DOSING.HAPLO] = {};
-		newDoc[constants.dbConstants.DRUGS.DOSING.FUTURE] = {};
 		dbFunctions.checkInDatabase(constants.dbConstants.DRUGS.DOSING.COLLECTION,constants.dbConstants.DRUGS.DOSING.ID_FIELD,newGene)
 		.then(function(exists){
 			if (!exists){
-				dbFunctions.insert(constants.dbConstants.DRUGS.DOSING.COLLECTION, newDoc)
-				.then(function(result){
+				createNewDoc(newGene).then(function(result){
 					if (result) {
 						req.flash('statusCode','200');
 						req.flash('message','Gene successfully inserted to dosing tables');

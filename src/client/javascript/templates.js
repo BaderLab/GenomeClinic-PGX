@@ -31,7 +31,8 @@ var index = require('../templates/index.hbs'),
 	dosing_new = require('../templates/dosing-new.hbs'),
 	dosing_future = require('../templates/dosing-future.hbs'),
 	dosing_rec_page = require('../templates/dosing-recomendation-page.hbs'),
-	dosing_rec_rec = require('../templates/dosing-recomendation-recs.hbs')
+	dosing_rec_rec = require('../templates/dosing-recomendation-recs.hbs'),
+	dosing_haplo = require('../templates/dosing-haplotypes.hbs'),
 	spinner = require('../templates/spinner.hbs');
 /* return a promisfied version of the template that accepts a single parameter
  * o to render the template */
@@ -86,6 +87,7 @@ module.exports = {
 		current:_t(dosing_current),
 		new:_t(dosing_new),
 		future:_t(dosing_future),
+		haplo:_t(dosing_haplo),
 		rec:{
 			index:_t(dosing_rec_page),
 			recs:_t(dosing_rec_rec)

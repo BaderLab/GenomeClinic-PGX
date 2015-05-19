@@ -50,6 +50,27 @@ module.exports = function(){
 		use:undefined
 	};
 
+	var serializeInteractions = function(context){
+		var drug, doc={}, hap_1 = [], hap_2 = [];
+		var fields = $(context).serializeArray();
+		doc.pgx_1 = pageOptions.gene
+		for ( var i = 0; i< fields.length; i++ ){
+			if (fields[i].value !== "" && fields[i].value !== "None")
+				if (fields[i].name.search('hap_1-')!== -1 ) {
+					hap_1.push(fields[i].value)
+				} else if (fields[i].name.search('hap_2-')!== -1 ) {
+					hap_2.push(fields[i].value)
+				} else {
+					doc[fields[i].name] = fields[i].value;
+				}
+		}
+		if (doc.pgx_1) doc.pgx_1 = doc.pgx_1.toUpperCase();
+		if (doc.pgx_2) doc.pgx_2 = doc.pgx_2.toUpperCase();
+		if (hap_1.length > 0 ) doc.hap_1 = hap_1;
+		if (hap_2.length > 0 ) doc.hap_2 = hap_2;
+		return doc;
+	};
+
 	//Reveal a modal and confirm whether or not the action should be continued
 	//returns a promise
 	var confirmAction = function(title,message){
@@ -148,6 +169,31 @@ module.exports = function(){
 					$('#future-recomendations').show();
 				}
 
+				if ( $('#haplotypes').find('tbody').find('tr').length > 0 ){
+					$('#haplotypes').show();
+				}
+
+				$('.scroll-to-future').on('click',function(e){
+					e.preventDefault();
+					$('html,body').animate({
+        				scrollTop: $("#future-recomendations-header").offset().top},
+        				'slow');
+				});
+
+				$('.scroll-to-haplo').on('click',function(e){
+					e.preventDefault();
+					$('html,body').animate({
+        				scrollTop: $("#haplotypes-header").offset().top},
+        				'slow');
+				});
+
+				$('.scroll-to-top').on('click',function(e){
+					e.preventDefault();
+					$('html,body').animate({
+        				scrollTop: $("#main_content").offset().top},
+        				'slow');
+				});
+
 				$('#search-box').on('keyup',function(){
 					var values = $('.drug-cont');
 					for (var i =0; i<values.length; i++){
@@ -204,24 +250,8 @@ module.exports = function(){
 				 * and data will not be entered but inform the user an entry similar
 				 * to that already exists */
 				$('#new-interaction-form').on('valid.fndtn.abide', function (){
-					var fields = $(this).serializeArray();
-					var drug;
-					var doc = {};
-					doc.pgx_1 = pageOptions.gene
-					var hap_1 = [];
-					var hap_2 = [];
-					for ( var i = 0; i< fields.length; i++ ){
-						if (fields[i].value !== "" && fields[i].value !== "None")
-							if (fields[i].name.search('hap_1-')!== -1 ) {
-								hap_1.push(fields[i].value)
-							} else if (fields[i].name.search('hap_2-')!== -1 ) {
-								hap_2.push(fields[i].value)
-							} else {
-								doc[fields[i].name] = fields[i].value;
-							}
-					}
-					if (doc.pgx_1) doc.pgx_1 = doc.pgx_1.toUpperCase();
-					if (doc.pgx_2) doc.pgx_2 = doc.pgx_2.toUpperCase();
+					var doc = serializeInteractions(this);
+					console.log(doc);
 					Promise.resolve($.ajax({
 						url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=interaction&newdoc=true',
 						type:"POST",
@@ -229,35 +259,17 @@ module.exports = function(){
 				 		dataType:"json",
 						data:JSON.stringify(doc)
 					})).then(function(result){
-						var promise;
-						var hapDoc = {};
-						if (result.statusCode == 200){
-							hapDoc[doc.class_1] = hap_1;
-							hapDoc[doc.class_2] = hap_2;
-							doc.haplotypes = hapDoc;
-							return Promise.resolve($.ajax({
-								url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=haplotype&newdoc=true',
-								type:"POST",
-				 				contentType:"application/json",
-				 				dataType:"json",
-								data:JSON.stringify(doc)
-							}))
-						} else {
-							throw new Error(result.message);
-						}
-					}).then(function(result){
+						console.log(result);
 						if (result.statusCode == 200 ){
 							var currentDrugCont = $('.drug-cont');
 							var currentDrugs=[];
 							var num = $('#main_content').find('form').length;
-							if (hap_1.length > 0) doc.hap_1 = hap_1;
-							if (hap_2.length > 0) doc.hap_2 = hap_2;
 							doc.num = num;
-
-							for (var i=0; i<currentDrugCont.length; i++ ){
+							//GET NAMES OF CURRENT DRUGS
+							for (var i=0; i < currentDrugCont.length; i++ ){
 								currentDrugs.push($(currentDrugCont[i]).data('drug'));
 							}
-
+							//If this is a new drug, add a new drug table
 							if (currentDrugs.indexOf(doc.drug) !== -1 ){
 								delete doc.drug;
 								promise = templates.drugs.new(doc).then(function(renderedHtml){
@@ -268,7 +280,8 @@ module.exports = function(){
 									_this.current(context);
 									setSelects(context);
 								});
-							} else {
+							//This is not a new drug, append the html to a previous table
+							} else { 
 								promise = templates.drugs.new(doc).then(function(renderedHtml){
 									return $('#main_content').append(renderedHtml);
 								}).then(function(){
@@ -349,9 +362,32 @@ module.exports = function(){
 						$('#error-display-message-2').text(err.message).closest('#error-display-box-2').slideDown();
 					});
 				});	
+				
+				//*=================================
+				//New Haplotypes Form
 
+				$('#new-haplotype').on('click',function(e){
+					e.preventDefault();
+					$(this).hide().siblings('#new-haplotype-triggers').show();
+					$('#new-haplotype-form').slideDown();
+				});
 
+				$('#new-haplotype-trigger-submit').on('click',function(e){
+					e.preventDefault();
+					$('#new-haplotype-form').submit();//submit').trigger('click');
+				});
 
+				//cancel the new interaction form reseting and hiding it
+				$('#new-haplotype-cancel-trigger').on('click',function(e){
+					e.preventDefault();
+					$(this).closest("#new-haplotype-triggers").hide().siblings('#new-haplotype').show();
+					document.getElementById('new-haplotype-form').reset();//.trigger('click');
+					$('#new-haplotype-form').slideUp();
+				});
+
+				$('#new-haplotype-form').on('valid.fndtn.abide',function(){
+
+				});
 
 				/* Delete all the interactions related to the Primary Gene. Submits a POST request to the database
 				 * after the deletion is confirmed by revealing a modal */
@@ -480,6 +516,22 @@ module.exports = function(){
 				});
 
 			},
+			haplotypes : function(el){
+				_this = this;
+				var context;
+				if (!el) context = $('#haplotpyes');
+				else context = $(el);
+
+				//Associate a haplotype with a therapeutic class
+				context.find('form').on('valid.fndtn.abide',function(e){
+					e.preventDefault();
+				});
+
+				context.find('.delete-table').on('click',function(e){
+					e.preventDefault();
+				});
+
+			},
 			interactions : function(el){
 				_this = this;
 				var context;
@@ -503,30 +555,10 @@ module.exports = function(){
 				context.find('form').on('valid.fndtn.abide',function(e){
 					e.preventDefault();
 					var _this = $(this);
-					var fields = $(this).serializeArray();
-					var doc = {};
-					var gene = window.location.pathname.split('/').splice(-1)[0];
-					var id = $(this).data('id');
+					var doc = serializeInteractions(this);
 					doc.drug = $(this).closest('.drug-cont').data('drug');
-					var hap_1 = {};
-					var hap_2 = {};
-					var name;
-					for ( var i = 0; i< fields.length; i++ ){
-						if (fields[i].value !== "" && fields[i].value !== "None")
-							if (fields[i].name.search('hap_1-') !== -1){
-								hap_1[fields[i].name.split('-')[2]] = fields[i].value;
-							} else if (fields[i].name.search('hap_2-') !== -1){
-								hap_2[fields[i].name.split('-')[2]] = fields[i].value;
-							} else {
-								doc[fields[i].name] = fields[i].value;
-							}
-					}
-					if (Object.keys(hap_1).length > 0) doc.hap_1 = hap_1;
-					if (Object.keys(hap_2).length > 0) doc.hap_2 = hap_2;
-					if (doc.pgx_1) doc.pgx_1 = doc.pgx_1.toUpperCase();
-					if (doc.pgx_2) doc.pgx_2 = doc.pgx_2.toUpperCase();
 					Promise.resolve($.ajax({
-						url:"/database/dosing/genes/" + gene + "/update/" + id + '?type=interaction',
+						url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=interaction',
 						type:"POST",
 						contentType:'application/json',
 						dataType:'json',
@@ -629,14 +661,26 @@ module.exports = function(){
 					dataType:'json'
 				}));
 			}).then(function(result){
-				resultObj = result
-				return templates.drugs.current(result);
+				resultObj = result;
+				return Promise.resolve($.ajax({
+					url:'/database/dosing/classes',
+					type:'GET',
+					dataType:'json'
+				}));
+			}).then(function(result){
+				console.log(result);
+				resultObj.classes = result[0].classes;
+				return templates.drugs.current(resultObj);
 			}).then(function(renderedHtml){
 				return $('#main').html(renderedHtml);
 			}).then(function(){
 				return templates.drugs.future(resultObj);
 			}).then(function(renderedHtml){
 				return $('#future-recomendations').find('tbody').append(renderedHtml);
+			}).then(function(){
+				return templates.drugs.haplo(resultObj);
+			}).then(function(renderedHtml){
+				return $("#haplotypes").find('tbody').append(renderedHtml);
 			}).then(function(){
 				//set the values of the select tags to the value contained in the 
 				//original value data element

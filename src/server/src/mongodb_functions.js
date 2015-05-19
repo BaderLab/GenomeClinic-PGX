@@ -1485,7 +1485,11 @@ var dbFunctions = function(logger,DEBUG){
 			} else {
 				query[dbConstants.DRUGS.DOSING.ID_FIELD] = gene;
 			}
-			return 	find(dbConstants.DRUGS.DOSING.COLLECTION,query);
+			return 	find(dbConstants.DRUGS.DOSING.COLLECTION,query).then(function(result){
+				if (result.length === 0) return null;
+				else if (result.length === 1 ) return result[0];
+				else return result;
+			});
 		},
 
 		//Remove a recomendation from the databse. Removes a sinlge recomendation based on a Therapeutic Class

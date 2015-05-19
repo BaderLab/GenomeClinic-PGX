@@ -42,14 +42,20 @@
 <div class="row">
 	<div class="large-12 small-12 medium-12 columns">
 		<div class="row">
-			<div class="large-12 small-12 medium-12 columns">
-				<h2>Interactions</h2>
-				<hr>
+			<div class="large-8 small-8 medium-8 columns" style="margin-top:60px">
+				<h2>Dosing Recomendations</h2>
 			</div>
+			<div class="large-4 small-4 medium-4 columns">
+				<fieldset>
+					<p style="margin:0px"><a class="scroll-to-future">Go to Future Recomendations</a></p>
+					<p style="margin:0px"><a class="scroll-to-haplo">Go To Haplotypes</a></p>
+				</fieldset>
+			</div>
+			<hr>
 		</div>
 		<div class="row">
 			<div class="large-4 small-12 medium-6 columns">
-				<a href="#" id="new-interaction" class="button radius alert large-12 small-12 medium-12">New Interaction</a>
+				<a href="#" id="new-interaction" class="button radius alert large-12 small-12 medium-12">New Recomendation</a>
 				<ul class="button-group even-2 radius" id="new-interaction-triggers" style="display:none">
 					<li><a href="#" class="button success" id="new-interaction-trigger-submit">Submit</a></li>
 					<li><a href="#" class="button" id="new-interaction-cancel-trigger">Cancel</a></li>
@@ -59,27 +65,13 @@
 				<form data-abide='ajax' id="new-interaction-form"  style="display:none">
 					<fieldset>
 						<div class="row">
-							<div class="large-12 small-12 medium-12 columns">
-								<div class="row collapse prefix-radius">
-									<div class="large-3 small-4 medium-4 columns">
-										<span class="prefix">Drug Name</span>
-									</div>
-									<div class="large-5 small-8 medium-6 left">
-										<input type="text" name="drug" required>
-										<small class="error">Required</small>
-									</div>
-								</div>
-							</div>
-						</div>
-						<label>Primary Gene</label>
-						<div class="row">
-							<div class="large-6 medium-12 small-12 columns">
+							<div class="large-6 small-12 medium-6 columns">
 								<div class="row collapse prefix-radius">
 									<div class="large-4 small-4 medium-4 columns">
-										<span class="prefix">Gene Name</span>
+										<span class="prefix">Drug Name</span>
 									</div>
 									<div class="large-8 small-8 medium-8 columns">
-										<input type="text" name="pgx_1" id="new_pgx_1" required value={{gene}} disabled="disbaled">
+										<input type="text" name="drug" required>
 										<small class="error">Required</small>
 									</div>
 								</div>
@@ -100,24 +92,8 @@
 								</div>
 							</div>
 						</div>
-						<div class="row">
-							<div class="large-6 medium-12 small-12 columns left">
-								<div class="row collapse prefix-radius">
-									<div class="large-4 small-4 medium-4 columns">
-										<span class="prefix">Haplotype</span>
-									</div>
-									<div class="large-4 small-4 medium-4 columns">
-										<input type="text" name="new-hap_1-allele_1" id="new-hap_1-allele_1" placeholder="Allele 1" data-requiredIf="new-hap_1-allele_2" data-abide-validator="requiredIf">
-										<small class="error">Valid Haplotype Required</small>
-									</div>
-									<div class="large-4 small-4 medium-4 columns">
-										<input type="text" name="new-hap_1-allele_2"  id="new-hap_1-allele_2" placeholder="Allele 2" data-requiredIf="new-hap_1-allele_1" data-abide-validator="requiredIf">
-										<small class="error">Valid Haplotype Required</small>
-									</div>
-								</div>
-							</div>
-						</div>
-						<label>Secondary Gene</label>
+						<br>
+						<label><h6><b>Secondary Gene Interactions</b></h6></label>
 						<div class="row">
 							<div class="large-6 medium-12 small-12 columns">
 								<div class="row collapse prefix-radius">
@@ -148,23 +124,6 @@
 								</div>
 							</div>
 						</div>
-						<div class="row">
-							<div class="large-6 medium-12 small-12 columns left">
-								<div class="row collapse prefix-radius">
-									<div class="large-4 small-4 medium-4 columns">
-										<span class="prefix">Haplotype</span>
-									</div>
-									<div class="large-4 small-4 medium-4 columns">
-										<input type="text" name="new-hap_2-allele_1" id="new-hap_2-allele_1" placeholder="Allele 1" data-requiredIf="new-hap_2-allele_2" data-abide-validator="requiredIf">
-										<small class="error">Valid Haplotype Required</small>
-									</div>
-									<div class="large-4 small-4 medium-4 columns">
-										<input type="text" name="new-hap_2-allele_2"  id="new-hap_2-allele_2" placeholder="Allele 2" data-requiredIf="new-hap_2-allele_1" data-abide-validator="requiredIf">
-										<small class="error">Valid Haplotype Required</small>
-									</div>
-								</div>
-							</div>
-						</div>
 						<br>
 						<div class="row">
 							<div class="large-6 small-12 medium-6 columns">
@@ -174,28 +133,22 @@
 									</div>
 									<div class="large-8 small-8 medium-8 columns left">
 										<select name="risk" required id="new_risk">
-											{{#each allRisk}}
-											<option>{{this}}</option>
-											{{/each}}
+											<option>Low</option>
+											<option>Medium</option>
+											<option>High</option>
 										</select>
 										<small class="error">Required</small>
 									</div>
 								</div>
 							</div>
+						</div>
+						<div class="row">
 							<div class="large-12 small-12 medium-12 columns">
-								<div class="row collapse prefix-radius">
-									<div class="large-2 small-4 medium-4 columns">
-										<span class="prefix">Recomendation</span>
-									</div>
-									<div class="large-10 small-8 medium-8 columns">
-										<textarea name="rec" rows=4 required id="new_rec"></textarea>
-										<small class="error">Required</small>
-									</div>
-								</div>
+								<label><h6><b>Recomendation</b></h6></label>
+								<textarea name="rec" rows=4 required id="new_rec"></textarea>
+								<small class="error">Required</small>
 							</div>
 						</div>
-						<!--<button type="submit" id="new-interaction-submit" style="display:none"></button>
-						<button type="reset" id="new-interaction-cancel" style="display:none"></button>-->
 					</fieldset>
 				</form>
 			</div>
@@ -220,9 +173,8 @@
 	</div>
 </div>
 <div class="row">
-	<div class="large-12 small-12 medium-12 columns" id="main_content" data-unitialized={{unitialized}}>
-	{{#unless unitialized}}
-		{{#each drugs}}
+	<div class="large-12 small-12 medium-12 columns" id="main_content">
+	{{#each recomendations}}
 		<table class="drug-cont large-12 small-12 medium-12" data-drug="{{@key}}">
 			<thead>
 				<tr class="drug-cont-header" data-state="open">
@@ -241,10 +193,11 @@
 			</thead>
 			<tbody class="interactions">
 			{{#each this}}
+			{{#if rec}}
 				<tr>
 					<td>
 						<div class="large-12 small-12 medium-12 columns">
-							<form data-abide="ajax" data-id="{{_id}}">
+							<form data-abide="ajax">
 								<div class="row">
 							  		<div class="small-12 columns">
 								    	<div data-alert class="alert-box radius secondary" style="display:none">
@@ -261,115 +214,26 @@
 									</div>
 								</div>
 								<div class="row">
-									<div class="small-10 large-11 medium-10 columns">
-										<h5><b>Primary Gene</b></h5>
-									</div>
-									<div class="small-2 large-1 medium-2 columns">
+									<div class="small-2 large-2 medium-2 right columns">
 										<a href="#" class="edit-table right button tiny secondary radius"><i class="fi-pencil size-16" style="color:#A2A2A2"></i></a>
 									</div>
-								</div>
-								<div class="row">
-									<div class="large-6 small-12 medium-12 columns">
-										<div class="row collapse prefix-radius">
-											<div class="large-4 small-4 medium-4 columns">
-												<span class="prefix">Gene Name</span>
-											</div>
-											<div class="large-8 small-8 medium-8 columns">
-												<input class="edit" type="text" name="pgx_1" data-originalvalue="{{pgx_1}}" value="{{pgx_1}}" disabled id="{{@index}}_pgx_1" required>
-												<small class="error">Required</small>
-											</div>
+									<div class="small-12 medium-12 large-5 columns">
+										<div class="small-4 large-5 medium-4 columns" style="padding-left:0px">
+											<h6><b>Primary Gene:</b></h6>
+										</div>
+										<div class="small-8 large-7	medium-8 columns">
+											<h6 class='left p-gene-name'><i>{{@root.gene}}</i></h6>
 										</div>
 									</div>
-									<div class="large-6 small-12 medium-12 columns">
-										<div class="row collapse prefix-radius">
-											<div class="large-4 small-4 medium-4 columns">
-												<span class="prefix">Therapeutic Class</span>
-											</div>
-											<div class="large-8 small-8 medium-8 columns">
-												<select name="class_1" disabled=disabled data-originalvalue="{{class_1}}" value="{{class_1}}" id="{{@index}}_class_1" required>
-													<option></option>
-													{{#each @root.classes}}
-													<option>{{this}}</option>
-													{{/each}}
-												</select>
-												<small class="error">Required</small>
-											</div>
+									<div class="small-12 medium-12 large-5 columns left">
+										<div class="small-4 large-6 medium-4 columns"  style="padding-left:0px">
+											<h6><b>Therapeutic Class:</b></h6>
+										</div>
+										<div class="small-8 large-6	medium-8 columns">
+											<h6 class='left p-class-name'><i>{{@key}}</i></h6>
 										</div>
 									</div>
 								</div>
-								<div class="row">
-									<div class="large-6 small-12 medium-12 columns left">
-										<div class="row collapse prefix-radius">
-											<div class="large-4 small-4 medium-4 columns">
-												<span class="prefix">Haplotype</span>
-											</div>
-											<div class="large-4 small-4 medium-4 columns">
-												<input type="text" name="{{@index}}-hap_1-allele_1" id="{{@index}}-hap_1-allele_1" placeholder="Allele 1" data-requiredIf="{{@index}}-hap_1-allele_2" data-abide-validator="requiredIf" {{#if hap_1}}value="{{hap_1.allele_1}}" data-originalValue="{{hap_1.allele_1}}"{{else}}data-originalValue=""{{/if}} disabled="disabled">
-												<small class="error">Valid Haplotype Required</small>
-											</div>
-											<div class="large-4 small-4 medium-4 columns">
-												<input type="text" name="{{@index}}-hap_1-allele_2"  id="{{@index}}-hap_1-allele_2" placeholder="Allele 2" data-requiredIf="{{@index}}-hap_1-allele_1" data-abide-validator="requiredIf" {{#if hap_1}}value="{{hap_1.allele_2}}" data-originalValue="{{hap_1.allele_2}}"{{else}}data-originalValue=""{{/if}} disabled="disabled">
-												<small class="error">Valid Haplotype Required</small>
-											</div> <!--
-											<div class="large-8 small-8 medium-8 columns">
-												<input class="edit" type="text" name="hap_1" data-originalvalue="{{hap_1}}" value="{{hap_1}}" disabled id="{{@index}}_hap_1">
-											</div> -->
-										</div>
-									</div>
-								</div>
-								<h5><b>Secondary Gene</b></h5>
-								<div class="row">
-									<div class="large-6 small-12 medium-12 columns">
-										<div class="row collapse prefix-radius">
-											<div class="large-4 small-4 medium-4 columns">
-												<span class="prefix">Gene Name</span>
-											</div>
-											<div class="large-8 small-8 medium-8 columns">
-												<input class="edit" type="text" name="pgx_2" data-originalvalue="{{pgx_2}}" value="{{pgx_2}}" disabled id="{{@index}}_pgx_2" data-requiredIf="{{@index}}_class_2" data-abide-validator="requiredIf">
-												<small class="error">Gene name required</small>
-											</div>
-										</div>
-									</div>
-									<div class="large-6 small-12 medium-12 columns">
-										<div class="row collapse prefix-radius">
-											<div class="large-4 small-4 medium-4 columns">
-												<span class="prefix">Therapeutic Class</span>
-											</div>
-											<div class="large-8 small-8 medium-8 columns">
-												<select name="class_2" disabled=disabled data-originalvalue="{{class_2}}" value="{{class_2}}" id="{{@index}}_class_2" data-requiredIf="{{@index}}_pgx_2" data-abide-validator="requiredIf">
-													<option></option>
-													{{#each @root.classes}}
-													<option>{{this}}</option>
-													{{/each}}
-												</select>
-												<small class="error">Therapeutic class required</small>
-											</div>
-										</div>
-									</div>
-								</div>
-								<div class="row">
-									<div class="large-6 small-12 medium-12 columns left">
-										<div class="row collapse prefix-radius">
-											<div class="large-4 small-4 medium-4 columns">
-												<span class="prefix">Haplotype</span>
-											</div>
-											<div class="large-4 small-4 medium-4 columns">
-												<input type="text" name="hap_2-allele_1" id="{{@index}}-hap_2-allele_1" placeholder="Allele 1" data-requiredIf="{{@index}}-hap_2-allele_2" data-abide-validator="requiredIf" {{#if hap_2}}value="{{hap_2.allele_1}}" data-originalValue="{{hap_2.allele_1}}"{{else}}data-originalValue=""{{/if}} disabled="disabled">
-												<small class="error">Valid Haplotype Required</small>
-											</div>
-											<div class="large-4 small-4 medium-4 columns">
-												<input type="text" name="hap_2-allele_2"  id="{{@index}}-hap_2-allele_2" placeholder="Allele 2" data-requiredIf="{{@index}}-hap_2-allele_1" data-abide-validator="requiredIf" {{#if hap_2}}value="{{hap_2.allele_2}}" data-originalValue="{{hap_2.allele_2}}"{{else}}data-originalValue=""{{/if}} disabled="disabled">
-												<small class="error">Valid Haplotype Required</small>
-											</div>
-											<!--
-											<div class="large-8 small-8 medium-8 columns">
-												<input class="edit" type="text" name="hap_2" data-originalvalue="{{hap_2}}" value="{{hap_2}}" disabled id="{{@index}}_hap_2">
-											</div>
-											-->
-										</div>
-									</div>
-								</div>
-								<br>
 								<div class="row">
 									<div class="large-6 small-12 medium-6 columns">
 										<div class="row collapse prefix-radius">
@@ -377,26 +241,21 @@
 												<span class="prefix">Risk</span>
 											</div>
 											<div class="large-8 small-8 medium-8 columns left">
-												<select name="risk" disabled="disabled" data-originalvalue="{{risk}}" value="{{risk}}" id="{{@index}}_risk" required>
-													<option></option>
-													{{#each @root.allRisk}}
-													<option>{{this}}</option>
-													{{/each}}
+												<select name="risk" disabled="disabled" data-originalvalue="{{risk}}" value="{{risk}}" id="{{@../index}}-{{@index}}_risk" required>
+													<option>Low</option>
+													<option>Medium</option>
+													<option>High</option>
 												</select>
 												<small class="error">Required</small>
 											</div>
 										</div>
 									</div>
+								</div>
+								<div class="row">
 									<div class="large-12 small-12 medium-12 columns">
-										<div class="row collapse prefix-radius">
-											<div class="large-2 small-4 medium-4 columns">
-												<span class="prefix">Recomendation</span>
-											</div>
-											<div class="large-10 small-8 medium-8 columns">
-												<textarea name="rec" rows=4 data-originalvalue="{{rec}}" disabled="disabled" id="{{@index}}_rec" required>{{rec}}</textarea>
-												<small class="error">Required</small>
-											</div>
-										</div>
+										<label><h6><b>Recomendation</b></h6></label>
+										<textarea name="rec" rows=4 data-originalvalue="{{rec}}" disabled="disabled" id="{{@../index}}-{{@index}}-rec" required>{{rec}}</textarea>
+										<small class="error">Required</small>
 									</div>
 								</div>
 								<div class="row">	
@@ -412,20 +271,127 @@
 						</div>
 					</td>
 				</tr>
+				{{/if}}
+				{{#each secondary}}
+				{{#each this}}
+				<tr>
+					<td>
+						<div class="large-12 small-12 medium-12 columns">
+							<form data-abide="ajax">
+								<div class="row">
+							  		<div class="small-12 columns">
+								    	<div data-alert class="alert-box radius secondary" style="display:none">
+								    	<!-- Alert message goes here -->
+									      	<div class="row">
+									        	<div class="small-11 columns">
+									        	  	<p></p>
+									        	</div>
+									      		<div class="small-1 columns">
+									        		<a href="#" class='close-box'><i class="fi-x size-16" style="color:#606060"></i></a>
+									      		</div>
+									    	</div>
+									    </div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="small-2 large-2 medium-2 right columns">
+										<a href="#" class="edit-table right button tiny secondary radius"><i class="fi-pencil size-16" style="color:#A2A2A2"></i></a>
+									</div>
+									<div class="small-12 medium-12 large-5 columns">
+										<div class="small-4 large-5 medium-4 columns" style="padding-left:0px">
+											<h6><b>Primary Gene:</b></h6>
+										</div>
+										<div class="small-8 large-7	medium-8 columns">
+											<h6 class='left p-gene-name'><i>{{@root.gene}}</i></h6>
+										</div>
+									</div>
+									<div class="small-12 medium-12 large-5 columns left">
+										<div class="small-4 large-6 medium-4 columns"  style="padding-left:0px">
+											<h6><b>Therapeutic Class:</b></h6>
+										</div>
+										<div class="small-8 large-6	medium-8 columns">
+											<h6 class='left p-class-name'><i>{{@key}}</i></h6>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="small-12 medium-12 large-5 columns left">
+										<div class="small-4 large-5 medium-4 columns " style="padding-left:0px">
+											<h6><b>Secondary Gene:</b></h6>
+										</div>
+										<div class="small-8 large-7	medium-8 columns">
+											<h6 class='left s-gene-name'><i>{{@../key}}</i></h6>
+										</div>
+									</div>
+									<div class="small-12 medium-12 large-5 columns left">
+										<div class="small-4 large-6 medium-4 columns"  style="padding-left:0px">
+											<h6><b>Therapeutic Class:</b></h6>
+										</div>
+										<div class="small-8 large-6	medium-8 columns">
+											<h6 class='left p-class-name'><i>{{@key}}</i></h6>
+										</div>
+									</div>
+								</div>
+								<br>
+								<div class="row">
+									<div class="large-6 small-12 medium-6 columns">
+										<div class="row collapse prefix-radius">
+											<div class="large-4 small-4 medium-4 columns">
+												<span class="prefix">Risk</span>
+											</div>
+											<div class="large-8 small-8 medium-8 columns left">
+												<select name="risk" disabled="disabled" data-originalvalue="{{risk}}" value="{{risk}}" id="{{@../../../index}}-{{@../../index}}-{{@../index}}-{{@index}}-risk" required>
+													<option></option>
+													<option>Low</option>
+													<option>Medium</option>
+													<option>High</option>
+												</select>
+												<small class="error">Required</small>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row">	
+									<div class="large-12 small-12 medium-12 columns">
+										<label><h6><b>Recomendation</b></h6></label>
+										<textarea name="rec" rows=4 data-originalvalue="{{rec}}" disabled="disabled" id="{{@../../../index}}-{{@../../index}}-{{@../index}}-{{@index}}-x`rec" required>{{rec}}</textarea>
+										<small class="error">Required</small>
+									</div>
+								</div>
+								<div class="row">	
+									<div class="large-4 small-12 medium-6 columns right">
+										<ul class="button-group even-3 form-triggers" style="display:none">
+											<li><button type="submit" class="button success tiny submit-changes">Submit</button></li>
+											<li><a href="#" class="button tiny cancel-changes">Cancel</a></li>
+											<li><a href="#" class="button tiny alert delete-table">Delete</a></li>
+										</ul>
+									</div>
+								</div>
+							</form>
+						</div>
+					</td>
+				</tr>
+					{{/each}}
+				{{/each}}
 				{{/each}}
 			</tbody>
 		</table>
 		{{/each}}
-	{{/unless}}
 	</div>
 </div>
 <div class="row">
 	<div class="large-12 small-12 medium-12 columns">
 		<div class="row">
-			<div class="large-12 small-12 medium-12 columns">
+			<div class="large-8 small-8 medium-8 columns" style="margin-top:60px">
 				<h2>Future Recomendations</h2>
-				<hr>
 			</div>
+			<div class="large-4 small-4 medium-4 columns">
+				<fieldset>
+					<p style="margin:0px"><a class="scroll-to-top">Go to Dosing Recomendations</a></p>
+					<p style="margin:0px"><a class="scroll-to-haplo">Go To Haplotypes</a></p>
+				</fieldset>
+			</div>
+			<hr>
 		</div>
 		<div class="row">
 			<div class="large-4 small-12 medium-6 columns">
@@ -480,6 +446,101 @@
 		<div class="row">
 			<div class="large-12 small-12 medium-12 columns">
 				<table class="large-12 small-12 medium-12" id="future-recomendations" style="display:none"> 
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="large-12 small-12 medium-12 columns">
+		<div class="row">
+			<div class="large-8 small-8 medium-8 columns" style="margin-top:60px">
+				<h2>Associated Haplotypes</h2>
+			</div>
+			<div class="large-4 small-4 medium-4 columns">
+				<fieldset>
+					<p style="margin:0px"><a class="scroll-to-top">Go to Top</a></p>
+					<p style="margin:0px"><a class="scroll-to-future">Go To Future Recomendations</a></p>
+				</fieldset>
+			</div>
+			<hr>
+		</div>
+		<div class="row">
+			<div class="large-4 small-12 medium-6 columns">
+				<a href="#" id="new-haplotype" class="button radius alert large-12 small-12 medium-12">New Haplotype</a>
+				<ul class="button-group even-2 radius" id="new-haplotype-triggers" style="display:none">
+					<li><a href="#" class="button success" id="new-haplotype-trigger-submit">Submit</a></li>
+					<li><a href="#" class="button" id="new-haplotype-cancel-trigger">Cancel</a></li>
+				</ul> 
+			</div>
+			<div class="large-12 small-12 medium-12 columns">
+				<form data-abide="ajax" id="new-haplotype-form" style="display:none">
+					<fieldset>
+						<div class='row'>
+							<div class="large-6 small-12 medium-6 columns">
+								<div class="row collapse prefix-radius">
+									<div class="large-4 small-4 medium-4 columns">
+										<span class="prefix">Therapeutic Class</span>
+									</div>
+									<div class="large-8 small-8 medium-8 columns">
+										<select name="Therapeutic_Class" required>
+											{{#each classes}}
+											<option>{{this}}</option>
+											{{/each}}
+										</select>
+										<small class="error">Required</small>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="large-6 small-12 medium-6 columns">
+								<div class="row collapse prefix-radius">
+									<div class="large-4 small-4 medium-4 columns">
+										<span class="prefix">First Haplotype</span>
+									</div>
+									<div class="large-8 small-8 medium-8 columns">
+										<input type="text" placeholder='ex *1' name="allele_1" required>
+										<small class="error">Required</small>
+									</div>
+								</div>
+							</div>
+							<div class="large-6 small-12 medium-6 columns">
+								<div class="row collapse prefix-radius">
+									<div class="large-4 small-4 medium-4 columns">
+										<span class="prefix">Second Haplotype</span>
+									</div>
+									<div class="large-8 small-8 medium-8 columns">
+										<input type="text" placeholder='ex *3' name="allele_2" required>
+										<small class="error">Required</small>
+									</div>
+								</div>
+							</div>
+						</div>
+					</fieldset>
+				</form>
+			</div>
+		</div>
+		<div class="row">
+		  	<div class="small-12 columns">
+		    	<div data-alert class="alert-box radius secondary" id="error-display-box-3"  style="display:none">
+		    	<!-- Alert message goes here -->
+			  		<div class="row">
+			    		<div class="small-11 columns">
+			      			<p id="error-display-message-3"></p>
+			    		</div>
+			  			<div class="small-1 columns">
+			    			<a href="#" class='close-box'><i class="fi-x size-16" style="color:#606060"></i></a>
+			  			</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="large-12 small-12 medium-12 columns">
+				<table class="large-12 small-12 medium-12" id="haplotypes" style="display:none"> 
 					<tbody>
 					</tbody>
 				</table>
