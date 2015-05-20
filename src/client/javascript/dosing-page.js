@@ -50,24 +50,75 @@ module.exports = function(){
 		use:undefined
 	};
 
-	var serializeInteractions = function(context){
-		var drug, doc={}, hap_1 = [], hap_2 = [];
+	var serializeNewField = function(context,type){
+		var doc = {};
 		var fields = $(context).serializeArray();
-		doc.pgx_1 = pageOptions.gene
-		for ( var i = 0; i< fields.length; i++ ){
-			if (fields[i].value !== "" && fields[i].value !== "None")
-				if (fields[i].name.search('hap_1-')!== -1 ) {
-					hap_1.push(fields[i].value)
-				} else if (fields[i].name.search('hap_2-')!== -1 ) {
-					hap_2.push(fields[i].value)
-				} else {
-					doc[fields[i].name] = fields[i].value;
-				}
+		doc.pgx_1 = pageOptions.gene;
+		for (var i = 0; i < fields.length; i++ ){
+			if (fields[i].value !== "" ){
+				doc[fields[i].name] = fields[i].value;
+			}
 		}
-		if (doc.pgx_1) doc.pgx_1 = doc.pgx_1.toUpperCase();
-		if (doc.pgx_2) doc.pgx_2 = doc.pgx_2.toUpperCase();
-		if (hap_1.length > 0 ) doc.hap_1 = hap_1;
-		if (hap_2.length > 0 ) doc.hap_2 = hap_2;
+		if ( type == 'interaction' ){
+			var linksArr = $(context).find('.pubmed-link');
+			var links = [];
+			for (var i = 0; i < linksArr.length; i++ ){
+				if (!$(linksArr[i]).hasClass('temp-remove')){
+					links.push($(linksArr[i]).data('link'));
+				}
+			}
+			doc.pubmed = links;
+		} else if ( type == 'future' ){
+			doc.future = {};
+			doc.future[doc.Therapeutic_Class] = {
+				rec:doc.rec
+			};
+			delete doc.Therapeutic_Class;
+
+		} else if ( type == 'haplotype' ){
+			doc.haplotypes = {}
+			doc.haplotypes[doc.Therapeutic_Class] = [doc.allele_1,doc.allele_2];
+			delete doc.Therapeutic_Class;
+
+		}
+		return doc;
+	}
+
+	var serializeField = function(context,type){
+		var doc = {};
+		var fields = $(context).serializeArray();
+		doc.pgx_1 = pageOptions.gene;
+		for (var i = 0; i < fields.length; i++ ){
+			if (fields[i].value !== "" ){
+				doc[fields[i].name] = fields[i].value;
+			}
+		}
+		
+		if (type == 'interaction'){
+			doc.class_1 = $(context).find('.p-class-name').text();
+			var linksArr = $(context).find('.pubmed-link');
+			var links = [];
+			for (var i = 0; i < linksArr.length; i++ ){
+				if (!$(linksArr[i]).hasClass('temp-remove')){
+					links.push($(linksArr[i]).data('link'));
+				}
+			}
+			doc.pubmed = links;
+			var class_2 = $(context).find('.s-class-name').text();
+			var pgx_2 = $(context).find('.s-gene-name').text();
+			if ( pgx_2 ){
+				doc.pgx_2 = pgx_2;
+				doc.class_2  = class_2;
+			}
+		} else if ( type == 'future' ){
+			doc.future = {};
+			doc.future[$(context).find('.p-class-name').text()] = {rec:doc.rec};
+		} else if ( type == 'haplotype' ){
+			console.log(doc);
+			doc.haplotypes = {}
+			doc.haplotypes[$(context).find('.p-class-name').text()] = [doc.allele_1,doc.allele_2];
+		}
+
 		return doc;
 	};
 
@@ -175,22 +226,22 @@ module.exports = function(){
 
 				$('.scroll-to-future').on('click',function(e){
 					e.preventDefault();
-					$('html,body').animate({
+					$('body').animate({
         				scrollTop: $("#future-recomendations-header").offset().top},
         				'slow');
 				});
 
 				$('.scroll-to-haplo').on('click',function(e){
 					e.preventDefault();
-					$('html,body').animate({
+					$('body').animate({
         				scrollTop: $("#haplotypes-header").offset().top},
         				'slow');
 				});
 
 				$('.scroll-to-top').on('click',function(e){
 					e.preventDefault();
-					$('html,body').animate({
-        				scrollTop: $("#main_content").offset().top},
+					$('body').animate({
+        				scrollTop: $("#recomendation-header").offset().top},
         				'slow');
 				});
 
@@ -240,6 +291,7 @@ module.exports = function(){
 					e.preventDefault();
 					$(this).closest("#new-interaction-triggers").hide().siblings('#new-interaction').show();
 					document.getElementById('new-interaction-form').reset();//.trigger('click');
+					$('#new-interaction-form').find('.pubmed-links').empty();
 					$('#new-interaction-form').slideUp();
 				});
 
@@ -250,8 +302,7 @@ module.exports = function(){
 				 * and data will not be entered but inform the user an entry similar
 				 * to that already exists */
 				$('#new-interaction-form').on('valid.fndtn.abide', function (){
-					var doc = serializeInteractions(this);
-					console.log(doc);
+					var doc = serializeNewField(this,'interaction');
 					Promise.resolve($.ajax({
 						url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=interaction&newdoc=true',
 						type:"POST",
@@ -259,7 +310,6 @@ module.exports = function(){
 				 		dataType:"json",
 						data:JSON.stringify(doc)
 					})).then(function(result){
-						console.log(result);
 						if (result.statusCode == 200 ){
 							var currentDrugCont = $('.drug-cont');
 							var currentDrugs=[];
@@ -326,17 +376,14 @@ module.exports = function(){
 					e.preventDefault();
 					$(this).closest("#new-recomendation-triggers").hide().siblings('#new-recomendation').show();
 					document.getElementById('new-recomendation-form').reset();//.trigger('click');
+
 					$('#new-recomendation-form').slideUp();
+
 				});
 
 
 				$("#new-recomendation-form").on('valid.fndtn.abide',function(){
-					var items = $(this).serializeArray();
-					var o = {};
-					for (var i = 0; i < items.length; i++ ){
-						o[items[i].name] = items[i].value;
-					}
-					o = pageOptions.gene;
+					var o = serializeNewField(this,'future');
 					Promise.resolve($.ajax({
 						url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=recomednation&newdoc=true',
 						type:"POST",
@@ -345,7 +392,7 @@ module.exports = function(){
 						data:JSON.stringify(o)
 					})).then(function(result){
 						if (result.statusCode == 200){
-							templates.drugs.future({future:[o]}).then(function(renderedHtml){
+							templates.drugs.future(doc).then(function(renderedHtml){
 								return $('#future-recomendations').find('tbody').append(renderedHtml);
 							}).then(function(){
 								_this.generic($('#future-recomendations').find('tbody').last('tr'));
@@ -374,6 +421,7 @@ module.exports = function(){
 
 				$('#new-haplotype-trigger-submit').on('click',function(e){
 					e.preventDefault();
+					console.log('here');
 					$('#new-haplotype-form').submit();//submit').trigger('click');
 				});
 
@@ -386,6 +434,8 @@ module.exports = function(){
 				});
 
 				$('#new-haplotype-form').on('valid.fndtn.abide',function(){
+					var o = serializeNewField(this,'haplotype');
+					console.log(o);
 
 				});
 
@@ -432,7 +482,7 @@ module.exports = function(){
 					e.preventDefault();
 					$(this).hide();
 					$(this).closest('form').find('input,select,textarea').prop('disabled',false);
-					$(this).closest('form').find('.form-triggers').show();
+					$(this).closest('form').find('.form-triggers,.edit').show();
 				});
 
 				//cancel the chagens, restoring the original values to each field
@@ -445,7 +495,28 @@ module.exports = function(){
 						newVal = $(inputFields[i]).data('originalvalue');
 						$(inputFields[i]).val(newVal);
 					}
-					$(this).closest('.form-triggers').hide().closest('form').find('.edit-table').show();
+					$(this).closest('form').find('.form-triggers,.edit').hide().closest('form').find('.edit-table,.temp-hide').show();
+					$(this).closest('form').find('.temp-remove').remove();
+				});
+
+				context.find('.pubmed-remove-link').on('click',function(e){
+					e.preventDefault();
+					$(this).closest('.pubmed-link-combo').addClass('temp-hide').hide();
+				})
+
+				context.find('.add-new-pubmed-button').on('click', function(e){
+					e.preventDefault();
+					var val = $(this).closest('.row').find(".add-new-pubmed-input").val();
+					if (val !== ""){
+						var html = '<span class="pubmed-link-combo temp-remove">'
+						html += '<a href="http://www.ncbi.nlm.nih.gov/pubmed/' + val + '" class="pubmed-link" target="_blank" style="margin-left:10px;" data-link="' + val + '">' + val + '</a>'
+						html += '<a href="#" class="edit pubmed-remove-link" style="display:inline;">&nbsp<i class="fi-x"></i></a></span>'
+						var context = $(this).closest('form').find('.pubmed-links');
+						context.append(html);
+						utility.refresh(context);
+						_this.generic(context);
+					}
+					$(this).closest('.row').find(".add-new-pubmed-input").val('');
 				});
 
 			},
@@ -457,14 +528,9 @@ module.exports = function(){
 
 				context.find("form").on("valid.fndtn.abide",function(){
 					var _this =this;
-					var o = {};
-					o.Therapeutic_Class = $(this).find('input[name=Therapeutic_Class]').val();
-					o.gene = pageOptions.gene
-					o.rec = $(this).find('textarea[name=rec]').val();
-					var id = $(this).data('id');
-
+					var o = serializeField(this,'future');
 					Promise.resolve($.ajax({
-						url:"/database/dosing/genes/" + pageOptions.gene + "/update/" + id + '?type=recomendation',
+						url:"/database/dosing/genes/" + pageOptions.gene + "/update?type=recomendation",
 						type:"POST",
 						contentType:"application/json",
 						dataType:'json',
@@ -473,9 +539,7 @@ module.exports = function(){
 						if (result.statusCode == 200 ){
 							$(_this).find('textarea[name=rec]').data('originalvalue',o.rec);
 							$(_this).find('input[name=Therapeutic_Class]').data('originalvalue',o.Therapeutic_Class);
-							$(_this).find('input,select,textarea').prop('disabled',true);
-							$(_this).find('.form-triggers').hide();
-							$(_this).find('.edit-table').show();
+							$(_this).find('.cancel-changes').trigger('click');
 							$(_this).find('.alert-message').text(result.message).closest('.alert-box').slideDown();
 						} else {
 							$(_this).find('.alert-message').text(result.message).closest('.alert-box').slideDown();
@@ -483,7 +547,7 @@ module.exports = function(){
 						}
 					}).catch(function(err){
 						$(_this).find('.alert-message').text(err.message).closest('.alert-box').slideDown();
-					});
+					}); 
 				});
 				
 				context.find(".delete-table").on('click',function(e){
@@ -519,16 +583,31 @@ module.exports = function(){
 			haplotypes : function(el){
 				_this = this;
 				var context;
-				if (!el) context = $('#haplotpyes');
+				if (!el) context = $('#haplotypes');
 				else context = $(el);
 
 				//Associate a haplotype with a therapeutic class
 				context.find('form').on('valid.fndtn.abide',function(e){
-					e.preventDefault();
+					var o = serializeField(this,'haplotype');
+					Promise.resolve($.ajax({
+						url:'/database/dosing/genes/'+ pageOptions.gene + '/update?type=haplotype',
+						type:'POST',
+						contentType:'application/json',
+						dataType:'json',
+						data:JSON.stringify(doc)
+					})).then(function(result){
+						if (result.statusCode == 200 ){
+							$(_this).find('input[name=allele_1]').data('originalvalue',doc.haplotypes[0]);
+							$(_this).find('input[name=allele_2]').data('originalvalue',doc.haplotypes[1]);
+							$(_this).find('.cancel-changes').trigger('click');
+							$(_this).find('.alert-message').text(result.message).closest('.alert-box').slideDown();
+						} else {
+							$(_this).find('.alert-box').find('p').text(result.message).closest('.alert-box').slideDown();
+						}
+					});
 				});
 
-				context.find('.delete-table').on('click',function(e){
-					e.preventDefault();
+				context.find('.delete-table').on('click',function(){
 				});
 
 			},
@@ -550,13 +629,12 @@ module.exports = function(){
 						}
 					});
 				}
-		
+				
+				
 				// Submit the chagnes to the current dose table to the server
 				context.find('form').on('valid.fndtn.abide',function(e){
-					e.preventDefault();
 					var _this = $(this);
-					var doc = serializeInteractions(this);
-					doc.drug = $(this).closest('.drug-cont').data('drug');
+					var doc = serializeField(this,'interaction');
 					Promise.resolve($.ajax({
 						url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=interaction',
 						type:"POST",
@@ -568,9 +646,8 @@ module.exports = function(){
 							for ( var i = 0; i< fields.length; i++ ){
 								$(_this).find('[name=' + fields[i].name + ']').data('originalvalue',fields[i].value);
 							}
-							$(_this).find('input,select,textarea').prop('disabled',true);
-							$(_this).find('.form-triggers').hide();
-							$(_this).find('.edit-table').show();
+							$(_this).find('.cancel-changes').trigger('click');
+							$(_this).find('.alert-message').text(result.message).closest('.alert-box').slideDown();
 						} else {
 							$(_this).find('.alert-box').find('p').text(result.message).closest('.alert-box').slideDown();
 						}
@@ -668,7 +745,6 @@ module.exports = function(){
 					dataType:'json'
 				}));
 			}).then(function(result){
-				console.log(result);
 				resultObj.classes = result[0].classes;
 				return templates.drugs.current(resultObj);
 			}).then(function(renderedHtml){
@@ -690,6 +766,7 @@ module.exports = function(){
 				staticHanlders.current.page();
 				staticHanlders.current.interactions();
 				staticHanlders.current.future();
+				staticHanlders.current.haplotypes();
 				staticHanlders.current.generic();
 
 			}).then(function(){

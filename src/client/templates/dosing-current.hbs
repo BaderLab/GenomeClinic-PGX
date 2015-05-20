@@ -43,7 +43,7 @@
 	<div class="large-12 small-12 medium-12 columns">
 		<div class="row">
 			<div class="large-8 small-8 medium-8 columns" style="margin-top:60px">
-				<h2>Dosing Recomendations</h2>
+				<h2 id="recomendation-header">Dosing Recomendations</h2>
 			</div>
 			<div class="large-4 small-4 medium-4 columns">
 				<fieldset>
@@ -147,6 +147,25 @@
 								<label><h6><b>Recomendation</b></h6></label>
 								<textarea name="rec" rows=4 required id="new_rec"></textarea>
 								<small class="error">Required</small>
+							</div>
+						</div>
+						<div class="row">
+							<div class="large-12 small-12 medium-12 columns">
+								<label><h6><b>Pubmed Citations</b></h6></label>
+								<div class="row">
+									<div class="small-12 medium-4 large-4 columns add-new-pubmed">
+										<div class="row collapse postfix-radius">
+											<div class="large-10 medium-10 small-10 columns">
+												<input class="add-new-pubmed-input" type="text" placeholder="Pubmed ID">
+											</div>
+											<div class="large-2 medium-2 small-2 columns">
+												<a href="#" class="postfix add-new-pubmed-button button secondary tiny" style="margin-bottom:0"><i class="fi-plus"></i></a>
+											</div>
+										</div>
+									</div>
+									<div class="pubmed-links small-12 medium-8 large-8 columns left size-16" style="margin-top:13px">
+									</div>
+								</div>
 							</div>
 						</div>
 					</fieldset>
@@ -258,6 +277,31 @@
 										<small class="error">Required</small>
 									</div>
 								</div>
+								<div class="row">
+									<div class="large-12 small-12 medium-12 columns">
+										<label><h6><b>Pubmed Citations</b></h6></label>
+										<div class="row">
+											<div class="small-12 medium-4 large-4 columns add-new-pubmed edit hide">
+												<div class="row collapse postfix-radius">
+													<div class="large-10 medium-10 small-10 columns">
+														<input class="add-new-pubmed-input" type="text" placeholder="Pubmed ID">
+													</div>
+													<div class="large-2 medium-2 small-2 columns">
+														<a href="#" class="postfix add-new-pubmed-button button secondary tiny" style="margin-bottom:0"><i class="fi-plus"></i></a>
+													</div>
+												</div>
+											</div>
+											<div class="pubmed-links small-12 medium-8 large-8 columns left size-16" style="margin-top:13px">
+												{{#each pubmed}}
+												<span class="pubmed-link-combo">
+													<a href="http://www.ncbi.nlm.nih.gov/pubmed/{{this}}" class="pubmed-link" target="_blank" style="margin-left:10px;" data-link="{{this}}">{{this}}</a>
+													<a href="#" class="edit pubmed-remove-link hide" data-link="{{this}}"><i class="fi-x"></i></a>
+												</span>
+												{{/each}}
+											</div>
+										</div>
+									</div>
+								</div>
 								<div class="row">	
 									<div class="large-4 small-12 medium-6 columns right">
 										<ul class="button-group even-3 form-triggers" style="display:none">
@@ -328,7 +372,7 @@
 											<h6><b>Therapeutic Class:</b></h6>
 										</div>
 										<div class="small-8 large-6	medium-8 columns">
-											<h6 class='left p-class-name'><i>{{@key}}</i></h6>
+											<h6 class='left s-class-name'><i>{{@key}}</i></h6>
 										</div>
 									</div>
 								</div>
@@ -358,6 +402,31 @@
 										<small class="error">Required</small>
 									</div>
 								</div>
+								<div class="row">
+									<div class="large-12 small-12 medium-12 columns">
+										<label><h6><b>Pubmed Citations</b></h6></label>
+										<div class="row">
+											<div class="small-12 medium-4 large-4 columns add-new-pubmed edit hide">
+												<div class="row collapse postfix-radius">
+													<div class="large-10 medium-10 small-10 columns">
+														<input class="add-new-pubmed-input" type="text" name="new-pubmed" placeholder="Pubmed ID">
+													</div>
+													<div class="large-2 medium-2 small-2 columns">
+														<a href="#" class="postfix add-new-pubmed-button button secondary tiny" style="margin-bottom:0"><i class="fi-plus"></i></a>
+													</div>
+												</div>
+											</div>
+											<div class="pubmed-links small-12 medium-8 large-8 columns left size-16" style="margin-top:13px">
+												{{#each pubmed}}
+												<span class="pubmed-link-combo">
+													<a href="http://www.ncbi.nlm.nih.gov/pubmed/{{this}}" class="pubmed-link" target="_blank" style="margin-left:10px;" data-link="{{this}}">{{this}}</a>
+													<a href="#" class="edit pubmed-remove-link hide" data-link="{{this}}"><i class="fi-x"></i></a>
+												</span>
+												{{/each}}
+											</div>
+										</div>
+									</div>
+								</div>
 								<div class="row">	
 									<div class="large-4 small-12 medium-6 columns right">
 										<ul class="button-group even-3 form-triggers" style="display:none">
@@ -383,7 +452,7 @@
 	<div class="large-12 small-12 medium-12 columns">
 		<div class="row">
 			<div class="large-8 small-8 medium-8 columns" style="margin-top:60px">
-				<h2>Future Recomendations</h2>
+				<h2 id="future-recomendations-header">Future Recomendations</h2>
 			</div>
 			<div class="large-4 small-4 medium-4 columns">
 				<fieldset>
@@ -457,11 +526,11 @@
 	<div class="large-12 small-12 medium-12 columns">
 		<div class="row">
 			<div class="large-8 small-8 medium-8 columns" style="margin-top:60px">
-				<h2>Associated Haplotypes</h2>
+				<h2 id="haplotypes-header">Associated Haplotypes</h2>
 			</div>
 			<div class="large-4 small-4 medium-4 columns">
 				<fieldset>
-					<p style="margin:0px"><a class="scroll-to-top">Go to Top</a></p>
+					<p style="margin:0px"><a class="scroll-to-top">Go to Dosing Recomendations</a></p>
 					<p style="margin:0px"><a class="scroll-to-future">Go To Future Recomendations</a></p>
 				</fieldset>
 			</div>

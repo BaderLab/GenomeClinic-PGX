@@ -18,9 +18,11 @@
 				</div>
 			</div>
 			<div class="row">
-				<div class="large-11 small-10 medium-11 columns">
-						<h5><b>Therapeutic Class:</b> <em>{{@key}}</em></h5>
-						<input name="Therapeutic_Class" disabled="disabled" style="display:none" value="{{@key}}" data-originalvalue="{{@key}}">
+				<div class="large-3 small-4 medium-3 columns">
+						<h5><b>Therapeutic Class:</b></h5>
+				</div>
+				<div class="large-8 small-6 medium-8 columns">
+					<h5 class="p-class-name"><i>{{@key}}</i></h5>
 				</div>
 				<div class="large-1 small-2 medium-1 columns">
 					<a href="#" class="edit-table right button tiny secondary radius"><i class="fi-pencil size-16" style="color:#A2A2A2"></i></a>
@@ -33,7 +35,7 @@
 							<span class="prefix">First Haplotype</span>
 						</div>
 						<div class="large-8 small-8 medium-8 columns">
-							<input type="text" placeholder="ex *1" value={{this.[0]}} data-originalValue={{this.[0]}} disabled="disabled">
+							<input name="allele_1" type="text" placeholder="ex *1" value={{this.[0]}} data-originalValue={{this.[0]}} disabled="disabled" required>
 							<small class="error">Required</small>
 						</div>
 					</div>
@@ -44,7 +46,7 @@
 							<span class="prefix">Second Haplotype</span>
 						</div>
 						<div class="large-8 small-8 medium-8 columns">
-							<input type="text" placeholder="ex *2" value={{this.[1]}} data-originalValue={{this.[1]}} disabled="disabled">
+							<input name="allele_2" type="text" placeholder="ex *2" value={{this.[1]}} data-originalValue={{this.[1]}} disabled="disabled" required>
 							<small class="error">Required</small>
 						</div>
 					</div
