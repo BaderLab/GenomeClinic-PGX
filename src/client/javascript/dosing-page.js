@@ -55,7 +55,7 @@ module.exports = function(){
 		var fields = $(context).serializeArray();
 		doc.pgx_1 = pageOptions.gene;
 		for (var i = 0; i < fields.length; i++ ){
-			if (fields[i].value !== "" ){
+			if (fields[i].value !== "" && fields[i] != "None" ){
 				doc[fields[i].name] = fields[i].value;
 			}
 		}
@@ -73,13 +73,10 @@ module.exports = function(){
 			doc.future[doc.Therapeutic_Class] = {
 				rec:doc.rec
 			};
-			delete doc.Therapeutic_Class;
 
 		} else if ( type == 'haplotype' ){
 			doc.haplotypes = {}
 			doc.haplotypes[doc.Therapeutic_Class] = [doc.allele_1,doc.allele_2];
-			delete doc.Therapeutic_Class;
-
 		}
 		return doc;
 	}
@@ -89,7 +86,7 @@ module.exports = function(){
 		var fields = $(context).serializeArray();
 		doc.pgx_1 = pageOptions.gene;
 		for (var i = 0; i < fields.length; i++ ){
-			if (fields[i].value !== "" ){
+			if (fields[i].value !== "" && fields[i] != "None"){
 				doc[fields[i].name] = fields[i].value;
 			}
 		}
@@ -99,7 +96,7 @@ module.exports = function(){
 			var linksArr = $(context).find('.pubmed-link');
 			var links = [];
 			for (var i = 0; i < linksArr.length; i++ ){
-				if (!$(linksArr[i]).hasClass('temp-remove')){
+				if (!$(linksArr[i]).closest('span').hasClass('temp-hide')){
 					links.push($(linksArr[i]).data('link'));
 				}
 			}
@@ -110,13 +107,15 @@ module.exports = function(){
 				doc.pgx_2 = pgx_2;
 				doc.class_2  = class_2;
 			}
+			doc.drug = $(context).closest('.drug-cont').data('drug');
 		} else if ( type == 'future' ){
 			doc.future = {};
 			doc.future[$(context).find('.p-class-name').text()] = {rec:doc.rec};
+			doc.Therapeutic_Class = $(context).find('.p-class-name').text();
 		} else if ( type == 'haplotype' ){
-			console.log(doc);
 			doc.haplotypes = {}
 			doc.haplotypes[$(context).find('.p-class-name').text()] = [doc.allele_1,doc.allele_2];
+			doc.Therapeutic_Class = $(context).find('.p-class-name').text();
 		}
 
 		return doc;
@@ -321,24 +320,26 @@ module.exports = function(){
 							}
 							//If this is a new drug, add a new drug table
 							if (currentDrugs.indexOf(doc.drug) !== -1 ){
-								delete doc.drug;
 								promise = templates.drugs.new(doc).then(function(renderedHtml){
-									$('.drug-cont[data-drug=' + drug).find('.interactions').append(renderedHtml);
+									$('.drug-cont[data-drug=' + doc.drug).find('.interactions').append(renderedHtml);
 								}).then(function(){
-									var context = $('#form-' + num.toString())
+									var context = $('#form-' + num.toString()).closest('tr');
 									context.foundation(abideOptions);
-									_this.current(context);
+									_this.interactions(context);
+									_this.generic(context);
 									setSelects(context);
 								});
 							//This is not a new drug, append the html to a previous table
-							} else { 
+							} else {
+								doc.newDrug = true;
 								promise = templates.drugs.new(doc).then(function(renderedHtml){
 									return $('#main_content').append(renderedHtml);
 								}).then(function(){
-									utility.refresh(abideOptions,$('.drug-cont[data-drug=' + drug+ ']'));
-									_this.generic('.drug-cont[data-drug=' + drug+ ']');
-									_this.interactions('.drug-cont[data-drug=' + drug+ ']');
-									setSelects('.drug-cont[data-drug=' + drug+ ']');
+									var context = $('.drug-cont[data-drug=' + doc.drug+ ']')
+									utility.refresh(abideOptions,context);
+									_this.generic(context);
+									_this.interactions(context);
+									setSelects(context);
 								});
 							}
 							
@@ -375,8 +376,7 @@ module.exports = function(){
 				$('#new-recomendation-cancel-trigger').on('click',function(e){
 					e.preventDefault();
 					$(this).closest("#new-recomendation-triggers").hide().siblings('#new-recomendation').show();
-					document.getElementById('new-recomendation-form').reset();//.trigger('click');
-
+					document.getElementById('new-recomendation-form').reset();
 					$('#new-recomendation-form').slideUp();
 
 				});
@@ -385,19 +385,20 @@ module.exports = function(){
 				$("#new-recomendation-form").on('valid.fndtn.abide',function(){
 					var o = serializeNewField(this,'future');
 					Promise.resolve($.ajax({
-						url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=recomednation&newdoc=true',
+						url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=recomendation&newdoc=true',
 						type:"POST",
 						contentType:'application/json',
 						dataType:'json',
 						data:JSON.stringify(o)
 					})).then(function(result){
 						if (result.statusCode == 200){
-							templates.drugs.future(doc).then(function(renderedHtml){
+							templates.drugs.future(o).then(function(renderedHtml){
 								return $('#future-recomendations').find('tbody').append(renderedHtml);
 							}).then(function(){
-								_this.generic($('#future-recomendations').find('tbody').last('tr'));
-								_this.future($('#future-recomendations').find('tbody').last('tr'));
-								utility.refresh(abideOptions,$('#future-recomendations').find('tbody').last('tr'));
+								var context = $('#future-recomendations').find('tbody').last('tr')
+								_this.generic(context);
+								_this.future(context);
+								utility.refresh(abideOptions,context);
 								$('#future-recomendations').show();
 								$('#error-display-message-2').text(result.message).closest('#error-display-box-2').slideDown()
 								$('#new-recomendation-cancel-trigger').trigger('click');
@@ -421,8 +422,7 @@ module.exports = function(){
 
 				$('#new-haplotype-trigger-submit').on('click',function(e){
 					e.preventDefault();
-					console.log('here');
-					$('#new-haplotype-form').submit();//submit').trigger('click');
+					$('#new-haplotype-form').submit();
 				});
 
 				//cancel the new interaction form reseting and hiding it
@@ -435,8 +435,31 @@ module.exports = function(){
 
 				$('#new-haplotype-form').on('valid.fndtn.abide',function(){
 					var o = serializeNewField(this,'haplotype');
-					console.log(o);
-
+					Promise.resolve($.ajax({
+						url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=haplotype&newdoc=true',
+						type:'POST',
+						contentType:'application/json',
+						dataType:'json',
+						data:JSON.stringify(o)
+					})).then(function(result){
+						if (result.statusCode == 200 ){
+							templates.drugs.haplo(o).then(function(renderedHtml){
+								return $("#haplotypes").find('tbody').append(renderedHtml)
+							}).then(function(){
+								var context = $('#haplotypes').find('tbody').last('tr');
+								_this.generic(context);
+								_this.haplotypes(context);
+								setSelects(context);
+								utility.refresh(abideOptions,context);
+							}).then(function(){
+								$('#haplotypes').show();
+								$('#error-display-message-3').text(result.message).closest('#error-display-box-3').slideDown();
+								$('#new-haplotype-cancel-trigger').trigger('click');
+							});
+						} else {
+							$('#error-display-message-3').text(result.message).closest('#error-display-box-3').slideDown();
+						}
+					});
 				});
 
 				/* Delete all the interactions related to the Primary Gene. Submits a POST request to the database
@@ -537,8 +560,7 @@ module.exports = function(){
 						data:JSON.stringify(o)
 					})).then(function(result){
 						if (result.statusCode == 200 ){
-							$(_this).find('textarea[name=rec]').data('originalvalue',o.rec);
-							$(_this).find('input[name=Therapeutic_Class]').data('originalvalue',o.Therapeutic_Class);
+							$(_this).find('[name=rec]').data('originalvalue',o.rec);
 							$(_this).find('.cancel-changes').trigger('click');
 							$(_this).find('.alert-message').text(result.message).closest('.alert-box').slideDown();
 						} else {
@@ -552,15 +574,16 @@ module.exports = function(){
 				
 				context.find(".delete-table").on('click',function(e){
 					e.preventDefault();
-					var id  = $(this).closest('form').data('id');
+					var o = serializeField($(this).closest('form'),'future');
 					var row = $(this).closest('tr');
 					confirmAction("Are you sure you want to delete the selected recomendation table?","Once deleted it will no longer show up on any subsequent reports")
 					.then(function(result){
 						if (result){
 							Promise.resolve($.ajax({
-								url:"/database/dosing/genes/" + pageOptions.gene + "/deleteid/" + id  + '?type=recomendation',
+								url:"/database/dosing/genes/" + pageOptions.gene + "/deleteid/?type=recomendation",
 								type:"POST",
-								dataType:'json'
+								dataType:'json',
+								data:JSON.stringify(o)
 							})).then(function(result){
 								if (result.statusCode == 200 ){
 									row.remove();
@@ -589,16 +612,17 @@ module.exports = function(){
 				//Associate a haplotype with a therapeutic class
 				context.find('form').on('valid.fndtn.abide',function(e){
 					var o = serializeField(this,'haplotype');
+					var _this = this;
 					Promise.resolve($.ajax({
 						url:'/database/dosing/genes/'+ pageOptions.gene + '/update?type=haplotype',
 						type:'POST',
 						contentType:'application/json',
 						dataType:'json',
-						data:JSON.stringify(doc)
+						data:JSON.stringify(o)
 					})).then(function(result){
 						if (result.statusCode == 200 ){
-							$(_this).find('input[name=allele_1]').data('originalvalue',doc.haplotypes[0]);
-							$(_this).find('input[name=allele_2]').data('originalvalue',doc.haplotypes[1]);
+							$(_this).find('input[name=allele_1]').data('originalvalue',o.haplotypes[0]);
+							$(_this).find('input[name=allele_2]').data('originalvalue',o.haplotypes[1]);
 							$(_this).find('.cancel-changes').trigger('click');
 							$(_this).find('.alert-message').text(result.message).closest('.alert-box').slideDown();
 						} else {
@@ -608,6 +632,33 @@ module.exports = function(){
 				});
 
 				context.find('.delete-table').on('click',function(){
+					var form = $(this).closest('form');
+					var o = serializeField(form,'haplotype');
+					var row = $(this).closest('tr');
+					confirmAction("Are you sure you want to delete the selected haplotype association?","Once deleted it will no longer show up on any subsequent reports")
+					.then(function(result){
+						if (result){
+							Promise.resolve($.ajax({
+								url:"/database/dosing/genes/" + pageOptions.gene + "/delete?type=recomendation",
+								type:"POST",
+								dataType:'json',
+								data:JSON.stringify(o)
+							})).then(function(result){
+								if (result.statusCode == 200 ){
+									row.remove();
+									if ($('#haplotypes').find('tbody').find('tr').length === 0){
+										$('#haplotypes').hide();
+									}
+									$('#error-display-message-3').text(result.message).closest('#error-display-box-3').slideDown()
+
+								} else {
+									$('#error-display-message-3').text(result.message).closest('#error-display-box-3').slideDown()
+								}
+							}).catch(function(err){
+								$('#error-display-message-3').text(err.message).closest('#error-display-box-3').slideDown()
+							});
+						}
+					});
 				});
 
 			},
@@ -635,6 +686,7 @@ module.exports = function(){
 				context.find('form').on('valid.fndtn.abide',function(e){
 					var _this = $(this);
 					var doc = serializeField(this,'interaction');
+					console.log(doc);
 					Promise.resolve($.ajax({
 						url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=interaction',
 						type:"POST",
@@ -643,9 +695,10 @@ module.exports = function(){
 						data:JSON.stringify(doc)
 					})).then(function(result){
 						if (result.statusCode == 200){
-							for ( var i = 0; i< fields.length; i++ ){
-								$(_this).find('[name=' + fields[i].name + ']').data('originalvalue',fields[i].value);
-							}
+							$(_this).find('[name=risk]').data('originalvalue',doc.risk);
+							$(_this).find('[name=rec]').data('originalvalue',doc.rec);
+							$(_this).find('.pubmed-link-combo').removeClass('temp-remove');
+							$(_this).find('.temp-hide').remove();
 							$(_this).find('.cancel-changes').trigger('click');
 							$(_this).find('.alert-message').text(result.message).closest('.alert-box').slideDown();
 						} else {
@@ -659,15 +712,13 @@ module.exports = function(){
 
 				//delet the specified dose table after confirming its removal
 				context.find(".delete-table").on('click',function(e){
-					e.preventDefault();
 					var form = $(this).closest('form');
-					var id = form.data('id');
-					var gene = window.location.pathname.split('/').splice(-1)[0];
+					var o = serializeField(form,'interaction');
 					confirmAction("Are you sure you want to delete the selected dosing table?","Once deleted it will no longer show up on any subsequent reports")
 					.then(function(result){
 						if (result){
 							Promise.resolve($.ajax({
-								url:"/database/dosing/genes/" + gene + "/deleteid/" + id + '?type=interaction',
+								url:"/database/dosing/genes/" + pageOptions.gene +"/delete?type=interaction",
 								type:"POST",
 								contentType:"application/json",
 								dataType:'json'

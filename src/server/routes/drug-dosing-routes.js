@@ -12,11 +12,11 @@ function createNestedObject(objString, refObj, doc){
 	var newDoc = {};
 	var point = newDoc;
 	var depthString = [];
+	var isNew = false;
 	for (var i = 0; i < split.length; i++ ){
 		if (refObj.hasOwnProperty(split[i]) && cont){
 			refObj = refObj[split[i]];
 			depthString.push(split[i]);
-			console.log(split[i]);
 		} else {
 			cont = false;
 			point[split[i]] = {};
@@ -35,8 +35,9 @@ function createNestedObject(objString, refObj, doc){
 	if (headKey.length == 1){
 		depthString.push(headKey[0]);
 		newDoc = newDoc[headKey[0]];
+		isNew = true;
 	}
-	return {cont:newDoc,depth:depthString.join('.')};
+	return {cont:newDoc,depth:depthString.join('.'),isNew:isNew};
 }
 
 
@@ -179,6 +180,7 @@ module.exports = function(app,dbFunctions,logger){
 		var type = req.query.type;
 		var newdoc = req.query.newdoc == "true" ? true : false;
 		var backstring;
+
 		if (type == "interaction"){
 			query = {};
 			update = {$set:{}};
@@ -192,8 +194,7 @@ module.exports = function(app,dbFunctions,logger){
 			query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
 			dbFunctions.drugs.getGeneDosing(req.params.geneID).then(function(result){
 				var obj = createNestedObject(string,result,doc);
-				var keys = Object.keys(obj.cont)
-				if (newdoc && keys.length > 1){
+				if (newdoc && !obj.isNew){
 					// this is a terminal document meaning that the therapeutic classs already exists adn this is an update
 					req.flash('statusCode','202');
 					req.flash('message',"Entry for the provided genes and therapeutic classes already exists within the database. Please modify the existing entry or change the parameters.");
@@ -202,7 +203,6 @@ module.exports = function(app,dbFunctions,logger){
 					
 				} else {
 					update.$set[obj.depth]  = obj.cont;
-					if (doc.hap_1) update.$set[constants.dbConstants.DRUGS.DOSING.HAPLO + '.' + doc.class_1] = doc.hap_1; 
 					dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update)
 					.then(function(){
 						if (backstring){
@@ -219,7 +219,6 @@ module.exports = function(app,dbFunctions,logger){
 						 		var obj = createNestedObject(backstring,result,doc);
 						 		var update = {$set:{}};
 						 		update.$set[obj.depth] = obj.cont;
-						 		if (doc.hap_2) update.$set[constants.dbConstants.DRUGS.DOSING.HAPLO + '.' + doc.class_2] = doc.hap_2;
 						 		return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update);
 							});
 						}	
@@ -242,7 +241,7 @@ module.exports = function(app,dbFunctions,logger){
 			query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
 			query[string] = {$exists:true};
 
-			dbFunctions.findOne(constants.dbConstants.DRUGS.FUTURE.COLLECTION,query)
+			dbFunctions.findOne(constants.dbConstants.DRUGS.DOSING.COLLECTION,query)
 			.then(function(result){
 				if ( newdoc === true && result !== null ){
 					req.flash('statusCode','202');
@@ -250,9 +249,10 @@ module.exports = function(app,dbFunctions,logger){
 					req.flash('error',"Error: Duplicate Entry");
 					res.redirect('/failure');
 				} else {
+					query = {};
 					query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
 					update = {$set:{}};
-					update.$set[string] = doc.rec;
+					update.$set[string] = doc.future[doc.Therapeutic_Class];
 					return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update)
 					.then(function(){
 						req.flash('statusCode', '200');
@@ -266,13 +266,42 @@ module.exports = function(app,dbFunctions,logger){
 				req.flash('error',err.toString());
 				res.redirect('/failure');
 			});
-		} 
+		} else if (type == "haplotype") {
+			string = constants.dbConstants.DRUGS.DOSING.HAPLO + '.' + doc.Therapeutic_Class;
+			query = {};
+			query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
+			query[string] = {$exists:true};
+			dbFunctions.findOne(constants.dbConstants.DRUGS.DOSING.COLLECTION,query).then(function(result){
+				if (result !== null && newdoc === true){
+					req.flash('statusCode','202');
+					req.flash('message',"Entry for the provided genes and therapeutic classes already exists within the database. Please modify the existing entry or change the parameters.");
+					req.flash('error',"Error: Duplicate Entry");
+					res.redirect('/failure');
+				} else {
+					query = {};
+					query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
+					update = {$set:{}};
+					update.$set[string] = doc.haplotypes[doc.Therapeutic_Class];
+					return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update)
+					.then(function(result){
+						req.flash('statusCode','200');
+						req.flash('message','Entry Successfully Added');
+						res.redirect('/success');
+					});
+				}
+			}).catch(function(err){
+				req.flash('statusCode','500');
+				req.flash('message','An error was encountered when attempting to insert the new entry into the database');
+				req.flash('error',err.toString());
+				res.redirect('/failure');
+			});
+		}
 	});
 	
 
 	/* Delete the current Drug dosing recomendation corresponding to the uniqID.
 	 */
-	app.post('/database/dosing/genes/:geneID/deleteentry',utils.isLoggedIn,function(req,res){
+	app.post('/database/dosing/genes/:geneID/delete',utils.isLoggedIn,function(req,res){
 		var type = req.query.type;
 		var doc = req.body;
 		dbFunctions.drugs.removeSingleEntry(req.params.geneID,doc.class_1,type,doc.drug,doc.pgx2,doc.class_2)
