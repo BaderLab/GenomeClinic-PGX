@@ -6,43 +6,6 @@ var ObjectID = require("mongodb").ObjectID;
 var genReport = require('../lib/genReport');
 
 
-function createNestedObject(objString, refObj, doc){
-	var split = objString.split('.');
-	var cont = true;
-	var newDoc = {};
-	var point = newDoc;
-	var depthString = [];
-	var isNew = false;
-	for (var i = 0; i < split.length; i++ ){
-		if (refObj.hasOwnProperty(split[i]) && cont){
-			refObj = refObj[split[i]];
-			depthString.push(split[i]);
-		} else {
-			cont = false;
-			point[split[i]] = {};
-			point = point[split[i]];
-		}
-	}
-	if (refObj.hasOwnProperty('secondary')){
-		point.secondary = refObj.secondary;
-	}
-
-	point.rec = doc.rec;
-	point.risk = doc.risk;
-	point.pubmed = doc.pubmed;
-
-	var headKey = Object.keys(newDoc);
-	if (headKey.length == 1){
-		depthString.push(headKey[0]);
-		newDoc = newDoc[headKey[0]];
-		isNew = true;
-	}
-	return {cont:newDoc,depth:depthString.join('.'),isNew:isNew};
-}
-
-
-
-
 
 /* Collection of routes associated with drug dosing recomendations
  * the report generation, and the ui modification of the recomendations
@@ -193,7 +156,7 @@ module.exports = function(app,dbFunctions,logger){
 			}
 			query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
 			dbFunctions.drugs.getGeneDosing(req.params.geneID).then(function(result){
-				var obj = createNestedObject(string,result,doc);
+				var obj = utils.createNestedObject(string,result,doc);
 				if (newdoc && !obj.isNew){
 					// this is a terminal document meaning that the therapeutic classs already exists adn this is an update
 					req.flash('statusCode','202');
@@ -216,7 +179,7 @@ module.exports = function(app,dbFunctions,logger){
 									return result;
 								}
 							}).then(function(result){
-						 		var obj = createNestedObject(backstring,result,doc);
+						 		var obj = utils.createNestedObject(backstring,result,doc);
 						 		var update = {$set:{}};
 						 		update.$set[obj.depth] = obj.cont;
 						 		return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update);
@@ -299,17 +262,64 @@ module.exports = function(app,dbFunctions,logger){
 	});
 	
 
-	/* Delete the current Drug dosing recomendation corresponding to the uniqID.
+	/* Delete the entry corresponding to the type specified in the url. There are 4 defined 'Types'.
+	 * All - removes the entire entry for the gene
+	 * Haplotype - remove a single entry for a haplotype
+	 * Future - remove a future dosing recomendation
+	 * Interaction - removing a current dosing guideline.
 	 */
 	app.post('/database/dosing/genes/:geneID/delete',utils.isLoggedIn,function(req,res){
 		var type = req.query.type;
 		var doc = req.body;
-		dbFunctions.drugs.removeSingleEntry(req.params.geneID,doc.class_1,type,doc.drug,doc.pgx2,doc.class_2)
-		.then(function(){
+		var promise, message;
+		var string,backstring,query,update;
+		if (type === 'all'){
+			promise = dbFunctions.drugs.removeGeneEntry(req.params.geneID).then(function(result){
+				message = 'Successfully removed single ' + type + ' entry for ' + req.params.geneID;
+				return result;
+			});
+			
+		} else {
+			promise = dbFunctions.drugs.getGeneDosing(req.params.geneID).then(function(geneObj){
+				query = {};
+				query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
+				if (type == 'interaction'){
+					string = constants.dbConstants.DRUGS.DOSING.RECOMENDATIONS +'.' + doc.drug + '.' + doc.class_1;
+					if (doc.pgx_2){
+						string += '.secondary.' + doc.pgx_2  + '.' + doc.class_2
+						backstring = constants.dbConstants.DRUGS.DOSING.RECOMENDATIONS + '.' + doc.drug +'.' + doc.class_2 + '.secondary.' + doc.pgx_1 + doc.class_1;						
+					}
+				} else if (type == 'recomendation'){
+					string = constants.dbConstants.DRUGS.DOSING.FUTURE + '.' + doc.Therapeutic_Class;
+				} else if (type == 'haplotype'){
+					string = constants.dbConstants.DRUGS.DOSING.HAPLO + '.' + doc.Therapeutic_Classl;
+				}
+
+				update = utils.createNestedObject(string,geneObj,{},true);
+				return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update)
+				.then(function(result){
+					if (backstring){
+						return dbFunctions.drugs.getGeneDosing(doc.pgx_2).then(function(result){
+							update = utils.createNestedObject(backstring,result,{},true);
+							query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = doc.pgx_2;
+							return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update);
+						})
+					} else {
+						return result;
+					}
+				}).then(function(result){
+					message = "Successfully removed entries from database";
+					return result;
+				});
+			});
+		}
+
+		promise.then(function(){
 			req.flash('statusCode','200');
-			req.flash('message','successfully removed 1 entry related to ' + req.params.geneID);
+			req.flash('message',message);
 			res.redirect('/success');
 		}).catch(function(err){
+			console.log(err);
 			req.flash('statusCode','500');
 			req.flash('error',err.toString());
 			req.flash('message','unable to remove entries');
@@ -317,21 +327,7 @@ module.exports = function(app,dbFunctions,logger){
 		});
 	});
 	/* Delete all entries corresponding to the current geneID. removes all drug recomendations
-	 * for the specified gene */
-	app.post('/database/dosing/genes/:geneID/deleteall',utils.isLoggedIn,function(req,res){
-		var gene = req.params.geneID;
-		dbFunctions.drugs.removeGeneEntry(gene)
-		.then(function(){
-			req.flash('statusCode','200');
-			req.flash('message','successfully deleted all dosing recomendations for ' + gene);
-			res.redirect('/success');
-		}).catch(function(err){
-			req.flash('statusCode','500');
-			req.flash('error',err.toString());
-			req.flash('message','unable to remove all entries relating to ' + gene );
-			res.redirect('/failure');
-		});
-	});
+	 * for the specifi
 
 	/* Initialize a new drug recomendation document. first checks to ensure there already is not
 	 * A gene the same as newGene. if this returns false a new document is inserted with the value

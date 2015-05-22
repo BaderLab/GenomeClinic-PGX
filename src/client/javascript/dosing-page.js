@@ -172,7 +172,8 @@ module.exports = function(){
 			//when you click on a dose row, navigate to the current dosing information 
 			$('.dose-row').on('click',function(e){
 				e.preventDefault();
-				var location = '/dosing/current/' + $(this).data('name');
+				var name = $(this).data('name').replace('/','%2F');
+				var location = '/dosing/current/' + name;
 				window.location.replace(location);
 			});
 
@@ -188,7 +189,9 @@ module.exports = function(){
 			 * to the server to be added to the databse. Upon a succesful entry
 			 * navigate to the new gene's drug recomendation page */
 			$('#submit-new-gene-form').on('valid.fndtn.abide',function(e){
-				var val = $('#new-gene-name').val();
+				var val = $('#new-gene-name').val().replace('/');
+				console.log(val);
+
 				Promise.resolve($.ajax({
 					url:'/dosing/new/' + val,
 					type:"POST",
@@ -471,7 +474,7 @@ module.exports = function(){
 					.then(function(result){
 						if (result){
 							Promise.resolve($.ajax({
-								url:'/database/dosing/genes/' + pageOptions.gene + '/deleteall', 
+								url:'/database/dosing/genes/' + pageOptions.gene + '/delete?type=all', 
 								type:'POST',
 								contentType:'application/json',
 								dataType:'json'
@@ -580,9 +583,10 @@ module.exports = function(){
 					.then(function(result){
 						if (result){
 							Promise.resolve($.ajax({
-								url:"/database/dosing/genes/" + pageOptions.gene + "/deleteid/?type=recomendation",
+								url:"/database/dosing/genes/" + pageOptions.gene + "/delete?type=recomendation",
 								type:"POST",
 								dataType:'json',
+								contentType:'application/json',
 								data:JSON.stringify(o)
 							})).then(function(result){
 								if (result.statusCode == 200 ){
@@ -621,8 +625,8 @@ module.exports = function(){
 						data:JSON.stringify(o)
 					})).then(function(result){
 						if (result.statusCode == 200 ){
-							$(_this).find('input[name=allele_1]').data('originalvalue',o.haplotypes[0]);
-							$(_this).find('input[name=allele_2]').data('originalvalue',o.haplotypes[1]);
+							$(_this).find('input[name=allele_1]').data('originalvalue',o.allele_1);
+							$(_this).find('input[name=allele_2]').data('originalvalue',o.allele_2);
 							$(_this).find('.cancel-changes').trigger('click');
 							$(_this).find('.alert-message').text(result.message).closest('.alert-box').slideDown();
 						} else {
@@ -639,9 +643,10 @@ module.exports = function(){
 					.then(function(result){
 						if (result){
 							Promise.resolve($.ajax({
-								url:"/database/dosing/genes/" + pageOptions.gene + "/delete?type=recomendation",
+								url:"/database/dosing/genes/" + pageOptions.gene + "/delete?type=haplotype",
 								type:"POST",
 								dataType:'json',
+								contentType:'application/json',
 								data:JSON.stringify(o)
 							})).then(function(result){
 								if (result.statusCode == 200 ){
@@ -686,7 +691,6 @@ module.exports = function(){
 				context.find('form').on('valid.fndtn.abide',function(e){
 					var _this = $(this);
 					var doc = serializeField(this,'interaction');
-					console.log(doc);
 					Promise.resolve($.ajax({
 						url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=interaction',
 						type:"POST",
@@ -721,7 +725,8 @@ module.exports = function(){
 								url:"/database/dosing/genes/" + pageOptions.gene +"/delete?type=interaction",
 								type:"POST",
 								contentType:"application/json",
-								dataType:'json'
+								dataType:'json',
+								data:JSON.stringify(o)
 							})).then(function(result){
 								if (result.statusCode == 200){	
 									$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();
@@ -730,7 +735,7 @@ module.exports = function(){
 										if ( remainingFormCount == 1 )
 											form.closest('.drug-cont').remove();
 										else
-											form.remove();
+											form.closest('tr').remove();
 									});
 								} else {
 									$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();

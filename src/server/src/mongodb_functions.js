@@ -13,7 +13,6 @@ var bcrypt = require("bcrypt-nodejs");
 var randomstring = require("just.randomstring");
 var fs = Promise.promisifyAll(require('fs'));
 
-
 var dbFunctions = function(logger,DEBUG){
 	var logInfo,logErr;
 	if (!logger)
@@ -1494,49 +1493,15 @@ var dbFunctions = function(logger,DEBUG){
 
 		//Remove a recomendation from the databse. Removes a sinlge recomendation based on a Therapeutic Class
 		//This will remo
-		removeSingleEntry : function(gene,tclass,type,drug,gene2,tclass2){
-			assert.notStrictEqual(db,undefined);
-			assert.notStrictEqual(id,undefined);
-			assert.notStrictEqual(type,undefined);
-			query = {};
-			query[dbConstants.DRUGS.DOSING.ID_FIELD] = gene;
-			var update = {$unset:{}};
-			var updateString,backString;
-			if (type == 'recomendation'){
-				updateString = dbConstants.DRUGS.DOSING.RECOMENDATIONS + '.' + drug + '.' + tclass;
-				if (gene2){
-					updateString += ".secondary." + gene2 + '.' + tclass2;
-					// remove the corresponding second entry;
-					backString = dbConstants.DRUGS.DOSING.RECOMENDATIONS + '.' + drug + '.' + tclass2 + '.secondary.' + gene + '.' + tclass;
-				}
-			} else if (type == 'future') {
-				updateString = dbConstants.DRUGS.DOSING.FUTURE + '.' + tclass
-			} else if (type == 'haplotype' ){
-				updateString = dbConstants.DRUGS.DOSING.HAPLO + '.' + tclass
-			}
-			update.$unset[updateString] = "";
-			return self.update(dbConstants.DRUGS.DOSING.COLLECTION,query,update).then(function(){
-				if (backString && type == 'recomendation'){
-					update.$unset = {};
-					update.$unset[backString] = "";
-					query[dbConstants.DRUGS.DOSING.ID_FIELD] = gene2;
-
-					return self.update(dbConstants.DRUGS.DOSING.COLLECTION,query,update);
-				}
-			})
-		},
 		removeGeneEntry : function(gene){
 			assert.notStrictEqual(db,undefined);
 			assert(Object.prototype.toString.call(gene) == '[object String]', "Requires Gene name to be a string");
 
 			var o = {};
 			o[dbConstants.DRUGS.DOSING.ID_FIELD] = gene;
-			return removeDocument(dbConstants.DRUGS.DOSING.COLLECTION,o).then(function(){
-				var o = {};
-				o[dbConstants.DRUGS.FUTURE.ID_FIELD] = gene;
-				removeDocument(dbConstants.DRUGS.FUTURE.COLLECTION,o)
-			});
-		}
+			return removeDocument(dbConstants.DRUGS.DOSING.COLLECTION,o);
+		},
+		
 	};
 };
 
