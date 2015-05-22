@@ -1477,10 +1477,9 @@ var dbFunctions = function(logger,DEBUG){
 
 		getGeneDosing : function(gene){
 			assert.notStrictEqual(db,undefined);
-			assert(Object.prototype.toString.call(gene) == '[object String]',"Invalid Gene Name. Gene name must be a string");
 			var query = {};
 			if (Object.prototype.toString.call(gene) == '[object Array]'){
-				query[dbConstants.DRUGS.ID_FIELD] = {$in:gene};
+				query[dbConstants.DRUGS.DOSING.ID_FIELD] = {$in:gene};
 			} else {
 				query[dbConstants.DRUGS.DOSING.ID_FIELD] = gene;
 			}

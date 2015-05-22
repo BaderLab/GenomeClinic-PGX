@@ -3,21 +3,40 @@ var pgx = require('./pgx'),
 	utility = require('./utility');
 
 
+//var geneData;
+
+
+function checkNested(obj) {
+  var args = Array.prototype.slice.call(arguments, 1);
+
+  for (var i = 0; i < args.length; i++) {
+    if (!obj || !obj.hasOwnProperty(args[i])) {
+      return false;
+    }
+    obj = obj[args[i]];
+  }
+  return true;
+}
+
 module.exports = {
 	//helpers
-	serializeTable : function(){
+	serializeTable : function(geneOnly){
 		var output = [];
 		var temp;
 		var rows = $('.gene-row');
 		for (var i = 0; i < rows.length; i++ ){
-			temp = {};
-			temp.gene = $(rows[i]).find('.gene-name').text();
-			temp.hap = {
-				allele_1:$(rows[i]).find(".allele_1").val(),
-				allele_2:$(rows[i]).find(".allele_2").val()
-			};
-			temp.class = $(rows[i]).find('.therapeutic-class').val();
-			output.push(temp);
+			if (geneOnly){
+				output.push($(rows[i]).find('.gene-name').text())
+			} else {
+				temp = {};
+				temp.gene = $(rows[i]).find('.gene-name').text();
+				temp.hap = {
+					allele_1:$(rows[i]).find(".allele_1").val(),
+					allele_2:$(rows[i]).find(".allele_2").val()
+				};
+				temp.class = $(rows[i]).find('.therapeutic-class').val();
+				output.push(temp);
+			}
 		}
 		return output;
 	},
@@ -95,44 +114,97 @@ module.exports = {
 		return output;
 	},
 
-	getHaploRecs : function(){
+	setHaplos : function(){
 		//this is a preliminary search in an attempt to cut down the amount of searching that must be done.
-		var tableValues =  this.serializeTable();
-		Promise.resolve($.ajax({
-			url:'/database/dosing/classes/current',
-			type:'POST',
-			dataType:'json',
-			contentType:'application/json',
-			data:JSON.stringify(tableValues)
-		})).then(function(result){
-			var rows = $('.gene-row'),gene;
-			for (var i = 0; i < rows.length; i++){
-				gene = $(rows[i]).find('.gene-name').text();
-				if (result.hasOwnProperty(gene)){
-					$(rows[i]).find('select').val(result[gene].class);
+		var haplo;
+		var tableValues = this.serializeTable();
+		var rows = $('.gene-row');
+		for (var i=0; i < tableValues.length; i++ ){
+			if (geneData.hasOwnProperty(tableValues[i].gene)){
+				for (tclass in geneData[tableValues[i].gene].haplotypes){
+					if (geneData[tableValues[i].gene].haplotypes[tclass].indexOf(tableValues[i].hap.allele_1) !== -1 && geneData[tableValues[i].gene].haplotypes[tclass].indexOf(tableValues[i].hap.allele_2) !== -1){
+						$(rows[i]).find('select').val(tclass)
+					}
 				}
 			}
-		});
+		}
 	},
 
+	setFuture: function(){
+		var tableValues = this.serializeTable();
+	},
 
+	getGenes : function(){
+		var _this = this;
+		var genes = this.serializeTable(true);
+		console.log(this.serializeTable());
+		return Promise.resolve($.ajax({
+			url:'/database/dosing/genes',
+			type:"POST",
+			contentType:'application/json',
+			dataType:'json',
+			data:JSON.stringify({genes:genes})
+		})).then(function(result){
+			geneData = {};
+			for (var i=0; i< result.length; i++ ){
+				geneData[result[i].gene] = result[i];
+			}
+		}).then(function(){
+			_this.getRecomendations();
+		}).catch(function(err){
+			console.log(err);
+		})
+	},
 	getRecomendations : function(){
 		var _this =  this;
 		var tableValues = this.serializeTable();
-		Promise.resolve($.ajax({
-			url:'/database/dosing/recomendations/current',
-			type:'POST',
-			dataType:'json',
-			contentType:'application/json',
-			data:JSON.stringify(tableValues)
-		})).then(function(result){
-			console.log(result);
-			return templates.drugs.rec.recs({drugs:result});
-		}).then(function(renderedHtml){
-			return $('#drug-recomendations').html(renderedHtml);
+		var geneClasses = {};
+		for (var i=0; i < tableValues.length; i++ ){
+			geneClasses[tableValues[i].gene] = tableValues[i].class;
+		}
+		var recByDrug = {};
+		var point,gene,drug,j,secKeys;
+		var set;
+		for (gene in geneData){
+			for (drug in geneData[gene].recomendations){
+				set = false;
+				point = geneData[gene].recomendations
+				if (point[drug].hasOwnProperty(geneClasses[gene])){
+					point = point[drug][geneClasses[gene]];
+					if (point.hasOwnProperty('secondary')){
+						secKeys = Object.keys(point.secondary);
+						for (j=0; j < secKeys.length; j++){
+							if (point.secondary.hasOwnProperty(secKeys[i])){
+								if (point.secondary[secKeys[i]].hasOwnProperty(geneClasses[secKeys[i]])){
+									recByDrug[drug] = {
+										rec:point.secondary[secKeys[i]].rec,
+										pubmed:point.secondary[secKeys[i]].pubmed,
+										risk:point.secondary[secKeys[i]].risk,
+										pgx_1:gene,
+										pgx_2:keys[i],
+										class_1:geneClasses[gene],
+										class_2:geneClasses[secKeys[i]]
+									}
+									set = true;
+								}
+							}
+						}
+					} 
+					if (!set) {
+						recByDrug[drug] = {
+							rec:point.rec,
+							pubmed:point.pubmed,
+							risk:point.risk,
+							pgx_1:gene,
+							class_1:geneClasses[gene],
+						}
 
-		}).then(function(){
-			utility.refresh($("#drug-recomendations"));
+					}
+				}
+			}
+		}
+		templates.drugs.rec.recs({drugs:recByDrug}).then(function(renderedHtml){
+			$('#drug-recomendations').html(renderedHtml);
 		});
 	},
 	//handlers
@@ -238,8 +310,10 @@ module.exports = {
 		}).then(function(renderedHtml){
 				$('#main').html(renderedHtml);
 		}).then(function(){
-			return _this.getRecomendations();		
+			return _this.getGenes()
+			//return _this.getRecomendations();		
 		}).then(function(){
+			_this.setHaplos();
 			return utility.refresh();
 		}).then(function(){
 			_this.staticHandlers();
