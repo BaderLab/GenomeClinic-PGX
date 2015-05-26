@@ -231,7 +231,6 @@ module.exports = function(app,dbFunctions,logger){
 			});
 		} else if (type == "haplotype") {
 			string = constants.dbConstants.DRUGS.DOSING.HAPLO + '.' + doc.class;
-			console.log(string);
 			query = {};
 			query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
 			query[string] = {$exists:true};
@@ -320,7 +319,6 @@ module.exports = function(app,dbFunctions,logger){
 			req.flash('message',message);
 			res.redirect('/success');
 		}).catch(function(err){
-			console.log(err);
 			req.flash('statusCode','500');
 			req.flash('error',err.toString());
 			req.flash('message','unable to remove entries');

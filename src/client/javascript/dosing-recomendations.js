@@ -323,9 +323,7 @@ module.exports = {
 				data:JSON.stringify(formInfo)
 			})).then(function(result){
 				if (result.name){
-					_this.sendHaplos().then(function(){
-						console.log('done');
-					});
+					_this.sendHaplos()
 					open(window.location.pathname + '/download/' + result.name);	
 				}
 			}).then(function(){
