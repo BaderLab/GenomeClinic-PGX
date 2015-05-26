@@ -77,6 +77,7 @@ module.exports = function(){
 		} else if ( type == 'haplotype' ){
 			doc.haplotypes = {}
 			doc.haplotypes[doc.Therapeutic_Class] = [doc.allele_1,doc.allele_2];
+			doc.class = doc.Therapeutic_Class;
 		}
 		return doc;
 	}
@@ -116,6 +117,7 @@ module.exports = function(){
 			doc.haplotypes = {}
 			doc.haplotypes[$(context).find('.p-class-name').text()] = [doc.allele_1,doc.allele_2];
 			doc.Therapeutic_Class = $(context).find('.p-class-name').text();
+			doc.class = doc.Therapeutic_Class;
 		}
 
 		return doc;

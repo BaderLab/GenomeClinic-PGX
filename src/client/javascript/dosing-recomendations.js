@@ -129,18 +129,21 @@ module.exports = {
 		var haplo,tclass;
 		var tableValues = this.serializeTable();
 		var rows = $('.gene-row');
-		for (var i=0; i < tableValues.length; i++ ){
-			if (pageOptions.geneData.hasOwnProperty(tableValues[i].gene)){
-				if (pageOptions.geneData[tableValues[i].gene].hasOwnProperty('haplotypes')){
-					for (tclass in pageOptions.geneData[tableValues[i].gene].haplotypes){
-						console.log(pageOptions.geneData[tableValues[i].gene].haplotypes)
-						if (pageOptions.geneData[tableValues[i].gene].haplotypes[tclass].indexOf(tableValues[i].hap.allele_1) !== -1 && pageOptions.geneData[tableValues[i].gene].haplotypes[tclass].indexOf(tableValues[i].hap.allele_2) !== -1){
-							$(rows[i]).find('select').val(tclass)
+		var promise = new Promise(function(resolve,reject){
+			for (var i=0; i < tableValues.length; i++ ){
+				if (pageOptions.geneData.hasOwnProperty(tableValues[i].gene)){
+					if (pageOptions.geneData[tableValues[i].gene].hasOwnProperty('haplotypes')){
+						for (tclass in pageOptions.geneData[tableValues[i].gene].haplotypes){
+							if (pageOptions.geneData[tableValues[i].gene].haplotypes[tclass].indexOf(tableValues[i].hap.allele_1) !== -1 && pageOptions.geneData[tableValues[i].gene].haplotypes[tclass].indexOf(tableValues[i].hap.allele_2) !== -1){
+								$(rows[i]).find('select').val(tclass)
+							}
 						}
 					}
 				}
 			}
-		}
+			resolve();
+		});
+		return promise;
 	},
 
 	sendHaplos : function(){
@@ -148,7 +151,6 @@ module.exports = {
 		var promises = [];
 		$.each(tableValues,function(index,data){
 			var promise = new $.Deferred();
-			console.log(data);
 			data.haplotypes = {};
 			data.haplotypes[data.class] = [data.hap.allele_1,data.hap.allele_2];
 			$.ajax({
@@ -199,6 +201,8 @@ module.exports = {
 				pageOptions.geneData[result[i].gene] = result[i];
 			}
 		}).then(function(){
+			return _this.setHaplos();
+		}).then(function(){
 			return _this.getRecomendations();
 		}).catch(function(err){
 			console.log(err);
@@ -214,47 +218,52 @@ module.exports = {
 		var recByDrug = {};
 		var point,gene,drug,j,secKeys;
 		var set;
-		for (gene in pageOptions.geneData){
-			for (drug in pageOptions.geneData[gene].recomendations){
-				set = false;
-				point = pageOptions.geneData[gene].recomendations
-				if (point[drug].hasOwnProperty(geneClasses[gene])){
-					point = point[drug][geneClasses[gene]];
-					if (point.hasOwnProperty('secondary')){
-						secKeys = Object.keys(point.secondary);
-						for (j=0; j < secKeys.length; j++){
-							if (point.secondary.hasOwnProperty(secKeys[i])){
-								if (point.secondary[secKeys[i]].hasOwnProperty(geneClasses[secKeys[i]])){
-									recByDrug[drug] = {
-										rec:point.secondary[secKeys[i]].rec,
-										pubmed:point.secondary[secKeys[i]].pubmed,
-										risk:point.secondary[secKeys[i]].risk,
-										pgx_1:gene,
-										pgx_2:keys[i],
-										class_1:geneClasses[gene],
-										class_2:geneClasses[secKeys[i]]
+		var promise = new Promise(function(resolve,reject){
+			for (gene in pageOptions.geneData){
+				for (drug in pageOptions.geneData[gene].recomendations){
+					set = false;
+					point = pageOptions.geneData[gene].recomendations
+					if (point[drug].hasOwnProperty(geneClasses[gene])){
+						point = point[drug][geneClasses[gene]];
+						if (point.hasOwnProperty('secondary')){
+							secKeys = Object.keys(point.secondary);
+							for (j=0; j < secKeys.length; j++){
+								if (point.secondary.hasOwnProperty(secKeys[i])){
+									if (point.secondary[secKeys[i]].hasOwnProperty(geneClasses[secKeys[i]])){
+										recByDrug[drug] = {
+											rec:point.secondary[secKeys[i]].rec,
+											pubmed:point.secondary[secKeys[i]].pubmed,
+											risk:point.secondary[secKeys[i]].risk,
+											pgx_1:gene,
+											pgx_2:keys[i],
+											class_1:geneClasses[gene],
+											class_2:geneClasses[secKeys[i]]
+										}
+										set = true;
 									}
-									set = true;
 								}
 							}
-						}
-					} 
-					if (!set) {
-						recByDrug[drug] = {
-							rec:point.rec,
-							pubmed:point.pubmed,
-							risk:point.risk,
-							pgx_1:gene,
-							class_1:geneClasses[gene],
-						}
+						} 
+						if (!set) {
+							recByDrug[drug] = {
+								rec:point.rec,
+								pubmed:point.pubmed,
+								risk:point.risk,
+								pgx_1:gene,
+								class_1:geneClasses[gene],
+							}
 
+						}
 					}
 				}
 			}
-		}
-		templates.drugs.rec.recs({drugs:recByDrug}).then(function(renderedHtml){
-			$('#drug-recomendations').html(renderedHtml);
+			templates.drugs.rec.recs({drugs:recByDrug}).then(function(renderedHtml){
+				$('#drug-recomendations').html(renderedHtml);
+			}).then(function(){
+				resolve();
+			});
 		});
+		return promise;
 	},
 	//handlers
 	staticHandlers : function(){
@@ -364,8 +373,6 @@ module.exports = {
 				$('#main').html(renderedHtml);
 		}).then(function(){
 			return _this.getGenes()	
-		}).then(function(){
-			_this.setHaplos();
 			return utility.refresh();
 		}).then(function(){
 			_this.staticHandlers();

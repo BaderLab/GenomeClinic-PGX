@@ -230,6 +230,7 @@ module.exports = function(app,dbFunctions,logger){
 				res.redirect('/failure');
 			});
 		} else if (type == "haplotype") {
+			console.log(doc);
 			string = constants.dbConstants.DRUGS.DOSING.HAPLO + '.' + doc.class;
 			query = {};
 			query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
