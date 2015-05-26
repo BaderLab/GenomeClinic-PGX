@@ -330,9 +330,9 @@ module.exports = {
 				}
 			}).then(function(){
 				$('form').find('button').text('Generate Report');
-			})/*.catch(function(err){
+			}).catch(function(err){
 				console.log(err);
-			});*/
+			});
 		});
 	},
 
@@ -351,7 +351,7 @@ module.exports = {
 				if (result.pgxGenes.hasOwnProperty(gene)){
 					if (result.pgxGenes[gene].possibleHaplotypes.length !== 0){
 						result.pgxGenes[gene].hap1 = result.pgxGenes[gene].possibleHaplotypes[0].string;
-						result.pgxGenes[gene].hap2 = result.pgxGenes[gene].possibleHaplotypes[0].string;
+						result.pgxGenes[gene].hap2 = result.pgxGenes[gene].possibleHaplotypes[1].string;
 						genes.push(result.pgxGenes[gene]);
 					}
 				}
@@ -372,7 +372,8 @@ module.exports = {
 		}).then(function(renderedHtml){
 				$('#main').html(renderedHtml);
 		}).then(function(){
-			return _this.getGenes()	
+			return _this.getGenes();
+		}).then(function(){
 			return utility.refresh();
 		}).then(function(){
 			_this.staticHandlers();

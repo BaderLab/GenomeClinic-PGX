@@ -230,8 +230,8 @@ module.exports = function(app,dbFunctions,logger){
 				res.redirect('/failure');
 			});
 		} else if (type == "haplotype") {
-			console.log(doc);
 			string = constants.dbConstants.DRUGS.DOSING.HAPLO + '.' + doc.class;
+			console.log(string);
 			query = {};
 			query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
 			query[string] = {$exists:true};
@@ -245,7 +245,7 @@ module.exports = function(app,dbFunctions,logger){
 					query = {};
 					query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
 					update = {$set:{}};
-					update.$set[string] = doc.haplotypes[doc.class];
+					update.$set[string] = doc.haplotypes[doc.class];	
 					return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update)
 					.then(function(result){
 						req.flash('statusCode','200');
