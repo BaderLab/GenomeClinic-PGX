@@ -372,28 +372,10 @@ module.exports = function(app,dbFunctions,logger){
 			rigth:'20px'
 		};
 		//Get future recomendations
-		var temp,query,promise;
-		if (req.body.genes.length > 0 ){
-			query = {$match:{$or:[]}};
-			for (var i=0; i < req.body.genes.length; i++ ){
-				temp = {};
-				temp[constants.dbConstants.DRUGS.FUTURE.ID_FIELD] = req.body.genes[i].gene;
-				temp[constants.dbConstants.DRUGS.FUTURE.CLASS] = req.body.genes[i].class;
-				query.$match.$or.push(temp);
-			}	
-			promise = dbFunctions.aggregate(constants.dbConstants.DRUGS.FUTURE.COLLECTION,[query])
-				.then(function(result){
-					req.body.future = result.length > 0 ? result : undefined;
-				});
-		} else {
-			promise = Promise.resolve();
-		}
-		promise.then(function(){	
-			logger.info("Generating PGX report for " + req.params.patientID);
-			return genReport(req,res,req.params.patientID,constants.dbConstants.DRUGS.REPORT.DEFAULT,options)
-			.catch(function(err){
-				logger.error("Failed to generate report for " + req.params.patientID,err);
-			});
+		logger.info("Generating PGX report for " + req.params.patientID);
+		return genReport(req,res,req.params.patientID,constants.dbConstants.DRUGS.REPORT.DEFAULT,options)
+		.catch(function(err){
+			logger.error("Failed to generate report for " + req.params.patientID,err);
 		});
 	});
 

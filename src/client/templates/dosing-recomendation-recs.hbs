@@ -17,13 +17,13 @@
 			<tbody>
 				<tr>
 					<td class="recomendation-risk">{{risk}}</td>
-					<td>{{pgx_1}}</td>
-					<td>{{class_1}}</td>
+					<td class="recomendation-pgx-1">{{pgx_1}}</td>
+					<td class="recomendation-class-1">{{class_1}}</td>
 					{{#if pgx_2}}
-					<td>{{pgx_2}}</td>
-					<td>{{class_2}}</td>
+					<td class="recomendation-pgx-2">{{pgx_2}}</td>
+					<td class="recomendation-class-2">{{class_2}}</td>
 					{{/if}}
-					<td>{{#each pubmed}}
+					<td class="recomendation-pubmed">{{#each pubmed}}
 						<a href="http://www.ncbi.nlm.nih.gov/pubmed/{{this}}" target="_blank">{{this}}</a>
 						{{/each}}
 					</td>

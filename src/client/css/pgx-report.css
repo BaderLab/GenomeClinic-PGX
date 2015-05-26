@@ -189,6 +189,7 @@ div {
 }
 
 .circle {
+	margin-left: 1%;
 	border-radius: 50%;
 	/*margin-right: auto;
 	margin-left: auto; */
