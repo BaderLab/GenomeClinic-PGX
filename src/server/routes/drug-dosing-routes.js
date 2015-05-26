@@ -230,7 +230,7 @@ module.exports = function(app,dbFunctions,logger){
 				res.redirect('/failure');
 			});
 		} else if (type == "haplotype") {
-			string = constants.dbConstants.DRUGS.DOSING.HAPLO + '.' + doc.Therapeutic_Class;
+			string = constants.dbConstants.DRUGS.DOSING.HAPLO + '.' + doc.class;
 			query = {};
 			query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
 			query[string] = {$exists:true};
@@ -244,7 +244,7 @@ module.exports = function(app,dbFunctions,logger){
 					query = {};
 					query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
 					update = {$set:{}};
-					update.$set[string] = doc.haplotypes[doc.Therapeutic_Class];
+					update.$set[string] = doc.haplotypes[doc.class];
 					return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update)
 					.then(function(result){
 						req.flash('statusCode','200');
@@ -405,5 +405,4 @@ module.exports = function(app,dbFunctions,logger){
 		});
 
 	});
-
 };

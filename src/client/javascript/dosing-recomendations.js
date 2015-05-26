@@ -103,7 +103,7 @@ module.exports = {
 			for(var j=0; j < pubmed.length; j++ ){
 				temp.pubmed.push($(pubmed[j]).attr('href'));
 			}
-			if (temp.pubmed.length == 0 ) delete temp.pubmed;
+			if (temp.pubmed.length === 0 ) delete temp.pubmed;
 			if (!temp.class_2) delete temp.class_2;
 			if (!temp.pgx_2) delete temp.pgx_2;
 			//output[drug].push(temp);
@@ -126,18 +126,43 @@ module.exports = {
 
 	setHaplos : function(){
 		//this is a preliminary search in an attempt to cut down the amount of searching that must be done.
-		var haplo;
+		var haplo,tclass;
 		var tableValues = this.serializeTable();
 		var rows = $('.gene-row');
 		for (var i=0; i < tableValues.length; i++ ){
 			if (pageOptions.geneData.hasOwnProperty(tableValues[i].gene)){
-				for (tclass in pageOptions.geneData[tableValues[i].gene].haplotypes){
-					if (pageOptions.geneData[tableValues[i].gene].haplotypes[tclass].indexOf(tableValues[i].hap.allele_1) !== -1 && pageOptions.geneData[tableValues[i].gene].haplotypes[tclass].indexOf(tableValues[i].hap.allele_2) !== -1){
-						$(rows[i]).find('select').val(tclass)
+				if (pageOptions.geneData[tableValues[i].gene].hasOwnProperty('haplotypes')){
+					for (tclass in pageOptions.geneData[tableValues[i].gene].haplotypes){
+						console.log(pageOptions.geneData[tableValues[i].gene].haplotypes)
+						if (pageOptions.geneData[tableValues[i].gene].haplotypes[tclass].indexOf(tableValues[i].hap.allele_1) !== -1 && pageOptions.geneData[tableValues[i].gene].haplotypes[tclass].indexOf(tableValues[i].hap.allele_2) !== -1){
+							$(rows[i]).find('select').val(tclass)
+						}
 					}
 				}
 			}
 		}
+	},
+
+	sendHaplos : function(){
+		var tableValues = this.serializeTable();
+		var promises = [];
+		$.each(tableValues,function(index,data){
+			var promise = new $.Deferred();
+			console.log(data);
+			data.haplotypes = {};
+			data.haplotypes[data.class] = [data.hap.allele_1,data.hap.allele_2];
+			$.ajax({
+				url:"/database/dosing/genes/" + data.gene + '/update?type=haplotype',
+				type:'POST',
+				contentType:'application/json',
+				dataType:'json',
+				data:JSON.stringify(data)
+			}).done(function(){
+				promise.resolve();
+			});
+			promises.push(promise);
+		});
+		return $.when.apply(promises).promise();
 	},
 
 	setFuture : function(){
@@ -289,13 +314,16 @@ module.exports = {
 				data:JSON.stringify(formInfo)
 			})).then(function(result){
 				if (result.name){
+					_this.sendHaplos().then(function(){
+						console.log('done');
+					});
 					open(window.location.pathname + '/download/' + result.name);	
 				}
 			}).then(function(){
 				$('form').find('button').text('Generate Report');
-			}).catch(function(err){
+			})/*.catch(function(err){
 				console.log(err);
-			});
+			});*/
 		});
 	},
 
