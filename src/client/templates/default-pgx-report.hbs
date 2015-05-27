@@ -1,0 +1,128 @@
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <!-- <link rel="stylesheet" type="text/css" href="../public/css/pgx-report.css" /> -->
+    <link rel="stylesheet" type="text/css" href="../../src/client/css/pgx-report.css" />
+  </head>
+  <body>
+    <div class="row" style="margin-top:0px;margin-bottom:0px;">
+      <div class="col-12 columns green-back">
+        <h4 style="padding-left:5px;margin-bottom:0px;">PGx Analysis Report</h4>
+      </div>
+    </div>
+    <hr color="#B0B0B0" style="height:2px;margin-top:0px">
+    <section>
+      <div class="row">
+        <div class="col-4 columns grey-border">
+          <div class="row">
+            <div class="col-12 columns" style="background-color:#71a971">
+              <p class="size-10 lspacer-2">Information</p>
+            </div>
+          </div>
+          <div class="row separator">
+            <div class="col-4 columns">
+              <p class="lspacer-2 size-8 left"><b>REPORT DATE</b></p>
+            </div>
+            <div class="col-6 right columns">
+              <p class="rspacer-2 size-8 left">{{date}}</P>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-4 columns">
+              <p class="lspacer-2 size-8 left"><b>USER</b></p>
+            </div>
+            <div class="col-6 right columns">
+              <p class="rspacer-2 size-8 left">{{user}}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-8 right columns">
+          <div class="row">
+            <div class="col-12 columns grey-border" style="background-color:#71a971">
+              <p class="size-10 lspacer-2">Patient Information</p>
+            </div>
+          </div>
+          <div class="row lspacer-2">
+            <div class="col-12 columns">
+              <div class="row">
+                <div class="col-3 columns">
+                  <p class="size-8 left"><b>PATIENT IDENTIFIER</b></p>
+                </div>
+                <div class="col-9 columns">
+                  <p class="size-8 left">{{patientID}}</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 columns">
+              <div class="row">
+                <div class="col-3 columns">
+                  <p class="size-8 left"><b>PATIENT ALIAS</b></p>
+                </div>
+                <div class="col-9 columns">
+                  <p class="size-8 left">{{patientAlias}}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section>
+      <hr color="#BOBOBO"; style="height:1px;">
+      {{#pgxGenes}}
+      <section style="page-break-inside:avoid;" id="{{gene}}" class="bspacer-4">
+        <div class="row">
+          <div class="col-12 columns grey-border" style="background-color:#71a971;padding-left:4px">
+            <p class="size-12 thin" style="color:#ffffff;">{{gene}}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12 columns">
+            <p><u><b>Haplotype:</b></u> {{#if possibleHaplotypes}}{{#possibleHaplotypes}}{{string}}{{after}}{{/possibleHaplotypes}}{{else}}<em style="color:red;">No haplotypes detected</em>{{/if}}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12 columns">
+            <table class="pgx">
+              <thead>
+                <tr>
+                  <th class="haplo-head">Haplotype</th>
+                  {{#heads}}
+                  <th>{{id}}</th>
+                  {{/heads}}
+                </tr>
+              </thead>
+              <tbody>
+                {{#patientHaplotypes}}
+                <tr class="patient">
+                  <td><em>{{name}}</em></td>
+                  {{#variants}}
+                  <td class="variant {{class}}">{{variant}}</td>
+                  {{/variants}}
+                </tr>
+                {{/patientHaplotypes}}
+                {{#haplotypes}}
+                <tr>
+                  <td class="haplo">{{name}}</td>
+                  {{#variants}}
+                  <td class="variant {{class}}">{{variant}}</td>
+                  {{/variants}}
+                </tr>
+                {{/haplotypes}}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      {{/pgxGenes}}
+    </section>
+    <section>
+      <div class="row"> 
+        <div class="col-12 columns" style="margin-top: 40px; margin-bottom: 20px;">
+          <label>Disclaimer<lable>
+          <p class="size-8">{{disclaimer}}</p>
+        </div>
+      </div>
+    </section>
+  </body>
+ </html>

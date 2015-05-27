@@ -5,7 +5,7 @@ var utils = require('../lib/utils');
 var Promise = require('bluebird');
 var fs = require('fs');
 var constants = require("../lib/conf/constants.json");
-var genReport  = require('../lib/pgx-report');
+var genReport  = require('../lib/genReport');
 
 
 module.exports = function(app,dbFunctions,logger){
@@ -64,9 +64,15 @@ module.exports = function(app,dbFunctions,logger){
 	});
 	
 	//Accept information to generate the report for a speciifc patient
-	app.post("/browsepatients/id/:patiendID/report", utils.isLoggedIn, function(req,res){
+	app.post("/browsepatients/id/:patientID/report", utils.isLoggedIn, function(req,res){
 		logger.info("Generating PGX report for " + req.params.patientID);
-		genReport(req,res).catch(function(err){
+		var options = {
+			top:'1cm',
+			bottom:'1cm',
+			left:'20px',
+			rigth:'20px'
+		};
+		genReport(req,res,req.params.patientID,constants.dbConstants.PGX.REPORT.DEFAULT,options).catch(function(err){
 			logger.error("Failed to generate report for " + req.body.patientID,err);
 		});
 	});
@@ -74,7 +80,7 @@ module.exports = function(app,dbFunctions,logger){
 	//Send the report to the user, delete the report after it was sent.
 	app.get('/browsepatients/id/:patientID/download/:id',utils.isLoggedIn,function(req,res){
 		var file = req.params.id;
-		var path = constants.nodeConstants.SERVER_DIR + '/' + constants.nodeConstants.TMP_UPLOAD_DIR + '/' + file;
+		var path = constants.nodeConstants.TMP_UPLOAD_DIR + '/' + file;
 		logger.info("Sending Report file: " + path + " to user: " + req.user[constants.dbConstants.USERS.ID_FIELD]); 
 		res.download(path,file,function(err){
 			if (err){

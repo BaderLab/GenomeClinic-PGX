@@ -8,3 +8,5 @@ logs/
 ssl/
 build/
 *.*~
+test/
+Private/

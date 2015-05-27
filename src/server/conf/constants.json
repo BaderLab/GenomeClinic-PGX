@@ -78,23 +78,48 @@
 			"PROJECT_ARRAY_FIELD":"tags"
 		},
 		"PGX":{
+			"REPORT":{
+				"DEFAULT":"{{DIR}}/views/default-pgx-report.hbs"
+			},
 			"COORDS":{
-				"DEFAULT":"lib/conf/pgx_coordinates.json",
+				"DEFAULT":"{{DIR}}/lib/conf/pgx_coordinates.json",
 				"COLLECTION":"pgxCoordinates",
 				"ID_FIELD":"id"
 				},
 			"GENES":{
-				"DEFAULT":"lib/conf/pgx_genes.json",
+				"DEFAULT":"{{DIR}}/lib/conf/pgx_genes.json",
 				"COLLECTION":"pgxGenes",
 				"ID_FIELD":"gene"
+			}
+		},
+		"DRUGS":{
+			"REPORT":{
+				"DEFAULT":"{{DIR}}/views/default-dosing-report.hbs"
+			},
+			"DOSING":{
+				"DEFAULT":"{{DIR}}/lib/conf/dosing_guidelines.json",
+				"COLLECTION":"drugRecomendations",
+				"ID_FIELD":"gene",
+				"RECOMENDATIONS":"recomendations",
+				"REC_FIELD" : "rec",
+				"PMID":"pubmed",
+				"RISK":"risk",
+				"FUTURE":"future",
+				"HAPLO":"haplotypes"
+			},
+			"CLASSES":{
+				"DEFAULT":"{{DIR}}/lib/conf/therapeutic_classes.json",
+				"COLLECTION":"therapeuticClasses",
+				"ID_FIELD":"Therapeutic_Class"	
 			}
 		}
 	},
 	"nodeConstants":{
 		"SERVER_DIR":"{{DIR}}",
-		"VCF_UPLOAD_DIR":"upload/vcf",
-		"TMP_UPLOAD_DIR":"tmp",
-		"LOG_DIR":"logs",
+		"VCF_UPLOAD_DIR":"{{DIR}}/upload/vcf",
+		"UPLOAD_DIR":"{{DIR}}/upload",
+		"TMP_UPLOAD_DIR":"{{DIR}}/tmp",
+		"LOG_DIR":"{{DIR}}/logs",
 		"COM_LOG_PATH":"https.log",
 		"ERR_LOG_PATH":"error.log",
 		"INFO_LOG_PATH":"info.log",

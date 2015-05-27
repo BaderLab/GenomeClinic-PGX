@@ -14,7 +14,8 @@ var projects = require('./projects'),
 	authentication = require('./authentication'),
 	patients = require('./patients'),
 	phasing = require('./phase-page'),
-	markers =  require('./markers-page');
+	markers =  require('./markers-page'),
+	dosing = require('./dosing-page');
 
 
 
@@ -42,8 +43,8 @@ var projects = require('./projects'),
 			return markers();
 		} else if (location.search(/\/haplotypes/) !== -1){
 			return phasing();
+		} else if (location.search(/^\/dosing/) !== -1){
+			return dosing();
 		}
-	}).then(function(){
-		utility.refresh();
 	});
 })();

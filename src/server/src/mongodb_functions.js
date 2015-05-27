@@ -13,7 +13,6 @@ var bcrypt = require("bcrypt-nodejs");
 var randomstring = require("just.randomstring");
 var fs = Promise.promisifyAll(require('fs'));
 
-
 var dbFunctions = function(logger,DEBUG){
 	var logInfo,logErr;
 	if (!logger)
@@ -81,29 +80,34 @@ var dbFunctions = function(logger,DEBUG){
 					return self.createIndex(dbConstants.PATIENTS.COLLECTION, currentDocument, {unique: true});
 				})
 				.then(function(result){
+					logInfo("Patients collection initialized and unique index added to " + dbConstants.PATIENTS.ID_FIELD);
 					// Patient Collection IDs are also unique
 					currentDocument= {};
 					currentDocument[dbConstants.PATIENTS.COLLECTION_ID]= -1;  // index in descending order
 					return self.createIndex(dbConstants.PATIENTS.COLLECTION, currentDocument, {unique: true});
 				})
 				.then(function(result){
+					logInfo("Unique index added to patients collection field " + dbConstants.PATIENTS.COLLECTION_ID);
 					var currentDocument = {};
 					currentDocument[dbConstants.USERS.ID_FIELD]=-1;
 					return self.createIndex(dbConstants.USERS.COLLECTION,currentDocument,{unique:true});
 				})
 				.then(function(result) {
+					logInfo("User Collection Initialized and unique index added to "+  dbConstants.USERS.ID_FIELD);
 					// Panel IDs are unique.
 					currentDocument= {};
 					currentDocument[dbConstants.PANELS.ID_FIELD]= 1;  // index in ascending order
 					return self.createIndex(dbConstants.PANELS.COLLECTION, currentDocument, {unique: true});
 				})
 				.then(function(result){
+					logInfo("Panel Collection Initialized and unique index added to " + dbConstants.PANELS.ID_FIELD);
 					// Panel Collection IDs are also unique
 					currentDocument= {};
 					currentDocument[dbConstants.PANELS.COLLECTION_ID]= -1;  // index in descending order
 					return self.createIndex(dbConstants.PANELS.COLLECTION, currentDocument, {unique: true});
 				})
 				.then(function(result){
+					logInfo("Unique index added panels collection field " + dbConstants.PANELS.ID_FIELD);
 					//project_id field should be unique
 					currentDocument = {};
 					currentDocument[dbConstants.PROJECTS.ID_FIELD] = 1; // index in ascending order
@@ -111,16 +115,18 @@ var dbFunctions = function(logger,DEBUG){
 				})
 				//Add the default pgx data to the collection if its not there already and only if it exists.
 				.then(function(){
+					logInfo("Project Collection Initialized and unique index added to " + dbConstants.PROJECTS.ID_FIELD);
 					logInfo("Checking for default PGX information");
-					fs.statAsync(nodeConstants.SERVER_DIR + '/' + dbConstants.PGX.COORDS.DEFAULT)
+					fs.statAsync(dbConstants.PGX.COORDS.DEFAULT)
 					.then(function(){
 						// Make sure both the Genes and the Coords are available.
-						return fs.statAsync(nodeConstants.SERVER_DIR + '/' + dbConstants.PGX.GENES.DEFAULT);
+						return fs.statAsync(dbConstants.PGX.GENES.DEFAULT);
 					}).catch(function(err){
 						throw new Error("No Default Pgx Information detected, skipping step");
 					}).then(function(result){
-						var pgxCoords = require(nodeConstants.SERVER_DIR + '/' + dbConstants.PGX.COORDS.DEFAULT);
-						var pgxGenes = require(nodeConstants.SERVER_DIR + '/' + dbConstants.PGX.GENES.DEFAULT);
+						logInfo("Default PGX files found, checking database for current entries");
+						var pgxCoords = require(dbConstants.PGX.COORDS.DEFAULT);
+						var pgxGenes = require(dbConstants.PGX.GENES.DEFAULT);
 						var o,rsIds;
 						var coordIds = [];
 						//Get a list of all the coordinate ids
@@ -146,18 +152,22 @@ var dbFunctions = function(logger,DEBUG){
 						};
 						return self.insertMany(o)
 						.then(function(result){
+							logInfo("Default Coordinates successfully inserted into database");
 							currentDocument = {};
 							currentDocument[dbConstants.PGX.COORDS.ID_FIELD] = 1;
 							return self.createIndex(dbConstants.PGX.COORDS.COLLECTION,currentDocument,{unique:true});
 						}).then(function(){
+							logInfo("Added Unique index to PGX coordinate field");
 							o.documents = pgxGenes;
 							o.collectionName = dbConstants.PGX.GENES.COLLECTION;
 							return self.insertMany(o);
 						}).then(function(result){
+							logInfo("Default Genes and haplotypes successfully inserted into database");
 							currentDocument = {};
 							currentDocument[dbConstants.PGX.GENES.ID_FIELD] = 1;
 							return self.createIndex(dbConstants.PGX.GENES.COLLECTION,currentDocument,{unique:true});
 						}).then(function(){
+							logInfo("Added unique index to PGX gene field")
 							logInfo("Successfully added default PGX information");
 						}).catch(function(err){
 							logErr("Default PGX info was not successfully added",err);
@@ -165,11 +175,50 @@ var dbFunctions = function(logger,DEBUG){
 					}).catch(function(err){
 						logInfo(err.message);
 					});
-				})
-				.then(function(result) {
+				}).then(function(){
+					//create non unique indexes based on pgx_1
+					currentDocument = {};
+					currentDocument[dbConstants.DRUGS.DOSING.ID_FIELD] = 1;
+					logInfo("Initializing Dosing recomendation collection and adding unique index to fields");
+					return self.createIndex(dbConstants.DRUGS.DOSING.COLLECTION,currentDocument);
+				}).then(function(){
+					logInfo("Checking for default drug recomendation information");
+					return fs.statAsync(dbConstants.DRUGS.DOSING.DEFAULT)
+					.then(function(result){
+						var dosing = require(dbConstants.DRUGS.DOSING.DEFAULT);
+						var o = {
+							documents: dosing,
+							collectionName: dbConstants.DRUGS.DOSING.COLLECTION
+						};
+						return self.insertMany(o);
+					}).then(function(){
+						logInfo("Default dosing recomendations found and inserted into database");
+					}).catch(function(err){
+						logInfo(dbConstants.DRUGS.DOSING.DEFAULT + " was not found and could not be added to the databse");
+					});
+				}).then(function(){
+					currentDocument = {};
+					currentDocument[dbConstants.DRUGS.CLASSES.ID_FIELD] = 1;
+					logInfo("Creating unique index therapeutic classes");
+					return self.createIndex(dbConstants.DRUGS.CLASSES.COLLECTION,currentDocument,{unique:true});
+				}).then(function(){
+					logInfo("Checking for default therapeutic class information");
+					return fs.statAsync(dbConstants.DRUGS.CLASSES.DEFAULT)
+					.then(function(result){
+						var dosing = require(dbConstants.DRUGS.CLASSES.DEFAULT);
+						var o = {
+							documents: dosing,
+							collectionName: dbConstants.DRUGS.CLASSES.COLLECTION
+						};
+						return self.insertMany(o);
+					}).then(function(){
+						logInfo("Default dosing recomendations found and inserted into database");
+					}).catch(function(err){
+						logInfo(dbConstants.DRUGS.CLASSES.DEFAULT + " was not found and could not be added to the databse");
+					});
+				}).then(function(result) {
 					resolve();
-				})
-				.catch(function(err) {
+				}).catch(function(err) {
 					logErr(err);
 					reject(err);
 				});
@@ -212,7 +261,7 @@ var dbFunctions = function(logger,DEBUG){
 
 	/* find and remove a patient where options are the query to submit
  	* returns a promise */
-	var removeDocument = function(collectionName,options,sort){
+	var removeDocument = function(collectionName,options){
 		assert.notStrictEqual(db, undefined); // ensure we're connected first
 
 		// validate input
@@ -222,7 +271,7 @@ var dbFunctions = function(logger,DEBUG){
 		logInfo('removing document from collection', {'collection':collectionName,query:options});
 		var promise = new Promise(function(resolve,reject){
 			var collection = db.collection(collectionName);
-			collection.findAndRemove(options,sort,function(err,doc){
+			collection.remove(options,function(err,doc){
 				if (err){
 					reject(err);
 				} else {
@@ -233,13 +282,35 @@ var dbFunctions = function(logger,DEBUG){
 		return promise;
 	};
 
+	var aggregate = function(collectionName,aggArray){
+		assert.notStrictEqual(db,undefined);
+		assert(Object.prototype.toString.call(aggArray) == "[object Array]",
+			"Invalid Options, aggregate requires an array");
+
+		var promise = new Promise(function(resolve,reject){
+			var collection = db.collection(collectionName);
+			collection.aggregate(aggArray,function(err,doc){
+				if (err){
+					reject(err);
+				}
+				resolve(doc);
+			});
+		});
+
+		return promise;
+	};
+
+	this.find = find;
+	this.aggregate = aggregate;
+	
 	this.checkDefaultMarkers = function(){
 		var coords,toAdd=[];
 		var _this = this;
 		assert.notStrictEqual(db,undefined);
-		return fs.statAsync(nodeConstants.SERVER_DIR + "/" + dbConstants.PGX.COORDS.DEFAULT)
+		return fs.statAsync(dbConstants.PGX.COORDS.DEFAULT)
 		.then(function(result){
-			return coords = require(nodeConstants.SERVER_DIR + "/" + dbConstants.PGX.COORDS.DEFAULT);
+			coords = require(dbConstants.PGX.COORDS.DEFAULT);
+			return coords;
 		}).each(function(item){
 			return _this.checkInDatabase(dbConstants.PGX.COORDS.COLLECTION,dbConstants.PGX.COORDS.ID_FIELD,item[dbConstants.PGX.COORDS.ID_FIELD])
 
@@ -257,12 +328,11 @@ var dbFunctions = function(logger,DEBUG){
 				};
 				return _this.insertMany(o).then(function(){
 					logInfo("Markers added successfully upon startup");
-				})
+				});
 			} else {
 				logInfo("No New Markers found on startup, nothing added to database");
 			}
 		}).catch(function(err){
-			console.log(err);
 			logErr("error ecnountered when adding new default makrers on startup", err);
 		});
 	};
@@ -271,16 +341,17 @@ var dbFunctions = function(logger,DEBUG){
 		var genes,toAdd=[];
 		var _this = this;
 		assert.notStrictEqual(db,undefined);
-		return fs.statAsync(nodeConstants.SERVER_DIR + "/" + dbConstants.PGX.GENES.DEFAULT)
+		return fs.statAsync(dbConstants.PGX.GENES.DEFAULT)
 		.then(function(result){
-			return genes = require(nodeConstants.SERVER_DIR + "/" + dbConstants.PGX.GENES.DEFAULT);
+			genes = require(dbConstants.PGX.GENES.DEFAULT);
+			return genes;
 		}).each(function(item){
 			return _this.checkInDatabase(dbConstants.PGX.GENES.COLLECTION,dbConstants.PGX.GENES.ID_FIELD,item[dbConstants.PGX.GENES.ID_FIELD])
 			.then(function(result){
 				if (!result){
 					toAdd.push(item);
 				}
-			})
+			});
 		}).then(function(){
 			if (toAdd.length  > 0){
 				logInfo(toAdd.length.toString() + " default genes found on startup that are not present in the database. Adding new genes");
@@ -290,15 +361,114 @@ var dbFunctions = function(logger,DEBUG){
 				};
 				return _this.insertMany(o).then(function(){
 					logInfo("Genes added successfully upon startup");
-				})
+				});
 			} else {
 				logInfo("No New Genes found on startup, nothing added to database");
 			}
 		}).catch(function(err){
-			console.log(err);
+			
 			logErr("error ecnountered when adding new default Genes on startup", err);
 		});
 	};
+
+	/*this.checkDefaultDosing = function(){
+		var dosing, classes, toAdd = [];
+		var _this  = this;
+		assert.notStrictEqual(db,undefined);
+		return fs.statAsync(dbConstants.DRUGS.DOSING.DEFAULT)
+		.then(function(){
+			dosing = require(dbConstants.DRUGS.DOSING.DEFAULT);
+			return dosing;
+		}).each(function(item){
+			var query = {};
+			query[dbConstants.DRUGS.DOSING.FIRST_GENE] = item[dbConstants.DRUGS.DOSING.FIRST_GENE];
+			query[dbConstants.DRUGS.DOSING.FIRST_CLASS] = item[dbConstants.DRUGS.DOSING.FIRST_CLASS];
+			query[dbConstants.DRUGS.DOSING.SECOND_GENE] = item[dbConstants.DRUGS.DOSING.SECOND_GENE] === undefined ? {$exists:false}:item[dbConstants.DRUGS.DOSING.SECOND_GENE];
+			query[dbConstants.DRUGS.DOSING.SECOND_CLASS] = item[dbConstants.DRUGS.DOSING.SECOND_CLASS] === undefined ? {$exists:false}:item[dbConstants.DRUGS.DOSING.SECOND_CLASS];
+			return _this.findOne(dbConstants.DRUGS.DOSING.COLLECTION,query).then(function(result){
+				if (!result){
+					toAdd.push(item);
+				}
+			});
+		}).then(function(){
+			if (toAdd.length > 0){
+				logInfo(toAdd.length.toString() + " New Dosing Guidelines found at starting up. Adding them to the database");
+				var o = {
+					documents : toAdd,
+					collectionName: dbConstants.DRUGS.DOSING.COLLECTION				
+				};
+				return _this.insertMany(o).then(function(){
+					logInfo(toAdd.length.toString() + " Dosing Guidelines successfully added");
+				});
+			} else {
+				logInfo("No new Dosing Guidelines Found");
+			}
+		}).catch(function(err){
+			logErr("error encountered when adding new default dosing guidelines on startup");
+		}).then(function(){
+			toAdd = [];
+			return fs.statAsync(dbConstants.DRUGS.CLASSES.DEFAULT);
+		}).then(function(){
+			classes = require(dbConstants.DRUGS.CLASSES.DEFAULT);
+			return classes;
+		}).each(function(item){
+			var query = {};
+			query[dbConstants.DRUGS.CLASSES.ID_FIELD] = item[dbConstants.DRUGS.CLASSES.ID_FIELD];
+			return _this.findOne(dbConstants.DRUGS.CLASSES.COLLECTION,query).then(function(result){
+				if (result === null){
+					toAdd.push(item);
+				}
+			});
+		}).then(function(){
+			if (toAdd.length > 0){
+				logInfo(toAdd.length.toString() + " New therapeutic classes Guidelines found at start up. Adding them to the database");
+				var o = {
+					documents : toAdd,
+					collectionName: dbConstants.DRUGS.CLASSES.COLLECTION				
+				};
+				return _this.insertMany(o).then(function(){
+					logInfo(toAdd.length.toString() + " therapeutic classes successfully added");
+				});
+			} else {
+				logInfo("No new therapeutic classes found");
+			}
+		}).catch(function(err){
+			logErr("error encountered when adding new default therapeutic classes on startup");
+		}).then(function(){
+			toAdd = [];
+			return fs.statAsync(dbConstants.DRUGS.FUTURE.DEFAULT);
+		}).then(function(){
+			future = require(dbConstants.DRUGS.FUTURE.DEFAULT);
+			return future;
+		}).each(function(item){
+			var query = {};
+			query[dbConstants.DRUGS.FUTURE.ID_FIELD] = item[dbConstants.DRUGS.FUTURE.ID_FIELD];
+			query[dbConstants.DRUGS.FUTURE.CLASS] = item[dbConstants.DRUGS.FUTURE.CLASS];
+			return _this.findOne(dbConstants.DRUGS.FUTURE.COLLECTION,query).then(function(result){
+				if (!result){
+					toAdd.push(item);
+				}
+			});
+		}).then(function(){
+			if (toAdd.length > 0){
+				logInfo(toAdd.length.toString() + " New future recomendations found at startup. Adding them to the database");
+				var o = {
+					documents: toAdd,
+					collectionName: dbConstants.DRUGS.FUTURE.COLLECTION
+				};
+				return _this.insertMany(o).then(function(){
+					logInfo(toAdd.length.toString() + " future recomendations successfully added");
+				});
+			} else {
+				logInfo("No new future recomendations found");
+			}
+		}).catch(function(err){
+			console.log(err);
+			logErr("error encountered when adding new default future recomendations on startup",err);
+		})
+
+	}; */
+
 //=======================================================================================
 //=======================================================================================
 //Public functions
@@ -310,7 +480,7 @@ var dbFunctions = function(logger,DEBUG){
 		.then(function(result){
 			return result[0]['admin-email'];
 		});
-	}
+	};
 
 	//=======================================================================================
 	//Connection and Initializaition
@@ -355,7 +525,7 @@ var dbFunctions = function(logger,DEBUG){
 				 }).then(function(){
 				 	resolve();
 				 }).catch(function(err) {
-				 	console.log(err);
+				 	logErr("Error encountereed while initializing server",err);
 				 	reject(err);
 				 });
 			}).catch(function(err) {
@@ -601,8 +771,6 @@ var dbFunctions = function(logger,DEBUG){
 			"Invalid collection");
 		assert(Object.prototype.toString.call(field) == "[object String]",
 			"Invalid collection");
-		assert(Object.prototype.toString.call(value) == "[object String]",
-			"Invalid collection");
 		var query = {};
 		query[field] = value;
 		return this.findOne(collection,query).then(function(result){
@@ -704,7 +872,7 @@ var dbFunctions = function(logger,DEBUG){
 		var query = {};
 		logInfo("removing %s project from database", project);
 		query[dbConstants.PROJECTS.ID_FIELD] = project;
-		return removeDocument(dbConstants.PROJECTS.COLLECTION,query,[[dbConstants.PROJECTS.ID_FIELD,1]])
+		return removeDocument(dbConstants.PROJECTS.COLLECTION,query)
 		.then(function(){
 			return _this.removePatientsFromProject(project);
 		});
@@ -825,7 +993,7 @@ var dbFunctions = function(logger,DEBUG){
 		}).catch(function(err){
 				logInfo("No Variant collection found");
 		}).then(function(){
-			return removeDocument(dbConstants.PATIENTS.COLLECTION,query,[[dbConstants.PATIENTS.ID_FIELD,1]]);
+			return removeDocument(dbConstants.PATIENTS.COLLECTION,query);
 		}).then(function(){
 			failure[dbConstants.FAILURE.ANNO_COMPLETE] = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 			failure[dbConstants.FAILURE.FAIL_FIELD] = true;
@@ -878,6 +1046,7 @@ var dbFunctions = function(logger,DEBUG){
 	 * not listed in that project. this is used for adding patients to an existing 
 	 * project */
 	this.findAllPatientsNinProject = function(project,username,options){
+		var _this = this;
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(project) == "[object String]", "Invalid Project Name");
 		//find all the availble projects for this person
@@ -1049,7 +1218,7 @@ var dbFunctions = function(logger,DEBUG){
 		assert(Object.prototype.toString.call(rsID) == "[object String]");
 		var query = {};
 		query[dbConstants.PGX.COORDS.ID_FIELD] = rsID;
-		return removeDocument(dbConstants.PGX.COORDS.COLLECTION,query,[[dbConstants.PGX.COORDS.ID_FIELD,1]]);
+		return removeDocument(dbConstants.PGX.COORDS.COLLECTION,query);
 
 	};
 
@@ -1082,9 +1251,9 @@ var dbFunctions = function(logger,DEBUG){
 		assert(Object.prototype.toString.call(geneName) == "[object String]");
 		var query = {};
 		query[dbConstants.PGX.GENES.ID_FIELD] = geneName;
-		return removeDocument(dbConstants.PGX.GENES.COLLECTION,query,[[dbConstants.PGX.GENES.ID_FIELD,1]]);
+		return removeDocument(dbConstants.PGX.GENES.COLLECTION,query);
 
-	}
+	};
 
 	//Update the specified gene with the requqired parameter Doc
 	this.updatePGXGene = function(geneName,doc){
@@ -1093,7 +1262,7 @@ var dbFunctions = function(logger,DEBUG){
 		assert(Object.prototype.toString.call(doc) == "[object Object]");
 
 		var query = {};
-		query[dbConstants.PGX.GENES.ID_FIELD] = geneName
+		query[dbConstants.PGX.GENES.ID_FIELD] = geneName;
 		return this.update(dbConstants.PGX.GENES.COLLECTION,query,doc);
 	};
 
@@ -1103,9 +1272,9 @@ var dbFunctions = function(logger,DEBUG){
 		assert(Object.prototype.toString.call(rsID) == "[object String]");
 		assert(Object.prototype.toString.call(doc) == "[object Object]");
 		var query = {};
-		query[dbConstants.PGX.COORDS.ID_FIELD] = rsID
+		query[dbConstants.PGX.COORDS.ID_FIELD] = rsID;
 		return this.update(dbConstants.PGX.COORDS.COLLECTION,query,doc);
-	}
+	};
 
 	/* Find all PGx variants for a specific patient ID.
 	 * NOTE: patient ID is the user-specified ID, not the internal collection ID.
@@ -1295,6 +1464,46 @@ var dbFunctions = function(logger,DEBUG){
 		doc = {$set:doc};
 		logInfo('changing password for user', {'user':user});
 		return this.update(dbConstants.USERS.COLLECTION,query,doc);
+	};
+
+	//Functions related to dealing with drug dosing and drugs
+	this.drugs = {
+		//Get the genes associated with drug recomednations and return an array of genes;
+		getGenes : function(){
+			assert.notStrictEqual(db,undefined);
+			options = {};
+			options[dbConstants.DRUGS.DOSING.ID_FIELD] = 1;
+			return find(dbConstants.DRUGS.DOSING.COLLECTION,{},options);
+		},
+
+		/* for the given genes, return all the dosing information current in the database. this information
+		 * is returned in the form of an array. The function can accept either a stirng or an array */
+		getGeneDosing : function(gene){
+			assert.notStrictEqual(db,undefined);
+			var query = {};
+			if (Object.prototype.toString.call(gene) == '[object Array]'){
+				query[dbConstants.DRUGS.DOSING.ID_FIELD] = {$in:gene};
+			} else {
+				query[dbConstants.DRUGS.DOSING.ID_FIELD] = gene;
+			}
+			return 	find(dbConstants.DRUGS.DOSING.COLLECTION,query).then(function(result){
+				if (result.length === 0) return null;
+				else if (result.length === 1 ) return result[0];
+				else return result;
+			});
+		},
+
+		//Remove a recomendation from the databse. Removes a sinlge recomendation based on a Therapeutic Class
+		//This will remo
+		removeGeneEntry : function(gene){
+			assert.notStrictEqual(db,undefined);
+			assert(Object.prototype.toString.call(gene) == '[object String]', "Requires Gene name to be a string");
+
+			var o = {};
+			o[dbConstants.DRUGS.DOSING.ID_FIELD] = gene;
+			return removeDocument(dbConstants.DRUGS.DOSING.COLLECTION,o);
+		},
+		
 	};
 };
 

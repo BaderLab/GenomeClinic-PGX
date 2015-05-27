@@ -1,0 +1,66 @@
+[
+	{
+		"ID": 9,
+		"Therapeutic_Class": "Favorable Response"
+	},
+	{
+		"ID": 7,
+		"Therapeutic_Class": "High Risk"
+	},
+	{
+		"ID": 3,
+		"Therapeutic_Class": "Intermediate Metabolizer"
+	},
+	{
+		"ID": 17,
+		"Therapeutic_Class": "Intermediate Risk"
+	},
+	{
+		"ID": 6,
+		"Therapeutic_Class": "Non-Responder To Therapy"
+	},
+	{
+		"ID": 19,
+		"Therapeutic_Class": "Normal (*58:01 absent)"
+	},
+	{
+		"ID": 2,
+		"Therapeutic_Class": "Normal Metabolizer"
+	},
+	{
+		"ID": 8,
+		"Therapeutic_Class": "Normal Risk"
+	},
+	{
+		"ID": 13,
+		"Therapeutic_Class": "Normal Risk (*15:02 absent)"
+	},
+	{
+		"ID": 11,
+		"Therapeutic_Class": "Normal Risk (*31:01 absent)"
+	},
+	{
+		"ID": 12,
+		"Therapeutic_Class": "Normal Risk (*57:01 absent)"
+	},
+	{
+		"ID": 4,
+		"Therapeutic_Class": "Poor Metabolizer"
+	},
+	{
+		"ID": 5,
+		"Therapeutic_Class": "Responder To Therapy"
+	},
+	{
+		"ID": 1,
+		"Therapeutic_Class": "Ultrarapid Metabolizer"
+	},
+	{
+		"ID": 18,
+		"Therapeutic_Class": "Uncertain"
+	},
+	{
+		"ID": 10,
+		"Therapeutic_Class": "Unfavorable Response"
+	}
+]

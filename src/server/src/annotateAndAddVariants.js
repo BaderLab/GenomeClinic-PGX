@@ -143,7 +143,6 @@ function annotateAndAddVariants(options){
 			var promise = new Promise(function(resolve,reject){
 				var ps = child_process.spawn(annovarCmd, args);
 				ps.on('error',function(err){
-					console.log(err);
 					reject(err);
 				});
 				ps.on('exit',function(code){
@@ -176,7 +175,6 @@ function annotateAndAddVariants(options){
 				//retrieve the json array printed to stdout from ther ParseVCF
 
 				ps.stderr.on('data',function(data){
-					console.log(data.toString('utf-8'));
 					logMessage(null,"ERR: " + data.toString('utf-8'));
 					reject(data.toString('utf-8'));
 					

@@ -5,8 +5,8 @@
 
 var $ = require("jquery"),
 	templates = require('./templates'),
-	utility = require('./utility'),
-	Handlebars = require('hbsfy/runtime');
+	utility = require('./utility');
+//Handlebars = require('hbsfy/runtime');
 
 ///// main object to be returned
 var pgx =  {
@@ -418,6 +418,7 @@ var pgx =  {
 			return self.convertTotemplateData();
 		}).then(function(result){
 			self.templateData = result;
+			templateData = result;
 			if (self.pgxGenesRemoved)
 				result.errMessage = self.pgxGenesRemoved.join(", ")
 			return templates.pgx(result);
@@ -452,6 +453,7 @@ var pgx =  {
 		})
 		.then(function(result) {
 			self.globalPGXData= result;  // set the globally-scoped PGX Data
+			gl = result;
 			return result;
 		});
 	},
@@ -538,18 +540,14 @@ var pgx =  {
 				contentType:'application/json',
 				data:JSON.stringify(self.templateData)
 			})).then(function(result){
-				return $('#direct_download').attr('href',window.location.pathname + '/download/' + result.name);
-				
-			}).then(function(){
-				return $('#direct_download').get(0).click();
+				open(window.location.pathname + "/download/" + result.name);		
 			}).then(function(){
 				$(_this).text("Download");
-				return $('#direct_download').attr('href','');
 			});
 		});
 	},
 
-	//Yes I know this is wasteful, However I really dont want to break any of the previous code
+	//Convert the templated data within the global pgx field into a more usable format
 	convertTotemplateData:function(){
 		var self = this;
 		var promise = new Promise(function(resolve,reject){
@@ -613,7 +611,7 @@ var pgx =  {
 			if (i == possibleHaplotypeKeys.length - 1)
 				o.after = '';
 			else
-				o.after = ',';
+				o.after = ' /';
 
 			o.string = pgx.globalPGXData.possibleHaplotypesStringRep[gene][possibleHaplotypeKeys[i]].closestMatch;
 			out.push(o);

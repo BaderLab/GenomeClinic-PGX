@@ -54,7 +54,6 @@ module.exports = function(app,dbFunctions){
 				if (configured === undefined){
 					dbFunctions.isConfigured()
 					.then(function(result){
-						console.log(result);
 						if ( result )
 							utils.render(req,res,'notfound');
 						else

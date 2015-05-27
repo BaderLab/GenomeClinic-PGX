@@ -7,8 +7,11 @@ Web application for clinical pharmacogenomic interpretation.
 1. [Node.js](http://nodejs.org/)
 2. [MongoDB](http://mongodb.org/downloads)
 3. [Annovar](http://www.openbioinformatics.org/annovar/annovar_download_form.php)
+4. [PhantomJS](http://phantomjs.org/) 2.0.0 or later
 
 The web server is built as an [express](http://expressjs.com/) app and utilizes a mongo database for back end storage of variant information as well as general server information. Additionally the current annotation pipeline utilizes Annovar for variant annotation. Annovar is a third party application which requires a licesnce agreement and can be used for free so long as it is not for commercial purposes.
+
+PhantomJS must be installed and accessible through the path environment variable
 
 ## Annovar Installation
 

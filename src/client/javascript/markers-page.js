@@ -121,11 +121,11 @@ module.exports = function(){
 			var input = {};
 			array.map(function(item){
 				if (item.name == 'alt')
-					input[item.name] = item.value.toLowerCase().split(/[\,\s]/g);
+					input[item.name] = item.value.toUpperCase().split(/[\,\s]/g);
 				else if (item.name == 'pos')
 					input[item.name] = parseInt(item.value);
 				else
-					input[item.name] = item.value.toLowerCase();
+					input[item.name] = item.value.toUpperCase();
 			});
 			return input;
 		}	

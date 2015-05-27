@@ -23,7 +23,8 @@ var gulp = require('gulp'),
 	runSequence = require('run-sequence'),
 	replace = require('gulp-replace'),
 	path = require('path'),
-	exec = require('child_process').exec;;
+	exec = require('child_process').exec,
+	constants = require("./src/server/conf/constants.json");
 
 
 /* all paths for use */
@@ -50,8 +51,8 @@ var paths = {
 		views:{
 			src:[
 				'src/client/templates/layout.hbs',
-				'src/client/templates/pgx-report.hbs',
-				'src/client/templates/notfound.hbs'
+				'src/client/templates/default-pgx-report.hbs',
+				'src/client/templates/default-dosing-report.hbs'
 				],
 			dest:'build/views'
 		},
@@ -93,14 +94,17 @@ var paths = {
 				'src/server/src/parseVCF.js',
 				'src/server/src/queue.js',
 				'src/server/src/utils.js',
-				'src/server/src/pgx-report.js'
+				'src/server/src/genReport.js'
 			],
 			dest:'build/lib'
 		},
 		conf:{
 			src:[
 				'src/server/conf/api.js',
-				'src/server/conf/pgx*'
+				'src/server/conf/pgx*',
+				'src/server/conf/dosing_guidelines.json',
+				'src/server/conf/therapeutic_classes.json',
+				'src/server/conf/future_rec.json'
 			],
 			dest:'build/lib/conf'
 		},
@@ -204,7 +208,7 @@ gulp.task('server-cons',function(){
 		dir = dir.replace(/\\/g,"\\\\");
 	}
 	return gulp.src(paths.server.cons.src)
-	.pipe( replace(/\{\{DIR\}\}/, dir) )
+	.pipe( replace(/\{\{DIR\}\}/g, dir) )
 	.pipe( gulp.dest(paths.server.cons.dest) );
 });
 
@@ -232,9 +236,8 @@ gulp.task('server',function(next){
 
 //Added route for globally installing phantomJs dependency
 gulp.task("phantom",function(){
-	var cont = true;
+	/*var cont = true;
 	var platform = process.platform;
-	console.log(platform);
 	if (platform.search(/win[0-9]+/i) === -1){
 		var uid = process.getuid();
 		if (uid !== 0){
@@ -246,15 +249,18 @@ gulp.task("phantom",function(){
 	}
 	if (cont){
 		gutil.log(gutil.colors.bgGreen("Starting:"), gutil.colors.yellow("PhantomJS"),"Installation Starting");
-		exec('npm install -g phantomjs',function(err,stdout,stderr){
-			if (err)
+		exec('npm install -g phantomjs@2.0.0',function(err,stdout,stderr){
+			if (err){
+				
 				gutil.log(gutil.colors.bgRed("Error:"), gutil.colors.yellow("PhantomJS"),"Install failed");
-			else if (stderr)
+			} else if (stderr){
+				
 				gutil.log(gutil.colors.bgRed("Error:"), gutil.colors.yellow("PhantomJS"),"Install failed");
-			else 
+			} else {
 				gutil.log(gutil.colors.bgGreen("Success:"), gutil.colors.yellow("PhantomJS"),"Successfully installed");
+			}
 		});
-	}
+	} */
 });
 
 gulp.task('jshint',function(){

@@ -1,0 +1,67 @@
+{{#each haplotypes}}
+<tr>
+	<td>
+		<form data-abide="ajax" class="thereapeutic-class">
+			<div class="row">
+		  		<div class="small-12 columns">
+			    	<div data-alert class="alert-box radius secondary" style="display:none">
+			    	<!-- Alert message goes here -->
+				      	<div class="row">
+				        	<div class="small-11 columns">
+				        	  	<p class="alert-message"></p>
+				        	</div>
+				      		<div class="small-1 columns">
+				        		<a href="#" class='close-box'><i class="fi-x size-16" style="color:#606060"></i></a>
+				      		</div>
+				    	</div>
+				    </div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="large-3 small-4 medium-3 columns">
+						<h5><b>Therapeutic Class:</b></h5>
+				</div>
+				<div class="large-8 small-6 medium-8 columns">
+					<h5 class="p-class-name"><i>{{@key}}</i></h5>
+				</div>
+				<div class="large-1 small-2 medium-1 columns">
+					<a href="#" class="edit-table right button tiny secondary radius"><i class="fi-pencil size-16" style="color:#A2A2A2"></i></a>
+				</div>
+			</div>
+			<div class="row">
+				<div class="large-6 small-6 medium-6 columns">
+					<div class="row collapse prefix-radius">
+						<div class="large-4 small-4 medium-4 columns">
+							<span class="prefix">First Haplotype</span>
+						</div>
+						<div class="large-8 small-8 medium-8 columns">
+							<input name="allele_1" type="text" placeholder="ex *1" value="{{this.[0]}}" data-originalValue="{{this.[0]}}" disabled="disabled" required>
+							<small class="error">Required</small>
+						</div>
+					</div>
+				</div>
+				<div class="large-6 small-6 medium-6 columns">
+					<div class="row collapse prefix-radius">
+						<div class="large-4 small-4 medium-4 columns">
+							<span class="prefix">Second Haplotype</span>
+						</div>
+						<div class="large-8 small-8 medium-8 columns">
+							<input name="allele_2" type="text" placeholder="ex *2" value="{{this.[1]}}" data-originalValue="{{this.[1]}}" disabled="disabled" required>
+							<small class="error">Required</small>
+						</div>
+					</div
+				</div>
+			</div>
+			<div class="row">
+				<div class="large-4 small-12 medium-6 columns right">
+					<ul class="button-group even-3 form-triggers" style="display:none">
+						<li><button type="submit" class="button success tiny submit-changes">Submit</button></li>
+						<li><a href="#" class="button tiny cancel-changes">Cancel</a></li>
+						<li><a href="#" class="button tiny alert delete-table">Delete</a></li>
+					</ul>
+				</div>
+			</div>
+		</form>
+	</td>
+</tr>
+{{/each}}

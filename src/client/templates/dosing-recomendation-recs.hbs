@@ -1,0 +1,42 @@
+{{#each drugs}}
+	<fieldset class="recomendation-field">
+		<legend class="drug-name">{{@key}}</legend>
+		<table class="large-12 small-12 medium-12">
+			<thead>
+				<tr>
+					<th>Therapeutic Risk</th>
+					<th>Primary Gene</th>
+					<th>Therapeutic Class</th>
+					{{#if pgx_2}}
+					<th>Secondary Gene</th>
+					<th>Therapeutic Class</th>
+					{{/if}}
+					<th>Pubmed ID</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td class="recomendation-risk">{{risk}}</td>
+					<td class="recomendation-pgx-1">{{pgx_1}}</td>
+					<td class="recomendation-class-1">{{class_1}}</td>
+					{{#if pgx_2}}
+					<td class="recomendation-pgx-2">{{pgx_2}}</td>
+					<td class="recomendation-class-2">{{class_2}}</td>
+					{{/if}}
+					<td class="recomendation-pubmed">{{#each pubmed}}
+						<a href="http://www.ncbi.nlm.nih.gov/pubmed/{{this}}" target="_blank">{{this}}</a>
+						{{/each}}
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<div class="row">
+			<div class="large-12 small-12 medium-12 columns">
+				<label><b>Dosing Recomendation</b></label>
+				<textarea class="recomendation-rec" rows=5 required>{{rec}}</textarea>
+				<small class="error">Required</small>
+			</div>
+		</div>
+	</fieldset>
+{{/each}}
+

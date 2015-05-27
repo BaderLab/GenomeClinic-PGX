@@ -52,6 +52,9 @@ module.exports = {
 			}
 		});
 	},
+
+	/* Check to see whetehr or not a value currently exists in the spcified collection and field.
+	 * Return the result from the server */
 	existsInDb : function (collection,field,value){
 		var promise = new Promise(function(resolve,reject){
 			var options = {
@@ -73,8 +76,13 @@ module.exports = {
 		return promise;
 	},
 
-	refresh : function(){
-		$(document).foundation();
+	/* Refresh foundaiton. If opt is provided add the options and refresh with the options
+	 * ie. adding abide options during a refresh. Additionally if an el is added fresh
+	 * foundation within the context of el */
+	refresh : function(opt, el){
+		var context = el === undefined ? $(document):$(el);
+		if (opt) return context.foundation(opt);
+		context.foundation();
 	},
 	getUserInfo : function() {
 		return Promise.resolve($.ajax({
@@ -102,13 +110,25 @@ module.exports = {
 				patterns:{
 					alleles:/^[,\sacgtnACGTN\-]+$/,
 					chromosomes:/^(1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|X|Y|M|m|y|x)$/,
-					ref:/^[acgtnACGTN\-]+$/
+					ref:/^[acgtnACGTN\-]+$/,
+					sex:/^(m|f|male|female)$/i
 				}
 			}
 		});
 	},
 	chrRegex:/^(1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|X|Y|M|m|y|x)$/,
 	allelesRegex:/^[,\sacgtn\-ACGTN]+$/,
+
+	/* Check to see if the input matches the current search box value */
+	matchSearch :function(input){
+		var val = $('#search-box').val();
+		var re = new RegExp(val,'i');
+		if ( val === '' )
+			return true;
+		else if (input.match(re) !== null)
+			return true;
+		return false;
+	}
 };
 
 

@@ -224,7 +224,8 @@ parseVCF.prototype.parseChunk = function(stringArray){
  						}
 					}
 				} else if (stringArray[i].search(/^#/) === -1) {
-					line = stringArray[i].toLowerCase().split('\t');
+					//line = stringArray[i].toLowerCase().split('\t');
+					line = stringArray[i].split('\t');
 					var annoObj = self.convertAnnoString(line[self.mapper.annofield]);
 					var annoList = self.mapper.anno;
 					//loop over all of the patients included
@@ -267,10 +268,10 @@ parseVCF.prototype.parseChunk = function(stringArray){
 							//Loop over all the items in the annovar annotation list
 							for (var j=0; j < annoList.length; j++){
 								//if the annotation is the annovar_date or annovar_end then dont include it
-								if (annoList[j].search(/annovar(\.|_)date/i) == -1 && 
-										annoList[j].search(/allele(\.|_)end/i) == -1){
+								if (annoList[j].search(/annovar(\.|_)date/gi) == -1 && 
+										annoList[j].search(/allele(\.|_)end/gi) == -1){
 									//currDoc[annoList[j]] = annoObj
-									var itemToInsert = annoObj[annoList[j]];	
+									var itemToInsert = annoObj[annoList[j]];
 									itemToInsert = itemToInsert.map(function(item){
 										if (item !== "."){
 											if (isNaN(item))
@@ -301,14 +302,14 @@ parseVCF.prototype.parseChunk = function(stringArray){
 						for (var j = 0; j < formatField.length; j++ ){
 							var info = formatLine[j].split(/[\/|,]/);
 							info = info.map(convertNum);
-							if (formatField[j] == 'gt'){
+							if (formatField[j].toLowerCase() == 'gt'){
 								if (info.indexOf('.') != -1){
 									self.patientObj[patient].ignored++;
 									cont = false;
 								} else {
 									currDoc[dbConstants.VARIANTS.ZYGOSITY] = zygosity(info);
 									currDoc[dbConstants.VARIANTS.RAW_GENOTYPE] = formatLine[j];
-									currDoc[formatField[j]] = info;
+									currDoc[formatField[j].toLowerCase()] = info;
 									currDoc[dbConstants.VARIANTS.PHASING] = (formatLine[j].indexOf('|') != -1 || false);
 								}
 							} else if (cont){
@@ -377,7 +378,7 @@ parseVCF.prototype.convertAnnoString = function(string){
 	for (var i = 0; i < line.length; i++ ){
 		if ( line[i].match(/^\.$/) === null ){
 			var inputLine = line[i].split('=');
-			inputLine[0] = inputLine[0].replace('.','_');
+			inputLine[0] = inputLine[0].replace('.','_').toLowerCase();
 			if (!out.hasOwnProperty(inputLine[0])){
 				out[inputLine[0]] = [convertNum(inputLine[1])];
 			} else {

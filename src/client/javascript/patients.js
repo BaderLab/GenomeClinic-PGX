@@ -5,8 +5,9 @@
 
 var $ = require('jquery'),
 	templates = require('./templates'),
-	utility = require('./utility');
-pgx = require('./pgx');
+	utility = require('./utility'),
+	pgx = require('./pgx'),
+	dosing = require('./dosing-recomendations');
 
 module.exports = function() {
 	/* AJAX call to application server to retrieve patients.
@@ -75,6 +76,8 @@ module.exports = function() {
 		} else if (location.match(/^\/browsepatients\/id\/.*/) !== null){
 			pgx.loadPGx();
 
+		} else if (location.match(/^\/browsepatients\/dosing\/.*/) !== null){
+			dosing.render();
 		}
 	}
 	return main();

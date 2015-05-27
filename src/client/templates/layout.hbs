@@ -33,8 +33,9 @@
                 <ul class="dropdown">
                   <li><a href="/upload" id="webapp-add-new-patient"><i class="fi-torso size-24"></i>&nbsp&nbsp&nbsp Add Patient</a></li>
                   <li><a href="/projects" id="webapp-add-new-project"><i class="fi-page-multiple size-24"></i>&nbsp&nbsp&nbsp My Projects</a></li>
-                  <li><a href="/haplotypes" id="webapp-haplotypes"><i class="fa fa-asterisk fa-2x"></i>&nbsp&nbsp Manage Haplotypes</a></li>
-                   <li><a href="/markers" id="webapp-markers"><b class="icon-text size-16">rS</b>&nbsp&nbsp&nbsp Manage Markers</a></li>
+                  <li><a href="/haplotypes" id="webapp-haplotypes"><i class="fa fa-asterisk fa-2x"></i>&nbsp Manage Haplotypes</a></li>
+                  <li><a href="/markers" id="webapp-markers"><b class="icon-text size-16">rS</b>&nbsp&nbsp&nbsp Manage Markers</a></li>
+                  <li><a href="/dosing" id="webapp-dosing"><i class="fa fa-medkit fa-2x"></i>&nbsp Manage Dosing Recomendations</a></li>
                 </ul>
               </li>
               <li class="has-form">
@@ -78,6 +79,7 @@
               <li><a href="/browsepatients" id="webapp-browse-button">Browse</a></li>
               <li><a href="/haplotypes" id="webapp-haplotypes">Manage Haplotypes</a></li>
               <li><a href="/markers" id="webapp-markers">Manage Markers</a></li>
+              <li><a href="/dosing" id="webapp-dosing">Manage Dosing Tables</a></li>
               <li><label>Account Actions</li>
               <li><label>{{user}}</li>
               <li><a href="/setpassword">Change Password</a></li>
@@ -139,7 +141,7 @@
     <script type="text/javascript" src="{{this}}"></script>
     {{/each}}
     <script type="text/javascript">
-      $(document).foundation();
+      $(document).foundation()
     </script>
   </body>
 </html>

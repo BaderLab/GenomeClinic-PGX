@@ -187,6 +187,9 @@ tr.patient-genotype-row {
   background-color: #EBFAFF !important;
 }
 
+
+
+
 .scrollit {
   overflow: scroll;
   height:250px;
@@ -210,6 +213,11 @@ hr {
 }
 
 .marker-row:hover {
+  cursor: pointer;
+  background-color: #B2D1FF;
+}
+
+.dose-row:hover {
   cursor: pointer;
   background-color: #B2D1FF;
 }
