@@ -86,28 +86,27 @@ module.exports = {
 		var output = {};
 		var temp,drug,pubmed;
 		var fields = $('.recomendation-field');
-		for (var i = 0; i < fields.length; i++ ){
-			drug = $(fields[i]).find('.drug-name').text();
-			/*if (!output.hasOwnProperty(drug)){
-				output[drug] = [];
-			} */
-			temp = {};
-			temp.rec = $(fields[i]).find(".recomendation-rec").val();
-			temp.risk = $(fields[i]).find(".recomendation-risk").text();
-			temp.pgx_1 = $(fields[i]).find(".recomendation-pgx-1").text();
-			temp.class_1 = $(fields[i]).find(".recomendation-class-1").text();
-			temp.pgx_2 = $(fields[i]).find(".recomendation-pgx-2").text();
-			temp.class_2 = $(fields[i]).find(".recomendation-class-2").text();
-			pubmed = $(fields[i]).find(".recomendation-pubmed").find('a');
-			temp.pubmed = [];
-			for(var j=0; j < pubmed.length; j++ ){
-				temp.pubmed.push($(pubmed[j]).attr('href'));
+		if ($('#drug-recomendations').is(':visible')){
+			for (var i = 0; i < fields.length; i++ ){
+				drug = $(fields[i]).find('.drug-name').text();
+				temp = {};
+				temp.rec = $(fields[i]).find(".recomendation-rec").val();
+				temp.risk = $(fields[i]).find(".recomendation-risk").text();
+				temp.pgx_1 = $(fields[i]).find(".recomendation-pgx-1").text();
+				temp.class_1 = $(fields[i]).find(".recomendation-class-1").text();
+				temp.pgx_2 = $(fields[i]).find(".recomendation-pgx-2").text();
+				temp.class_2 = $(fields[i]).find(".recomendation-class-2").text();
+				pubmed = $(fields[i]).find(".recomendation-pubmed").find('a');
+				temp.pubmed = [];
+				for(var j=0; j < pubmed.length; j++ ){
+					temp.pubmed.push($(pubmed[j]).attr('href'));
+				}
+				if (temp.pubmed.length === 0 ) delete temp.pubmed;
+				if (!temp.class_2) delete temp.class_2;
+				if (!temp.pgx_2) delete temp.pgx_2;
+				//output[drug].push(temp);
+				output[drug] = temp;
 			}
-			if (temp.pubmed.length === 0 ) delete temp.pubmed;
-			if (!temp.class_2) delete temp.class_2;
-			if (!temp.pgx_2) delete temp.pgx_2;
-			//output[drug].push(temp);
-			output[drug] = temp;
 		}
 		output = Object.keys(output).length > 0 ? output : undefined;
 		return output;
@@ -171,18 +170,21 @@ module.exports = {
 		var temp;
 		var output = {};
 		var tableValues = this.serializeTable();
-		for (var i=0; i < tableValues.length; i++ ){
-			temp = {};
-			if (pageOptions.geneData.hasOwnProperty(tableValues[i].gene)){
-				if (pageOptions.geneData[tableValues[i].gene].hasOwnProperty('future')){
-					if (pageOptions.geneData[tableValues[i].gene].future.hasOwnProperty(tableValues[i].class)){
-						temp.class = tableValues[i].class;
-						temp.rec = pageOptions.geneData[tableValues[i].gene].future[tableValues[i].class].rec
-						output[tableValues[i].gene] =  temp;
-					}	
+		if ($('#drug-recomendations').is(':visible')){
+			for (var i=0; i < tableValues.length; i++ ){
+				temp = {};
+				if (pageOptions.geneData.hasOwnProperty(tableValues[i].gene)){
+					if (pageOptions.geneData[tableValues[i].gene].hasOwnProperty('future')){
+						if (pageOptions.geneData[tableValues[i].gene].future.hasOwnProperty(tableValues[i].class)){
+							temp.class = tableValues[i].class;
+							temp.rec = pageOptions.geneData[tableValues[i].gene].future[tableValues[i].class].rec
+							output[tableValues[i].gene] =  temp;
+						}	
+					}
 				}
 			}
 		}
+		output = Object.keys(output) > 0 ? output : undefined;
 		return output;
 	},
 
@@ -282,6 +284,15 @@ module.exports = {
 		
 		$('.therapeutic-class').on('change',function(){
 			_this.getRecomendations();
+		});
+
+		$('#turnoffrecomendations').on('click',function(){
+			var isChecked = $(this).is(':checked');
+			if (isChecked){
+				$('#drug-recomendations').slideDown();
+			} else {
+				$('#drug-recomendations').slideUp();
+			}
 		});
 
 		//prevent form from being submitted prematurely
