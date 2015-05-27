@@ -380,7 +380,7 @@ module.exports = function(){
 				e.preventDefault();
 				$(ele).find('.cancel').trigger('click');
 			});
-			$('.edit').show(0).find('#fixed-details').hide(0);
+			$('.edit').show(0).parents().find('#fixed-details').hide(0);
 			var _default = {
 				keywords:$('#keywords').val(),
 				description:$('#description').val()

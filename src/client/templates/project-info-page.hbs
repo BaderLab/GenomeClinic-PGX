@@ -73,30 +73,31 @@
                 <a href="#" class="postfix button secondary" id="add-auth-user"><i class="fi-plus"></i></a>
               </div>
             </div>
-
-            <div class="large-12 small-12 medium-12 columns">
-              <table class="large-12 small-12 medium-12">
-                <thead>
-                  <tr>
-                    <th class="large-9 small-8 medium-9">Email</th>
-                    <th class="large-3 small-4 medium-3 text-center">Remove</th>
-                  </tr>
-                <tbody id='auth-users'>
-                  <tr>
-                    <td>Owner</td>
-                    <td class="text-center">Cannot Remove</td>
-                  </tr>
-                  {{#each users}}
-                  <tr>
-                    <td class="auth-user-email" data-id="{{this}}">{{this}}</td>
-                    <td class='text-center'><a href="#"><i class="fi-x size-16"></i></td>
-                  </tr>
-                  {{/each}}
-                </tbody>
-              </table>
+            <div class="row">
+              <div class="large-12 small-12 medium-12 columns">
+                <table class="large-12 small-12 medium-12">
+                  <thead>
+                    <tr>
+                      <th class="large-9 small-8 medium-9">Email</th>
+                      <th class="large-3 small-4 medium-3 text-center">Remove</th>
+                    </tr>
+                  <tbody id='auth-users'>
+                    <tr>
+                      <td>Owner</td>
+                      <td class="text-center">Cannot Remove</td>
+                    </tr>
+                    {{#each users}}
+                    <tr>
+                      <td class="auth-user-email" data-id="{{this}}">{{this}}</td>
+                      <td class='text-center'><a href="#"><i class="fi-x size-16"></i></td>
+                    </tr>
+                    {{/each}}
+                  </tbody>
+                </table>
+              </div>
+              <a href="#" style="display-none" class="confirm"></a>
+              <a href="#" style="display-none" class="cancel"></a>
             </div>
-            <a href="#" style="display-none" class="confirm"></a>
-            <a href="#" style="display-none" class="cancel"></a>
           </div>
         </div>
         {{/if}}
@@ -114,24 +115,22 @@
     	<div id="add-patients-modal" class="reveal-modal small large" data-reveal>
 		  	<h2>Select Which patients you would like to add</h2>
 		  	<div class="row">
-                <div class="large-12 small-12 medium-12 columns" id='patient_id_links' style="min-height:100px;margin-bottom:20px">
-                  <h4>Patients to add to project (click to remove)</h4>
-                </div>
-          	</div>
-
-          	<div class="row collapse prefix-radius">
-              <div class="large-2 medium-3 small-4 columns">
-                <span class="prefix">Search</span>
-              </div>
-              <div class="large-6 medium 7 small-8 columns left">
-                <input type="text" id="searchBox" name="searchBox">
-              </div>
-            </div>
-          	<div class="row">
-          		<div class="scrollit large-12 columns" id="patient-information">
-          		</div>
-            </div>
-
+          <div class="large-12 small-12 medium-12 columns" id='patient_id_links' style="min-height:100px;margin-bottom:20px">
+            <h4>Patients to add to project (click to remove)</h4>
+          </div>
+        </div>
+      	<div class="row collapse prefix-radius">
+          <div class="large-2 medium-3 small-4 columns">
+            <span class="prefix">Search</span>
+          </div>
+          <div class="large-6 medium 7 small-8 columns left">
+            <input type="text" id="searchBox" name="searchBox">
+          </div>
+        </div>
+      	<div class="row">
+      		<div class="scrollit large-12 columns" id="patient-information">
+      		</div>
+        </div>
 		  	<div class="row">
 		  		<div class='large-6 small-12 medium-6 columns'>
 		  			<a href="#" class="large-12 small-12 medium-12 button radius success confirm">Confirm</a>

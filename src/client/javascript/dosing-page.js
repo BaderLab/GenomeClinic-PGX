@@ -192,7 +192,7 @@ module.exports = function(){
 			/* Handler to show the form to add a new gene */
 			$('#add-new-gene').on('click',function(e){
 				e.preventDefault();
-				$(this).hide().siblings('#submit-new-gene').show()
+				$(this).hide().siblings('ul').show()
 				$("#submit-new-gene-form").show();
 			});
 
@@ -222,6 +222,13 @@ module.exports = function(){
 				e.preventDefault();
 				$('#submit-new-gene-form').submit();
 			});
+
+			$('#cancel-new-gene').on('click',function(e){
+				e.preventDefault();
+				$('#submit-new-gene-form')[0].reset();
+				$('#submit-new-gene-form').hide();
+				$(this).closest('ul').hide().siblings('#add-new-gene').show();
+			})
 		},
 		/* Handlers for currently existsing dose tables. This function contains both the handlers
 		 * for each dosing form, as well as the entire page. You can define the elemetts of the page

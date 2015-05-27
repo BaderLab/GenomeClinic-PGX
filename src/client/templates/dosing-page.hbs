@@ -4,17 +4,22 @@
 		<h5 class="subheader">Displaying dosing information for all available genes</h5>
 		<p>Select any of the available genes below to modify the dosing information for that specific gene. You can change, add or remove any drug interactions to each gene</p>
 		<div class="row">
-        	<div class="large-3 medium-6 small-12 columns">
+        	<div class="large-4 medium-6 small-12 columns">
           		<a href="#" class="small-12 medium-12 large-12 button alert radius left" id="add-new-gene">Add New Gene</a>
-          		<a href="#" class="small-12 medium-12 large-12 button success radius left" id="submit-new-gene" style="display:none">Submit</a>
+          		<ul class="button-group even-2 radius" id="button-group" style="display:none">
+          			<li><a href="#" class="button success" id="submit-new-gene" >Submit</a></li>
+          			<li><a href="#" class="button" id="cancel-new-gene">Cancel</a></li>
+          		</ul>
         	</div>
+        </div>
+        <div class="row">
         	<form data-abide="ajax" id="submit-new-gene-form" style="display:none"">
-	        	<div class="large-9 medium-6 small-12 columns">
+	        	<div class="large-12 medium-12 small-12 columns">
 	        		<div class="row collapse prefix-radius">
-	        			<div class="large-4 small-4 medium-4 columns">
+	        			<div class="large-3 small-4 medium-3 columns">
 	        				<span class="prefix">Gene Name</span>
 	        			</div>
-	        			<div class="large-8 small-8 medium-8 columns">
+	        			<div class="large-9 small-8 medium-9 columns">
 	        				<input id="new-gene-name" type="text" required pattern="^[a-zA-Z.'*+-_:\/]+">
 	        				<small class="error">Valid gene name required.</small>
 	        			</div>
@@ -54,14 +59,12 @@
 			<thead>
 				<tr>
 					<th>Gene</th>
-					<th>Number of Interactions</th>
 				</tr>
 			</thead>
 			<tbody>
 				{{#each genes}}
 				<tr class="dose-row" data-name="{{gene}}">
 					<td>{{gene}}</td>
-					<td>{{interactions}}</td>
 				</tr>
 				{{/each}}
 			</tbody>
