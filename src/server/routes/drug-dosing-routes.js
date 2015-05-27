@@ -16,7 +16,7 @@ module.exports = function(app,dbFunctions,logger){
 	if (!dbFunctions)
 		dbFunctions = rquire("../models/mongodb_functions");
 
-
+	//Create a new blank document
 	createNewDoc = function(gene){
 		var promise = new Promise(function(resolve,reject){
 			var newDoc = {};
@@ -132,10 +132,10 @@ module.exports = function(app,dbFunctions,logger){
 	});
 
 
-	/* Update a current dosing table using the uniqID id to correspond to a specific document
-	 * within database. Once the drug recomendation document is found the properties are updated
-	 * with those contained in the request body. The result is redirected to either a  success or a 
-	 * failure url
+	/* Update or create a new entry in the database for a specific gene. Depending on the type, the request can create a new 
+	 * Interaciton (dosing recomendation) a new future recomendation, or a new haplotype association. Additionaly it can modify
+	 * any of the existing as well. If the upadte is successfull the req is redirected to /success witha  message, however if it
+	 * is not, it will be redirected to /failure
 	 */
 	app.post('/database/dosing/genes/:geneID/update',utils.isLoggedIn,function(req,res){
 		var doc = req.body;
@@ -144,19 +144,26 @@ module.exports = function(app,dbFunctions,logger){
 		var newdoc = req.query.newdoc == "true" ? true : false;
 		var backstring;
 
+		//Add or update a dosing recomednation
 		if (type == "interaction"){
 			query = {};
 			update = {$set:{}};
 			var updateObj = {};
 
+			//Generate the query string. You can search through nested objectes by conecting a string with dots and setting as the query in mongodb
 			string = constants.dbConstants.DRUGS.DOSING.RECOMENDATIONS + '.' + doc.drug + '.' + doc.class_1;
 			if (doc.class_2 && doc.pgx_2){
+				//In this case we are going to serach through the secondary parameter, as well as serach in the reverse direction, since a secondary gene is included
 				string += ".secondary." +  doc.pgx_2 + "." + doc.class_2;
 				backstring = constants.dbConstants.DRUGS.DOSING.RECOMENDATIONS + '.' + doc.drug + '.' + doc.class_2 + '.secondary.' + doc.pgx_1 + '.' + doc.class_1;
 			}
+			//Set the query for the gene and then reqrieve the gene informatino
 			query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
 			dbFunctions.drugs.getGeneDosing(req.params.geneID).then(function(result){
+				//generate the document that is to be updated
 				var obj = utils.createNestedObject(string,result,doc);
+
+				//if his is a new document and the incoming obj is not new, reject it
 				if (newdoc && !obj.isNew){
 					// this is a terminal document meaning that the therapeutic classs already exists adn this is an update
 					req.flash('statusCode','202');
@@ -165,10 +172,12 @@ module.exports = function(app,dbFunctions,logger){
 					res.redirect('/failure');
 					
 				} else {
+					//update the entry
 					update.$set[obj.depth]  = obj.cont;
 					dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update)
 					.then(function(){
 						if (backstring){
+							//similarily if there is a second interaciton, update (or create if necessary) the corresponding relationship
 						 	query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = doc.pgx_2;
 						 	dbFunctions.drugs.getGeneDosing(doc.pgx_2).then(function(result){
 						 		if (!result){
@@ -197,6 +206,8 @@ module.exports = function(app,dbFunctions,logger){
 					});
 				}
 			});
+
+		// This is a future recomendation.
 		} else if (type == 'recomendation'){
 			//first check to ensure that the entry is unique;
 			string = constants.dbConstants.DRUGS.DOSING.FUTURE + '.' + doc.Therapeutic_Class;
@@ -206,12 +217,14 @@ module.exports = function(app,dbFunctions,logger){
 
 			dbFunctions.findOne(constants.dbConstants.DRUGS.DOSING.COLLECTION,query)
 			.then(function(result){
+				// if this is supposed to be a new doc inform the user an entry already exists
 				if ( newdoc === true && result !== null ){
 					req.flash('statusCode','202');
 					req.flash('message',"Entry for the provided genes and therapeutic classes already exists within the database. Please modify the existing entry or change the parameters.");
 					req.flash('error',"Error: Duplicate Entry");
 					res.redirect('/failure');
 				} else {
+					//update the document with a new entry
 					query = {};
 					query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
 					update = {$set:{}};
@@ -229,18 +242,24 @@ module.exports = function(app,dbFunctions,logger){
 				req.flash('error',err.toString());
 				res.redirect('/failure');
 			});
+
+		// this is the ahplotype associations
 		} else if (type == "haplotype") {
 			string = constants.dbConstants.DRUGS.DOSING.HAPLO + '.' + doc.class;
 			query = {};
 			query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
 			query[string] = {$exists:true};
+
+			//check to se eif the entry exists
 			dbFunctions.findOne(constants.dbConstants.DRUGS.DOSING.COLLECTION,query).then(function(result){
+				//if this is a new doc and a result wass found inform the user that it already exsits
 				if (result !== null && newdoc === true){
 					req.flash('statusCode','202');
 					req.flash('message',"Entry for the provided genes and therapeutic classes already exists within the database. Please modify the existing entry or change the parameters.");
 					req.flash('error',"Error: Duplicate Entry");
 					res.redirect('/failure');
 				} else {
+					//update
 					query = {};
 					query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
 					update = {$set:{}};
