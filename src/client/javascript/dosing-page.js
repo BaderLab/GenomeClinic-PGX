@@ -44,16 +44,22 @@ module.exports = function(){
 
 	};
 
+	/* global container to hold various page options */
 	var pageOptions = {
 		location:undefined,
 		gene:undefined,
 		use:undefined
 	};
 
+	/* Serialzie a field and return the document that results. This is for new fields only and not updated fields.
+	 * The type can be one of Interaction, future, or haplotype, corresponding to the three types of information on
+	 * the page. 
+	 */
 	var serializeNewField = function(context,type){
 		var doc = {};
 		var fields = $(context).serializeArray();
 		doc.pgx_1 = pageOptions.gene;
+		//Remove empty fields
 		for (var i = 0; i < fields.length; i++ ){
 			if (fields[i].value !== "" && fields[i] != "None" ){
 				doc[fields[i].name] = fields[i].value;
@@ -81,7 +87,9 @@ module.exports = function(){
 		}
 		return doc;
 	}
-
+	/* Serialize an existing field and return the updated document. This has to be differnt from the serializeNewField
+	 * because there are several fixed inputs once a field has been rendered that cannot be changed, but must be added
+	 */
 	var serializeField = function(context,type){
 		var doc = {};
 		var fields = $(context).serializeArray();
@@ -93,6 +101,7 @@ module.exports = function(){
 		}
 		
 		if (type == 'interaction'){
+			//add the links taht are present
 			doc.class_1 = $(context).find('.p-class-name').text();
 			var linksArr = $(context).find('.pubmed-link');
 			var links = [];
@@ -220,13 +229,19 @@ module.exports = function(){
 		current: {
 			page: function(){
 				_this = this;
+				// If future recomednations is not empty show it;
 				if ( $('#future-recomendations').find('tbody').find('tr').length > 0 ){
 					$('#future-recomendations').show();
 				}
 
+				// If haplotypes are not empty show them
 				if ( $('#haplotypes').find('tbody').find('tr').length > 0 ){
 					$('#haplotypes').show();
 				}
+
+
+				/* Scroll functions for navigating to points on the page */
+
 
 				$('.scroll-to-future').on('click',function(e){
 					e.preventDefault();
@@ -249,6 +264,8 @@ module.exports = function(){
         				'slow');
 				});
 
+
+				/* Simple search box for searching through drug names */
 				$('#search-box').on('keyup',function(){
 					var values = $('.drug-cont');
 					for (var i =0; i<values.length; i++){
@@ -259,7 +276,7 @@ module.exports = function(){
 						}
 					}
 				});
-				//Show or hide all drug tabs
+				//Show or hide all drug tabs and set the state / text of the button
 				$('#toggle-all').on('click',function(e){
 					e.preventDefault();
 					var tables = $('.drug-cont-header');
@@ -364,6 +381,7 @@ module.exports = function(){
 				//*============================
 				// New Recomendation Form
 
+				//button to drop down the new interaciton
 				$('#new-recomendation').on('click',function(e){
 					e.preventDefault();
 					$(this).hide().siblings('#new-recomendation-triggers').show();
@@ -386,7 +404,12 @@ module.exports = function(){
 
 				});
 
-
+				/* When the form is considered valid, trigger this event handler
+				 * submitting the serialized data to the server for entry. The
+				 * server will additionally check to see if there are any identical
+				 * entires already in existence. If there are, it will return false
+				 * and data will not be entered but inform the user an entry similar
+				 * to that already exists */
 				$("#new-recomendation-form").on('valid.fndtn.abide',function(){
 					var o = serializeNewField(this,'future');
 					Promise.resolve($.ajax({
@@ -425,6 +448,7 @@ module.exports = function(){
 					$('#new-haplotype-form').slideDown();
 				});
 
+				//trigger the submission of the form
 				$('#new-haplotype-trigger-submit').on('click',function(e){
 					e.preventDefault();
 					$('#new-haplotype-form').submit();
@@ -438,6 +462,12 @@ module.exports = function(){
 					$('#new-haplotype-form').slideUp();
 				});
 
+				/* When the form is considered valid, trigger this event handler
+				 * submitting the serialized data to the server for entry. The
+				 * server will additionally check to see if there are any identical
+				 * entires already in existence. If there are, it will return false
+				 * and data will not be entered but inform the user an entry similar
+				 * to that already exists */
 				$('#new-haplotype-form').on('valid.fndtn.abide',function(){
 					var o = serializeNewField(this,'haplotype');
 					Promise.resolve($.ajax({
@@ -469,7 +499,6 @@ module.exports = function(){
 
 				/* Delete all the interactions related to the Primary Gene. Submits a POST request to the database
 				 * after the deletion is confirmed by revealing a modal */
-
 				$('#delete-all').on('click',function(e){
 					e.preventDefault();
 					confirmAction("Are you sure you want to delete all dosing recomendations for " + pageOptions.gene,"This will permanately delete all entries and they will no longer be available for report generation")
@@ -494,18 +523,23 @@ module.exports = function(){
 				});
 
 			},
+			//Functions and hanlders that are used by all types of interacitons
 			generic:function(el){
 				_this = this;
 				var context;
+				/* set the context of the function, if el exists the hanlders will only be applied to
+				 * a certain context and not the whole documetn. This speeds up the process */
+
 				if (!el) context = $(document);
 				else context = $(el);
 
+				/* close an alert box */
 				context.find('.close-box').on('click',function(e){
 						e.preventDefault();
 						$(this).closest('.alert-box').slideUp();
 				});
 
-				// Make a dose table editable
+				// Make an entry editable, revealing the submission buttons as well as enabling the text fileds
 				context.find(".edit-table").on('click',function(e){
 					e.preventDefault();
 					$(this).hide();
@@ -527,11 +561,14 @@ module.exports = function(){
 					$(this).closest('form').find('.temp-remove').remove();
 				});
 
+				//Remove a pubmed link from an entry
 				context.find('.pubmed-remove-link').on('click',function(e){
 					e.preventDefault();
 					$(this).closest('.pubmed-link-combo').addClass('temp-hide').hide();
 				})
 
+
+				// add a new pubmed link
 				context.find('.add-new-pubmed-button').on('click', function(e){
 					e.preventDefault();
 					var val = $(this).closest('.row').find(".add-new-pubmed-input").val();
@@ -548,12 +585,18 @@ module.exports = function(){
 				});
 
 			},
+			//Handler for specifically dealing with future interacitons
 			future : function(el){
 				_this = this;
 				var context;
+				//set the context either to a speciofic interaciton or ALL future recomednations
 				if (!el) context = $('#future-recomendations');
 				else context = $(el);
 
+				/* when the form is submitted and valid, serialize the recomednation 
+				 * and send it to the server. If the update is successful, then the form will be disabled
+				 * once again, and the data-originavalue attribute will be updated to reflect the new vlaues.
+				 * Additionally, display a message when the update is complete. */
 				context.find("form").on("valid.fndtn.abide",function(){
 					var _this =this;
 					var o = serializeField(this,'future');
@@ -577,6 +620,9 @@ module.exports = function(){
 					}); 
 				});
 				
+
+				/* WHen the delete button is selected, confirm the action and then submit a reqyest to the server.
+				 * if the request is successful, remove the entry and its HTML entirely from the apge */
 				context.find(".delete-table").on('click',function(e){
 					e.preventDefault();
 					var o = serializeField($(this).closest('form'),'future');
@@ -609,13 +655,18 @@ module.exports = function(){
 				});
 
 			},
+
+			//handlers dealing with the haplotype section
 			haplotypes : function(el){
 				_this = this;
 				var context;
+				//apply to the entire section or an single association
 				if (!el) context = $('#haplotypes');
 				else context = $(el);
 
-				//Associate a haplotype with a therapeutic class
+				/* when the form is validated submit an ajax request to the server. If the request
+				 * returns with a success resoonse then set the data-originalvalue for each field to
+				 * the new values, diable all inout fields and hide the edit buttons. */
 				context.find('form').on('valid.fndtn.abide',function(e){
 					var o = serializeField(this,'haplotype');
 					var _this = this;
@@ -637,6 +688,8 @@ module.exports = function(){
 					});
 				});
 
+				/* When selected prompt the user if they really want to delete the haplotype, if yes, then send an ajax request to teh server.
+				 * If successful entirely remove all html for the entry */
 				context.find('.delete-table').on('click',function(){
 					var form = $(this).closest('form');
 					var o = serializeField(form,'haplotype');
@@ -669,12 +722,15 @@ module.exports = function(){
 				});
 
 			},
+
+			// handlers related to specific interacitons
 			interactions : function(el){
 				_this = this;
 				var context;
 				if (!el) context = $('#main_content');
 				else context = $(el);
 
+				// If the handlers are being applied to a new row open the drug container ti is being appended to
 				if (!context.is('tr')){
 					context.find('.drug-cont-header').on('click',function(){
 						var state = $(this).data('state');
@@ -689,7 +745,8 @@ module.exports = function(){
 				}
 				
 				
-				// Submit the chagnes to the current dose table to the server
+				/* Submit the chagnes to the current dose table to the server. If the request is successful set the data-originalvalue to the 
+				 * new current value and then disable the input fields */
 				context.find('form').on('valid.fndtn.abide',function(e){
 					var _this = $(this);
 					var doc = serializeField(this,'interaction');
@@ -821,6 +878,7 @@ module.exports = function(){
 				setSelects();
 				return utility.refresh(abideOptions);
 			}).then(function(){
+				//add all handlers
 				staticHanlders.current.page();
 				staticHanlders.current.interactions();
 				staticHanlders.current.future();
