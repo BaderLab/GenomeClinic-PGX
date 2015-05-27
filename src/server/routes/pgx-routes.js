@@ -72,7 +72,6 @@ module.exports = function(app,dbFunctions,logger){
 			left:'20px',
 			rigth:'20px'
 		};
-		console.log(req.body);
 		genReport(req,res,req.params.patientID,constants.dbConstants.PGX.REPORT.DEFAULT,options).catch(function(err){
 			logger.error("Failed to generate report for " + req.body.patientID,err);
 		});

@@ -80,6 +80,13 @@
 	color:#71A971;
 }
 
+.spacer {
+	margin-bottom: 20px;
+}
+
+div {
+	overflow:visible;
+}
 
 /* Standard sickkids color class */
 
@@ -115,15 +122,60 @@ table {
 	page-break-inside:auto;
 }
 
-table, tr {
-	border: 1px solid black;
+
+/* table CSS for default pgx report */
+
+table.pgx {
+	text-align: left;
 	border-collapse: collapse;
 }
 
-th {
+
+
+
+table.pgx thead tr {
 	background-color:#dbdbdb;
+	font-weight: bold;
+	font-size: 10px;
 }
 
+table.pgx th, table.pgx td {
+	padding:4px;
+	border-left: 1px solid #ffffff;
+	border-right: 1px solid #ffffff;
+}
+
+
+table.pgx th.haplo-head {
+	font-weight: bold;
+	font-style: italic;
+}
+
+table.pgx td.haplo {
+	background-color: #F9E3C6;
+	border-bottom: 1px solid #ffffff;
+}
+
+table.pgx tbody tr  	{
+	font-size:10px;
+}
+
+
+.variant {
+	text-align: center;
+}
+
+.alt {
+	color: red;
+	font-style: italic; 
+}
+
+table.pgx tr.patient {
+	border-bottom: 1px solid #ffffff;
+	background-color: #c2edff;
+}
+
+/* table CSS for default recomendations */
 th.rec {
 	background-color: #71A971;
 }
@@ -158,22 +210,9 @@ tr:nth-child(odd) {
 tr:nth-child(even) {
 	background-color: #FFFFFF;
 }
-.variant-alt {
-	color: red;
-	font-style: italic; 
-}
 
-tr.patient {
-	background-color: #c2edff;
-}
 
-.spacer {
-	margin-bottom: 20px;
-}
-
-div {
-	overflow:visible;
-}
+/* risk and shape CSS */
 
 .risk-Low {
 	background-color: #91bfdb;
