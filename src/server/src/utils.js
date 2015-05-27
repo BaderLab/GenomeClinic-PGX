@@ -50,6 +50,9 @@ module.exports = {
 			res.render(template,_o);
 		}
 	},
+	/* given the the ObjectString and a refObj attempt to creatae a new nested object.
+	 * if this is successful, create the object and return the context that it amy be added in.
+	 * If the del flag is added, then only the context has to be returned */
 	createNestedObject : function(objString, refObj, doc, del){
 		var split = objString.split('.');
 		var cont = true;
@@ -91,6 +94,8 @@ module.exports = {
 		}
 		
 	},
+
+	/* Recursively edit a node, setting the final node at the end of string to empty */
 	editEndNode : function(refObj,string){
 		if (string === ''){
 			if (refObj.hasOwnProperty('secondary')){
@@ -109,6 +114,8 @@ module.exports = {
 			return refObj;
 		}
 	},
+
+	/* recursively remove all empty objects from the parent object */
 	removeEmpty : function(object) {
 		var _this = this;
 	    if (!_.isObject(object)) {

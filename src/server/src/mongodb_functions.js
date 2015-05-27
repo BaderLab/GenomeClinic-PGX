@@ -1466,8 +1466,9 @@ var dbFunctions = function(logger,DEBUG){
 		return this.update(dbConstants.USERS.COLLECTION,query,doc);
 	};
 
-	//Functions for drugs
+	//Functions related to dealing with drug dosing and drugs
 	this.drugs = {
+		//Get the genes associated with drug recomednations and return an array of genes;
 		getGenes : function(){
 			assert.notStrictEqual(db,undefined);
 			options = {};
@@ -1475,6 +1476,8 @@ var dbFunctions = function(logger,DEBUG){
 			return find(dbConstants.DRUGS.DOSING.COLLECTION,{},options);
 		},
 
+		/* for the given genes, return all the dosing information current in the database. this information
+		 * is returned in the form of an array. The function can accept either a stirng or an array */
 		getGeneDosing : function(gene){
 			assert.notStrictEqual(db,undefined);
 			var query = {};
