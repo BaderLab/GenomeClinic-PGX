@@ -278,8 +278,8 @@
 										{{#each pgxGenes}}	
 										<tr class="gene-row">
 											<td class="gene-name">{{gene}}</td>
-											<td><input type="text" class="allele_1" value="{{hap1}}"></td>
-											<td><input type="text" class="allele_2" value="{{hap2}}"></td>
+											<td class="allele_1"><i>{{hap1}}</i></td>
+											<td class="allele_2"><i>{{hap2}}</i></td>
 											<td>
 												<select class="therapeutic-class">
 													{{#each @root.classes}}

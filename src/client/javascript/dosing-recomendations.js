@@ -1,24 +1,22 @@
+/* Javascript for handling the dosing recomendations form 
+ * @author Patrick Magee
+*/
+
 var pgx = require('./pgx'),
 	templates = require('./templates'),
 	utility = require('./utility');
 
+
+//container for page options to be stored in
 var pageOptions = {};
 
-
-function checkNested(obj) {
-  var args = Array.prototype.slice.call(arguments, 1);
-
-  for (var i = 0; i < args.length; i++) {
-    if (!obj || !obj.hasOwnProperty(args[i])) {
-      return false;
-    }
-    obj = obj[args[i]];
-  }
-  return true;
-}
-
 module.exports = {
-	//helpers
+	/* The PGX analysis table is the basis for all recomendations. It contains not only the haplotypes,
+	 * but also the predicted Therapeutic class. The claass can be changed by the user (this will be remembered 
+	 * when the user submits the new form), or it can be left the same. Serializing the table will result in an
+	 * array of objects, each containing the gene name, haplotypes, as well as the therapeutic class. Returns
+	 * and object. If genee only is true, only include the name of the gene in the array.
+	*/
 	serializeTable : function(geneOnly){
 		var output = [];
 		var temp;
@@ -30,8 +28,8 @@ module.exports = {
 				temp = {};
 				temp.gene = $(rows[i]).find('.gene-name').text();
 				temp.hap = {
-					allele_1:$(rows[i]).find(".allele_1").val(),
-					allele_2:$(rows[i]).find(".allele_2").val()
+					allele_1:$(rows[i]).find(".allele_1").text(),
+					allele_2:$(rows[i]).find(".allele_2").text()
 				};
 				temp.class = $(rows[i]).find('.therapeutic-class').val();
 				output.push(temp);
@@ -39,6 +37,9 @@ module.exports = {
 		}
 		return output;
 	},
+	/* The Physician information and the patient information must be serialized into a usable format,
+	 * this function collects all the data and places it into an object separating Dr. and patient information
+	 */
 	serializeInputs : function(){
 		var output = {};
 		var temp,field;
@@ -46,10 +47,12 @@ module.exports = {
 		var currDrugs = $('.patient-drug-name');
 		output.patient = {};
 		output.dr = {};
+		//Loop over all the fields
 		for (var i = 0; i < fields.length; i++){
 			if (fields[i].name.search(/^dr/) !== -1){
-				field = fields[i].name.replace(/^dr-/,"");
+				field = fields[i].name.replace(/^dr-/,""); //dr- is appended to a field name that is meant for the doctor
 				field = field.split('-');
+				//properties are nested by adding additional '-' it will add a new document each time a new dash is came across
 				if (field.length > 1){
 					if (! output.dr.hasOwnProperty(field[0])) {
 						output.dr[field[0]] = {};
@@ -58,6 +61,7 @@ module.exports = {
 				} else {
 					output.dr[field[0]] = fields[i].value;
 				}
+
 			} else if ( fields[i].name.search(/^patient/) !== -1){
 				field = fields[i].name.replace(/^patient-/,"");
 				field = field.split('-');
@@ -73,19 +77,27 @@ module.exports = {
 				output[fields[i].name] = fields[i].value;
 			}
 		}
+		//Add the current drugs that the patient is taking.
 		if (currDrugs.length > 0 ){
 			output.patient.medications = [];
 			for (var i = 0; i < currDrugs.length; i ++ ){
 				output.patient.medications.push($(currDrugs[i]).text());
 			}
+			//Convert the current drugs form an array into text
 			output.patient.medications = output.patient.medications.join(", ");
 		}
 		return output;
 	},
+
+	/* The recomendations are the primary goal of this page. When a recomendation is loaded, the user can change the text
+	 * associated with it. This function serializes the recomendations (only if they are to be included) and places them in
+	 * an object. Each drug has one recomednation is is the primary key of the output object
+	 */
 	serializeRecomendations : function(){
 		var output = {};
 		var temp,drug,pubmed;
-		var fields = $('.recomendation-field');
+		var fields = $('.recomendation-field'); // Gather all of the receomendations
+		//If the user has toggled the recomendations off dont iterate over them
 		if ($('#drug-recomendations').is(':visible')){
 			for (var i = 0; i < fields.length; i++ ){
 				drug = $(fields[i]).find('.drug-name').text();
@@ -98,9 +110,11 @@ module.exports = {
 				temp.class_2 = $(fields[i]).find(".recomendation-class-2").text();
 				pubmed = $(fields[i]).find(".recomendation-pubmed").find('a');
 				temp.pubmed = [];
+				//add the associated links
 				for(var j=0; j < pubmed.length; j++ ){
 					temp.pubmed.push($(pubmed[j]).attr('href'));
 				}
+				//remove any fields not filled in
 				if (temp.pubmed.length === 0 ) delete temp.pubmed;
 				if (!temp.class_2) delete temp.class_2;
 				if (!temp.pgx_2) delete temp.pgx_2;
@@ -108,64 +122,15 @@ module.exports = {
 				output[drug] = temp;
 			}
 		}
+		//If there are no recomendations do not return an empty doc, instead return undefined
 		output = Object.keys(output).length > 0 ? output : undefined;
 		return output;
 	},
 
-	serializeForm : function(){
-		var output  = this.serializeInputs();
-		output.recomendations = this.serializeRecomendations();
-		output.genes = this.serializeTable();
-		output.future = this.setFuture();
-		if (output.recomendations){
-			output.drugsOfInterest = Object.keys(output.recomendations).join(", ");
-		}
-		return output;
-	},
-
-	setHaplos : function(){
-		//this is a preliminary search in an attempt to cut down the amount of searching that must be done.
-		var haplo,tclass;
-		var tableValues = this.serializeTable();
-		var rows = $('.gene-row');
-		var promise = new Promise(function(resolve,reject){
-			for (var i=0; i < tableValues.length; i++ ){
-				if (pageOptions.geneData.hasOwnProperty(tableValues[i].gene)){
-					if (pageOptions.geneData[tableValues[i].gene].hasOwnProperty('haplotypes')){
-						for (tclass in pageOptions.geneData[tableValues[i].gene].haplotypes){
-							if (pageOptions.geneData[tableValues[i].gene].haplotypes[tclass].indexOf(tableValues[i].hap.allele_1) !== -1 && pageOptions.geneData[tableValues[i].gene].haplotypes[tclass].indexOf(tableValues[i].hap.allele_2) !== -1){
-								$(rows[i]).find('select').val(tclass)
-							}
-						}
-					}
-				}
-			}
-			resolve();
-		});
-		return promise;
-	},
-
-	sendHaplos : function(){
-		var tableValues = this.serializeTable();
-		var promises = [];
-		$.each(tableValues,function(index,data){
-			var promise = new $.Deferred();
-			data.haplotypes = {};
-			data.haplotypes[data.class] = [data.hap.allele_1,data.hap.allele_2];
-			$.ajax({
-				url:"/database/dosing/genes/" + data.gene + '/update?type=haplotype',
-				type:'POST',
-				contentType:'application/json',
-				dataType:'json',
-				data:JSON.stringify(data)
-			}).done(function(){
-				promise.resolve();
-			});
-			promises.push(promise);
-		});
-		return $.when.apply(promises).promise();
-	},
-
+	/* The future recomendations are not listed on the page, however when you submit them, they are appeneded
+	 * to the document being subbmitted. This function goes throught the current genes / classes and finds any
+	 * future recomendations that may apply
+	 */
 	setFuture : function(){
 		var temp;
 		var output = {};
@@ -188,6 +153,80 @@ module.exports = {
 		return output;
 	},
 
+	/* function to serialize the entire form. Calls the other serialize functions in order and 
+	 * adds the results to a single output object
+	 */
+	serializeForm : function(){
+		var output  = this.serializeInputs();
+		output.recomendations = this.serializeRecomendations();
+		output.genes = this.serializeTable();
+		output.future = this.setFuture();
+		if (output.recomendations){
+			output.drugsOfInterest = Object.keys(output.recomendations).join(", ");
+		}
+		return output;
+	},
+
+	/* When data is first loaded, check to see if any of the haplotype combinations for a gene have an associated therapeutic risk,
+	 * if they do, set the value of the current risk to the associated therapeutic risk. */
+	setHaplos : function(){
+		//this is a preliminary search in an attempt to cut down the amount of searching that must be done.
+		var haplo,tclass;
+		var tableValues = this.serializeTable();
+		var rows = $('.gene-row');
+		var promise = new Promise(function(resolve,reject){
+			for (var i=0; i < tableValues.length; i++ ){
+				if (pageOptions.geneData.hasOwnProperty(tableValues[i].gene)){
+					if (pageOptions.geneData[tableValues[i].gene].hasOwnProperty('haplotypes')){
+						for (tclass in pageOptions.geneData[tableValues[i].gene].haplotypes){
+							if (pageOptions.geneData[tableValues[i].gene].haplotypes[tclass].indexOf(tableValues[i].hap.allele_1) !== -1 && pageOptions.geneData[tableValues[i].gene].haplotypes[tclass].indexOf(tableValues[i].hap.allele_2) !== -1){
+								$(rows[i]).find('select').val(tclass)
+							}
+						}
+					}
+				}
+			}
+			resolve();
+		});
+		return promise;
+	},
+
+	/* Collect the current state of the haplotypes and therapeutic classes for each gene and send them to the server to be 
+	 * remembered for next time. This acts a method to speed up the process for the user, essentially adding a haplotype
+	 * association without them having to navigate to the manage dosinng recomendations page.
+	 */
+	sendHaplos : function(){
+		var tableValues = this.serializeTable();
+		var promises = [];
+		// Iterate over each row
+		$.each(tableValues,function(index,data){
+			var promise = new $.Deferred(); //new deffered promise
+			data.haplotypes = {};
+			data.haplotypes[data.class] = [data.hap.allele_1,data.hap.allele_2];
+			//Submit an ajax request for each gene  to update their haplotype;
+			$.ajax({
+				url:"/database/dosing/genes/" + data.gene + '/update?type=haplotype',
+				type:'POST',
+				contentType:'application/json',
+				dataType:'json',
+				data:JSON.stringify(data)
+			}).done(function(){
+				//once done, resolve the promise;
+				promise.resolve();
+			}).fail(function(){
+				promise.resolve();
+			});
+			promises.push(promise);
+		});
+		//return only when all Ajax request have been successfully completeed and return a single promise.
+		return $.when.apply(promises).promise();
+	},
+
+	/* When the page is first loaded get information for all the genes used in the pgx analysis.
+	 * This returns an array of objects, each object corresponding to a single gene, and containing
+	 * all the informationr regarding the recomendations, future, and haplotypes. Once this has been 
+	 * loaded, set the set the therapeutic classes of the haplotypes, then render the recomendations
+	 */
 	getGenes : function(){
 		var _this = this;
 		var genes = this.serializeTable(true);
@@ -198,19 +237,29 @@ module.exports = {
 			dataType:'json',
 			data:JSON.stringify({genes:genes})
 		})).then(function(result){
+			//add the results to the global pageOptions variable
 			pageOptions.geneData = {};
 			for (var i=0; i< result.length; i++ ){
 				pageOptions.geneData[result[i].gene] = result[i];
 			}
 		}).then(function(){
+			//set haplos
 			return _this.setHaplos();
 		}).then(function(){
+			//get the recomendations
 			return _this.getRecomendations();
 		}).catch(function(err){
 			console.log(err);
 		})
 	},
+
+	/* based on the current status of the therapeutic classes on the PGX table, get and render the current
+	 * drug recomednations. Look in the global geneData and find any and all recomendations taht are associated
+	 * with a drug. Only one recomendation is included per drug, this takes into consideration mutliple interacitons
+	 * between different genes. Once the recomendaitons have been determined, render the html and insert it into the
+	 * page. returns a promise, once html is rendered*/
 	getRecomendations : function(){
+		var point,gene,drug,j,secKeys,set;
 		var _this =  this;
 		var tableValues = this.serializeTable();
 		var geneClasses = {};
@@ -218,47 +267,50 @@ module.exports = {
 			geneClasses[tableValues[i].gene] = tableValues[i].class;
 		}
 		var recByDrug = {};
-		var point,gene,drug,j,secKeys;
-		var set;
 		var promise = new Promise(function(resolve,reject){
+			//iterate over each gene
 			for (gene in pageOptions.geneData){
-				for (drug in pageOptions.geneData[gene].recomendations){
-					set = false;
-					point = pageOptions.geneData[gene].recomendations
-					if (point[drug].hasOwnProperty(geneClasses[gene])){
-						point = point[drug][geneClasses[gene]];
-						if (point.hasOwnProperty('secondary')){
-							secKeys = Object.keys(point.secondary);
-							for (j=0; j < secKeys.length; j++){
-								if (point.secondary.hasOwnProperty(secKeys[i])){
-									if (point.secondary[secKeys[i]].hasOwnProperty(geneClasses[secKeys[i]])){
-										recByDrug[drug] = {
-											rec:point.secondary[secKeys[i]].rec,
-											pubmed:point.secondary[secKeys[i]].pubmed,
-											risk:point.secondary[secKeys[i]].risk,
-											pgx_1:gene,
-											pgx_2:keys[i],
-											class_1:geneClasses[gene],
-											class_2:geneClasses[secKeys[i]]
+				//check to ensure the recomendations exists, otherwise skip
+				if (pageOptions.geneData[gene].hasOwnProperty('recomendations')){
+					for (drug in pageOptions.geneData[gene].recomendations){
+						set = false; // we only want to set a single recomednation. this toggle will be set to true once the rec is found
+						point = pageOptions.geneData[gene].recomendations
+						if (point[drug].hasOwnProperty(geneClasses[gene])){ //iterate over each class
+							point = point[drug][geneClasses[gene]];
+							if (point.hasOwnProperty('secondary')){ // search first if there are any secondary interacitons, if one is found choose it
+								secKeys = Object.keys(point.secondary);
+								for (j=0; j < secKeys.length; j++){
+									if (point.secondary.hasOwnProperty(secKeys[i])){
+										if (point.secondary[secKeys[i]].hasOwnProperty(geneClasses[secKeys[i]])){
+											recByDrug[drug] = {
+												rec:point.secondary[secKeys[i]].rec,
+												pubmed:point.secondary[secKeys[i]].pubmed,
+												risk:point.secondary[secKeys[i]].risk,
+												pgx_1:gene,
+												pgx_2:keys[i],
+												class_1:geneClasses[gene],
+												class_2:geneClasses[secKeys[i]]
+											}
+											set = true; //recomendation is set/
 										}
-										set = true;
 									}
 								}
+							} 
+							//no secondary recomedantion has been found, so add the default one for that gene onnly if it exissts
+							if (!set && point.rec) {
+								recByDrug[drug] = {
+									rec:point.rec,
+									pubmed:point.pubmed,
+									risk:point.risk,
+									pgx_1:gene,
+									class_1:geneClasses[gene],
+								}
 							}
-						} 
-						if (!set) {
-							recByDrug[drug] = {
-								rec:point.rec,
-								pubmed:point.pubmed,
-								risk:point.risk,
-								pgx_1:gene,
-								class_1:geneClasses[gene],
-							}
-
 						}
 					}
 				}
 			}
+			// render the html for the recomendations by drug and set the container html.
 			templates.drugs.rec.recs({drugs:recByDrug}).then(function(renderedHtml){
 				$('#drug-recomendations').html(renderedHtml);
 			}).then(function(){
@@ -267,9 +319,11 @@ module.exports = {
 		});
 		return promise;
 	},
-	//handlers
+	/* Page handlers */
 	staticHandlers : function(){
-		var _this = this;
+		var _this = this; // reference to the function
+
+		//function to remove a row of a table
 		var removeRow = function(ele){
 			ele.on('click',function(e){
 				e.preventDefault();
@@ -281,11 +335,13 @@ module.exports = {
 			});
 		};
 
-		
+		/* anytime the user changes any of therapeutic classes in the PGX analyisis table, check to see if
+		 * there are any new recomendations and re-render the contents */
 		$('.therapeutic-class').on('change',function(){
 			_this.getRecomendations();
 		});
 
+		/* If on, recomednations are included, however if the user selects off, then no recomendations are included */
 		$('#turnoffrecomendations').on('click',function(){
 			var isChecked = $(this).is(':checked');
 			if (isChecked){
@@ -304,7 +360,8 @@ module.exports = {
 		  }
 		});
 
-		/* Eventually link to db with current drug list to offer suggestions
+		/* Add a drug to the new-drug table. additionally add the hanlers to it as well 
+		 * //Eventually link to db with current drug list to offer suggestions
 		*/
 		$('#patient-add-drug').on('click',function(e){
 			e.preventDefault();
@@ -322,7 +379,9 @@ module.exports = {
 			}
 		});
 
-		//submit form
+		/* Once the form is submitted, listen for a valid event. When all fields are validated, serialize the form and submit
+		 * and Ajax request to the server with the form info. If the submission is successful and returns the name of the report,
+		 * open the report while simultaneously sending the currently updated haplotypes. */
 		$('form').on('valid.fndtn.abide',function(){
 			var formInfo = _this.serializeForm();
 			$(this).find('button').text('Generating...');
@@ -345,17 +404,20 @@ module.exports = {
 		});
 	},
 
-	//render
+	/* Render the initial, get all gene information, re-run the pgx-analysis to get haplotype information and
+	 * add all helpers */
 	render : function(){
 		var _this = this;
 		var pgxTemplateData, therapeuticClasses, drugRecomendations;
 		//load information on patient and generate pgx info.
 		var location = window.location.pathname;
 		var patientID = location.split('/').splice(-1)[0];
+		//Generate pgx results and convert them into a usable format;
 		pgx.generatePgxResults(patientID).then(function(result){
 			return pgx.convertTotemplateData(result);
 		}).then(function(result){
 			var genes = [];
+			//Extract infromation for each gene and the haplotypes that were predicted
 			for (var gene in result.pgxGenes){
 				if (result.pgxGenes.hasOwnProperty(gene)){
 					if (result.pgxGenes[gene].possibleHaplotypes.length !== 0){
@@ -368,23 +430,26 @@ module.exports = {
 			result.pgxGenes = genes;
 			pgxTemplateData= result;
 		}).then(function(){
+			//Retrieve the classes from the db
 			return Promise.resolve($.ajax({
 				url:"/database/dosing/classes",
 				type:"GET",
 				dataType:"json"
 			}));
 		}).then(function(result){
-				therapeuticClasses = result;
-		}).then(function(){
-			pgxTemplateData.classes = therapeuticClasses[0].classes;
+			pgxTemplateData.classes = result[0].classes;
+			// render the main htmnl
 			return templates.drugs.rec.index(pgxTemplateData);
 		}).then(function(renderedHtml){
 				$('#main').html(renderedHtml);
 		}).then(function(){
+			// get information from each gene
 			return _this.getGenes();
 		}).then(function(){
+			// refresh foundation
 			return utility.refresh();
 		}).then(function(){
+			//add hanlders
 			_this.staticHandlers();
 		});
 
