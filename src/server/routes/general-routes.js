@@ -80,15 +80,63 @@ module.exports = function(app,dbFunctions){
 	//Generic page routers
 	//==================================================================
 
-	//new projects
 	app.get(['/statuspage'], utils.isLoggedIn, function(req,res){
 		utils.render(req,res);
 	});
 
 
-	/*app.get('/panels',utils.isLoggedIn,function(req,res){
-		utils.render(req,res,'construction');
-	});*/
+	//==================================================================
+	//Generic DB  / utility routes
+	//==================================================================
+	app.get("/database/patients/completed", utils.isLoggedIn, function(req,res){
+		var username = req.user[dbConstants.USERS.ID_FIELD];
+		dbFunctions.findAllPatients(username,true,{sort: {"completed": -1}})
+		.then(function(result){
+			res.send(result);
+		});
+
+	});
+
+	/* Find ALL patients including those in the queue and failure db */
+	app.use('/database/patients/all',utils.isLoggedIn, function(req,res){
+		var username = req.user[dbConstants.USERS.ID_FIELD];
+		dbFunctions.findAllPatients(username, false, {sort:{'added':-1}})
+		.then(function(result){
+			res.send(result);
+		});
+	});
+
+	app.post('/database/owner',utils.isLoggedIn,function(req,res){
+		var user = req.user[dbConstants.USERS.ID_FIELD];
+		var collection = req.body.collection;
+		var query = req.body.query;
+		dbFunctions.getOwner(collection,query)
+		.then(function(result){
+			if (result);
+				var _o = {
+					owner:result,
+					isOwner:(user==result),
+					user:user
+				};
+				res.send(_o);
+		}).catch(function(err){
+			console.log(err);
+		});
+	});
+
+	/* checkt to see whether the content within the body is within the database
+	 *  returns true/false */
+	app.post('/database/checkInDatabase',utils.isLoggedIn,function(req,res){
+		var options = req.body;
+		dbFunctions.checkInDatabase(options.collection,options.field,options.value)
+		.then(function(result){
+			res.send(result);
+		});
+	});
+
+
+
+
 	//==================================================================
 	//Handle 404 routes
 	//==================================================================

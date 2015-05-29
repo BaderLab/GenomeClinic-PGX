@@ -21,7 +21,6 @@ module.exports = function(app,passport,dbFunctions,opts,logger){
 	var queue = new Queue(logger,dbFunctions);
 	require('./special-redirect-routes')(app);
 	require('./auth-routes')(app,passport,dbFunctions,logger,opts);
-	require('./db-routes')(app,dbFunctions,queue);
 	require('./uploader-routes')(app,dbFunctions,queue);
 	require('./pgx-routes')(app,dbFunctions,logger);
 	require('./project-routes')(app,dbFunctions,queue);

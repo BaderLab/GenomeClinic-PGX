@@ -25,8 +25,6 @@ function queue(logger,dbFunctions){
 //variables
 queue.prototype.isRunning = false;
 queue.prototype.queue = [];
-queue.prototype.staging = [];
-
 /* Add the incoming file with patientInformation to the queue
  * to await processing additionally, when it adds a file to the queue.
  * it also adds the patient name to the patient table ensuring no
@@ -39,7 +37,6 @@ queue.prototype.addToQueue = function(fileParams,patientFields,user){
 			fileInfo: fileParams,
 		};
 		var tempArr =[];
-		var tempArr2 = [];
 		self.splitInputFields(patientFields)
 		.each(function(patient){
 			self.logger.info(fileParams.name + "added to queue");
@@ -53,13 +50,12 @@ queue.prototype.addToQueue = function(fileParams,patientFields,user){
 			tempArr.push(options);
 		}).then(function(){
 			return Promise.each(tempArr,function(item){
-				return self.dbFunctions.addPatient(item).then(function(result){
-					console.log(result);
-					tempArr2.push(result);
-				})
-			})
-		}).then(function(){
-			inputObj.fields = tempArr2;
+				return self.dbFunctions.addPatient(item).catch(function(err){
+					self.dbFunctions.removePatient(item[dbConstants.PATIENTS.ID_FIELD]);
+				});
+			});
+		}).then(function(result){
+			inputObj.fields = result;
 			self.queue.push(inputObj);
 		}).then(function(){
 			resolve(self.queue);
@@ -139,10 +135,6 @@ queue.prototype.run = function(){
 		fields = params.fields;
 	}).then(function(){
 		self.removeFirst();
-	/*}).then(function(){
-		return fields;
-	}).each(function(options){
-		return self.dbFunctions.addPatient(options); */
 	}).then(function(){
 		var options = {
 			input:'upload/vcf/' + fileInfo.name,
@@ -161,7 +153,6 @@ queue.prototype.run = function(){
 			self.isRunning = false;
 		}
 	});
-		// do somehting here;
 };
 
 

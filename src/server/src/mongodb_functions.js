@@ -371,104 +371,6 @@ var dbFunctions = function(logger,DEBUG){
 		});
 	};
 
-	/*this.checkDefaultDosing = function(){
-		var dosing, classes, toAdd = [];
-		var _this  = this;
-		assert.notStrictEqual(db,undefined);
-		return fs.statAsync(dbConstants.DRUGS.DOSING.DEFAULT)
-		.then(function(){
-			dosing = require(dbConstants.DRUGS.DOSING.DEFAULT);
-			return dosing;
-		}).each(function(item){
-			var query = {};
-			query[dbConstants.DRUGS.DOSING.FIRST_GENE] = item[dbConstants.DRUGS.DOSING.FIRST_GENE];
-			query[dbConstants.DRUGS.DOSING.FIRST_CLASS] = item[dbConstants.DRUGS.DOSING.FIRST_CLASS];
-			query[dbConstants.DRUGS.DOSING.SECOND_GENE] = item[dbConstants.DRUGS.DOSING.SECOND_GENE] === undefined ? {$exists:false}:item[dbConstants.DRUGS.DOSING.SECOND_GENE];
-			query[dbConstants.DRUGS.DOSING.SECOND_CLASS] = item[dbConstants.DRUGS.DOSING.SECOND_CLASS] === undefined ? {$exists:false}:item[dbConstants.DRUGS.DOSING.SECOND_CLASS];
-			return _this.findOne(dbConstants.DRUGS.DOSING.COLLECTION,query).then(function(result){
-				if (!result){
-					toAdd.push(item);
-				}
-			});
-		}).then(function(){
-			if (toAdd.length > 0){
-				logInfo(toAdd.length.toString() + " New Dosing Guidelines found at starting up. Adding them to the database");
-				var o = {
-					documents : toAdd,
-					collectionName: dbConstants.DRUGS.DOSING.COLLECTION				
-				};
-				return _this.insertMany(o).then(function(){
-					logInfo(toAdd.length.toString() + " Dosing Guidelines successfully added");
-				});
-			} else {
-				logInfo("No new Dosing Guidelines Found");
-			}
-		}).catch(function(err){
-			logErr("error encountered when adding new default dosing guidelines on startup");
-		}).then(function(){
-			toAdd = [];
-			return fs.statAsync(dbConstants.DRUGS.CLASSES.DEFAULT);
-		}).then(function(){
-			classes = require(dbConstants.DRUGS.CLASSES.DEFAULT);
-			return classes;
-		}).each(function(item){
-			var query = {};
-			query[dbConstants.DRUGS.CLASSES.ID_FIELD] = item[dbConstants.DRUGS.CLASSES.ID_FIELD];
-			return _this.findOne(dbConstants.DRUGS.CLASSES.COLLECTION,query).then(function(result){
-				if (result === null){
-					toAdd.push(item);
-				}
-			});
-		}).then(function(){
-			if (toAdd.length > 0){
-				logInfo(toAdd.length.toString() + " New therapeutic classes Guidelines found at start up. Adding them to the database");
-				var o = {
-					documents : toAdd,
-					collectionName: dbConstants.DRUGS.CLASSES.COLLECTION				
-				};
-				return _this.insertMany(o).then(function(){
-					logInfo(toAdd.length.toString() + " therapeutic classes successfully added");
-				});
-			} else {
-				logInfo("No new therapeutic classes found");
-			}
-		}).catch(function(err){
-			logErr("error encountered when adding new default therapeutic classes on startup");
-		}).then(function(){
-			toAdd = [];
-			return fs.statAsync(dbConstants.DRUGS.FUTURE.DEFAULT);
-		}).then(function(){
-			future = require(dbConstants.DRUGS.FUTURE.DEFAULT);
-			return future;
-		}).each(function(item){
-			var query = {};
-			query[dbConstants.DRUGS.FUTURE.ID_FIELD] = item[dbConstants.DRUGS.FUTURE.ID_FIELD];
-			query[dbConstants.DRUGS.FUTURE.CLASS] = item[dbConstants.DRUGS.FUTURE.CLASS];
-			return _this.findOne(dbConstants.DRUGS.FUTURE.COLLECTION,query).then(function(result){
-				if (!result){
-					toAdd.push(item);
-				}
-			});
-		}).then(function(){
-			if (toAdd.length > 0){
-				logInfo(toAdd.length.toString() + " New future recomendations found at startup. Adding them to the database");
-				var o = {
-					documents: toAdd,
-					collectionName: dbConstants.DRUGS.FUTURE.COLLECTION
-				};
-				return _this.insertMany(o).then(function(){
-					logInfo(toAdd.length.toString() + " future recomendations successfully added");
-				});
-			} else {
-				logInfo("No new future recomendations found");
-			}
-		}).catch(function(err){
-			console.log(err);
-			logErr("error encountered when adding new default future recomendations on startup",err);
-		})
-
-	}; */
-
 //=======================================================================================
 //=======================================================================================
 //Public functions
@@ -1112,6 +1014,23 @@ var dbFunctions = function(logger,DEBUG){
 					return find(dbConstants.FAILURE.COLLECTION,query,null,options);
 				}).then(function(failures){
 					return goodResults.concat(failures);
+				}).then(function(result){
+					result = result.sort(function(a,b){
+						a = a.added.split(/\s/);
+						b = b.added.split(/\s/);
+						if (a[0] < b[0]){
+							return 1;
+						} else if (a[0] > b[0]) {
+							return -1;
+						} else {
+							if (a[1] < b[1])
+								return 1;
+							else if (a[1] > b[1])
+								return -1;
+							return 0;
+						}
+					});
+					return result;
 				});
 			}
 		});
