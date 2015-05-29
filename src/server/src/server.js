@@ -113,7 +113,7 @@ opts.signup =  !opts.nosignup;
 opts.recover = !opts.norecover;
 if (opts.https && (! opts.crt || !opts.key)){
 	console.log("--https opton provided, please provide a crt file and a key file");
-	process.exit(1);
+		process.exit(1);
 } else if (!opts.password && opts.gmail || opts.password && !opts.gmail){
 	console.log("--password and --gmail must both be provided");
 	process.exit(1);
@@ -152,7 +152,7 @@ morgan.token('user',function getUser(req){
 //=======================================================================
 var comLog = fs.createWriteStream(nodeConstants.LOG_DIR + "/" + nodeConstants.COM_LOG_PATH);
 var app = express();
-app.use(morgan(':remote-addr - :user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', {stream:comLog}));
+app.use(morgan('{"ip"\:":remote-addr","user"\:":user","timestamp"\:":date[clf]","method"\:":method","baseurl"\:":url","http_version"\:":http-version","status"\:":status","res"\:":res[content-length]","referrer"\:":referrer","agent"\:":user-agent"}', {stream:comLog}));
 
 
 //=======================================================================
@@ -192,7 +192,6 @@ require('./controllers/passport-config')(app,logger,opts,passport);
 //=======================================================================
 // Initialize the session Session
 //=======================================================================
-//In the future use a redis session to configure the session information
 app.use(session({secret:'webb_app_server',
 	store: new mongoStore({
 		url:'mongodb://' + dbConstants.DB.HOST + ':' + dbConstants.DB.PORT + '/sessionInfo'
@@ -208,6 +207,11 @@ logger.info('mongodb://' + dbConstants.DB.HOST + ':' + dbConstants.DB.PORT + '/s
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
+
+
+//=======================================================================
+//Error Logger
+//=======================================================================
 
 //=======================================================================
 // Add routes and add the rendering engine
