@@ -8,16 +8,12 @@ var Promise= require("bluebird");
 var nodemailer = require('nodemailer');
 var constants = require("../lib/conf/constants.json");
 var utils = require('../lib/utils');
-
+var dbFunctions = require('../models/mongodb_functions');
 
 var nodeConstant = constants.nodeConstants,
 	dbConstants = constants.dbConstants;
 
-module.exports = function(app,passport,dbFunctions,logger,opts){
-	if (!dbFunctions)
-		dbFunctions = require('../models/mongodb_functions');
-	if (!logger)
-		logger = require("../lib/logger")("node");
+module.exports = function(app,logger,opts,passport){
 	//==================================================================
 	//initialize the transporter for sending mail via gmail
 	//==================================================================

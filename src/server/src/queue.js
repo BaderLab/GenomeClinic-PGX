@@ -10,15 +10,13 @@ var Promise = require('bluebird');
 var constants= require("./conf/constants.json");
 var annotateFile = require('./annotateAndAddVariants');
 var fs = Promise.promisifyAll(require('fs'));
+var dbFunctions = require('../models/mongodb_functions');
 
 var dbConstants = constants.dbConstants,
 	nodeConstants = constants.nodeConstants;
 
-
-
-function queue(logger,dbFunctions){
-	this.logger = (logger || require('./logger')('node'));
-	this.dbFunctions = (dbFunctions || require('../models/mongodb_functions'));
+function queue(){
+	this.logger = require('./logger')('node');
 }
 
 //=======================================================================================
@@ -30,11 +28,13 @@ queue.prototype.queue = [];
  * it also adds the patient name to the patient table ensuring no
  * duplicate entries occur
  */
-queue.prototype.addToQueue = function(fileParams,patientFields,user){
+queue.prototype.addToQueue = function(fileParams,req){
 	var self = this;
+	var patientFields = req.fields;
 	var promise = new Promise(function(resolve,reject){
 		var inputObj = {
 			fileInfo: fileParams,
+			req:req
 		};
 		var tempArr =[];
 		self.splitInputFields(patientFields)
@@ -46,12 +46,12 @@ queue.prototype.addToQueue = function(fileParams,patientFields,user){
 			options[dbConstants.PATIENTS.DATE_ADDED] = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 			options[dbConstants.PATIENTS.READY_FOR_USE] = false;
 			options[dbConstants.PATIENTS.ANNO_COMPLETE] = undefined;
-			options[dbConstants.DB.OWNER_ID] = user;
+			options[dbConstants.DB.OWNER_ID] = req.user[dbConstants.USERS.ID_FIELD];
 			tempArr.push(options);
 		}).then(function(){
 			return Promise.each(tempArr,function(item){
-				return self.dbFunctions.addPatient(item).catch(function(err){
-					self.dbFunctions.removePatient(item[dbConstants.PATIENTS.ID_FIELD]);
+				return dbFunctions.addPatient(item).catch(function(err){
+					dbFunctions.removePatient(item[dbConstants.PATIENTS.ID_FIELD]);
 				});
 			});
 		}).then(function(result){

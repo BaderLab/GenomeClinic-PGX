@@ -6,11 +6,10 @@ var Promise = require('bluebird');
 var fs = require('fs');
 var constants = require("../lib/conf/constants.json");
 var genReport  = require('../lib/genReport');
+var dbFunctions = require('../models/mongodb_functions');
 
 
-module.exports = function(app,dbFunctions,logger){
-	if (!dbFunctions)
-		dbFunctions = rquire("../models/mongodb_functions");
+module.exports = function(app,logger,opts){
 	//==================================================================
 	//PGX routes
 	//==================================================================

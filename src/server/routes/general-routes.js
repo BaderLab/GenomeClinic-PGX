@@ -7,14 +7,13 @@
 var Promise = require('bluebird');
 var constants = require('../lib/conf/constants.json');
 var utils = require('../lib/utils');
+var dbFunctions = require("../models/mongodb_functions");
 
 var dbConstants = constants.dbConstants,
 	nodeConstants = constants.nodeConstants;
 
-module.exports = function(app,dbFunctions){
+module.exports = function(app,logger,opts){
 	var configured;
-	if (!dbFunctions)
-		dbFunctions = require("../models/mongodb_functions");
 	//==================================================================
 	//Route to the home page, or the config page if it is not set
 	//==================================================================

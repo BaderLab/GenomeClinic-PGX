@@ -1,19 +1,13 @@
 var utils = require('../lib/utils');
 var Promise= require("bluebird");
 var constants = require('../lib/conf/constants.json');
+var dbFunctions = require('../models/mongodb_functions');
 
 var nodeConstant = constants.nodeConstants,
 	dbConstants = constants.dbConstants;
 
 
-module.exports = function(app,dbFunctions,queue){
-	if (!dbFunctions)
-		dbFunctions = require("../models/mongodb_functions");
-	if (!queue){
-		var logger = require('../lib/logger')('node');
-		var Queue = require("../lib/queue");
-		queue = new Queue(logger,dbFunctions);
-	}
+module.exports = function(app,logger,opts){
 	var renderPages = [
 		'/projects',
 		'/projects/new',

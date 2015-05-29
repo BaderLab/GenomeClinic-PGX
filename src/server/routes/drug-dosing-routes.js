@@ -4,18 +4,14 @@ var fs = require('fs');
 var constants = require("../lib/conf/constants.json");
 var ObjectID = require("mongodb").ObjectID;
 var genReport = require('../lib/genReport');
-
+var dbFunctions = require("../models/mongodb_functions");
 
 
 /* Collection of routes associated with drug dosing recomendations
  * the report generation, and the ui modification of the recomendations
  *
  *@author Patrick Magee*/
-module.exports = function(app,dbFunctions,logger){
-	//Ensure the dbfunctions module is loaded
-	if (!dbFunctions)
-		dbFunctions = rquire("../models/mongodb_functions");
-
+module.exports = function(app,logger,opts){
 	//Create a new blank document
 	createNewDoc = function(gene){
 		var promise = new Promise(function(resolve,reject){

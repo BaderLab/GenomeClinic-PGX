@@ -3,7 +3,8 @@
  * about the status of a request, along wiht any relevant information that goes 
  * along with the status 
  * @author Patrick Magee */
-module.exports = function(app){
+var dbFunctions = require('../models/mongodb_functions');
+module.exports = function(app,logger,opts){
 	//route to send information in the event of a login failure
 	app.get('/failure',function(req,res){
 		var response ={status:'failed',error:req.flash('error'),redirectURL:undefined,statusCode:req.flash('statusCode'),message:req.flash('message')[0]};

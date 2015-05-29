@@ -18,8 +18,9 @@ var express= require("express"),
 	http = require('http'),
 	morgan = require('morgan'),
 	constants = require('./lib/conf/constants.json'),
-	cons = require('consolidate');
-
+	cons = require('consolidate'),
+	logger = require('./lib/logger')('node'),
+	dbFunctions = require("./models/mongodb_functions");
 
 var dbConstants = constants.dbConstants;
 var nodeConstants = constants.nodeConstants;
@@ -132,8 +133,7 @@ for (var i=0; i < prerequisiteDirectories.length; i++ ){
 	}
 }
 
-var logger = require('./lib/logger')('node');
-var dbFunctions = require("./models/mongodb_functions");
+
 
 
 //=======================================================================
@@ -187,7 +187,7 @@ app.use(bodyParser.urlencoded({extended:false}));
 //=======================================================================	
 // Set up Passport to use Authentication
 //=======================================================================
-require('./controllers/passport-config')(passport,dbFunctions,opts);
+require('./controllers/passport-config')(app,logger,opts,passport);
 
 //=======================================================================
 // Initialize the session Session
@@ -215,7 +215,7 @@ app.use(flash());
 app.set('views',nodeConstants.SERVER_DIR + '/views');
 app.engine('hbs',cons.handlebars);
 app.set('view engine', 'hbs');
-require('./controllers/routes')(app,passport,dbFunctions,opts,logger);
+require('./controllers/routes')(app,logger,opts,passport);
 
 //=======================================================================
 // Connect and Initialzie the storage Database

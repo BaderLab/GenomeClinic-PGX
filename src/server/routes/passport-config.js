@@ -7,13 +7,10 @@
 var LocalStrategy = require('passport-local').Strategy;
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 var dbConstants = require('../lib/conf/constants.json').dbConstants;
+var dbFunctions = require('../models/mongodb_functions');
 
 
-module.exports = function(passport,dbFunctions,opts){
-	if (!dbFunctions)
-		dbFunctions = require('../models/mongodb_functions');
-
-
+module.exports = function(app,logger,opts,passport){
 	/* Method to serialize new user */
 	passport.serializeUser(function(user,done){
 		done(null,user[dbConstants.USERS.ID_FIELD]);
