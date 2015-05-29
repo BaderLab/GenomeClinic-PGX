@@ -388,12 +388,6 @@ var pgx =  {
 				 	} else if (tempDistance === minDistance) {
 				 		closestMatch.push(knownHaplotypes[k]);
 				 	}  // if distance is greater than current min, ignore
-
-				 	/*
-				 	// TESTING output
-				 	console.log(patientHaplotypes[j], currentPatientHaplotypeString,
-				 		knownHaplotypes[k], currentKnownHaplotypeString, "Dist=", tempDistance);
-				 	*/
 				 }
 
 				 // Store results of this computation
@@ -438,6 +432,7 @@ var pgx =  {
 			contentType: "application/json",
 		}))
 		.then(function(result) {
+			console.log(result);
 			if (result.pgxGenesRemoved.length !== 0)
 				self.pgxGenesRemoved = result.pgxGenesRemoved;
 			return self.processPGXResponse(selectedPatientAlias, selectedPatientID, result);
