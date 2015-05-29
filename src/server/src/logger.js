@@ -1,4 +1,4 @@
-/* Logger configurations
+	/* Logger configurations
  * Various configuration information for each type of logger. Additionally this module
  * exports a function that will initialize the specified loger version
  * @author Patrick Magee
@@ -10,7 +10,7 @@ var winston = require("winston"),
 
 module.exports = function(useage){
 	var logger;
-	if (useage == 'node'){
+	//if (useage == 'node'){
 		logger = new (winston.Logger)({
 			transports:[
 				new (winston.transports.File)({
@@ -25,7 +25,7 @@ module.exports = function(useage){
 				})
 			]
 		});
-	} else if (useage == "parser"){
+	/*} else if (useage == "parser"){
 		logger  = new (winston.Logger)({
 			transports:[
 				new (winston.transports.File)({
@@ -70,6 +70,6 @@ module.exports = function(useage){
 				})
 			]
 		});
-	}
+	} */
 	return logger;
 };

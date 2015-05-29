@@ -8,6 +8,7 @@ var utils = require('../lib/utils');
 var Promise= require("bluebird");
 var constants = require('../lib/conf/constants.json');
 
+
 var nodeConstant = constants.nodeConstants,
 	dbConstants = constants.dbConstants;
 
@@ -39,11 +40,6 @@ module.exports = function(app,dbFunctions,queue){
 	});
 
 
-
-
-
-	
-
 	//==================================================================
 	//Patient Routes
 	//==================================================================
@@ -56,10 +52,6 @@ module.exports = function(app,dbFunctions,queue){
 		});
 
 	});
-
-
-
-
 
 	/* Find ALL patients including those in the queue and failure db */
 	app.use('/database/patients/all',utils.isLoggedIn, function(req,res){
