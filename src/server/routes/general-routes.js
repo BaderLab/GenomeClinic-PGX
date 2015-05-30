@@ -67,7 +67,7 @@ module.exports = function(app,logger,opts){
 
 	app.post("/config", utils.isLoggedIn, function(req,res){
 		var configSettings= req.body;
-		dbFunctions.update(dbConstants.DB.ADMIN_COLLECTION, {}, {$set: configSettings})
+		dbFunctions.update(dbConstants.DB.ADMIN_COLLECTION, {}, {$set: configSettings},undefined,req.user.username)
 		.then(function(result){
 			dbFunctions.isConfigured(true);
 		}).then(function(result){

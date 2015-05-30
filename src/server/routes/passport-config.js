@@ -38,14 +38,17 @@ module.exports = function(app,logger,opts,passport){
 					dbFunctions.findUserById(username)
 					.then(function(user){
 						if (user) {
+							logger('info','Cannot add new user, user name already exists',{arguments:[username],action:'signup',status:'failed',ip:req.ip});
 							return done(null,false,req.flash('error','That Email already exists'),req.flash('statusCode','409'));
 						} else {
 							user = {};
 							user[dbConstants.USERS.ID_FIELD] = username.toString();
 							user[dbConstants.USERS.PASSWORD_FIELD] = password.toString();
 							dbFunctions.addUser(user).then(function(){
+								logger('info',"New user successfully created",{user:user,action:'signup',status:'success',ip:req.ip})
 								return done(null,user,req.flash('statusCode','200'),req.flash('alert',true),req.flash('message','Account successfully created'));
 							}).catch(function(err){
+								logger('error',err,{action:'signup',user:user,status:'failed',ip:req.ip})
 								return done(err,null,req.flash('statusCode','400'));
 							});
 						}
@@ -68,14 +71,17 @@ module.exports = function(app,logger,opts,passport){
 					if (user) { 
 						dbFunctions.validatePassword(username.toString(),password.toString()).then(function(result){
 							if (result){
+								logger('info',"login successful",{user:username,action:'login',ip:req.ip,status:'succes'})
 								return done(null,user,req.flash("statusCode",'200'));
 							} else {
+								logger('info','failed login attempt',{user:username,action:'login',ip:req.ip,status:'failed'})
 								return done(null,false,req.flash("error", "Oops! Wrong Password"),req.flash('statusCode','400'));
 							}
 						}).catch(function(err){
 							done(err);
 						});
 					} else {
+						logger('info',"failed login attempt, no user found",{user:username,action:'login',ip:req.ip,status:'failed'})
 						return done(null,false,req.flash('error','Oops, No user was found!'),req.flash('statusCode','404'));
 					}
 				});

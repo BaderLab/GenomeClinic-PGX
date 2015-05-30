@@ -35,11 +35,16 @@ module.exports = function(app,logger,opts){
 	 * of the vcf file into the local database
 	*/
 	uploader.on('end',function(fileInfo,req,res){
+		fileInfo.user = req.user.username;
+		fileInfo.action = "uploader";
+		logger('info','Upload file recieved and added to queue',fileInfo)
 		queue.addToQueue(fileInfo,req)
 		.then(function(){
 			if (!queue.isRunning)
 				return queue.run();
-		}).catch(function(err){console.log(err.toString());});
+		}).catch(function(err){
+			logger('error',err,{action:'addToQueue',user:req.user.username});
+		});
 	});
 
 	//Upload page routes

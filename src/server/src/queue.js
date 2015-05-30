@@ -11,18 +11,19 @@ var constants= require("./conf/constants.json");
 var annotateFile = require('./annotateAndAddVariants');
 var fs = Promise.promisifyAll(require('fs'));
 var dbFunctions = require('../models/mongodb_functions');
+var logger = require('./logger');
 
 var dbConstants = constants.dbConstants,
 	nodeConstants = constants.nodeConstants;
 
 function queue(){
-	this.logger = require('./logger')('node');
+	this.isRunning = false;
+	this.queue = [];
 }
 
 //=======================================================================================
 //variables
-queue.prototype.isRunning = false;
-queue.prototype.queue = [];
+
 /* Add the incoming file with patientInformation to the queue
  * to await processing additionally, when it adds a file to the queue.
  * it also adds the patient name to the patient table ensuring no
@@ -39,7 +40,7 @@ queue.prototype.addToQueue = function(fileParams,req){
 		var tempArr =[];
 		self.splitInputFields(patientFields)
 		.each(function(patient){
-			self.logger.info(fileParams.name + "added to queue");
+			logger('info',fileParams.name + "added to queue");
 			var options = patient;
 			var now = new Date();
 			options[dbConstants.PATIENTS.FILE_FIELD] = fileParams.name;
@@ -50,13 +51,15 @@ queue.prototype.addToQueue = function(fileParams,req){
 			tempArr.push(options);
 		}).then(function(){
 			return Promise.each(tempArr,function(item){
-				return dbFunctions.addPatient(item).catch(function(err){
-					dbFunctions.removePatient(item[dbConstants.PATIENTS.ID_FIELD]);
+				return dbFunctions.addPatient(item,req.user[dbConstants.USERS.ID_FIELD]).catch(function(err){
+					logger('error',err,{action:'addPatient',user:req.user.username});
+					dbFunctions.removePatient(item[dbConstants.PATIENTS.ID_FIELD],req.user[dbConstants.USERS.ID_FIELD]);
 				});
 			});
 		}).then(function(result){
 			inputObj.fields = result;
 			self.queue.push(inputObj);
+			logger('info','file added to annotation job queue',{action:'addToQueue',user:req.user.username,file:fileParams.name})
 		}).then(function(){
 			resolve(self.queue);
 		});
@@ -70,6 +73,7 @@ queue.prototype.addToQueue = function(fileParams,req){
 queue.prototype.removeFirst = function(){
 	var self = this;
 	var promise = new Promise(function(resolve,reject){
+		logger('info','removed entry from annoation job queue',{action:'removeFirst',user:self.queue[0].req.user.username,file:self.queue[0].fileInfo.name});
 		self.queue.shift();
 		resolve(self.queue);
 	});
@@ -126,6 +130,7 @@ queue.prototype.run = function(){
 	var self = this;
 	var fileInfo;
 	var fields;
+	var req;
 	//var promise = new Promise(function(resolve,reject){
 	if (!self.isRunning)
 		self.isRunning = true;
@@ -133,6 +138,7 @@ queue.prototype.run = function(){
 	self.first().then(function(params){
 		fileInfo = params.fileInfo;
 		fields = params.fields;
+		req = params.req;
 	}).then(function(){
 		self.removeFirst();
 	}).then(function(){
@@ -140,7 +146,6 @@ queue.prototype.run = function(){
 			input:'upload/vcf/' + fileInfo.name,
 			patients:fields
 		};
-		self.logger.info('running annotations on ' + options.input);
 		return annotateFile(options);
 	}).then(function(){
 		self.logger.info('annotations complete');
