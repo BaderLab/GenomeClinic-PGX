@@ -12,18 +12,9 @@ var nodeConstants = require('../lib/conf/constants.json').nodeConstants;
 var bcrypt = require("bcrypt-nodejs");
 var randomstring = require("just.randomstring");
 var fs = Promise.promisifyAll(require('fs'));
+var logger = require('../lib/logger');
 
-var dbFunctions = function(logger,DEBUG){
-	var logInfo,logErr;
-	if (!logger)
-		logger = require('../lib/logger')('db');	
-	if (DEBUG){
-		logInfo = console.log;
-		logErr = console.log;
-	} else {
-		logInfo = logger.info;
-		logErr = logger.error;
-	}
+var dbFunctions = function(){
 //=======================================================================================
 // Private properties
 //=======================================================================================
@@ -48,7 +39,7 @@ var dbFunctions = function(logger,DEBUG){
 				if (err) {
 					reject(err);
 				}
-				logInfo("connected to " + DB);
+				logger("info","Connected to mongoDatabase",{target:DB,action:'connect'});
 				db = DB;
 				resolve(DB);
 			});
@@ -61,7 +52,7 @@ var dbFunctions = function(logger,DEBUG){
 	/* Create the collections required for an initialized DB.
 	 * Returns a promise. */
 	var createInitCollections= function() {
-		logInfo("configuring server, creating default collections, rules, and indexes");
+		logger("info","Creating and initializing database",{action:'createInitCollections'});
 		assert.notStrictEqual(db, undefined); // ensure we're connected first
 		var promise= new Promise(function(resolve, reject) {
 			var currentDocument = {};
@@ -80,34 +71,29 @@ var dbFunctions = function(logger,DEBUG){
 					return self.createIndex(dbConstants.PATIENTS.COLLECTION, currentDocument, {unique: true});
 				})
 				.then(function(result){
-					logInfo("Patients collection initialized and unique index added to " + dbConstants.PATIENTS.ID_FIELD);
 					// Patient Collection IDs are also unique
 					currentDocument= {};
 					currentDocument[dbConstants.PATIENTS.COLLECTION_ID]= -1;  // index in descending order
 					return self.createIndex(dbConstants.PATIENTS.COLLECTION, currentDocument, {unique: true});
 				})
 				.then(function(result){
-					logInfo("Unique index added to patients collection field " + dbConstants.PATIENTS.COLLECTION_ID);
 					var currentDocument = {};
 					currentDocument[dbConstants.USERS.ID_FIELD]=-1;
 					return self.createIndex(dbConstants.USERS.COLLECTION,currentDocument,{unique:true});
 				})
 				.then(function(result) {
-					logInfo("User Collection Initialized and unique index added to "+  dbConstants.USERS.ID_FIELD);
 					// Panel IDs are unique.
 					currentDocument= {};
 					currentDocument[dbConstants.PANELS.ID_FIELD]= 1;  // index in ascending order
 					return self.createIndex(dbConstants.PANELS.COLLECTION, currentDocument, {unique: true});
 				})
 				.then(function(result){
-					logInfo("Panel Collection Initialized and unique index added to " + dbConstants.PANELS.ID_FIELD);
 					// Panel Collection IDs are also unique
 					currentDocument= {};
 					currentDocument[dbConstants.PANELS.COLLECTION_ID]= -1;  // index in descending order
 					return self.createIndex(dbConstants.PANELS.COLLECTION, currentDocument, {unique: true});
 				})
 				.then(function(result){
-					logInfo("Unique index added panels collection field " + dbConstants.PANELS.ID_FIELD);
 					//project_id field should be unique
 					currentDocument = {};
 					currentDocument[dbConstants.PROJECTS.ID_FIELD] = 1; // index in ascending order
@@ -115,16 +101,14 @@ var dbFunctions = function(logger,DEBUG){
 				})
 				//Add the default pgx data to the collection if its not there already and only if it exists.
 				.then(function(){
-					logInfo("Project Collection Initialized and unique index added to " + dbConstants.PROJECTS.ID_FIELD);
-					logInfo("Checking for default PGX information");
+					
 					fs.statAsync(dbConstants.PGX.COORDS.DEFAULT)
 					.then(function(){
 						// Make sure both the Genes and the Coords are available.
 						return fs.statAsync(dbConstants.PGX.GENES.DEFAULT);
 					}).catch(function(err){
-						throw new Error("No Default Pgx Information detected, skipping step");
+						logger('info','No Default PGx informaton detected, skipping step',{action:'createInitCollections'});
 					}).then(function(result){
-						logInfo("Default PGX files found, checking database for current entries");
 						var pgxCoords = require(dbConstants.PGX.COORDS.DEFAULT);
 						var pgxGenes = require(dbConstants.PGX.GENES.DEFAULT);
 						var o,rsIds;
@@ -152,37 +136,29 @@ var dbFunctions = function(logger,DEBUG){
 						};
 						return self.insertMany(o)
 						.then(function(result){
-							logInfo("Default Coordinates successfully inserted into database");
 							currentDocument = {};
 							currentDocument[dbConstants.PGX.COORDS.ID_FIELD] = 1;
 							return self.createIndex(dbConstants.PGX.COORDS.COLLECTION,currentDocument,{unique:true});
 						}).then(function(){
-							logInfo("Added Unique index to PGX coordinate field");
 							o.documents = pgxGenes;
 							o.collectionName = dbConstants.PGX.GENES.COLLECTION;
 							return self.insertMany(o);
 						}).then(function(result){
-							logInfo("Default Genes and haplotypes successfully inserted into database");
 							currentDocument = {};
 							currentDocument[dbConstants.PGX.GENES.ID_FIELD] = 1;
-							return self.createIndex(dbConstants.PGX.GENES.COLLECTION,currentDocument,{unique:true});
-						}).then(function(){
-							logInfo("Added unique index to PGX gene field")
-							logInfo("Successfully added default PGX information");
+							return self.createIndex(dbConstants.PGX.GENES.COLLECTION,currentDocument,{unique:true})
 						}).catch(function(err){
-							logErr("Default PGX info was not successfully added",err);
+							logger('error',err,{action:'createInitCollections'});
 						});
 					}).catch(function(err){
-						logInfo(err.message);
+						logger('error',err,{action:'createInitCollections'});
 					});
 				}).then(function(){
 					//create non unique indexes based on pgx_1
 					currentDocument = {};
 					currentDocument[dbConstants.DRUGS.DOSING.ID_FIELD] = 1;
-					logInfo("Initializing Dosing recomendation collection and adding unique index to fields");
 					return self.createIndex(dbConstants.DRUGS.DOSING.COLLECTION,currentDocument);
 				}).then(function(){
-					logInfo("Checking for default drug recomendation information");
 					return fs.statAsync(dbConstants.DRUGS.DOSING.DEFAULT)
 					.then(function(result){
 						var dosing = require(dbConstants.DRUGS.DOSING.DEFAULT);
@@ -192,17 +168,14 @@ var dbFunctions = function(logger,DEBUG){
 						};
 						return self.insertMany(o);
 					}).then(function(){
-						logInfo("Default dosing recomendations found and inserted into database");
 					}).catch(function(err){
-						logInfo(dbConstants.DRUGS.DOSING.DEFAULT + " was not found and could not be added to the databse");
+						logger("info",dbConstants.DRUGS.DOSING.DEFAULT + " was not found and could not be added to the databse",{action:'createInitCollections'});
 					});
 				}).then(function(){
 					currentDocument = {};
 					currentDocument[dbConstants.DRUGS.CLASSES.ID_FIELD] = 1;
-					logInfo("Creating unique index therapeutic classes");
 					return self.createIndex(dbConstants.DRUGS.CLASSES.COLLECTION,currentDocument,{unique:true});
 				}).then(function(){
-					logInfo("Checking for default therapeutic class information");
 					return fs.statAsync(dbConstants.DRUGS.CLASSES.DEFAULT)
 					.then(function(result){
 						var dosing = require(dbConstants.DRUGS.CLASSES.DEFAULT);
@@ -212,14 +185,13 @@ var dbFunctions = function(logger,DEBUG){
 						};
 						return self.insertMany(o);
 					}).then(function(){
-						logInfo("Default dosing recomendations found and inserted into database");
 					}).catch(function(err){
-						logInfo(dbConstants.DRUGS.CLASSES.DEFAULT + " was not found and could not be added to the databse");
+						logger("info",dbConstants.DRUGS.CLASSES.DEFAULT + " was not found and could not be added to the databse",{action:'createInitCollections'});
 					});
 				}).then(function(result) {
 					resolve();
 				}).catch(function(err) {
-					logErr(err);
+					logger('error',err);
 					reject(err);
 				});
 		});
@@ -228,8 +200,9 @@ var dbFunctions = function(logger,DEBUG){
 
 	/* general find query to find All documents matching string. 
 	 * Returns a promise. */
-	var find= function(collectionName, query, fields, options) {
+	var find= function(collectionName, query, fields, options,user) {
 		assert.notStrictEqual(db, undefined); // ensure we're connected first
+		var args = arguments;
 
 		// validate input
 		assert(Object.prototype.toString.call(collectionName) == "[object String]",
@@ -250,8 +223,10 @@ var dbFunctions = function(logger,DEBUG){
 			.find(query, fields, options)
 			.toArray(function(err, doc) {
 				if (err) {
+					logger('err',err,{action:'find',arguments:args});
 					reject(err);
 				}
+				//logger('info',"Found " + doc.length + "meeting search criteria",{action:'find',arguments:arguments,user:user,target:collectionName})
 				resolve(doc);
 			});
 		});
@@ -261,8 +236,9 @@ var dbFunctions = function(logger,DEBUG){
 
 	/* find and remove a patient where options are the query to submit
  	* returns a promise */
-	var removeDocument = function(collectionName,options){
+	var removeDocument = function(collectionName,options,user){
 		assert.notStrictEqual(db, undefined); // ensure we're connected first
+		var args = arguments;
 
 		// validate input
 		assert(Object.prototype.toString.call(options) == "[object Object]",
@@ -273,8 +249,10 @@ var dbFunctions = function(logger,DEBUG){
 			var collection = db.collection(collectionName);
 			collection.remove(options,function(err,doc){
 				if (err){
+					logger('error',err,{action:'removeDocument',user:user,arguments:arguments, target:collectionName})
 					reject(err);
 				} else {
+					logger('info',"Document successfully removed",{action:'removeDocument',user:user,arguments:args,target:collectionName})
 					resolve(doc);
 				}
 			});	
@@ -282,7 +260,8 @@ var dbFunctions = function(logger,DEBUG){
 		return promise;
 	};
 
-	var aggregate = function(collectionName,aggArray){
+	var aggregate = function(collectionName,aggArray,user){
+		var args = arguments;
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(aggArray) == "[object Array]",
 			"Invalid Options, aggregate requires an array");
@@ -291,8 +270,10 @@ var dbFunctions = function(logger,DEBUG){
 			var collection = db.collection(collectionName);
 			collection.aggregate(aggArray,function(err,doc){
 				if (err){
+					logger('error',err,{action:'aggregate',user:user,arguments:args})
 					reject(err);
 				}
+				//logger('info',"Found " + doc.length + "meeting search criteria",{action:'aggregate',user:user,arguments:arguments,target:collectionName})
 				resolve(doc);
 			});
 		});
@@ -321,19 +302,15 @@ var dbFunctions = function(logger,DEBUG){
 			});
 		}).then(function(){
 			if (toAdd.length  > 0){
-				logInfo(toAdd.length.toString() + " default markers found on startup that are not present in the database. Adding new markers");
+				logger('info',toAdd.length.toString() + " default markers found on startup that are not present in the database. Adding new markers",{action:'checkDefaultMarkers'});
 				var o = {
 					documents : toAdd,
 					collectionName : dbConstants.PGX.COORDS.COLLECTION
 				};
-				return _this.insertMany(o).then(function(){
-					logInfo("Markers added successfully upon startup");
-				});
-			} else {
-				logInfo("No New Markers found on startup, nothing added to database");
+				return _this.insertMany(o)
 			}
 		}).catch(function(err){
-			logErr("error ecnountered when adding new default makrers on startup", err);
+			logger("error",err,{action:'checkDefaultGenes'});
 		});
 	};
 
@@ -354,19 +331,15 @@ var dbFunctions = function(logger,DEBUG){
 			});
 		}).then(function(){
 			if (toAdd.length  > 0){
-				logInfo(toAdd.length.toString() + " default genes found on startup that are not present in the database. Adding new genes");
+				logger('info',toAdd.length.toString() + " default genes found on startup that are not present in the database. Adding new genes",{action:'checkDefaultGenes'});
 				var o = {
 					documents : toAdd,
 					collectionName : dbConstants.PGX.GENES.COLLECTION
 				};
-				return _this.insertMany(o).then(function(){
-					logInfo("Genes added successfully upon startup");
-				});
-			} else {
-				logInfo("No New Genes found on startup, nothing added to database");
+				return _this.insertMany(o)
 			}
 		}).catch(function(err){
-			
+			logger('error',err,{action:'checkDefaultMarkers'});
 			logErr("error ecnountered when adding new default Genes on startup", err);
 		});
 	};
@@ -389,37 +362,28 @@ var dbFunctions = function(logger,DEBUG){
 	//=======================================================================================
 	/* Close the DB connection. */
 	this.closeConnection= function(callback) {
-		logInfo('closing Connection');
+		logger('info','closing connection to database',{action:'closeConnection'});
 		assert.notStrictEqual(db, undefined); // ensure we're connected first
 		db.close(callback);
 	};
 
 	/* Connect to the DB and initialize it using defaults if the DB has not been
 	 * initialized already. if silent exists, will not print to console.*/
-	this.connectAndInitializeDB= function(silent) {
+	this.connectAndInitializeDB= function() {
 		var _this = this;
 		var promise= new Promise(function(resolve, reject) {
 			// Connect to MongoDB
 			connect().then(function(result) {
-				if (!silent)
-					logInfo("Connected to MongoDB at " + dbURL);
-
 				/* Check if the "FrangipaniDB" DB already exists. If it doesn't, 
 				 * we need to intialize the DB. */
 				self.count(dbConstants.DB.SYSTEM_NAMESPACES).then(function(result) {
 				 	if (!result) { // # of collections in DB is 0
-				 		if (!silent){
-				 			logInfo("initializing database.");
-				 		}
 				 		return createInitCollections()
 				 			.catch(function(err) {
+				 				logger('error',err,{action:'connectAndInitializeDB'});
 			 					reject(err);
 			 				});
-				 	} else {
-				 		if (!silent)
-				 			logInfo("database has already been initialized.");
-				 	}
-				 	
+				 	} 
 				 }).then(function(){
 				 	return _this.checkDefaultMarkers();
 				 }).then(function(){
@@ -427,10 +391,11 @@ var dbFunctions = function(logger,DEBUG){
 				 }).then(function(){
 				 	resolve();
 				 }).catch(function(err) {
-				 	logErr("Error encountereed while initializing server",err);
+				 	logger("error",err,{action:'connectAndInitializeDB'});
 				 	reject(err);
 				 });
 			}).catch(function(err) {
+				logger("error",err,{action:'connectAndInitializeDB'});
 				reject(err);
 			});
 		});
@@ -445,8 +410,6 @@ var dbFunctions = function(logger,DEBUG){
 	this.isConfigured= function(set) {
 		assert.notStrictEqual(db, undefined); // ensure we're connected first
 		assert(Object.prototype.toString.call(set) == "[object Boolean]" || Object.prototype.toString.call(set) == "[object Undefined]","Invalid config set parameter");
-
-		logInfo("checking database configuration setting");
 		var promise= new Promise(function(resolve, reject) {
 			if (set === undefined) {  // Return config status
 				self.findOne(dbConstants.DB.ADMIN_COLLECTION, {})
@@ -475,20 +438,22 @@ var dbFunctions = function(logger,DEBUG){
 	//=======================================================================================
 	/* Insert a document into a collection.
 	 * Returns a promise. */
-	this.insert= function(collectionName, doc) {
+	this.insert= function(collectionName, doc, user) {
 		assert.notStrictEqual(db, undefined); // ensure we're connected first
+		var args = arguments;
 		// validate input
 		assert(Object.prototype.toString.call(collectionName) == "[object String]",
 			"Invalid collection");
 		assert(Object.prototype.toString.call(doc) == "[object Object]",
 			"Invalid document");
 
-		logInfo('inserting document', {'collection':collectionName});
 		var promise= new Promise(function(resolve, reject) {
 			db.collection(collectionName).insert(doc, {}, function(err, result) {
 				if (err) {
+					logger("error",err,{action:'insert',target:collectionName,user:user,arguments:args});
 					reject(err);
 				}
+				logger("info","Document successfully inserted",{action:'insert',user:user,target:collectionName});
 				resolve(doc);
 			});
 		});
@@ -503,16 +468,16 @@ var dbFunctions = function(logger,DEBUG){
 	this.insertMany = function(options){
 		assert.notStrictEqual(db, undefined); // ensure we're connected first
 
+
 		// validate input
 		assert(Object.prototype.toString.call(options) == "[object Object]",
 			"Invalid Options");
 
-		logInfo('inserting %d documents',options.documents.length,{'collection':options.collectionName});
+		
 		var promise = new Promise(function(resolve,reject){
-			if(!options.collectionName)
+			if(!options.collectionName){
 				reject(new ReferenceError("No Collection Name Provided"));
-			//if(options.documents.length > 100)
-			//		reject(new Error("Must contain less then 1000 documents"))
+			}
 			db.collection(options.collectionName,function(err,collection){
 				var bulk = collection.initializeOrderedBulkOp();
 				for (var i = 0; i < options.documents.length; i++){
@@ -520,8 +485,10 @@ var dbFunctions = function(logger,DEBUG){
 				}
 				bulk.execute(function(err,doc){
 					if(err){
+						logger("error",err,{action:'insertMany',target:options.collectionName,user:user,arguments:options});
 						reject(err);
 					} else {
+						logger("info","successfully inserted " + options.documents.length.toString() + "documents",{action:'insertMany',target:collectionName,user:user});
 						resolve(doc);
 					}
 				});
@@ -534,8 +501,9 @@ var dbFunctions = function(logger,DEBUG){
 	/* Update documents based on the query selector with the doc specifying which 
 	 * fields to update.
 	 * Returns a promise. */
-	this.update= function(collectionName, query, doc, options) {
+	this.update= function(collectionName, query, doc, options,user) {
 		assert.notStrictEqual(db, undefined); // ensure we're connected first
+		var args = arguments;
 
 		// validate input
 		assert(Object.prototype.toString.call(collectionName) == "[object String]",
@@ -548,13 +516,13 @@ var dbFunctions = function(logger,DEBUG){
 			assert(Object.prototype.toString.call(options) == "[object Object]",
 			"Invalid update options");
 
-
-		logInfo("updating document",{'query':query,'doc':doc,'collectionName':collectionName,'options':options});
 		var promise= new Promise(function(resolve, reject) {
 			db.collection(collectionName).update(query, doc, options, function(err, resultDoc) {
 				if (err) {
+					logger("error",err,{action:'update',arguments:args,target:collectionName,user:user});
 					reject(err);
 				}
+				logger("info","successfully updated documents",{action:'update',arguments:args,target:collectionName,user:user});
 				resolve(resultDoc);
 			});
 		});
@@ -567,6 +535,7 @@ var dbFunctions = function(logger,DEBUG){
 	 * Returns a promise. */
 	this.createIndex= function(collectionName, spec, options) {
 		assert.notStrictEqual(db, undefined); // ensure we're connected first
+		var args = arguments;
 
 		// validate input
 		assert(Object.prototype.toString.call(collectionName) == "[object String]",
@@ -577,8 +546,10 @@ var dbFunctions = function(logger,DEBUG){
 		var promise= new Promise(function(resolve, reject) {
 			db.collection(collectionName).createIndex(spec, options, function(err, result) {
 				if (err) {
+					logger("error",err,{action:'createIndex',arguments:args,target:collectionName});
 					reject(err);
 				}
+				logger("info","successfully created index",{action:'createIndex',arguments:args,target:collectionName});
 				resolve(result);
 			});
 		});
@@ -587,8 +558,9 @@ var dbFunctions = function(logger,DEBUG){
 
 	/* Find a single document based on the query. 
 	 * Returns a promise. */
-	this.findOne= function(collectionName, query) {
+	this.findOne= function(collectionName,query,user) {
 		assert.notStrictEqual(db, undefined); // ensure we're connected first
+		var args = arguments;
 
 		// validate input
 		assert(Object.prototype.toString.call(collectionName) == "[object String]",
@@ -598,8 +570,13 @@ var dbFunctions = function(logger,DEBUG){
 		var promise= new Promise(function(resolve, reject) {
 			db.collection(collectionName).findOne(query,function(err, doc) {
 				if (err) {
-		
+					logger("error",err,{action:'insert',arguments:args,target:collectionName,user:user});
 					reject(err);
+				}
+				if (doc){
+					logger("info","Found one document corresponding to search criteria",{action:'findOne',arguments:args,target:collectionName,user:user});
+				} else {
+					logger("info","Found no documents corresponding to search criteria",{action:'findOne',arguments:args,target:collectionName,user:user});
 				}
 				resolve(doc);
 			});
@@ -628,16 +605,16 @@ var dbFunctions = function(logger,DEBUG){
 	/* Create a new collection, raising an error if it already exists
 	 * returns a promise */
 
-	this.createCollection = function(name){
+	this.createCollection = function(name,user){
 		assert.notStrictEqual(db, undefined);
-
-		logInfo('creating Collection %s',name);
 		var promise = new Promise(function(resolve,reject){
 			if (name){
 				db.createCollection(name,{strict:true},function(err,collection){
 					if ( err ){
+						logger("error",err,{action:'createCollection',target:name,user:user});
 						reject(err);
 					} else {
+						logger("info","successfully create new collection",{action:'createCollection',target:name,user:user});
 						resolve(collection);
 					}
 				});
@@ -648,17 +625,18 @@ var dbFunctions = function(logger,DEBUG){
 
 	/* Drop a currently existing collection
 	 * returns a promise */
-	this.dropCollection = function(collectionName){
+	this.dropCollection = function(collectionName,user){
 		assert.notStrictEqual(db, undefined); 
 		assert(Object.prototype.toString.call(collectionName) == "[object String]",
 			"Invalid Options");
 
-		logInfo('dropping collection %d', collectionName);
 		var promise = new Promise(function(resolve,reject){
 			db.dropCollection(collectionName, function(err,done){
 				if (err){
+					logger("error",err,{action:'dropCollection',target:collectionName,user:user});
 					reject(err);
 				} else {
+					logger("info","successfully dropped collection from database",{action:'dropCollection',target:collectionName,user:user});
 					resolve(done);
 				}
 			});
@@ -667,7 +645,7 @@ var dbFunctions = function(logger,DEBUG){
 	};
 
 	/* Check within the specified database to determine whether or not an item exists*/
-	this.checkInDatabase = function(collection,field,value){
+	this.checkInDatabase = function(collection,field,value,user){
 		assert.notStrictEqual(db, undefined);
 		assert(Object.prototype.toString.call(collection) == "[object String]",
 			"Invalid collection");
@@ -675,7 +653,7 @@ var dbFunctions = function(logger,DEBUG){
 			"Invalid collection");
 		var query = {};
 		query[field] = value;
-		return this.findOne(collection,query).then(function(result){
+		return this.findOne(collection,query,user).then(function(result){
 			if (result){
 				return true;
 			} else {
@@ -728,7 +706,7 @@ var dbFunctions = function(logger,DEBUG){
 			query[dbConstants.PROJECTS.ID_FIELD] = projectName;
 		}
 		var resultArray;
-		return find(dbConstants.PROJECTS.COLLECTION,query).then(function(result){
+		return find(dbConstants.PROJECTS.COLLECTION,query,undefined,undefined,username).then(function(result){
 			resultArray = result;
 			return resultArray;
 		}).each(function(doc,index){
@@ -744,7 +722,7 @@ var dbFunctions = function(logger,DEBUG){
 	};
 
 	/* Add a new project */
-	this.addProject = function(options){
+	this.addProject = function(options,user){
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(options) == '[object Object]',"Invalid options");
 		//project info should have patient_id, details, and for future use, allowed users
@@ -754,14 +732,10 @@ var dbFunctions = function(logger,DEBUG){
 
 		var patientTags = options.patients;
 		var users = options.users;
-
-		logInfo("adding new project to database",{projectInfo:projectInfo});
-		return this.insert(dbConstants.PROJECTS.COLLECTION, projectInfo).then(function(result){
+		return this.insert(dbConstants.PROJECTS.COLLECTION, projectInfo, user).then(function(result){
 			if (patientTags) {
 				return Promise.each(patientTags, function(patient){
-					return self.addProjectToPatient(projectInfo[dbConstants.PROJECTS.ID_FIELD],patient).catch(function(err){
-						logErr(err);
-					});
+					return self.addProjectToPatient(projectInfo[dbConstants.PROJECTS.ID_FIELD],patient,user)
 				});
 			}	
 		});
@@ -769,19 +743,18 @@ var dbFunctions = function(logger,DEBUG){
 
 	/*remove project from collection */
 
-	this.removeProject = function(project){
+	this.removeProject = function(project,user){
 		var _this = this;
 		var query = {};
-		logInfo("removing %s project from database", project);
 		query[dbConstants.PROJECTS.ID_FIELD] = project;
-		return removeDocument(dbConstants.PROJECTS.COLLECTION,query)
+		return removeDocument(dbConstants.PROJECTS.COLLECTION,query,user)
 		.then(function(){
-			return _this.removePatientsFromProject(project);
+			return _this.removePatientsFromProject(project,undefined,user);
 		});
 	};
 
 
-	this.addProjectToPatient = function(project,patient){
+	this.addProjectToPatient = function(project,patient,user){
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(project) == "[object String]", "Invalid Project Name");
 		assert(Object.prototype.toString.call(patient) == "[object String]", "Invalid Patient Name");
@@ -791,13 +764,13 @@ var dbFunctions = function(logger,DEBUG){
 		doc = {};
 		doc[dbConstants.PROJECTS.ARRAY_FIELD] = project;
 		doc = {$addToSet:doc};
-		return this.update(dbConstants.PATIENTS.COLLECTION, query, doc);
+		return this.update(dbConstants.PATIENTS.COLLECTION, query, doc,undefined, user);
 	};
 
 	/* Remove the Tag for a project from one or more patients. Once the tag is remvoed the patient
 	 * is no longer associated with the previous project in any way and will not show up in the project
 	 * screen. */
-	this.removePatientsFromProject = function(project, patients){
+	this.removePatientsFromProject = function(project, patients,user){
 		var query = {};
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(project) == "[object String]", "Invalid Project Name");
@@ -811,14 +784,14 @@ var dbFunctions = function(logger,DEBUG){
 		doc[dbConstants.PROJECTS.ARRAY_FIELD] = project;
 		doc = {$pull:doc};
 		var options = {multi:true};
-		return this.update(dbConstants.PATIENTS.COLLECTION, query, doc, options).then(function(result){
+		return this.update(dbConstants.PATIENTS.COLLECTION, query, doc, options, user).then(function(result){
 			return true;
 		});
 	};
 
 	/* When a  new patient is added to a project add the project to their 'tags' field, so that this patient
 	 * will then be associated with the new project */
-	this.addPatientsToProject = function(project, patients){
+	this.addPatientsToProject = function(project, patients, user){
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(project) == "[object String]", "Invalid Project Name");
 		assert(Object.prototype.toString.call(patients) == "[object Array]", "Patients must be an array");
@@ -828,7 +801,7 @@ var dbFunctions = function(logger,DEBUG){
 		doc[dbConstants.PROJECTS.ARRAY_FIELD] = project;
 		doc = {$addToSet:doc};
 		var options = {multi:true};
-		return this.update(dbConstants.PATIENTS.COLLECTION, query, doc, options).then(function(result){
+		return this.update(dbConstants.PATIENTS.COLLECTION, query, doc, options, user).then(function(result){
 			return true;
 		});
 	};
@@ -841,14 +814,14 @@ var dbFunctions = function(logger,DEBUG){
 
 	/* Create a patient with the input patient ID.
 	 * Returns a promise which resolves to the new patient collection ID. */
-	this.addPatient= function(options) {
+	this.addPatient= function(options, user) {
 		assert.notStrictEqual(db, undefined); // ensure we're connected first
+		var args = arguments;
 		var currentPatientCollectionID;
 		var promise= new Promise(function(resolve, reject) {
 			/* Get most recent patient collection ID integer from the admin table
 			 * and increment it. */
-			logInfo('adding new patient: %s to databse',options[dbConstants.PATIENTS.ID_FIELD]);
-			self.findOne(dbConstants.DB.ADMIN_COLLECTION, {})
+			self.findOne(dbConstants.DB.ADMIN_COLLECTION, {}, user)	
 				.then(function(doc) {
 					currentPatientCollectionID= doc[dbConstants.PATIENTS.CURRENT_INDEX_FIELD];
 					// Add new patient
@@ -864,16 +837,16 @@ var dbFunctions = function(logger,DEBUG){
 						
 
 					currentDocument[dbConstants.PATIENTS.COLLECTION_ID]= "p" + currentPatientCollectionID;
-					return self.insert(dbConstants.PATIENTS.COLLECTION, currentDocument);
+					return self.insert(dbConstants.PATIENTS.COLLECTION, currentDocument,user);
 				}).then(function(result) {
 					// Increment patient collection ID only after insert is done
 					currentDocument= {};
 					currentDocument[dbConstants.PATIENTS.CURRENT_INDEX_FIELD]= 1;  // increment by 1
-					return self.update(dbConstants.DB.ADMIN_COLLECTION, {}, {$inc: currentDocument});
+					return self.update(dbConstants.DB.ADMIN_COLLECTION, {}, {$inc: currentDocument},undefined,user);
 				}).then(function(result) {
 					resolve({newCollection:"p" + currentPatientCollectionID, document:currentDocument});
 				}).catch(function(err) {
-					logErr(err);
+					logger("error",err,{action:'addPatient',target:dbConstants.PATIENTS.COLLECTION,arguments:args});
 					reject(err);
 				});
 		});
@@ -881,21 +854,19 @@ var dbFunctions = function(logger,DEBUG){
 	};
 
 	/*remove patient from patient collection */
-	this.removePatient = function(patient){
+	this.removePatient = function(patient,user){
 		assert.notStrictEqual(db, undefined);
 		assert(Object.prototype.toString.call(patient) == "[object String]", "Invalid Patient Name");
 		var query = {};
 		var _this = this;
 		var failure;
 		query[dbConstants.PATIENTS.ID_FIELD] = patient;
-		logInfo('removing patient: %s from databse',patient);
-		return this.findOne(dbConstants.PATIENTS.COLLECTION,query).then(function(result){
+		return this.findOne(dbConstants.PATIENTS.COLLECTION,query,user).then(function(result){
 			failure = result;
-			return _this.dropCollection(result[dbConstants.PATIENTS.COLLECTION_ID]);
+			return _this.dropCollection(result[dbConstants.PATIENTS.COLLECTION_ID],user);
 		}).catch(function(err){
-				logInfo("No Variant collection found");
 		}).then(function(){
-			return removeDocument(dbConstants.PATIENTS.COLLECTION,query);
+			return removeDocument(dbConstants.PATIENTS.COLLECTION,query,user);
 		}).then(function(){
 			failure[dbConstants.FAILURE.ANNO_COMPLETE] = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 			failure[dbConstants.FAILURE.FAIL_FIELD] = true;
@@ -923,7 +894,7 @@ var dbFunctions = function(logger,DEBUG){
 			var q ={};
 			q[dbConstants.DB.OWNER_ID] = username;
 			query.$or.push(q);
-			return find(collectionName, query, {}, options);
+			return find(collectionName, query, {}, options, username);
 		});
 	};
 
@@ -934,13 +905,13 @@ var dbFunctions = function(logger,DEBUG){
 	 * To get output sorted by date and time(newest patient records first), do:
 	 * options == {sort: {"date": -1, "time": -1}} */
 
-	this.findAllPatientsInProject = function(project,options){
+	this.findAllPatientsInProject = function(project,options,user){
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(project) == "[object String]", "Invalid Project Name");
 		var field = {'_id':0};
 		query = {};
 		query[dbConstants.PROJECTS.ARRAY_FIELD] = project;
-		return find(dbConstants.PATIENTS.COLLECTION,query,field,options);
+		return find(dbConstants.PATIENTS.COLLECTION,query,field,options,user);
 	};
 
 
@@ -969,7 +940,7 @@ var dbFunctions = function(logger,DEBUG){
 				query = ownerQuery;
 			}
 			query[dbConstants.PATIENTS.READY_FOR_USE] = true;
-			return find(dbConstants.PATIENTS.COLLECTION,query,null,options);
+			return find(dbConstants.PATIENTS.COLLECTION,query,null,options,username);
 		}).then(function(result){
 			return result.filter(function(patient){
 				if (!patient[dbConstants.PROJECTS.ARRAY_FIELD])
@@ -1005,13 +976,13 @@ var dbFunctions = function(logger,DEBUG){
 			query.$or = queryList;
 			if (readyOnly){
 				query[dbConstants.PATIENTS.READY_FOR_USE] = true;
-				return find(dbConstants.PATIENTS.COLLECTION,query,null,options);
+				return find(dbConstants.PATIENTS.COLLECTION,query,null,options,username);
 			} else {
 				var goodResults;
-				return find(dbConstants.PATIENTS.COLLECTION,query,null,options)
+				return find(dbConstants.PATIENTS.COLLECTION,query,null,options,username)
 				.then(function(result){
 					goodResults = result;
-					return find(dbConstants.FAILURE.COLLECTION,query,null,options);
+					return find(dbConstants.FAILURE.COLLECTION,query,null,options,username);
 				}).then(function(failures){
 					return goodResults.concat(failures);
 				}).then(function(result){
@@ -1108,7 +1079,7 @@ var dbFunctions = function(logger,DEBUG){
 	};
 
 
-	this.getPGXCoords = function(rsID) {
+	this.getPGXCoords = function(rsID,username) {
 		assert.notStrictEqual(db,undefined);
 		var query = {};
 		if (Object.prototype.toString.call(rsID) == "[object Array]")
@@ -1116,7 +1087,7 @@ var dbFunctions = function(logger,DEBUG){
 		else if (rsID)
 			query[dbConstants.PGX.COORDS.ID_FIELD] = rsID;
 
-		return find(dbConstants.PGX.COORDS.COLLECTION,query,{"_id":0})
+		return find(dbConstants.PGX.COORDS.COLLECTION,query,{"_id":0},null,username)
 		.then(function(result){
 			var out = {};
 			for (var i = 0; i < result.length; i++ ){
@@ -1132,12 +1103,12 @@ var dbFunctions = function(logger,DEBUG){
 	};
 
 	//remove the selected marker
-	this.removePGXCoords = function(rsID){
+	this.removePGXCoords = function(rsID,user){
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(rsID) == "[object String]");
 		var query = {};
 		query[dbConstants.PGX.COORDS.ID_FIELD] = rsID;
-		return removeDocument(dbConstants.PGX.COORDS.COLLECTION,query);
+		return removeDocument(dbConstants.PGX.COORDS.COLLECTION,query,user);
 
 	};
 
@@ -1146,14 +1117,14 @@ var dbFunctions = function(logger,DEBUG){
 	 * arugment. If an array or string is passed it will search for all of the genes
 	 * in that are named, while if no arguments are passed it will retrieve ALL
 	 * of the genes */
-	this.getPGXGenes = function(geneName){
+	this.getPGXGenes = function(geneName,user){
 		assert.notStrictEqual(db,undefined);
 		var query = {};
 		if (Object.prototype.toString.call(geneName) == '[object Array]')
 			query[dbConstants.PGX.GENES.ID_FIELD] = {$in:geneName};
 		else if (geneName)
 			query[dbConstants.PGX.GENES.ID_FIELD] = geneName;
-		return find(dbConstants.PGX.GENES.COLLECTION,query,{'_id':0})
+		return find(dbConstants.PGX.GENES.COLLECTION,query,{'_id':0},undefined,user)
 		.then(function(result){
 			var out = {};
 			for (var i=0; i< result.length; i++ ){
@@ -1165,40 +1136,40 @@ var dbFunctions = function(logger,DEBUG){
 	};
 
 	//Remove the specified Gene
-	this.removePGXGene = function(geneName){
+	this.removePGXGene = function(geneName,user){
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(geneName) == "[object String]");
 		var query = {};
 		query[dbConstants.PGX.GENES.ID_FIELD] = geneName;
-		return removeDocument(dbConstants.PGX.GENES.COLLECTION,query);
+		return removeDocument(dbConstants.PGX.GENES.COLLECTION,query,user);
 
 	};
 
 	//Update the specified gene with the requqired parameter Doc
-	this.updatePGXGene = function(geneName,doc){
+	this.updatePGXGene = function(geneName,doc,user){
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(geneName) == "[object String]");
 		assert(Object.prototype.toString.call(doc) == "[object Object]");
 
 		var query = {};
 		query[dbConstants.PGX.GENES.ID_FIELD] = geneName;
-		return this.update(dbConstants.PGX.GENES.COLLECTION,query,doc);
+		return this.update(dbConstants.PGX.GENES.COLLECTION,query,doc,undefined,user);
 	};
 
 	//Update the specified marker with the required parameter Doc
-	this.updatePGXCoord = function(rsID,doc){
+	this.updatePGXCoord = function(rsID,doc,user){
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(rsID) == "[object String]");
 		assert(Object.prototype.toString.call(doc) == "[object Object]");
 		var query = {};
 		query[dbConstants.PGX.COORDS.ID_FIELD] = rsID;
-		return this.update(dbConstants.PGX.COORDS.COLLECTION,query,doc);
+		return this.update(dbConstants.PGX.COORDS.COLLECTION,query,doc,undefined,user);
 	};
 
 	/* Find all PGx variants for a specific patient ID.
 	 * NOTE: patient ID is the user-specified ID, not the internal collection ID.
 	 * Returns a promise. */
-	this.getPGXVariants= function(patientID) {
+	this.getPGXVariants= function(patientID,user) {
 
 		assert.notStrictEqual(db, undefined);  // ensure we're connected first
 		var self = this;
@@ -1206,7 +1177,7 @@ var dbFunctions = function(logger,DEBUG){
 		var query= {};
 		query[dbConstants.PATIENTS.ID_FIELD]= patientID;
 
-		var promise= this.findOne(dbConstants.PATIENTS.COLLECTION, query)
+		var promise= this.findOne(dbConstants.PATIENTS.COLLECTION, query, user)
 		.then(function(result) {
 			currentPatientCollectionID = result[dbConstants.PATIENTS.COLLECTION_ID];
 			return self.getPGXGenes();
@@ -1249,7 +1220,7 @@ var dbFunctions = function(logger,DEBUG){
 				tempCoords[dbConstants.VARIANTS.START] = result[keys[i]].pos;
 				query.$or.push(tempCoords);
 			}
-			return find(currentPatientCollectionID, query, {"_id": 0}); // don't send internal _id field
+			return find(currentPatientCollectionID, query, {"_id": 0},undefined,user); // don't send internal _id field
 		})
 		.then(function(result) {
 			var doc= {};
@@ -1263,7 +1234,7 @@ var dbFunctions = function(logger,DEBUG){
 			opts[dbConstants.DB.REPORT_FOOTER] = 1;
 			opts[dbConstants.DB.REPORT_DISCLAIMER] = 1;
 
-			return find(dbConstants.DB.ADMIN_COLLECTION, {}, opts)
+			return find(dbConstants.DB.ADMIN_COLLECTION, {}, opts,undefined,user)
 			.then(function(result) {
 				doc[dbConstants.DB.REPORT_FOOTER]= result[0][dbConstants.DB.REPORT_FOOTER];
 				doc[dbConstants.DB.REPORT_DISCLAIMER]= result[0][dbConstants.DB.REPORT_DISCLAIMER];
@@ -1360,8 +1331,7 @@ var dbFunctions = function(logger,DEBUG){
 		newPass = {};
 		newPass[dbConstants.USERS.PASSWORD_FIELD] = encryptPassword;
 		var doc = {$set:newPass};
-		logInfo('generating new password for user', {'user':user});
-		return this.update(dbConstants.USERS.COLLECTION,query,doc).then(function(result){
+		return this.update(dbConstants.USERS.COLLECTION,query,doc,undefined,user).then(function(result){
 			return newPassowrd;
 		});
 	};
@@ -1381,23 +1351,23 @@ var dbFunctions = function(logger,DEBUG){
 		query[dbConstants.USERS.ID_FIELD] = user;
 		doc[dbConstants.USERS.PASSWORD_FIELD] = encryptPassword;
 		doc = {$set:doc};
-		logInfo('changing password for user', {'user':user});
-		return this.update(dbConstants.USERS.COLLECTION,query,doc);
+		logger('info','changing password for' + user,{action:'changePassword'});
+		return this.update(dbConstants.USERS.COLLECTION,query,doc,user);
 	};
 
 	//Functions related to dealing with drug dosing and drugs
 	this.drugs = {
 		//Get the genes associated with drug recomednations and return an array of genes;
-		getGenes : function(){
+		getGenes : function(user){
 			assert.notStrictEqual(db,undefined);
 			options = {};
 			options[dbConstants.DRUGS.DOSING.ID_FIELD] = 1;
-			return find(dbConstants.DRUGS.DOSING.COLLECTION,{},options);
+			return find(dbConstants.DRUGS.DOSING.COLLECTION,{},options,undefined,user);
 		},
 
 		/* for the given genes, return all the dosing information current in the database. this information
 		 * is returned in the form of an array. The function can accept either a stirng or an array */
-		getGeneDosing : function(gene){
+		getGeneDosing : function(gene,user){
 			assert.notStrictEqual(db,undefined);
 			var query = {};
 			if (Object.prototype.toString.call(gene) == '[object Array]'){
@@ -1405,7 +1375,7 @@ var dbFunctions = function(logger,DEBUG){
 			} else {
 				query[dbConstants.DRUGS.DOSING.ID_FIELD] = gene;
 			}
-			return 	find(dbConstants.DRUGS.DOSING.COLLECTION,query).then(function(result){
+			return 	find(dbConstants.DRUGS.DOSING.COLLECTION,query,undefined,undefined,user).then(function(result){
 				if (result.length === 0) return null;
 				else if (result.length === 1 ) return result[0];
 				else return result;
@@ -1414,13 +1384,13 @@ var dbFunctions = function(logger,DEBUG){
 
 		//Remove a recomendation from the databse. Removes a sinlge recomendation based on a Therapeutic Class
 		//This will remo
-		removeGeneEntry : function(gene){
+		removeGeneEntry : function(gene,user){
 			assert.notStrictEqual(db,undefined);
 			assert(Object.prototype.toString.call(gene) == '[object String]', "Requires Gene name to be a string");
 
 			var o = {};
 			o[dbConstants.DRUGS.DOSING.ID_FIELD] = gene;
-			return removeDocument(dbConstants.DRUGS.DOSING.COLLECTION,o);
+			return removeDocument(dbConstants.DRUGS.DOSING.COLLECTION,user);
 		},
 		
 	};

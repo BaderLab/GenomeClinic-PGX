@@ -18,7 +18,6 @@ module.exports = function(app,logger,opts,passport){
 	//initialize the transporter for sending mail via gmail
 	//==================================================================
 	if (opts.gmail && opts.password){
-		logger.info('Email provided for user communication, setting up mailer');
 		var transporter = nodemailer.createTransport({
 			service:'gmail',
 			auth:{
@@ -70,7 +69,7 @@ module.exports = function(app,logger,opts,passport){
 	//SIGNUP Request if flag true
 	//==================================================================
 	if (opts.signup){
-		logger.info('Using account signup');
+		logger('Info','Using account signup');
 		app.get('/signup',function(req,res){
 			if (req.isAuthenticated())
 				res.redirect('/');
@@ -91,7 +90,7 @@ module.exports = function(app,logger,opts,passport){
 	// Add recover Password if Flag true
 	//==================================================================
 	if (opts.recover) {	
-		logger.info('Using account recovery');
+		logger('info','Using account recovery');
 		app.get('/recover', function(req,res){
 			if (req.isAuthenticated())
 				res.redirect('/');
@@ -162,6 +161,7 @@ module.exports = function(app,logger,opts,passport){
 								res.redirect('/success');
 							});
 						} else {
+							logger('info','failed attempt to change password for user ' + username, {user:username,action:'changePassword'});
 							req.flash('error','Oops incorrect password!');
 							req.flash('statusCode','400');
 							res.redirect('/failure');
