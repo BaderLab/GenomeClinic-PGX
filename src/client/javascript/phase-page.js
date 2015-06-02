@@ -391,6 +391,7 @@ module.exports = function(){
 				type:'GET',
 				contentType:'application/json'
 			})).then(function(result){
+				console.log(result);
 				var gene,hap,obj,i;
 				//a bit of massagig the data into the proper format
 				for (gene in result){

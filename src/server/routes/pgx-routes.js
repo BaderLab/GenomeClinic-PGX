@@ -77,19 +77,19 @@ module.exports = function(app,logger,opts){
 	app.get('/browsepatients/id/:patientID/download/:id',utils.isLoggedIn,function(req,res){
 		var file = req.params.id;
 		var path = constants.nodeConstants.TMP_UPLOAD_DIR + '/' + file;
-		logger('info',"Sending Report file: " + path + " to user: " + req.user[constants.dbConstants.USERS.ID_FIELD],{user:req.user.username,action:'download'} 
+		logger('info',"Sending Report file: " + path + " to user: " + req.user[constants.dbConstants.USERS.ID_FIELD],{user:req.user.username,action:'download'}); 
 		res.download(path,file,function(err){
 			if (err){
-				logger.error("Report file: " + path + " failed to send to user:  " + req.user[constants.dbConstants.USERS.ID_FIELD],err);
+				logger("error",err,{user:req.user.username,target:path,action:'download'});
 			} else {
 				var html = path.replace(/.pdf$/,'.html');
 				fs.unlink(html,function(err){
 					if (err)
-						logger.error("Failed to remove report file: " + html,err);
+						logger("error",err,{user:req.user.username,target:html,action:'unlink'});
 				});
 				fs.unlink(path,function(err){
 					if (err)
-						logger.error("Failed to remove report file: " + path,err);
+						logger("error",err,{user:req.user.username,target:path,action:'unlink'});
 				});
 			}
 		});
@@ -142,7 +142,7 @@ module.exports = function(app,logger,opts){
 
 	//Get a list of all the current haploytpes and geenes
 	app.get('/database/haplotypes/getgenes',utils.isLoggedIn,function(req,res){
-		dbFunctions.getPGXGenes(req.user.username).then(function(result){
+		dbFunctions.getPGXGenes(undefined,req.user.username).then(function(result){
 			if (result)
 				res.send(result);
 			else 
@@ -254,7 +254,7 @@ module.exports = function(app,logger,opts){
 	
 	//Get ALL the markers
 	app.get('/database/markers/getmarkers',utils.isLoggedIn,function(req,res){
-		dbFunctions.getPGXCoords(req.user.username).then(function(result){
+		dbFunctions.getPGXCoords(undefined,req.user.username).then(function(result){
 			if (result)
 				res.send(result);
 			else

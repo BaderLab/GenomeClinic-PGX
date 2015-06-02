@@ -39,7 +39,7 @@ var dbFunctions = function(){
 				if (err) {
 					reject(err);
 				}
-				logger("info","Connected to mongoDatabase",{target:DB,action:'connect'});
+				logger("info","Connected to mongoDatabase",{target:dbURL,action:'connect'});
 				db = DB;
 				resolve(DB);
 			});
@@ -244,7 +244,7 @@ var dbFunctions = function(){
 		assert(Object.prototype.toString.call(options) == "[object Object]",
 			"Invalid Options");
 
-		logInfo('removing document from collection', {'collection':collectionName,query:options});
+		logger('info','removing document from collection', {'collection':collectionName,query:options});
 		var promise = new Promise(function(resolve,reject){
 			var collection = db.collection(collectionName);
 			collection.remove(options,function(err,doc){
@@ -340,7 +340,6 @@ var dbFunctions = function(){
 			}
 		}).catch(function(err){
 			logger('error',err,{action:'checkDefaultMarkers'});
-			logErr("error ecnountered when adding new default Genes on startup", err);
 		});
 	};
 
@@ -465,7 +464,7 @@ var dbFunctions = function(){
 	 * tablename: tablename
 	 * documents: {object to insert}
 	 * Returns a promise. */
-	this.insertMany = function(options){
+	this.insertMany = function(options,user){
 		assert.notStrictEqual(db, undefined); // ensure we're connected first
 
 
@@ -488,7 +487,7 @@ var dbFunctions = function(){
 						logger("error",err,{action:'insertMany',target:options.collectionName,user:user,arguments:options});
 						reject(err);
 					} else {
-						logger("info","successfully inserted " + options.documents.length.toString() + "documents",{action:'insertMany',target:collectionName,user:user});
+						logger("info","successfully inserted " + options.documents.length.toString() + "documents",{action:'insertMany',target:options.collectionName,user:user});
 						resolve(doc);
 					}
 				});
@@ -533,7 +532,7 @@ var dbFunctions = function(){
 	 * spec format example: {a:1, b:-1}, a in ascending index order, b in descending
 	 * options format example: {unique: true} to ensure that the index is unique
 	 * Returns a promise. */
-	this.createIndex= function(collectionName, spec, options) {
+	this.createIndex= function(collectionName, spec, options,user) {
 		assert.notStrictEqual(db, undefined); // ensure we're connected first
 		var args = arguments;
 
@@ -546,10 +545,10 @@ var dbFunctions = function(){
 		var promise= new Promise(function(resolve, reject) {
 			db.collection(collectionName).createIndex(spec, options, function(err, result) {
 				if (err) {
-					logger("error",err,{action:'createIndex',arguments:args,target:collectionName});
+					logger("error",err,{action:'createIndex',arguments:args,target:collectionName,user:user});
 					reject(err);
 				}
-				logger("info","successfully created index",{action:'createIndex',arguments:args,target:collectionName});
+				logger("info","successfully created index",{action:'createIndex',arguments:args,target:collectionName,user:user});
 				resolve(result);
 			});
 		});
@@ -872,7 +871,7 @@ var dbFunctions = function(){
 			failure[dbConstants.FAILURE.FAIL_FIELD] = true;
 			return _this.insert(dbConstants.FAILURE.COLLECTION,failure);
 		}).catch(function(err){
-				logErr(err);
+				logger('error',err,{user:user,action:'removePatient'});
 		});
 	};
 
@@ -1256,7 +1255,7 @@ var dbFunctions = function(){
 		assert(Object.prototype.toString.call(user[dbConstants.USERS.PASSWORD_FIELD]) == "[object String]",
 			"Invalid Options");
 		//encrypt the password
-		logInfo('adding new user to databse', {'user':user[dbConstants.USER_ID_FIELD]});
+		logger('info','adding new user to databse', {'user':user[dbConstants.USER_ID_FIELD]});
 		user[dbConstants.USERS.PASSWORD_FIELD] = bcrypt.hashSync(user[dbConstants.USERS.PASSWORD_FIELD], bcrypt.genSaltSync(8), null);
 		return this.insert(dbConstants.USERS.COLLECTION,user);
 

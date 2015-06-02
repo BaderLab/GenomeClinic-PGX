@@ -119,7 +119,7 @@ if (opts.https && (! opts.crt || !opts.key)){
 	process.exit(1);
 }
 
-logger('info','Starting server',opts);
+logger('info','Starting server',{arguments:opts});
 //=======================================================================
 //Make log Directories
 //=======================================================================
