@@ -45,59 +45,116 @@
 {{#pgxGenes}}
 <div class="row">
 	<div class="large-12 small-12 medium-12 columns">
+		<div class="row">
+			<div class="large-9 small-12 medium-9 columns">
+				<h3><strong>{{gene}}</strong></h3>
+			</div>
+			<div class="large-1 small-12 medium-1 columns">
+				<a href="#"><i class="fa fa-plus haplotype-expand" gene="{{gene}}" expanded={{#if patientHaplotypes}}"yes"{{else}}"no"{{/if}}></i></a>
+			</div>
+		</div>
+		<div id="table{{gene}}" class="haplotype-expand-div small-12 medium-12 large-12 columns">
+			{{#if patientHaplotypes}}
+			<table class="patient-haplotype-table" style="margin-bottom:0px">
+				<thead>
+					<th class="haplotype-columns">Patient Haplotype 1</th>
+					{{#heads}}
+					<th><a target="_blank" href={{url}} rs={{id}}">{{id}}</a></th>
+					{{/heads}}
+				</thead>
+				<tbody>
+					<tr class="patient-genotype-row">
+						<td class="haplotype-columns"><em>{{patientHaplotypes.h1.name}}</em></td>
+						{{#patientHaplotypes.h1.variants}}
+						<td class="variant-{{class}}">{{variant}}</td>
+						{{/patientHaplotypes.h1.variants}}
+					</tr>
+					{{#patientHaplotypes.h1.possible}}
+				</tbody>
+			</table>
+			<table style="margin-top:0px">
+				<thead>
+					<tr>
+						<th class="haplotype-columns">Patient Haplotype 1</th>
+						{{#heads}}
+						<th class="marker-column">s</th>
+						{{/heads}}
+					</tr>
+
+				</thead>
+				<tbody>
+					<tr>
+						<td class="haplotype-columns">{{name}}</td>
+						{{#variants}}
+						<td class="variant-{{class}}">{{variant}}</td>
+						{{/variants}}
+					</tr>
+					{{/patientHaplotypes.h1.possible}}
+				</tbody>
+			</table>
+			<table class="patient-haplotype-table">
+				<thead>
+					<tr>
+						<th class="haplotype-columns">Patient Haplotype 2</th>
+						{{#heads}}
+						<th><a target="_blank" href={{url}} rs={{id}}">{{id}}</a></th>
+						{{/heads}}
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="patient-genotype-row">
+						<td class="haplotype-columns"><em>{{patientHaplotypes.h2.name}}</em></td>
+						{{#patientHaplotypes.h2.variants}}
+						<td class="variant-{{class}}">{{variant}}</td>
+						{{/patientHaplotypes.h2.variants}}
+					</tr>
+					{{#patientHaplotypes.h2.possible}}
+					<tr>
+						<td class="haplotype-columns">{{name}}</td>
+						{{#variants}}
+						<td class="variant-{{class}}">{{variant}}</td>
+						{{/variants}}
+					</tr>
+					{{/patientHaplotypes.h2.possible}}
+				</tbody>
+			</table>
+			{{else}}
 			<div class="row">
-				<div class="large-2 small-12 medium-4 columns">
-					<h3><strong>{{gene}}</strong></h3>
-				</div>
-				<div class="large-9 small-12 medium-7 columns">
-					<h3>
-					{{#if possibleHaplotypes}}
-					<em class="haplo-present">
-					{{#possibleHaplotypes}}
-						{{string}}{{after}}
-					{{/possibleHaplotypes}}
-					{{else}}
-						<em class="haplo-not-present" style="color:red;">No haplotypes detected</em>
-					{{/if}}
-					</h3>
-				</div>
-				<div class="large-1 small-12 medium-1 columns">
-					<a href="#"><i class="fa fa-plus haplotype-expand" gene="{{gene}}" expanded="yes"></i></a>
-				</div>
+		      	<div class="small-12columns">
+		        	<div data-alert class="alert-box radius secondary">
+		        	<!-- Alert message goes here -->
+		         	 	<div class="row">
+		            		<div class="small-12column columns">
+				            	<h4>Warning</h4>
+				              	<p>There are no variants corresponding to the gene: {{gene}}.</p>
+		            		</div>
+		          			
+		        		</div>
+		    		</div>
+		  		</div>
 			</div>
-			
-			{{!-- The next div is for sliding. Tables cannot slide using JQuery. See http://stackoverflow.com/questions/467336/how-to-use-slidedown-or-show-function-on-a-table-row --}}
-			
-			<div id="table{{gene}}" class="haplotype-expand-div small-12 medium-12 large-12 columns">
-				<table>
-					<thead>
-						<tr>
-							<th>Haplotype</th>
-							{{#heads}}
-							<th><a target="_blank" href={{url}} rs={{id}}">{{id}}</a></th>
-							{{/heads}}
-						</tr>
-					</thead>
-					<tbody>
-						{{#patientHaplotypes}}
-						<tr class="patient-genotype-row">
-							<td><em>{{name}}</em></td>
-							{{#variants}}
-							<td class="variant-{{class}}">{{variant}}</td>
-							{{/variants}}
-						</tr>
-						{{/patientHaplotypes}}
-						{{#haplotypes}}
-						<tr>
-							<td>{{name}}</td>
-							{{#variants}}
-							<td class="variant-{{class}}">{{variant}}</td>
-							{{/variants}}
-						</tr>
-						{{/haplotypes}}
-					</tbody>
-				</table>
-			</div>
+			{{/if}}
+			<table class="all-possible-haplotypes">
+				<thead>
+					<tr>
+						<th class="haplotype-columns">Known Haplotypes</th>
+						{{#heads}}
+						<th><a target="_blank" href={{url}} rs={{id}}">{{id}}</a></th>
+						{{/heads}}
+					</tr>
+				</thead>
+				<tbody>
+					{{#haplotypes}}
+					<tr>
+						<td class="haplotype-columns">{{name}}</td>
+						{{#variants}}
+						<td class="variant-{{class}}">{{variant}}</td>
+						{{/variants}}
+					</tr>
+					{{/haplotypes}}
+				</tbody>
+			</table>
+		</div>
 	</div>	
 </div>
 {{/pgxGenes}}

@@ -198,6 +198,7 @@ var pgx =  {
 	 * Returns a promise. */
 	generateAllHaplotypes: function(pgxData) {
 		var self = this;
+		var m,chrom,pos,found,currentVariant,definedDiplotype,unphasedHets,possibleHaplotypes,allVariants,currentGeneMarkers;
 		pgxData.possibleHaplotypes= {};
 
 		// Iterate through all genes
@@ -208,24 +209,25 @@ var pgx =  {
 
 		for (var i= 0; i < geneNames.length; ++i) {
 			// see lab notebook for ideas here: - lists of hashes
-			var definedDiplotype= null;
-			var unphasedHets= {};
-			var possibleHaplotypes= [];
+			definedDiplotype= null;
+			unphasedHets= {};
+			possibleHaplotypes= [];
 
 			// Iterate through the markers for this gene, and match variants by
 			// coordinates not gene name (which is annotated by annovar)
-			var currentGeneMarkers= pgxData.geneMarkers[geneNames[i]];
-			var allVariants= pgxData.variants;
+			currentGeneMarkers= pgxData.geneMarkers[geneNames[i]];
+			allVariants= pgxData.variants;
+
 			for (var j= 0; j < currentGeneMarkers.length; ++j) {
-				var m= currentGeneMarkers[j];
-				var chrom= pgxData.pgxCoordinates[m].chr;
-				var pos= pgxData.pgxCoordinates[m].pos;
+				m= currentGeneMarkers[j];
+				chrom= pgxData.pgxCoordinates[m].chr;
+				pos= pgxData.pgxCoordinates[m].pos;
 
 				// Match with this patient's variants. Simplest to iterate through
 				// all patient variants and match coordinates for current marker
-				var found= false;
+				found= false;
 				for (var k= 0; k < allVariants.length; ++k) {
-					var currentVariant= allVariants[k];
+					currentVariant= allVariants[k];
 					if (chrom === currentVariant.chr && pos === currentVariant.pos) {
 						// marker found
 						found= true;
@@ -409,8 +411,10 @@ var pgx =  {
 		// helpers, which dynamically render the HTML.
 		self.generatePgxResults(selectedPatientID,selectedPatientAlias)
 		.then(function(){
+			console.log(self.globalPGXData);
 			return self.convertTotemplateData();
 		}).then(function(result){
+			console.log(result);
 			self.templateData = result;
 			templateData = result;
 			if (self.pgxGenesRemoved)
@@ -420,7 +424,6 @@ var pgx =  {
 			$('#main').html(html);
 			self.addEventListeners();
 		}).then(function(){
-
 			utility.refresh();
 		});
 	},
@@ -432,7 +435,6 @@ var pgx =  {
 			contentType: "application/json",
 		}))
 		.then(function(result) {
-			console.log(result);
 			if (result.pgxGenesRemoved.length !== 0)
 				self.pgxGenesRemoved = result.pgxGenesRemoved;
 			return self.processPGXResponse(selectedPatientAlias, selectedPatientID, result);
@@ -470,12 +472,27 @@ var pgx =  {
 			$(element).css("transform", "rotate(0deg)");
 		};
 
+		$('.haplo-name').on('mouseover',function(){
+			var name = $(this).text();
+			var haplotypeRow = $(this).closest('.haplotype-expand-div').find(".all-possible-haplotypes").find('tbody tr:contains("' + name +'")');
+			$(haplotypeRow).data('origcolor',$(haplotypeRow).attr('background'))
+			haplotypeRow.animate({color:"#FF9999"})
+
+		});
+
+		$('.haplo-name').on('mouseout',function(){
+			var name = $(this).text();
+			var haplotypeRow = $(this).closest('.haplotype-expand-div').find(".all-possible-haplotypes").find('tbody tr:contains("' + name +'")');
+			$(haplotypeRow).animate({color:"#FFFFF"})
+
+		});
+
 		$('.alert-box').find('.close-box').on('click',function(e){
 			e.preventDefault();
 			$(this).closest('.alert-box').slideUp();
 		});
 
-		$("i.haplotype-expand").on("click", function(event) {
+		$(".haplotype-expand").on("click", function(event) {
 			// prevent default <a href="#"> click event (jumps to top of page)
 			event.preventDefault();
 
@@ -518,10 +535,8 @@ var pgx =  {
 				$(".haplotype-expand-div").slideDown();
 			}
 		});
-
-		$('.haplo-not-present').closest('.row').find('i.haplotype-expand').trigger('click');
-
-
+		
+		
 		//Trigger an event that will cause a pdf report to be generated adn then be sent to the user
 		// for download
 		$('#download').on('click',function(e){
@@ -540,6 +555,8 @@ var pgx =  {
 				$(_this).text("Download");
 			});
 		});
+
+		$('.haplotype-expand[expanded=no]').trigger('click')
 	},
 
 	//Convert the templated data within the global pgx field into a more usable format
@@ -555,9 +572,9 @@ var pgx =  {
 				_o = {};
 				_o.gene = gene;
 				_o.heads = self.markerHeads(gene);
-				_o.possibleHaplotypes = self.listPossibleHaplotypes(gene);
-				_o.patientHaplotypes = self.listPatientHaplotypes(gene);
 				_o.haplotypes = self.listHaplotypes(gene);
+				_o.patientHaplotypes = self.listPatientHaplotypes(gene,_o);
+				_o.possibleHaplotypes = self.globalPGXData.possibleHaplotypesStringRep[gene];
 				templateData.pgxGenes.push(_o);
 			}
 			resolve(templateData);
@@ -594,48 +611,26 @@ var pgx =  {
 		return out;
 	},
 
-	listPossibleHaplotypes:function(gene){
-		var out = [];
-		var possibleHaplotypeKeys = [];
-		var possibleHaplotypeStrings = [];
-		var o;
-		if (pgx.globalPGXData.possibleHaplotypesStringRep[gene] !== undefined)
-			possibleHaplotypeKeys= Object.keys(pgx.globalPGXData.possibleHaplotypesStringRep[gene]);
-		for (var i= 0; i < possibleHaplotypeKeys.length; ++i) {
-			o = {};
-			if (i == possibleHaplotypeKeys.length - 1)
-				o.after = '';
-			else
-				o.after = ' /';
-
-			o.string = pgx.globalPGXData.possibleHaplotypesStringRep[gene][possibleHaplotypeKeys[i]].closestMatch;
-			out.push(o);
-		}
-		return out;
-	},
-
-	listPatientHaplotypes:function(gene){
-		var hname,o,v,m; 
-		var out = [];
-		if (this.globalPGXData.possibleHaplotypesStringRep[gene] === undefined)
+	listPatientHaplotypes:function(gene,refObj){
+		var hname,o,v,m,matches,match; 
+		var out = {};
+		var haplotypes = refObj.haplotypes;
+		var phap = this.globalPGXData.possibleHaplotypesStringRep[gene];
+		if (phap === undefined)
 			return undefined;
 		var markers = this.globalPGXData.markerByID;
-		var phap = Object.keys(this.globalPGXData.possibleHaplotypesStringRep[gene]);
-		for (var i=0; i< phap.length; i++){
+		var phapKeys = Object.keys(phap);
+		for (var i=0; i< phapKeys.length; i++){
 			o = {};
-			hapname = phap[i];
-			o.name = hapname
-			var similarString = "";
-			if (this.globalPGXData.possibleHaplotypesStringRep[gene][hapname].minDistance > 0) {
-				similarString = "similar to ";
-				
-			}
-			o.name += " ( " + similarString + this.globalPGXData.possibleHaplotypesStringRep[gene][hapname].closestMatch.toString() + ")";
+			o.possible = [];
+			hapname = phapKeys[i]; //Either h1 or h2
+			o.name = hapname.toUpperCase();
 			m = pgx.globalPGXData.geneMarkers[gene];
 			o.variants = [];
 			for (var j=0; j < m.length; j++){
 				v = {};
 				if (!markers[m[j]]){
+
 					v.variant = 'missing';
 					v.class = 'alt';
 				} else if (this.globalPGXData.possibleHaplotypesStringRep[gene][hapname].haplotype.indexOf(m[j]) !== -1) {
@@ -665,8 +660,19 @@ var pgx =  {
 				}
 				o.variants.push(v);
 			}
-			out.push(o);
+			//Add possible haplotypes
+			for (var k = 0; k < phap[hapname].closestMatch.length; k++ ){
+				for (var l = 0; l < haplotypes.length; l++ ){
+					if (phap[hapname].closestMatch[k] == haplotypes[l].name){
+						o.possible.push(haplotypes[l]);
+					}
+				}
+
+			}
+
+			out[hapname] = o;
 		}
+		// add the matches now;
 		return out;
 	},
 

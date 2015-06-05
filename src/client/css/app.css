@@ -227,4 +227,10 @@ hr {
   text-align:center;
 }
 
+.haplotype-columns {
+  width:250px;
+}
+
+.marker-column {
+  width: 90px;
 }

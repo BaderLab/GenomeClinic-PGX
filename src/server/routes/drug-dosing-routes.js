@@ -397,7 +397,8 @@ module.exports = function(app,logger,opts){
 	app.get('/browsepatients/dosing/:patientID/download/:id',utils.isLoggedIn,function(req,res){
 		var file = req.params.id;
 		var path = constants.nodeConstants.TMP_UPLOAD_DIR + '/' + file;
-		logger("info","Sending Report file: " + path + " to user: " + req.user[constants.dbConstants.USERS.ID_FIELD],{user:req.user.username,action:'download'}); 
+		var user = req.user[constants.dbConstants.USERS.ID_FIELD];
+		logger("info","Sending Report file: " + path + " to user: " + user,{user:user,action:'download',target:path}); 
 		res.download(path,file,function(err){
 			if (err){
 				logger('error',err,{user:user});
@@ -405,15 +406,15 @@ module.exports = function(app,logger,opts){
 				var html = path.replace(/.pdf$/,'.html');
 				fs.unlink(html,function(err){
 					if (err)
-						logger('error',err,{user:user});
+						logger('error',err,{user:user,action:'fsunlink',target:html});
 					else
-						logger.info("successfully removed report file: " + html);
+						logger('info',"successfully removed report file: " + html,{user:user,action:'fsunlink',target:html});
 				});
 				fs.unlink(path,function(err){
 					if (err)
-						logger('error',err,{user:user});
+						logger('error',err,{user:user,action:'fsunlink',target:path});
 					else
-						logger.info("successfully removed report file: " + path);
+						logger('info',"successfully removed report file: " + path,{user:user,action:'fsunlink',target:path});
 				});
 			}
 		});

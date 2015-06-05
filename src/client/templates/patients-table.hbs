@@ -40,10 +40,8 @@
 			<table class="small-12 medium-12 large-12">
 				<thead>
 					<tr>
-						<th>Patient Alias</th>
 						<th>ID</th>
-						<th class="text-center">Sex</th>
-						<th class="text-center">Age</th>
+						<th>Patient Alias</th>
 						<th class="text-center">Date Uploaded</th>
 						{{#if @root.project}}
 						<th class="text-center edit hide">Remove</th>
@@ -53,10 +51,8 @@
 				<tbody>
 					{{#each patients}}
 					<tr class="patient-row" id="row-{{@index}}"	>
-						<td class="webapp-patient-alias">{{patient_alias}}</a></td>
 						<td class="webapp-patient-id">{{patient_id}}</td>
-						<td class="text-center">{{sex}}</td>
-						<td class="text-center">{{age}}</td>
+						<td class="webapp-patient-alias">{{patient_alias}}</a></td>
 						<td class="text-center">{{completed}}</td>
 						{{#if @root.project}}
 						<td class="text-center edit" style="display:none">
