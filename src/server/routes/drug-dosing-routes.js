@@ -4,27 +4,23 @@ var fs = require('fs');
 var constants = require("../lib/conf/constants.json");
 var ObjectID = require("mongodb").ObjectID;
 var genReport = require('../lib/genReport');
-
+var dbFunctions = require("../models/mongodb_functions");
 
 
 /* Collection of routes associated with drug dosing recomendations
  * the report generation, and the ui modification of the recomendations
  *
  *@author Patrick Magee*/
-module.exports = function(app,dbFunctions,logger){
-	//Ensure the dbfunctions module is loaded
-	if (!dbFunctions)
-		dbFunctions = rquire("../models/mongodb_functions");
-
+module.exports = function(app,logger,opts){
 	//Create a new blank document
-	createNewDoc = function(gene){
+	createNewDoc = function(gene,user){
 		var promise = new Promise(function(resolve,reject){
 			var newDoc = {};
 			newDoc[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = gene;
 			newDoc[constants.dbConstants.DRUGS.DOSING.RECOMENDATIONS] = {};
 			newDoc[constants.dbConstants.DRUGS.DOSING.HAPLO] = {};
 			newDoc[constants.dbConstants.DRUGS.DOSING.FUTURE] = {};
-			return dbFunctions.insert(constants.dbConstants.DRUGS.DOSING.COLLECTION,newDoc)
+			return dbFunctions.insert(constants.dbConstants.DRUGS.DOSING.COLLECTION,newDoc,user)
 			.then(function(result){
 				resolve(result);
 			}).catch(function(err){
@@ -101,14 +97,14 @@ module.exports = function(app,dbFunctions,logger){
 	//==========================================================
 	/* Get the gene dosing recomendations for the specified gene */
 	app.get('/database/dosing/genes/:geneID',utils.isLoggedIn, function(req,res){
-		dbFunctions.drugs.getGeneDosing(req.params.geneID).then(function(result){
+		dbFunctions.drugs.getGeneDosing(req.params.geneID,req.user.username).then(function(result){
 			res.send(result);
 		});
 	});
 
 	/* get all of the current genes that have dosing recomendations */
 	app.get('/database/dosing/genes', utils.isLoggedIn, function(req,res){
-		dbFunctions.drugs.getGenes().then(function(result){
+		dbFunctions.drugs.getGenes(req.user.username).then(function(result){
 			res.send(result);
 		});
 	});
@@ -118,7 +114,7 @@ module.exports = function(app,dbFunctions,logger){
 	 * a single recomendation */
 	app.post('/database/dosing/genes',utils.isLoggedIn,function(req,res){
 		var genes = req.body.genes;
-		dbFunctions.drugs.getGeneDosing(genes).then(function(result){
+		dbFunctions.drugs.getGeneDosing(genes,req.user.username).then(function(result){
 			res.send(result);
 		});
 	});
@@ -126,7 +122,7 @@ module.exports = function(app,dbFunctions,logger){
 	/* Get the therapeutic classes currently in the database */
 	app.get('/database/dosing/classes',utils.isLoggedIn,function(req,res){
 		var query = [{$group:{_id:null,classes:{$push:'$' + constants.dbConstants.DRUGS.CLASSES.ID_FIELD}}}];
-		dbFunctions.aggregate(constants.dbConstants.DRUGS.CLASSES.COLLECTION,query).then(function(result){
+		dbFunctions.aggregate(constants.dbConstants.DRUGS.CLASSES.COLLECTION,query,req.user.username).then(function(result){
 			res.send(result);
 		});
 	});
@@ -159,7 +155,7 @@ module.exports = function(app,dbFunctions,logger){
 			}
 			//Set the query for the gene and then reqrieve the gene informatino
 			query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
-			dbFunctions.drugs.getGeneDosing(req.params.geneID).then(function(result){
+			dbFunctions.drugs.getGeneDosing(req.params.geneID,req.user.username).then(function(result){
 				//generate the document that is to be updated
 				var obj = utils.createNestedObject(string,result,doc);
 
@@ -174,15 +170,15 @@ module.exports = function(app,dbFunctions,logger){
 				} else {
 					//update the entry
 					update.$set[obj.depth]  = obj.cont;
-					dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update)
+					dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update,undefined,req.user.username)
 					.then(function(){
 						if (backstring){
 							//similarily if there is a second interaciton, update (or create if necessary) the corresponding relationship
 						 	query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = doc.pgx_2;
-						 	dbFunctions.drugs.getGeneDosing(doc.pgx_2).then(function(result){
+						 	dbFunctions.drugs.getGeneDosing(doc.pgx_2,req.user.username).then(function(result){
 						 		if (!result){
 						 			return createNewDoc(doc.pgx_2).then(function(){
-						 				return dbFunctions.drugs.getGeneDosing(doc.pgx_2);
+						 				return dbFunctions.drugs.getGeneDosing(doc.pgx_2,req.user.username);
 						 			})
 								} else {
 									return result;
@@ -191,7 +187,7 @@ module.exports = function(app,dbFunctions,logger){
 						 		var obj = utils.createNestedObject(backstring,result,doc);
 						 		var update = {$set:{}};
 						 		update.$set[obj.depth] = obj.cont;
-						 		return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update);
+						 		return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update,undefined,req.user.username);
 							});
 						}	
 					}).then(function(){
@@ -215,7 +211,7 @@ module.exports = function(app,dbFunctions,logger){
 			query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
 			query[string] = {$exists:true};
 
-			dbFunctions.findOne(constants.dbConstants.DRUGS.DOSING.COLLECTION,query)
+			dbFunctions.findOne(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,req.user.username)
 			.then(function(result){
 				// if this is supposed to be a new doc inform the user an entry already exists
 				if ( newdoc === true && result !== null ){
@@ -229,7 +225,7 @@ module.exports = function(app,dbFunctions,logger){
 					query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
 					update = {$set:{}};
 					update.$set[string] = doc.future[doc.Therapeutic_Class];
-					return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update)
+					return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update,undefined,req.user.username)
 					.then(function(){
 						req.flash('statusCode', '200');
 						req.flash('message', "Entry successfully added");
@@ -251,7 +247,7 @@ module.exports = function(app,dbFunctions,logger){
 			query[string] = {$exists:true};
 
 			//check to se eif the entry exists
-			dbFunctions.findOne(constants.dbConstants.DRUGS.DOSING.COLLECTION,query).then(function(result){
+			dbFunctions.findOne(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,req.user.username).then(function(result){
 				//if this is a new doc and a result wass found inform the user that it already exsits
 				if (result !== null && newdoc === true){
 					req.flash('statusCode','202');
@@ -264,7 +260,7 @@ module.exports = function(app,dbFunctions,logger){
 					query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
 					update = {$set:{}};
 					update.$set[string] = doc.haplotypes[doc.class];	
-					return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update)
+					return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update,undefined,req.user.username)
 					.then(function(result){
 						req.flash('statusCode','200');
 						req.flash('message','Entry Successfully Added');
@@ -272,6 +268,7 @@ module.exports = function(app,dbFunctions,logger){
 					});
 				}
 			}).catch(function(err){
+				logger('error',err,{user:user});
 				req.flash('statusCode','500');
 				req.flash('message','An error was encountered when attempting to insert the new entry into the database');
 				req.flash('error',err.toString());
@@ -299,7 +296,7 @@ module.exports = function(app,dbFunctions,logger){
 			});
 			
 		} else {
-			promise = dbFunctions.drugs.getGeneDosing(req.params.geneID).then(function(geneObj){
+			promise = dbFunctions.drugs.getGeneDosing(req.params.geneID,req.user.username).then(function(geneObj){
 				query = {};
 				query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
 				if (type == 'interaction'){
@@ -315,13 +312,13 @@ module.exports = function(app,dbFunctions,logger){
 				}
 
 				update = utils.createNestedObject(string,geneObj,{},true);
-				return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update)
+				return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update,undefined,req.user.username)
 				.then(function(result){
 					if (backstring){
-						return dbFunctions.drugs.getGeneDosing(doc.pgx_2).then(function(result){
+						return dbFunctions.drugs.getGeneDosing(doc.pgx_2,req.user.username).then(function(result){
 							update = utils.createNestedObject(backstring,result,{},true);
 							query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = doc.pgx_2;
-							return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update);
+							return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update,undefined,req.user.username);
 						})
 					} else {
 						return result;
@@ -338,6 +335,7 @@ module.exports = function(app,dbFunctions,logger){
 			req.flash('message',message);
 			res.redirect('/success');
 		}).catch(function(err){
+			logger('error',err,{user:user});
 			req.flash('statusCode','500');
 			req.flash('error',err.toString());
 			req.flash('message','unable to remove entries');
@@ -355,18 +353,20 @@ module.exports = function(app,dbFunctions,logger){
 		dbFunctions.checkInDatabase(constants.dbConstants.DRUGS.DOSING.COLLECTION,constants.dbConstants.DRUGS.DOSING.ID_FIELD,newGene)
 		.then(function(exists){
 			if (!exists){
-				createNewDoc(newGene).then(function(result){
+				createNewDoc(newGene,req.user.username).then(function(result){
 					if (result) {
 						req.flash('statusCode','200');
 						req.flash('message','Gene successfully inserted to dosing tables');
 						res.redirect('/success');
 					} else {
+						logger('error',"Unable to create new document",{user:user});
 						req.flash('statusCode','500');
 						req.flash('error',"Unable to insert new document");
 						req.flash('message','unable to insert new gene ' + newGene );
 						res.redirect('/failure');
 					}
 				}).catch(function(err){
+					logger('error',err,{user:user});
 					req.flash('statusCode','500');
 					req.flash('error',err.toString());
 					req.flash('message','unable to remove all entries relating to ' + newGene );
@@ -390,34 +390,31 @@ module.exports = function(app,dbFunctions,logger){
 			rigth:'20px'
 		};
 		//Get future recomendations
-		logger.info("Generating PGX report for " + req.params.patientID);
 		return genReport(req,res,req.params.patientID,constants.dbConstants.DRUGS.REPORT.DEFAULT,options)
-		.catch(function(err){
-			logger.error("Failed to generate report for " + req.params.patientID,err);
-		});
 	});
 
 	/* Download the dosing recomendation report */
 	app.get('/browsepatients/dosing/:patientID/download/:id',utils.isLoggedIn,function(req,res){
 		var file = req.params.id;
 		var path = constants.nodeConstants.TMP_UPLOAD_DIR + '/' + file;
-		logger.info("Sending Report file: " + path + " to user: " + req.user[constants.dbConstants.USERS.ID_FIELD]); 
+		var user = req.user[constants.dbConstants.USERS.ID_FIELD];
+		logger("info","Sending Report file: " + path + " to user: " + user,{user:user,action:'download',target:path}); 
 		res.download(path,file,function(err){
 			if (err){
-				logger.error("Report file: " + path + " failed to send to user:  " + req.user[constants.dbConstants.USERS.ID_FIELD],err);
+				logger('error',err,{user:user});
 			} else {
 				var html = path.replace(/.pdf$/,'.html');
 				fs.unlink(html,function(err){
 					if (err)
-						logger.error("Failed to remove report file: " + html,err);
+						logger('error',err,{user:user,action:'fsunlink',target:html});
 					else
-						logger.info("successfully removed report file: " + html);
+						logger('info',"successfully removed report file: " + html,{user:user,action:'fsunlink',target:html});
 				});
 				fs.unlink(path,function(err){
 					if (err)
-						logger.error("Failed to remove report file: " + path,err);
+						logger('error',err,{user:user,action:'fsunlink',target:path});
 					else
-						logger.info("successfully removed report file: " + path);
+						logger('info',"successfully removed report file: " + path,{user:user,action:'fsunlink',target:path});
 				});
 			}
 		});

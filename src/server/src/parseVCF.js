@@ -22,16 +22,16 @@
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs'));
 var dbFunctions = require('../models/mongodb_functions');
-var logger =  require('./logger')('parser');
+var logger =  require('./logger');
 var path = require('path');
 var dbConstants = require('./conf/constants.json').dbConstants;
 
 
 /* Empty constructor for the parseVCF object */
-var parseVCF = function(file,patients,bufferSize,mask){
+var parseVCF = function(file,options,bufferSize,mask){
+	this.user = options.user;
 	this.file = file;
-	this.patients = patients;
-	this.dbFunctions = dbFunctions;
+	this.patients = options.patients;
 	this.bufferSize = (bufferSize || 10000000);
 	this.bufferArray = [];
 	this.oldString = "";
@@ -57,10 +57,10 @@ var parseVCF = function(file,patients,bufferSize,mask){
  * inserted into the document
  */
 parseVCF.prototype.read = function(){
-	this.logMessage("commencing file read",null,{'bufferSize':this.bufferSize,'patients':this.patients,'docMax':this.docMax,'mask':this.mask});
+	logger("info","reading file",{user:this.user,target:this.file,action:'parseVCF'});
 	var self = this;
 	var promise = new Promise(function(resolve,reject){
-		self.stream = fs.createReadStream(self.file,{'bufferSize':this.bufferSize});
+		self.stream = fs.createReadStream(self.file,{'bufferSize':self.bufferSize});
 		self.stream.on('data',function(data){
 			self.stream.pause();
 			var promise = new Promise(function(resolve,reject){
@@ -95,23 +95,23 @@ parseVCF.prototype.read = function(){
 			promise.each(function(patient){
 				return self.checkAndInsertDoc(patient);
 			}).then(function(){
-				self.logMessage("file read successful, documents inserted into database");
+				logger("info","file read successful, documents inserted into database",{user:self.user,target:self.file,action:'parseVCF'});
 				var igArray = [];
 				for (var patient in self.patientObj){
 					if (self.patientObj.hasOwnProperty(patient)){
 						igArray.push(self.patientObj[patient].ignored + self.numHeader);
 					}
 				}
-				self.logMessage('Writing Number lines skipped to file ' + self.file + ".json");
+				logger('info','Writing Number lines skipped to file ' + self.file + ".json",{user:self.user,target:self.file +'.json',action:'writeFileAsync'});
 				return fs.writeFileAsync(self.file + ".json",JSON.stringify(igArray));
 			}).then(function(){
-				self.logMessage('done all jobs');
+				logger('info','all jobs complete',{user:self.user,target:self.file,action:'parseVCF'});
 				resolve('done');
 			});
 		});
 
 		self.stream.on('error',function(err){
-			self.logMessage(null,err);
+			logger('error',err,{user:self.user,target:self.file,action:'parseVCF'})
 			//self.stream.destroy();
 			reject(err);
 		});
@@ -159,6 +159,7 @@ parseVCF.prototype.readAndParse = function(chunk){
 		}).then(function(){
 			resolve('read chunk');
 		}).catch(function(err){
+			logger('error',err,{user:self.user,target:self.file,action:'readAndParse'})
 			reject(err);
 		});
 	});
@@ -358,13 +359,13 @@ parseVCF.prototype.checkAndInsertDoc = function(patient){
 		var options = {documents: docsToInsert,
 				   collectionName:self.patientObj[patient].collection};
 		
-		dbFunctions.insertMany(options)
+		dbFunctions.insertMany(options,self.user)
 		.then(function(){
 			self.patientObj[patient].documents = [];//self.patientObj[patient]['documents'].slice(ind);
 			self.patientObj[patient].insertCache = [];
 			resolve(self.patientObj[patient].documents.length);
 		}).catch(function(err){
-			console.log(err.stack);
+			logger('error',err,{user:self.user,target:self.file,action:'checkAndInsertDoct'})
 		});
 	});
 	return promise;
@@ -387,17 +388,6 @@ parseVCF.prototype.convertAnnoString = function(string){
 		}
 	}
 	return out;
-};
-
-
-parseVCF.prototype.logMessage = function(message,err,obj){
-	var file = path.basename(this.file);
-	if (message){
-		var text = "FILE: " + file + "\n" + message;
-		logger.info(text,obj);
-	} else if (err){
-		logger.error(err,obj);
-	}
 };
 
 
@@ -546,7 +536,7 @@ return dbFunctions.connectAndInitializeDB(true)
 		var parser = new parseVCF(fileName,patients);
 		return parser.read();
 	}).catch(function(err){
-		throw new Error(err);
+		throw err;
 	}).done(function(){
 		return dbFunctions.closeConnection();
 	});

@@ -6,11 +6,10 @@ var Promise = require('bluebird');
 var fs = require('fs');
 var constants = require("../lib/conf/constants.json");
 var genReport  = require('../lib/genReport');
+var dbFunctions = require('../models/mongodb_functions');
 
 
-module.exports = function(app,dbFunctions,logger){
-	if (!dbFunctions)
-		dbFunctions = rquire("../models/mongodb_functions");
+module.exports = function(app,logger,opts){
 	//==================================================================
 	//PGX routes
 	//==================================================================
@@ -57,7 +56,7 @@ module.exports = function(app,dbFunctions,logger){
 
 	//Get the pgxVariant information for a specific patient
 	app.get("/database/pgx/:patientID", utils.isLoggedIn, function(req,res){
-		dbFunctions.getPGXVariants(req.params.patientID)
+		dbFunctions.getPGXVariants(req.params.patientID,req.user.username)
 		.then(function(result){
 			res.send(result);
 		});
@@ -65,35 +64,32 @@ module.exports = function(app,dbFunctions,logger){
 	
 	//Accept information to generate the report for a speciifc patient
 	app.post("/browsepatients/id/:patientID/report", utils.isLoggedIn, function(req,res){
-		logger.info("Generating PGX report for " + req.params.patientID);
 		var options = {
 			top:'1cm',
 			bottom:'1cm',
 			left:'20px',
 			rigth:'20px'
 		};
-		genReport(req,res,req.params.patientID,constants.dbConstants.PGX.REPORT.DEFAULT,options).catch(function(err){
-			logger.error("Failed to generate report for " + req.body.patientID,err);
-		});
+		genReport(req,res,req.params.patientID,constants.dbConstants.PGX.REPORT.DEFAULT,options)
 	});
 
 	//Send the report to the user, delete the report after it was sent.
 	app.get('/browsepatients/id/:patientID/download/:id',utils.isLoggedIn,function(req,res){
 		var file = req.params.id;
 		var path = constants.nodeConstants.TMP_UPLOAD_DIR + '/' + file;
-		logger.info("Sending Report file: " + path + " to user: " + req.user[constants.dbConstants.USERS.ID_FIELD]); 
+		logger('info',"Sending Report file: " + path + " to user: " + req.user[constants.dbConstants.USERS.ID_FIELD],{user:req.user.username,action:'download'}); 
 		res.download(path,file,function(err){
 			if (err){
-				logger.error("Report file: " + path + " failed to send to user:  " + req.user[constants.dbConstants.USERS.ID_FIELD],err);
+				logger("error",err,{user:req.user.username,target:path,action:'download'});
 			} else {
 				var html = path.replace(/.pdf$/,'.html');
 				fs.unlink(html,function(err){
 					if (err)
-						logger.error("Failed to remove report file: " + html,err);
+						logger("error",err,{user:req.user.username,target:html,action:'unlink'});
 				});
 				fs.unlink(path,function(err){
 					if (err)
-						logger.error("Failed to remove report file: " + path,err);
+						logger("error",err,{user:req.user.username,target:path,action:'unlink'});
 				});
 			}
 		});
@@ -101,7 +97,7 @@ module.exports = function(app,dbFunctions,logger){
 
 	//Update the current haplotype
 	app.post('/haplotypes/current/:hapid',utils.isLoggedIn,function(req,res){
-		dbFunctions.updatePGXGene(req.params.hapid,req.body)
+		dbFunctions.updatePGXGene(req.params.hapid,req.body,req.user.username)
 		.then(function(result){
 			//Flash Data
 			res.redirect("/success");
@@ -116,7 +112,7 @@ module.exports = function(app,dbFunctions,logger){
 	//delete the current haplotype
 	app.delete('/haplotypes/current/:hapid',utils.isLoggedIn,function(req,res){
 		var id = req.params.hapid;
-		dbFunctions.removePGXGene(id)
+		dbFunctions.removePGXGene(id,req.user.username)
 		.then(function(result){
 			if (result){
 				res.send(true);
@@ -132,7 +128,7 @@ module.exports = function(app,dbFunctions,logger){
 
 	//Add a new haplotype
 	app.post('/haplotypes/new',utils.isLoggedIn,function(req,res){
-		dbFunctions.insert(constants.dbConstants.PGX.GENES.COLLECTION,req.body)
+		dbFunctions.insert(constants.dbConstants.PGX.GENES.COLLECTION,req.body,req.user.username)
 		.then(function(result){
 			if (result){
 				res.redirect('/success');
@@ -146,20 +142,20 @@ module.exports = function(app,dbFunctions,logger){
 
 	//Get a list of all the current haploytpes and geenes
 	app.get('/database/haplotypes/getgenes',utils.isLoggedIn,function(req,res){
-		dbFunctions.getPGXGenes().then(function(result){
+		dbFunctions.getPGXGenes(undefined,req.user.username).then(function(result){
 			if (result)
 				res.send(result);
 			else 
 				res.send(undefined);
 		}).catch(function(err){
-			console.log(err);
+			logger('error',err,{user:req.user.username,action:'getPGXGenes'});
 		});
 	});
 
 	//get information for a specific gene and return it in the required format
 	app.get('/database/haplotypes/getgenes/:gene',utils.isLoggedIn,function(req,res){
 		var gene = req.params.gene;
-		dbFunctions.getPGXGenes(req.params.gene).then(function(result){
+		dbFunctions.getPGXGenes(req.params.gene,req.user.username).then(function(result){
 			var out = {};
 			if (result){
 				out.gene = gene;
@@ -173,7 +169,7 @@ module.exports = function(app,dbFunctions,logger){
 						}
 					}
 				}
-				dbFunctions.getPGXCoords(uniqIDS).then(function(coords){
+				dbFunctions.getPGXCoords(uniqIDS,req.user.username).then(function(coords){
 					var o,ho = {};
 					if(coords){
 						for (var hap in haplotypes){
@@ -213,7 +209,7 @@ module.exports = function(app,dbFunctions,logger){
 		var info = req.body;
 		var query = {};
 		query[constants.dbConstants.PGX.COORDS.ID_FIELD] = marker;
-		dbFunctions.updatePGXCoord(marker,info)
+		dbFunctions.updatePGXCoord(marker,info,req.user.username)
 		.then(function(result){
 			if (result){
 
@@ -229,7 +225,7 @@ module.exports = function(app,dbFunctions,logger){
 	//Delete the seleceted marker
 	app.post('/markers/current/:marker/delete',utils.isLoggedIn,function(req,res){
 		var marker = req.params.marker;
-		dbFunctions.removePGXCoords(marker)
+		dbFunctions.removePGXCoords(marker,req.user.username)
 		.then(function(result){
 			if (result){
 				res.redirect('/success');
@@ -240,7 +236,7 @@ module.exports = function(app,dbFunctions,logger){
 
 	//add a new marker
 	app.post('/markers/new',utils.isLoggedIn,function(req,res){
-		dbFunctions.insert(constants.dbConstants.PGX.COORDS.COLLECTION,req.body)
+		dbFunctions.insert(constants.dbConstants.PGX.COORDS.COLLECTION,req.body,req.user.username)
 		.then(function(result){
 			if (result){
 				res.redirect('/success');
@@ -258,7 +254,7 @@ module.exports = function(app,dbFunctions,logger){
 	
 	//Get ALL the markers
 	app.get('/database/markers/getmarkers',utils.isLoggedIn,function(req,res){
-		dbFunctions.getPGXCoords().then(function(result){
+		dbFunctions.getPGXCoords(undefined,req.user.username).then(function(result){
 			if (result)
 				res.send(result);
 			else
@@ -269,7 +265,7 @@ module.exports = function(app,dbFunctions,logger){
 	//get the specific marker
 	app.get('/database/markers/getmarkers/:marker',utils.isLoggedIn,function(req,res){
 		var marker = req.params.marker;
-		dbFunctions.getPGXCoords(marker).then(function(result){
+		dbFunctions.getPGXCoords(marker,req.user.username).then(function(result){
 			if (result)
 				res.send(result);
 			else 

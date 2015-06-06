@@ -420,9 +420,9 @@ module.exports = {
 			//Extract infromation for each gene and the haplotypes that were predicted
 			for (var gene in result.pgxGenes){
 				if (result.pgxGenes.hasOwnProperty(gene)){
-					if (result.pgxGenes[gene].possibleHaplotypes.length !== 0){
-						result.pgxGenes[gene].hap1 = result.pgxGenes[gene].possibleHaplotypes[0].string;
-						result.pgxGenes[gene].hap2 = result.pgxGenes[gene].possibleHaplotypes[1].string;
+					if (result.pgxGenes[gene].possibleHaplotypes !== undefined){
+						result.pgxGenes[gene].hap1 = result.pgxGenes[gene].possibleHaplotypes.h1.closestMatch.join(',');
+						result.pgxGenes[gene].hap2 = result.pgxGenes[gene].possibleHaplotypes.h2.closestMatch.join(',');
 						genes.push(result.pgxGenes[gene]);
 					}
 				}

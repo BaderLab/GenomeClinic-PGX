@@ -18,8 +18,9 @@ var express= require("express"),
 	http = require('http'),
 	morgan = require('morgan'),
 	constants = require('./lib/conf/constants.json'),
-	cons = require('consolidate');
-
+	cons = require('consolidate'),
+	logger = require('./lib/logger'),
+	dbFunctions = require("./models/mongodb_functions");
 
 var dbConstants = constants.dbConstants;
 var nodeConstants = constants.nodeConstants;
@@ -112,11 +113,13 @@ opts.signup =  !opts.nosignup;
 opts.recover = !opts.norecover;
 if (opts.https && (! opts.crt || !opts.key)){
 	console.log("--https opton provided, please provide a crt file and a key file");
-	process.exit(1);
+		process.exit(1);
 } else if (!opts.password && opts.gmail || opts.password && !opts.gmail){
 	console.log("--password and --gmail must both be provided");
 	process.exit(1);
 }
+
+logger('info','Starting server',{arguments:opts});
 //=======================================================================
 //Make log Directories
 //=======================================================================
@@ -124,16 +127,17 @@ var prerequisiteDirectories = [nodeConstants.UPLOAD_DIR, nodeConstants.TMP_UPLOA
 for (var i=0; i < prerequisiteDirectories.length; i++ ){
 	try {
 		fs.statSync(prerequisiteDirectories[i]);
+
 	} catch (err) {
 		try {
+			logger('info','Adding prequisite directory',{target:prerequisiteDirectories[i],action:'mkdir'});
 			fs.mkdirSync(prerequisiteDirectories[i]);
 		} catch (err2){ 
 		}
 	}
 }
 
-var logger = require('./lib/logger')('node');
-var dbFunctions = require("./models/mongodb_functions");
+
 
 
 //=======================================================================
@@ -152,8 +156,8 @@ morgan.token('user',function getUser(req){
 //=======================================================================
 var comLog = fs.createWriteStream(nodeConstants.LOG_DIR + "/" + nodeConstants.COM_LOG_PATH);
 var app = express();
-app.use(morgan(':remote-addr - :user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', {stream:comLog}));
-
+app.use(morgan('{"ip"\:":remote-addr","user"\:":user","timestamp"\:":date[clf]","method"\:":method","baseurl"\:":url","http_version"\:":http-version","status"\:":status","res"\:":res[content-length]","referrer"\:":referrer","agent"\:":user-agent"}', {stream:comLog}));
+logger('info','Logging HTTP traffic to: ' + nodeConstants.LOG_DIR + "/" + nodeConstants.COM_LOG_PATH);
 
 //=======================================================================
 // Serve Static Public Content (ie, dont need to be logged in to access)
@@ -187,12 +191,11 @@ app.use(bodyParser.urlencoded({extended:false}));
 //=======================================================================	
 // Set up Passport to use Authentication
 //=======================================================================
-require('./controllers/passport-config')(passport,dbFunctions,opts);
+require('./controllers/passport-config')(app,logger,opts,passport);
 
 //=======================================================================
 // Initialize the session Session
 //=======================================================================
-//In the future use a redis session to configure the session information
 app.use(session({secret:'webb_app_server',
 	store: new mongoStore({
 		url:'mongodb://' + dbConstants.DB.HOST + ':' + dbConstants.DB.PORT + '/sessionInfo'
@@ -201,7 +204,7 @@ app.use(session({secret:'webb_app_server',
 	secure:true,
 	saveUninitialized:false
 }));
-logger.info('mongodb://' + dbConstants.DB.HOST + ':' + dbConstants.DB.PORT + '/sessionInfo');
+logger('info','Session information being stored in mongoStore',{target:'mongodb://' + dbConstants.DB.HOST + ':' + dbConstants.DB.PORT + '/sessionInfo'});
 //=======================================================================
 // Initialize Passport and session
 //=======================================================================
@@ -209,24 +212,23 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
+
+//=======================================================================
+//Error Logger
+//=======================================================================
+
 //=======================================================================
 // Add routes and add the rendering engine
 //=======================================================================
 app.set('views',nodeConstants.SERVER_DIR + '/views');
 app.engine('hbs',cons.handlebars);
 app.set('view engine', 'hbs');
-require('./controllers/routes')(app,passport,dbFunctions,opts,logger);
+require('./controllers/routes')(app,logger,opts,passport);
 
 //=======================================================================
 // Connect and Initialzie the storage Database
 //=======================================================================
 dbFunctions.connectAndInitializeDB()
-.catch(function(err) {
-	logger.error(err.toString());
-	logger.error(err.stack);
-	logger.error("Exiting due to connection error with DB server.");
-	process.exit(1);
-});
 
 //=======================================================================
 // Start Listening on the set port
@@ -237,9 +239,9 @@ if (opts.https){
 	var credentials = {key:privateKey,cert:certificate};
 	http.createServer(app).listen(opts.httpPortNumber);
 	https.createServer(credentials,app).listen(opts.httpsPortNumber);
-	logger.info("Server running on https port: " + opts.httpsPortNumber + " http port:" + opts.httpPortNumber);
+	logger('info',"Server running on https port: " + opts.httpsPortNumber + " http port:" + opts.httpPortNumber);
 } else {
-	logger.info("Server runnong on http port: " + opts.httpPortNumber);
+	logger('info',"Server runnong on http port: " + opts.httpPortNumber);
 	app.listen(opts.httpPortNumber);
 }
 //=======================================================================
@@ -248,9 +250,9 @@ if (opts.https){
 /* Listen for SIGINT events. These can be generated by typing CTRL + C in the 
  * terminal. */ 
 process.on("SIGINT", function(){
-	logger.info("\nReceived interrupt signal. Closing connections to DB...");
+	logger('info',"\nReceived interrupt signal. Closing connections to DB...");
 	dbFunctions.closeConnection(function() {
-		logger.info("Bye!");
+		logger("info","shutting down server");
 		process.exit(0);
 	});
 });

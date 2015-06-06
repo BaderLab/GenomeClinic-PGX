@@ -2,14 +2,8 @@
  * the addition of routes.
  * @author Patrick Magee
  */
-var Queue = require('../lib/queue');
-module.exports = function(app,passport,dbFunctions,opts,logger){
-	if (!dbFunctions)
-		dbFunctions = require("../models/mongodb_functions");
-	if (!logger)
-		logger = require('../lib/logger')('node');
-
-
+var dbFunctions = require('../models/mongodb_functions');
+module.exports = function(app,logger,opts,passport){
 	//=======================================================================
 	// Set the app to use handlebars as the rendering engine for rendering 
 	// templates. this will not be done to render ALL the html, only render 
@@ -18,16 +12,16 @@ module.exports = function(app,passport,dbFunctions,opts,logger){
 	//=======================================================================
 	//initialize the queing system for incoming file uploads
 	//=======================================================================
-	var queue = new Queue(logger,dbFunctions);
-	require('./special-redirect-routes')(app);
-	require('./auth-routes')(app,passport,dbFunctions,logger,opts);
-	require('./db-routes')(app,dbFunctions,queue);
-	require('./uploader-routes')(app,dbFunctions,queue);
-	require('./pgx-routes')(app,dbFunctions,logger);
-	require('./project-routes')(app,dbFunctions,queue);
-	require('./drug-dosing-routes')(app,dbFunctions,logger);
+	//each routes should have app,logger,opts,....
+	require('./special-redirect-routes')(app,logger,opts);
+	require('./auth-routes')(app,logger,opts,passport);
+	require('./uploader-routes')(app,logger,opts);
+	require('./pgx-routes')(app,logger,opts)
+	require('./project-routes')(app,logger,opts);
+	require('./drug-dosing-routes')(app,logger,opts)
+
 	// General routes contains the path to the 404routes
-	require('./general-routes.js')(app,dbFunctions);
+	require('./general-routes.js')(app,logger,opts);
 };
 
 
