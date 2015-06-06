@@ -13,23 +13,7 @@ var dbFunctions = require("../models/mongodb_functions");
  *@author Patrick Magee*/
 module.exports = function(app,logger,opts){
 	//Create a new blank document
-	createNewDoc = function(gene,user){
-		var promise = new Promise(function(resolve,reject){
-			var newDoc = {};
-			newDoc[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = gene;
-			newDoc[constants.dbConstants.DRUGS.DOSING.RECOMENDATIONS] = {};
-			newDoc[constants.dbConstants.DRUGS.DOSING.HAPLO] = {};
-			newDoc[constants.dbConstants.DRUGS.DOSING.FUTURE] = {};
-			return dbFunctions.insert(constants.dbConstants.DRUGS.DOSING.COLLECTION,newDoc,user)
-			.then(function(result){
-				resolve(result);
-			}).catch(function(err){
-				reject(err);
-			})
-		});
-
-		return promise;
-	}
+	
 	//Routes controlling the page navication
 	//Navigating to any of these routes will cause the layout page to be rendered
 	var renderRoutes = [

@@ -13,6 +13,7 @@ var bcrypt = require("bcrypt-nodejs");
 var randomstring = require("just.randomstring");
 var fs = Promise.promisifyAll(require('fs'));
 var logger = require('../lib/logger');
+var utils = require('../lib/utils');
 
 var dbFunctions = function(){
 //=======================================================================================
@@ -156,20 +157,60 @@ var dbFunctions = function(){
 				}).then(function(){
 					//create non unique indexes based on pgx_1
 					currentDocument = {};
-					currentDocument[dbConstants.DRUGS.DOSING.ID_FIELD] = 1;
-					return self.createIndex(dbConstants.DRUGS.DOSING.COLLECTION,currentDocument);
+					currentDocument[dbConstants.DRUGS.ALL.ID_FIELD] = 1;
+					return self.createIndex(dbConstants.DRUGS.ALL.COLLECTION,currentDocument);
 				}).then(function(){
 					return fs.statAsync(dbConstants.DRUGS.DOSING.DEFAULT)
 					.then(function(result){
+
 						var dosing = require(dbConstants.DRUGS.DOSING.DEFAULT);
-						var o = {
-							documents: dosing,
-							collectionName: dbConstants.DRUGS.DOSING.COLLECTION
-						};
-						return self.insertMany(o);
-					}).then(function(){
+						return Promise.resolve(dosing).each(function(item){
+							return self.insert(dbConstants.DRUGS.DOSING.COLLECTION,item).then(function(result){
+								return Promise.resolve(result.genes).each(function(gene){
+									// check to see if it exists already
+									return self.checkInDatabase(dbConstants.DRUGS.ALL.COLLECTION,dbConstants.DRUGS.ALL.ID_FIELD,gene)
+									.then(function(exists){
+										if (!exists){
+											return self.drugs.createNewDoc(gene)
+										}
+									}).then(function(){
+										var query = {};
+										query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
+										var update = {$addToSet:{}}
+										update.$addToSet[dbConstants.DRUGS.ALL.RECOMENDATIONS] = result._id;
+										return self.update(dbConstants.DRUGS.ALL.COLLECTION,{},update)
+									})
+								});
+							});
+						});
 					}).catch(function(err){
-						logger("info",dbConstants.DRUGS.DOSING.DEFAULT + " was not found and could not be added to the databse",{action:'createInitCollections'});
+						logger("error",err,{action:'createInitCollections'});
+					});
+				}).then(function(){
+					return fs.statAsync(dbConstants.DRUGS.FUTURE.DEFAULT)
+					.then(function(result){
+
+						var future = require(dbConstants.DRUGS.FUTURE.DEFAULT);
+						return Promise.resolve(future).each(function(item){
+							return self.insert(dbConstants.DRUGS.FUTURE.COLLECTION,item).then(function(result){
+								var gene = result[dbConstants.DRUGS.FUTURE.ID_FIELD]
+									// check to see if it exists already
+								return self.checkInDatabase(dbConstants.DRUGS.ALL.COLLECTION,dbConstants.DRUGS.ALL.ID_FIELD,gene)
+								.then(function(exists){
+									if (!exists){
+										return self.drugs.createNewDoc(gene)
+									}
+								}).then(function(){
+									var query = {};
+									query[dbConstants.DRUGS.ALL.ID_FIELD] = gene
+									var update = {$addToSet:{}}
+									update.$addToSet[dbConstants.DRUGS.ALL.FUTURE] = result._id;
+									return self.update(dbConstants.DRUGS.ALL.COLLECTION,{},update)
+								});
+							});
+						});
+					}).catch(function(err){
+						logger("error",err,{action:'createInitCollections'});
 					});
 				}).then(function(){
 					currentDocument = {};
@@ -1391,6 +1432,24 @@ var dbFunctions = function(){
 			o[dbConstants.DRUGS.DOSING.ID_FIELD] = gene;
 			return removeDocument(dbConstants.DRUGS.DOSING.COLLECTION,user);
 		},
+
+		createNewDoc : function(gene,user){
+		var promise = new Promise(function(resolve,reject){
+			var newDoc = {};
+			newDoc[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
+			newDoc[dbConstants.DRUGS.ALL.RECOMENDATIONS] = [];
+			newDoc[dbConstants.DRUGS.ALL.HAPLO] = [];
+			newDoc[dbConstants.DRUGS.ALL.FUTURE] = [];
+			return self.insert(dbConstants.DRUGS.ALL.COLLECTION,newDoc,user)
+			.then(function(result){
+				resolve(result);
+			}).catch(function(err){
+				reject(err);
+			})
+		});
+
+		return promise;
+	}
 		
 	};
 };

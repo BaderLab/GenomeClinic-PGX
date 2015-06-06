@@ -1,5 +1,6 @@
 var dbFunctions = require('../models/mongodb_functions'),
 	constants = require('../lib/conf/constants.json'),
+	Promise = require('bluebird');
 	_ = require('underscore');
 /* utility functions available for all routes
  * @author Patrick Magee */
@@ -143,5 +144,4 @@ module.exports = {
 	        }
 	    })
 	},
-
 };

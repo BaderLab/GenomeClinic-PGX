@@ -104,7 +104,7 @@ var paths = {
 				'src/server/conf/pgx*',
 				'src/server/conf/dosing_guidelines.json',
 				'src/server/conf/therapeutic_classes.json',
-				'src/server/conf/future_rec.json'
+				'src/server/conf/future_guidelines.json'
 			],
 			dest:'build/lib/conf'
 		},
