@@ -50,49 +50,51 @@
 				<h3><strong>{{gene}}</strong></h3>
 			</div>
 			<div class="large-1 small-12 medium-1 columns">
-				<a href="#"><i class="fa fa-plus haplotype-expand" gene="{{gene}}" expanded={{#if patientHaplotypes}}"yes"{{else}}"no"{{/if}}></i></a>
+				<a href="#"><i class="fa fa-plus haplotype-expand" gene="{{gene}}" expanded="yes"></i></a>
 			</div>
 		</div>
 		<div id="table{{gene}}" class="haplotype-expand-div small-12 medium-12 large-12 columns">
 			{{#if patientHaplotypes}}
-			<table class="patient-haplotype-table" style="margin-bottom:0px">
-				<thead>
-					<th class="haplotype-columns">Patient Haplotype 1</th>
-					{{#heads}}
-					<th><a target="_blank" href={{url}} rs={{id}}">{{id}}</a></th>
-					{{/heads}}
-				</thead>
-				<tbody>
-					<tr class="patient-genotype-row">
-						<td class="haplotype-columns"><em>{{patientHaplotypes.h1.name}}</em></td>
-						{{#patientHaplotypes.h1.variants}}
-						<td class="variant-{{class}}">{{variant}}</td>
-						{{/patientHaplotypes.h1.variants}}
-					</tr>
-					{{#patientHaplotypes.h1.possible}}
-				</tbody>
-			</table>
-			<table style="margin-top:0px">
+			<table class="patient-haplotype-table" style="margin-bottom:0px;border-bottom-width: 1px; border-bottom-color: #ffffff;">
 				<thead>
 					<tr>
 						<th class="haplotype-columns">Patient Haplotype 1</th>
 						{{#heads}}
-						<th class="marker-column">s</th>
+						<th class="marker-column"><a target="_blank" href={{url}} rs={{id}}">{{id}}</a></th>
 						{{/heads}}
+					</tr>
+				</thead>
+				<tbody>
+					<tr style="background:#E2FFC6;"><!--class="patient-genotype-row">-->
+						<td class="haplotype-columns"><em>Observed Variants</em></td>
+						{{#patientHaplotypes.h1.variants}}
+						<td class="variant-{{class}} marker-column">{{variant}}</td>
+						{{/patientHaplotypes.h1.variants}}
+					</tr>
+				</tbody>
+			</table>
+			<table style="margin-top:0px;border-top:0px">
+				<thead>
+					<tr>
+						<th class="haplotype-columns">Possible Matches</th>
+						{{#each heads}}
+						<th class="marker-column"></th>
+						{{/each}}
 					</tr>
 
 				</thead>
 				<tbody>
+					{{#patientHaplotypes.h1.possible}}
 					<tr>
 						<td class="haplotype-columns">{{name}}</td>
 						{{#variants}}
-						<td class="variant-{{class}}">{{variant}}</td>
+						<td class="variant-{{class}} marker-column">{{variant}}</td>
 						{{/variants}}
 					</tr>
 					{{/patientHaplotypes.h1.possible}}
 				</tbody>
 			</table>
-			<table class="patient-haplotype-table">
+			<table class="patient-haplotype-table" style="margin-bottom:0px;border-bottom-width: 1px; border-bottom-color: #ffffff;">
 				<thead>
 					<tr>
 						<th class="haplotype-columns">Patient Haplotype 2</th>
@@ -103,30 +105,42 @@
 				</thead>
 				<tbody>
 					<tr class="patient-genotype-row">
-						<td class="haplotype-columns"><em>{{patientHaplotypes.h2.name}}</em></td>
+						<td class="haplotype-columns"><em>Observed Variants</em></td>
 						{{#patientHaplotypes.h2.variants}}
-						<td class="variant-{{class}}">{{variant}}</td>
+						<td class="variant-{{class}} marker-column">{{variant}}</td>
 						{{/patientHaplotypes.h2.variants}}
 					</tr>
+				</tbody>
+			</table>
+			<table style="margin-top:0px;border-top:0px">
+				<thead>
+					<tr>
+						<th class="haplotype-columns">Possible Matches</th>
+						{{#each heads}}
+						<th class="marker-column"></th>
+						{{/each}}
+					</tr>
+				</thead>
+				<tbody>
 					{{#patientHaplotypes.h2.possible}}
 					<tr>
 						<td class="haplotype-columns">{{name}}</td>
 						{{#variants}}
-						<td class="variant-{{class}}">{{variant}}</td>
+						<td class="variant-{{class}} marker-column">{{variant}}</td>
 						{{/variants}}
 					</tr>
 					{{/patientHaplotypes.h2.possible}}
 				</tbody>
 			</table>
 			{{else}}
-			<div class="row">
-		      	<div class="small-12columns">
+			<div class="row no-variants">
+		      	<div class="small-12 columns">
 		        	<div data-alert class="alert-box radius secondary">
 		        	<!-- Alert message goes here -->
 		         	 	<div class="row">
 		            		<div class="small-12column columns">
-				            	<h4>Warning</h4>
-				              	<p>There are no variants corresponding to the gene: {{gene}}.</p>
+				            	<h6>Notice</h6>
+				              	<p>There was no genetic information found for the patient at this location</p>
 		            		</div>
 		          			
 		        		</div>
@@ -134,12 +148,13 @@
 		  		</div>
 			</div>
 			{{/if}}
+			{{#if haplotypes}}
 			<table class="all-possible-haplotypes">
 				<thead>
 					<tr>
-						<th class="haplotype-columns">Known Haplotypes</th>
+						<th class="haplotype-columns">Additional Known Haplotypes</th>
 						{{#heads}}
-						<th><a target="_blank" href={{url}} rs={{id}}">{{id}}</a></th>
+						<th class="marker-column"><a target="_blank" href={{url}} rs={{id}}">{{id}}</a></th>
 						{{/heads}}
 					</tr>
 				</thead>
@@ -148,12 +163,29 @@
 					<tr>
 						<td class="haplotype-columns">{{name}}</td>
 						{{#variants}}
-						<td class="variant-{{class}}">{{variant}}</td>
+						<td class="variant-{{class}} marker-column">{{variant}}</td>
 						{{/variants}}
 					</tr>
 					{{/haplotypes}}
 				</tbody>
 			</table>
+			{{else}}
+			<div class="row">
+		      	<div class="small-12 columns">
+		        	<div data-alert class="alert-box radius secondary">
+		        	<!-- Alert message goes here -->
+		         	 	<div class="row">
+		            		<div class="small-12column columns">
+				            	<h6>Notice</h6>
+				              	<p>There are no additional haplotypes to display</p>
+		            		</div>
+		          			
+		        		</div>
+		    		</div>
+		  		</div>
+			</div>
+			{{/if}}
+
 		</div>
 	</div>	
 </div>

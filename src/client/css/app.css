@@ -232,5 +232,6 @@ hr {
 }
 
 .marker-column {
-  width: 90px;
+  width: 98px;
+  text-align: center;
 }

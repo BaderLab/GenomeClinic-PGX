@@ -556,7 +556,7 @@ var pgx =  {
 			});
 		});
 
-		$('.haplotype-expand[expanded=no]').trigger('click')
+		$('.no-variants').closest('.columns').closest('.row').find('.haplotype-expand').trigger('click')
 	},
 
 	//Convert the templated data within the global pgx field into a more usable format
@@ -568,13 +568,16 @@ var pgx =  {
 			templateData.patientID = self.globalPGXData.patientID;
 			templateData.patientAlias = self.globalPGXData.patientAlias;
 			var _o;
+			var tempHaplotypes;
 			for (var gene in self.globalPGXData.pgxGenes){
+				tempHaplotypes = self.listHaplotypes(gene);
 				_o = {};
 				_o.gene = gene;
 				_o.heads = self.markerHeads(gene);
-				_o.haplotypes = self.listHaplotypes(gene);
-				_o.patientHaplotypes = self.listPatientHaplotypes(gene,_o);
+				_o.patientHaplotypes = self.listPatientHaplotypes(gene,tempHaplotypes);
+				_o.haplotypes = self.listFinalHaplotypes(gene,tempHaplotypes,_o.patientHaplotypes);
 				_o.possibleHaplotypes = self.globalPGXData.possibleHaplotypesStringRep[gene];
+
 				templateData.pgxGenes.push(_o);
 			}
 			resolve(templateData);
@@ -611,10 +614,9 @@ var pgx =  {
 		return out;
 	},
 
-	listPatientHaplotypes:function(gene,refObj){
+	listPatientHaplotypes:function(gene,haplotypes){
 		var hname,o,v,m,matches,match; 
 		var out = {};
-		var haplotypes = refObj.haplotypes;
 		var phap = this.globalPGXData.possibleHaplotypesStringRep[gene];
 		if (phap === undefined)
 			return undefined;
@@ -674,6 +676,31 @@ var pgx =  {
 		}
 		// add the matches now;
 		return out;
+	},
+
+	listFinalHaplotypes:function(gene,haplotypes,possible){
+		var possibleArr = [];
+		var outHaps = [];
+		var index;
+		if (possible){
+			for (var i = 0; i < possible.h1.possible.length; i++ ){
+				if (possibleArr.indexOf(possible.h1.possible[i].name) === -1){
+					possibleArr.push(possible.h1.possible[i].name);
+				}
+			}
+			for (var i = 0; i < possible.h2.possible.length; i++ ){
+				if (possibleArr.indexOf(possible.h2.possible[i].name) === -1){
+					possibleArr.push(possible.h2.possible[i].name);
+				}
+			}
+		}
+		for (i = 0; i < haplotypes.length; i++ ){
+			index = possibleArr.indexOf(haplotypes[i].name);
+			if (index === -1)
+				outHaps.push(haplotypes[i]);
+		} 
+		if (outHaps.length == 0) return undefined;
+		return outHaps;
 	},
 
 	markerHeads:function(gene){
