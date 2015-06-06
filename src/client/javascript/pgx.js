@@ -411,10 +411,8 @@ var pgx =  {
 		// helpers, which dynamically render the HTML.
 		self.generatePgxResults(selectedPatientID,selectedPatientAlias)
 		.then(function(){
-			console.log(self.globalPGXData);
 			return self.convertTotemplateData();
 		}).then(function(result){
-			console.log(result);
 			self.templateData = result;
 			templateData = result;
 			if (self.pgxGenesRemoved)
