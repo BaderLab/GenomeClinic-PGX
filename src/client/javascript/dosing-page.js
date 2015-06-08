@@ -9,6 +9,14 @@ var $ = require("jquery"),
 
 module.exports = function(){
 	//add new methods to adbide validation
+	var pageOptions = {
+		location:undefined,
+		gene:undefined,
+		use:undefined,
+		classes:undefined,
+		counter:0
+	};
+
 	var abideOptions = {
 		abide: {
 			validators:{
@@ -22,6 +30,16 @@ module.exports = function(){
 					} else {
 						return true;
 					}
+				},
+				uniqueGene:function(el,required,parent){
+					var from = document.getElementsByClassName('gene-name');
+					var val = el.value;
+					var count = 0;
+					for (var i=0; i < from.length; i++ ){
+						if (val == from[i].value) count++
+					}
+					if (count > 1) return false;
+					else return true;
 				}
 			}
 		}
@@ -45,11 +63,7 @@ module.exports = function(){
 	};
 
 	/* global container to hold various page options */
-	var pageOptions = {
-		location:undefined,
-		gene:undefined,
-		use:undefined
-	};
+	
 
 	/* Serialzie a field and return the document that results. This is for new fields only and not updated fields.
 	 * The type can be one of Interaction, future, or haplotype, corresponding to the three types of information on
@@ -58,7 +72,6 @@ module.exports = function(){
 	var serializeNewField = function(context,type){
 		var doc = {};
 		var fields = $(context).serializeArray();
-		doc.pgx_1 = pageOptions.gene;
 		//Remove empty fields
 		for (var i = 0; i < fields.length; i++ ){
 			if (fields[i].value !== "" && fields[i] != "None" ){
@@ -66,6 +79,13 @@ module.exports = function(){
 			}
 		}
 		if ( type == 'interaction' ){
+			doc.genes = [pageOptions.gene];
+			doc.classes = [$(context).find("#class-name-original").val()]
+			var addGenes = $(context).find('.additional-gene-row');
+			for (var i = 0; i< addGenes.length; i++ ){
+				doc.genes.push($(addGenes[i]).find(".gene-name").val())
+				doc.classes.push($(addGenes[i]).find(".class-name").val())
+			}
 			var linksArr = $(context).find('.pubmed-link');
 			var links = [];
 			for (var i = 0; i < linksArr.length; i++ ){
@@ -292,10 +312,27 @@ module.exports = function(){
 				$('#new-interaction-cancel-trigger').on('click',function(e){
 					e.preventDefault();
 					$(this).closest("#new-interaction-triggers").hide().siblings('#new-interaction').show();
+					$('#additional-genes').empty();
 					document.getElementById('new-interaction-form').reset();//.trigger('click');
 					$('#new-interaction-form').find('.pubmed-links').empty();
 					$('#new-interaction-form').slideUp();
 				});
+
+				$('#add-additional-gene').on('click',function(e){
+					e.preventDefault();
+					var opts = {
+						num : pageOptions.counter,
+						classes : pageOptions.classes
+					}
+					templates.drugs.gene(opts).then(function(renderedHtml){
+						console.log(renderedHtml);
+						$('#additional-genes').append(renderedHtml);
+					}).then(function(){
+						_this.removeRow('#remove-additional-gene-' + pageOptions.counter);
+						utility.refresh(abideOptions,'#additional-gene-row-' + pageOptions.counter);
+						pageOptions.counter++
+					});
+				})
 
 				/* When the form is considered valid, trigger this event handler
 				 * submitting the serialized data to the server for entry. The
@@ -305,7 +342,8 @@ module.exports = function(){
 				 * to that already exists */
 				$('#new-interaction-form').on('valid.fndtn.abide', function (){
 					var doc = serializeNewField(this,'interaction');
-					Promise.resolve($.ajax({
+					console.log(doc);
+					/*Promise.resolve($.ajax({
 						url:'/database/dosing/genes/' + pageOptions.gene + '/new?type=interaction',
 						type:"POST",
 				 		contentType:"application/json",
@@ -356,7 +394,7 @@ module.exports = function(){
 						$('#new-interaction-cancel-trigger').trigger('click');					
 					}).catch(function(err){
 						$('#error-display-message').text(err.toString()).closest('#error-display-box').slideDown();
-					});
+					});*/
 				});
 				
 				//*============================
@@ -504,6 +542,13 @@ module.exports = function(){
 					});
 				});
 
+			},
+			removeRow:function(el){
+				$(el).on('click',function(e){
+					e.preventDefault();
+					var num = $(this).data('num');
+					$('#additional-gene-row-' + num).remove();
+				});
 			},
 			//Functions and hanlders that are used by all types of interacitons
 			generic:function(el){
@@ -861,6 +906,7 @@ module.exports = function(){
 				}));
 			}).then(function(result){
 				resultObj.classes = result[0].classes;
+				pageOptions.classes = result[0].classes;
 				return templates.drugs.current(resultObj);
 			}).then(function(renderedHtml){
 				return $('#main').html(renderedHtml);

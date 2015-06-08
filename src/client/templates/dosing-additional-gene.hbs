@@ -1,0 +1,33 @@
+<div class="row additional-gene-row" id="additional-gene-row-{{num}}">
+	<div class="large-6 medium-12 small-12 columns">
+		<div class="row collapse prefix-radius">
+			<div class="large-4 small-4 medium-4 columns">
+				<span class="prefix">Gene Name</span>
+			</div>
+			<div class="large-8 small-8 medium-8 columns">
+				<input class="gene-name"type="text" data-abide-validator="uniqueGene" id="gene-name-{{num}}" data-requiredIf="class-name-{{num}}" data-abide-validator="requiredIf">
+				<small class="error">Gene Name required</small>
+
+			</div>
+		</div>
+	</div>
+	<div class="large-5 medium-12 small-12 columns">
+		<div class="row collapse prefix-radius">
+			<div class="large-4 small-4 medium-4 columns">
+				<span class="prefix">Metabolic Status</span>
+			</div>
+			<div class="large-8 small-8 medium-8 columns">
+				<select class="class-name" data-abide-validator="requiredIf" data-requiredIf="gene-name-{{num}}" id="class-name-{{num}}">
+					<option selected="selected">None</option>
+					{{#each classes}}
+					<option>{{this}}</option>
+					{{/each}}
+				</select>
+				<small class="error">Metabolic Status Required</small>
+			</div>
+		</div>
+	</div>
+	<div class="large-1 small-2 medium-2 right columns">
+		<a href="#" id="remove-additional-gene-{{num}}" data-num="{{num}}" class="button tiny radius right"><i class="fi-x"></i></a>
+	</div>
+</div>
