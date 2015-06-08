@@ -157,7 +157,7 @@ module.exports = function(){
 			$('#search-box').on('keyup',function(){
 				var currentRows = $('.dose-row');
 				for (var i=0; i < currentRows.length; i++ ){
-					if (!utility.matchSearch($(currentRows[i]).data('name')))
+					if (!utility.matchSearch($(currentRows[i]).data('gene')))
 						$(currentRows[i]).hide();
 					else 
 						$(currentRows[i]).show();
@@ -176,7 +176,6 @@ module.exports = function(){
 			 * navigate to the new gene's drug recomendation page */
 			$('#submit-new-gene-form').on('valid.fndtn.abide',function(e){
 				var val = $('#new-gene-name').val().replace('/');
-				console.log(val);
 
 				Promise.resolve($.ajax({
 					url:'/dosing/new/' + val,
@@ -584,7 +583,6 @@ module.exports = function(){
 					var _this =this;
 					var id = $(this).data('id');
 					var o = serializeField(this,'future');
-					console.log(id);
 					Promise.resolve($.ajax({
 						url:"/database/dosing/genes/" + pageOptions.gene + "/update?type=recomendation&id=" + id,
 						type:"POST",
@@ -856,15 +854,12 @@ module.exports = function(){
 				}));
 			}).then(function(result){
 				resultObj = arrangeRecs(result);
-
-				console.log(resultObj);
 				return Promise.resolve($.ajax({
 					url:'/database/dosing/classes',
 					type:'GET',
 					dataType:'json'
 				}));
 			}).then(function(result){
-				console.log(resultObj);
 				resultObj.classes = result[0].classes;
 				return templates.drugs.current(resultObj);
 			}).then(function(renderedHtml){

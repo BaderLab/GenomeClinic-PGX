@@ -249,7 +249,7 @@ module.exports = function(app,logger,opts){
 	 * unitialized set to true. */
 	app.post('/dosing/new/:newGene',utils.isLoggedIn,function(req,res){
 		var newGene = req.params.newGene;
-		dbFunctions.checkInDatabase(constants.dbConstants.DRUGS.DOSING.COLLECTION,constants.dbConstants.DRUGS.DOSING.ID_FIELD,newGene)
+		dbFunctions.checkInDatabase(constants.dbConstants.DRUGS.ALL.COLLECTION,constants.dbConstants.DRUGS.ALL.ID_FIELD,newGene)
 		.then(function(exists){
 			if (!exists){
 				dbFunctions.drugs.createNewDoc(newGene,req.user.username).then(function(result){
