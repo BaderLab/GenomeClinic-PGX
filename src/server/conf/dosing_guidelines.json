@@ -14,7 +14,8 @@
             "19640227",
             "21174626",
             "21412232"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -31,7 +32,8 @@
             "19640227",
             "21174626",
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -44,7 +46,8 @@
         "drug": "Acenocoumarol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -57,7 +60,8 @@
         "drug": "Acenocoumarol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -70,7 +74,8 @@
         "drug": "Acenocoumarol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -83,7 +88,8 @@
         "drug": "Glibenclamide",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -96,7 +102,8 @@
         "drug": "Glibenclamide",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -109,7 +116,8 @@
         "drug": "Glibenclamide",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -122,7 +130,8 @@
         "drug": "Gliclazide",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -135,7 +144,8 @@
         "drug": "Gliclazide",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -148,7 +158,8 @@
         "drug": "Gliclazide",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -161,7 +172,8 @@
         "drug": "Glimepiride",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -174,7 +186,8 @@
         "drug": "Glimepiride",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -185,9 +198,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2C9. Initiate glimepiride therapy per standard dosing guidelines. Adjust glimepiride dose based upon patient response to therapy and clinical judgment.",
         "drug": "Glimepiride",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -200,7 +212,8 @@
         "drug": "Phenytoin",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -215,7 +228,8 @@
         "drug": "Phenytoin",
         "pubmed": [
             "25099164"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -230,7 +244,8 @@
         "drug": "Phenytoin",
         "pubmed": [
             "25099164"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -243,7 +258,8 @@
         "drug": "Phenytoin",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -258,7 +274,8 @@
         "drug": "Phenytoin",
         "pubmed": [
             "25099164"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -273,7 +290,8 @@
         "drug": "Phenytoin",
         "pubmed": [
             "25099164"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -286,7 +304,8 @@
         "drug": "Phenytoin",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -301,7 +320,8 @@
         "drug": "Phenytoin",
         "pubmed": [
             "25099164"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -316,7 +336,8 @@
         "drug": "Phenytoin",
         "pubmed": [
             "25099164"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -329,7 +350,8 @@
         "drug": "Tolbutamide",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -342,7 +364,8 @@
         "drug": "Tolbutamide",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -355,7 +378,8 @@
         "drug": "Tolbutamide",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -364,7 +388,8 @@
         "classes": [
             "Normal Metabolizer"
         ],
-        "drug": "Warfarin"
+        "drug": "Warfarin",
+        "pubmed": []
     },
     {
         "genes": [
@@ -379,7 +404,8 @@
         "drug": "Warfarin",
         "pubmed": [
             "21900891"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -394,7 +420,8 @@
         "drug": "Warfarin",
         "pubmed": [
             "21900891"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -409,7 +436,8 @@
         "drug": "Warfarin",
         "pubmed": [
             "21900891"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -418,7 +446,8 @@
         "classes": [
             "Intermediate Metabolizer"
         ],
-        "drug": "Warfarin"
+        "drug": "Warfarin",
+        "pubmed": []
     },
     {
         "genes": [
@@ -433,7 +462,8 @@
         "drug": "Warfarin",
         "pubmed": [
             "21900891"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -448,7 +478,8 @@
         "drug": "Warfarin",
         "pubmed": [
             "21900891"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -463,7 +494,8 @@
         "drug": "Warfarin",
         "pubmed": [
             "21900891"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -472,7 +504,8 @@
         "classes": [
             "Poor Metabolizer"
         ],
-        "drug": "Warfarin"
+        "drug": "Warfarin",
+        "pubmed": []
     },
     {
         "genes": [
@@ -487,7 +520,8 @@
         "drug": "Warfarin",
         "pubmed": [
             "21900891"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -502,7 +536,8 @@
         "drug": "Warfarin",
         "pubmed": [
             "21900891"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -517,7 +552,8 @@
         "drug": "Warfarin",
         "pubmed": [
             "21900891"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -528,9 +564,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2C9. Consider a 50% reduction of standard celecoxib dosing. Based on genotype and age of this patient, initiate therapy with  ___. Monitor closely for adverse drug reactions due to reduced drug clearance.  Adjust celecoxib dose based upon patient response to therapy and clinical judgment.",
         "drug": "Celecoxib",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -541,9 +576,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2C9. Initiate celecoxib therapy per standard dosing guidelines.  Adjust celecoxib dose based upon patient response to therapy and clinical judgment.",
         "drug": "Celecoxib",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -554,9 +588,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2C9. Initiate celecoxib therapy per standard dosing guidelines.  Adjust celecoxib dose based upon patient response to therapy and clinical judgment.",
         "drug": "Celecoxib",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -567,9 +600,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2C9. Initiate flurbiprofen therapy per standard dosing guidelines.  Adjust flurbiprofen dose based upon patient response to therapy and clinical judgment.",
         "drug": "Flurbiprofen",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -580,9 +612,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2C9. Initiate flurbiprofen therapy per standard dosing guidelines.  Adjust flurbiprofen dose based upon patient response to therapy and clinical judgment.",
         "drug": "Flurbiprofen",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -593,9 +624,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2C9. Initiate flurbiprofen therapy per standard dosing guidelines.  Adjust flurbiprofen dose based upon patient response to therapy and clinical judgment.",
         "drug": "Flurbiprofen",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -606,9 +636,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2C9. Initiate flurbiprofen therapy per standard dosing guidelines.  Adjust flurbiprofen dose based upon patient response to therapy and clinical judgment.",
         "drug": "Flurbiprofen",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -621,7 +650,8 @@
         "drug": "Acenocoumarol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -634,7 +664,8 @@
         "drug": "Acenocoumarol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -647,7 +678,8 @@
         "drug": "Acenocoumarol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -656,7 +688,8 @@
         "classes": [
             "Normal Metabolizer"
         ],
-        "drug": "Warfarin"
+        "drug": "Warfarin",
+        "pubmed": []
     },
     {
         "genes": [
@@ -671,7 +704,8 @@
         "drug": "Warfarin",
         "pubmed": [
             "21900891"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -686,7 +720,8 @@
         "drug": "Warfarin",
         "pubmed": [
             "21900891"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -701,7 +736,8 @@
         "drug": "Warfarin",
         "pubmed": [
             "21900891"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -710,7 +746,8 @@
         "classes": [
             "Intermediate Metabolizer"
         ],
-        "drug": "Warfarin"
+        "drug": "Warfarin",
+        "pubmed": []
     },
     {
         "genes": [
@@ -725,7 +762,8 @@
         "drug": "Warfarin",
         "pubmed": [
             "21900891"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -740,7 +778,8 @@
         "drug": "Warfarin",
         "pubmed": [
             "21900891"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -755,7 +794,8 @@
         "drug": "Warfarin",
         "pubmed": [
             "21900891"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -764,7 +804,8 @@
         "classes": [
             "Poor Metabolizer"
         ],
-        "drug": "Warfarin"
+        "drug": "Warfarin",
+        "pubmed": []
     },
     {
         "genes": [
@@ -779,7 +820,8 @@
         "drug": "Warfarin",
         "pubmed": [
             "21900891"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -794,7 +836,8 @@
         "drug": "Warfarin",
         "pubmed": [
             "21900891"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -809,7 +852,8 @@
         "drug": "Warfarin",
         "pubmed": [
             "21900891"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -822,7 +866,8 @@
         "drug": "Allopurinol",
         "pubmed": [
             "23232549"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -835,7 +880,8 @@
         "drug": "Allopurinol",
         "pubmed": [
             "23232549"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -848,7 +894,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -863,7 +910,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -878,7 +926,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -893,7 +942,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -908,7 +958,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -921,7 +972,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -936,7 +988,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -951,7 +1004,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -966,7 +1020,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -981,7 +1036,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -994,7 +1050,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1009,7 +1066,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -1024,7 +1082,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1039,7 +1098,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1054,7 +1114,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -1067,7 +1128,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1082,7 +1144,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -1097,7 +1160,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1112,7 +1176,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1127,7 +1192,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1140,7 +1206,8 @@
         "drug": "Aripiprazole",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1153,7 +1220,8 @@
         "drug": "Aripiprazole",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -1166,7 +1234,8 @@
         "drug": "Aripiprazole",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -1179,7 +1248,8 @@
         "drug": "Aripiprazole",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -1192,7 +1262,8 @@
         "drug": "Atomoxetine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -1205,7 +1276,8 @@
         "drug": "Atomoxetine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -1218,7 +1290,8 @@
         "drug": "Atomoxetine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -1231,7 +1304,8 @@
         "drug": "Atomoxetine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1244,7 +1318,8 @@
         "drug": "Carvedilol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -1257,7 +1332,8 @@
         "drug": "Carvedilol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -1270,7 +1346,8 @@
         "drug": "Carvedilol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -1283,7 +1360,8 @@
         "drug": "Carvedilol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -1296,7 +1374,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1311,7 +1390,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -1326,7 +1406,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1341,7 +1422,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1356,7 +1438,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1369,7 +1452,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1384,7 +1468,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -1399,7 +1484,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1414,7 +1500,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1429,7 +1516,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -1442,7 +1530,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -1457,7 +1546,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -1472,7 +1562,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -1487,7 +1578,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -1502,7 +1594,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1515,7 +1608,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -1530,7 +1624,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -1545,7 +1640,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -1560,7 +1656,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -1575,7 +1672,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -1588,7 +1686,8 @@
         "drug": "Clozapine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -1601,7 +1700,8 @@
         "drug": "Clozapine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -1614,7 +1714,8 @@
         "drug": "Clozapine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -1627,7 +1728,8 @@
         "drug": "Clozapine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -1642,7 +1744,8 @@
             "23486447",
             "24458010",
             "22205192"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -1657,7 +1760,8 @@
             "23486447",
             "24458010",
             "22205192"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -1672,7 +1776,8 @@
             "23486447",
             "24458010",
             "22205192"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1687,7 +1792,8 @@
             "23486447",
             "24458010",
             "22205192"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -1700,7 +1806,8 @@
         "drug": "Desipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1713,7 +1820,8 @@
         "drug": "Desipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1726,7 +1834,8 @@
         "drug": "Desipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -1739,7 +1848,8 @@
         "drug": "Desipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -1752,7 +1862,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -1767,7 +1878,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -1782,7 +1894,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -1797,7 +1910,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -1812,7 +1926,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -1825,7 +1940,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -1840,7 +1956,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -1855,7 +1972,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -1870,7 +1988,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -1885,7 +2004,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1898,7 +2018,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1913,7 +2034,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -1928,7 +2050,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1943,7 +2066,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1958,7 +2082,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -1971,7 +2096,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -1986,7 +2112,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -2001,7 +2128,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2016,7 +2144,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2031,7 +2160,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2044,7 +2174,8 @@
         "drug": "Duloxetine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2057,7 +2188,8 @@
         "drug": "Duloxetine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2070,7 +2202,8 @@
         "drug": "Duloxetine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2083,7 +2216,8 @@
         "drug": "Duloxetine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2096,7 +2230,8 @@
         "drug": "Flecainide",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2109,7 +2244,8 @@
         "drug": "Flecainide",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2122,7 +2258,8 @@
         "drug": "Flecainide",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2135,7 +2272,8 @@
         "drug": "Flecainide",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -2148,7 +2286,8 @@
         "drug": "Flupenthixol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2161,7 +2300,8 @@
         "drug": "Flupenthixol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2174,7 +2314,8 @@
         "drug": "Flupenthixol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2187,7 +2328,8 @@
         "drug": "Flupenthixol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2200,7 +2342,8 @@
         "drug": "Haloperidol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2213,7 +2356,8 @@
         "drug": "Haloperidol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2226,7 +2370,8 @@
         "drug": "Haloperidol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2239,7 +2384,8 @@
         "drug": "Haloperidol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -2252,7 +2398,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2267,7 +2414,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -2282,7 +2430,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2297,7 +2446,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2312,7 +2462,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2325,7 +2476,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2340,7 +2492,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -2355,7 +2508,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2370,7 +2524,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2385,7 +2540,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -2398,7 +2554,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2413,7 +2570,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -2428,7 +2586,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2443,7 +2602,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2458,7 +2618,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2471,7 +2632,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -2486,7 +2648,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -2501,7 +2664,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -2516,7 +2680,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -2531,7 +2696,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -2544,7 +2710,8 @@
         "drug": "Metoprolol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2557,7 +2724,8 @@
         "drug": "Metoprolol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2570,7 +2738,8 @@
         "drug": "Metoprolol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2583,7 +2752,8 @@
         "drug": "Metoprolol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2596,7 +2766,8 @@
         "drug": "Mirtazapine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2609,7 +2780,8 @@
         "drug": "Mirtazapine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2622,7 +2794,8 @@
         "drug": "Mirtazapine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2635,7 +2808,8 @@
         "drug": "Mirtazapine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2648,7 +2822,8 @@
         "drug": "Nortriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -2661,7 +2836,8 @@
         "drug": "Nortriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2674,7 +2850,8 @@
         "drug": "Nortriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2687,7 +2864,8 @@
         "drug": "Nortriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2700,7 +2878,8 @@
         "drug": "Olanzapine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2713,7 +2892,8 @@
         "drug": "Olanzapine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2726,7 +2906,8 @@
         "drug": "Olanzapine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2739,7 +2920,8 @@
         "drug": "Olanzapine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2752,7 +2934,8 @@
         "drug": "Oxycodone",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -2765,7 +2948,8 @@
         "drug": "Oxycodone",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -2778,7 +2962,8 @@
         "drug": "Oxycodone",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2791,7 +2976,8 @@
         "drug": "Oxycodone",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -2804,7 +2990,8 @@
         "drug": "Paroxetine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2817,7 +3004,8 @@
         "drug": "Paroxetine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2830,7 +3018,8 @@
         "drug": "Paroxetine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2843,7 +3032,8 @@
         "drug": "Paroxetine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -2856,7 +3046,8 @@
         "drug": "Propafenone",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2869,7 +3060,8 @@
         "drug": "Propafenone",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2882,7 +3074,8 @@
         "drug": "Propafenone",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2895,7 +3088,8 @@
         "drug": "Propafenone",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2908,7 +3102,8 @@
         "drug": "Risperidone",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2921,7 +3116,8 @@
         "drug": "Risperidone",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2934,7 +3130,8 @@
         "drug": "Risperidone",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2947,7 +3144,8 @@
         "drug": "Risperidone",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2960,7 +3158,8 @@
         "drug": "Tamoxifen",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2973,7 +3172,8 @@
         "drug": "Tamoxifen",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -2986,7 +3186,8 @@
         "drug": "Tamoxifen",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -2999,7 +3200,8 @@
         "drug": "Tamoxifen",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3012,7 +3214,8 @@
         "drug": "Tramadol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -3025,7 +3228,8 @@
         "drug": "Tramadol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -3038,7 +3242,8 @@
         "drug": "Tramadol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3051,7 +3256,8 @@
         "drug": "Tramadol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -3064,7 +3270,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -3079,7 +3286,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -3094,7 +3302,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -3109,7 +3318,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -3124,7 +3334,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -3137,7 +3348,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3152,7 +3364,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -3167,7 +3380,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3182,7 +3396,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3197,7 +3412,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -3210,7 +3426,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -3225,7 +3442,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -3240,7 +3458,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -3255,7 +3474,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -3270,7 +3490,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -3283,7 +3504,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -3298,7 +3520,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -3313,7 +3536,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -3328,7 +3552,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -3343,7 +3568,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -3356,7 +3582,8 @@
         "drug": "Venlafaxine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -3369,7 +3596,8 @@
         "drug": "Venlafaxine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -3382,7 +3610,8 @@
         "drug": "Venlafaxine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3395,7 +3624,8 @@
         "drug": "Venlafaxine",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -3408,7 +3638,8 @@
         "drug": "Zuclopenthixol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -3421,7 +3652,8 @@
         "drug": "Zuclopenthixol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -3434,7 +3666,8 @@
         "drug": "Zuclopenthixol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3447,7 +3680,8 @@
         "drug": "Zuclopenthixol",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -3458,9 +3692,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2D6. Initiate cevimeline therapy per standard dosing guidelines.  Be aware that due to reduced drug clearance patient may be at higher risk for adverse drug reactions. Adjust cevimeline dose based upon patient response to therapy and clinical judgment.",
         "drug": "Cevimeline",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3471,9 +3704,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2D6. Initiate cevimeline therapy per standard dosing guidelines.  Adjust cevimeline dose based upon patient response to therapy and clinical judgment.",
         "drug": "Cevimeline",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3484,9 +3716,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2D6. Initiate cevimeline therapy per standard dosing guidelines. Adjust cevimeline dose based upon patient response to therapy and clinical judgment.",
         "drug": "Cevimeline",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3497,9 +3728,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2D6. Initiate cevimeline therapy per standard dosing guidelines. Adjust cevimeline dose based upon patient response to therapy and clinical judgment.",
         "drug": "Cevimeline",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3510,9 +3740,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2D6. Initiate fluoxetine therapy per standard dosing guidelines.  Adjust fluoxetine dose based upon patient response to therapy and clinical judgment.\r\n\r\nFluoxetine inhibits the activity of CYP2D6, and may make individuals with normal CYP2D6 metabolic activity resemble a poor metabolizer. Co-administration of fluoxetine with other drugs that are metabolized by CYP2D6, including certain antidepressants, antipsychotics (e.g. phenothiazines and most atypicals), and antiarrhythmics (e.g. flecainide, propafenone, and others) should be approached with caution.",
         "drug": "Fluoxetine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3523,9 +3752,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2D6. Initiate fluoxetine therapy per standard dosing guidelines.  Adjust fluoxetine dose based upon patient response to therapy and clinical judgment.\r\n\r\nFluoxetine inhibits the activity of CYP2D6, and may make individuals with normal CYP2D6 metabolic activity resemble a poor metabolizer. Co-administration of fluoxetine with other drugs that are metabolized by CYP2D6, including certain antidepressants, antipsychotics (e.g. phenothiazines and most atypicals), and antiarrhythmics (e.g. flecainide, propafenone, and others) should be approached with caution.",
         "drug": "Fluoxetine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3536,9 +3764,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2D6. Initiate fluoxetine therapy per standard dosing guidelines.  Adjust fluoxetine dose based upon patient response to therapy and clinical judgment.\r\n\r\nFluoxetine inhibits the activity of CYP2D6, and may make individuals with normal CYP2D6 metabolic activity resemble a poor metabolizer. Co-administration of fluoxetine with other drugs that are metabolized by CYP2D6, including certain antidepressants, antipsychotics (e.g. phenothiazines and most atypicals), and antiarrhythmics (e.g. flecainide, propafenone, and others) should be approached with caution.",
         "drug": "Fluoxetine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3549,9 +3776,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2D6. Initiate fluoxetine therapy per standard dosing guidelines. Adjust fluoxetine dose based upon patient response to therapy and clinical judgment.\r\n\r\nCo-administration of fluoxetine with other drugs that are metabolized by CYP2D6, including certain antidepressants, antipsychotics (e.g. phenothiazines and most atypicals), and antiarrhythmics (e.g. flecainide, propafenone, and others) should be approached with caution.",
         "drug": "Fluoxetine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3562,9 +3788,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2D6. Initiate fluvoxamine therapy per standard dosing guidelines. Caution is indicated in patients known to have reduced levels of CYP2D6 activity and those receiving concomitant drugs known to inhibit CYP2D6 (e.g. quinidine). Adjust fluvoxamine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Fluvoxamine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3575,9 +3800,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2D6. Initiate fluvoxamine therapy per standard dosing guidelines. Caution is indicated in patients known to have reduced levels of CYP2D6 activity and those receiving concomitant drugs known to inhibit CYP2D6 (e.g. quinidine). Adjust fluvoxamine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Fluvoxamine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3588,9 +3812,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2D6. Initiate fluvoxamine therapy per standard dosing guidelines.  Adjust fluvoxamine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Fluvoxamine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3601,9 +3824,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2D6. Initiate fluvoxamine therapy per standard dosing guidelines. Adjust fluvoxamine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Fluvoxamine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3614,9 +3836,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2D6. Initiate galantamine therapy per standard dosing guidelines. Adjust galantamine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Galantamine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3627,9 +3848,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2D6. Initiate galantamine therapy per standard dosing guidelines.  Adjust galantamine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Galantamine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3640,9 +3860,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2D6. Initiate galantamine therapy per standard dosing guidelines.  Adjust galantamine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Galantamine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3653,9 +3872,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2D6. Initiate galantamine therapy per standard dosing guidelines.  Adjust galantamine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Galantamine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3666,9 +3884,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2D6. Initiate iloperidone therapy per standard dosing guidelines. If co-administered with strong CYP2D6 inhibitors (e.g. fluoxetine), a dosage reduction of 50% should be considered. Adjust iloperidone dose based upon patient response to therapy and clinical judgment.",
         "drug": "Iloperidone",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3679,9 +3896,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2D6. Initiate iloperidone therapy per standard dosing guidelines. If co-administered with strong CYP2D6 inhibitors (e.g. fluoxetine), a dosage reduction of 50% should be considered. Adjust iloperidone dose based upon patient response to therapy and clinical judgment.",
         "drug": "Iloperidone",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3692,9 +3908,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2D6.  Initiate iloperidone therapy per standard dosing guidelines. If co-administered with strong CYP2D6 inhibitors (e.g. fluoxetine), dosage decrease of one-half should be considered due to increased iloperidone plasma exposure.",
         "drug": "Iloperidone",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3705,9 +3920,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2D6.  Initiate iloperidone therapy per standard dosing guidelines. If co-administered with strong CYP2D6 inhibitors (e.g. fluoxetine), dosage decrease of one-half should be considered due to increased iloperidone plasma exposure.",
         "drug": "Iloperidone",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3718,9 +3932,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2D6. Initiate modafinil therapy per standard dosing guidelines.  Adjust modafinil dose based upon patient response to therapy and clinical judgment.",
         "drug": "Modafinil",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3731,9 +3944,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2D6. Initiate modafinil therapy per standard dosing guidelines. Adjust modafinil dose based upon patient response to therapy and clinical judgment.",
         "drug": "Modafinil",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3744,9 +3956,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2D6. Initiate modafinil therapy per standard dosing guidelines.  Be aware that poor metabolizers for CYP2D6 may need dose modifications for medications that have ancillary metabolism via CYP2C19, such as tricyclic antidepressants.  Adjust modafinil dose based upon patient response to therapy and clinical judgment.",
         "drug": "Modafinil",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3757,9 +3968,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2D6. Initiate modafinil therapy per standard dosing guidelines. Adjust modafinil dose based upon patient response to therapy and clinical judgment.",
         "drug": "Modafinil",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3770,9 +3980,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2D6. Initiate nefazodone therapy per standard dosing guidelines.  Adjust nefazodone dose based upon patient response to therapy and clinical judgment.",
         "drug": "Nefazodone",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3783,9 +3992,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2D6. Initiate nefazodone therapy per standard dosing guidelines. Adjust nefazodone dose based upon patient response to therapy and clinical judgment.",
         "drug": "Nefazodone",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3796,9 +4004,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2D6. Initiate nefazodone therapy per standard dosing guidelines.  Adjust nefazodone dose based upon patient response to therapy and clinical judgment.",
         "drug": "Nefazodone",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3809,9 +4016,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2D6. Initiate nefazodone therapy per standard dosing guidelines. Adjust nefazodone dose based upon patient response to therapy and clinical judgment.",
         "drug": "Nefazodone",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3822,9 +4028,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2D6. Initiate perphenazine therapy per standard dosing guidelines. Be aware of increased risk of side effects due to reduced drug clearance.  Adjust perphenazine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Perphenazine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3835,9 +4040,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2D6. Initiate perphenazine therapy per standard dosing guidelines.  Adjust perphenazine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Perphenazine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3848,9 +4052,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2D6. Initiate perphenazine therapy per standard dosing guidelines.  Adjust perphenazine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Perphenazine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3861,9 +4064,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2D6. Initiate perphenazine therapy per standard dosing guidelines. Adjust perphenazine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Perphenazine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3874,9 +4076,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2D6. Pimozide doses should not exceed 0.05mg/kg/day in children or 4 mg/day in adults.  Adjustments to doses should not be made earlier than 14 days post therapy initiation.  Adjust pimozide dose based upon patient response to therapy and clinical judgment.",
         "drug": "Pimozide",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -3887,9 +4088,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2D6. Initiate pimozide therapy per standard dosing guidelines.  Adjust pimozide dose based upon patient response to therapy and clinical judgment.",
         "drug": "Pimozide",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3900,9 +4100,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2D6. Initiate pimozide therapy per standard dosing guidelines.  Adjust pimozide dose based upon patient response to therapy and clinical judgment.",
         "drug": "Pimozide",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3913,9 +4112,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2D6. Initiate pimozide therapy per standard dosing guidelines. Adjust pimozide dose based upon patient response to therapy and clinical judgment.",
         "drug": "Pimozide",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3926,9 +4124,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2D6. Initiate propranolol therapy per standard dosing guidelines.  Adjust propranolol dose based upon patient response to therapy and clinical judgment.",
         "drug": "Propranolol",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3939,9 +4136,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2D6. Initiate propranolol therapy per standard dosing guidelines.  Adjust propranolol dose based upon patient response to therapy and clinical judgment.",
         "drug": "Propranolol",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3952,9 +4148,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2D6. Initiate propranolol therapy per standard dosing guidelines.  Adjust propranolol dose based upon patient response to therapy and clinical judgment.",
         "drug": "Propranolol",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3965,9 +4160,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2D6. Initiate propranolol therapy per standard dosing guidelines. Adjust propranolol dose based upon patient response to therapy and clinical judgment.",
         "drug": "Propranolol",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3978,9 +4172,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2D6. Initiate protriptyline therapy per standard dosing guidelines.  Adjust protriptyline dose based upon patient response to therapy and clinical judgment.",
         "drug": "Protriptyline",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -3991,9 +4184,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2D6. Initiate protriptyline therapy per standard dosing guidelines.  Adjust protriptyline dose based upon patient response to therapy and clinical judgment.",
         "drug": "Protriptyline",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4004,9 +4196,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2D6. Initiate protriptyline therapy per standard dosing guidelines.  Adjust protriptyline dose based upon patient response to therapy and clinical judgment.",
         "drug": "Protriptyline",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4017,9 +4208,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2D6. Initiate protriptyline therapy per standard dosing guidelines.  Adjust protriptyline dose based upon patient response to therapy and clinical judgment.",
         "drug": "Protriptyline",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4030,9 +4220,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2D6. Initiate quinidine therapy per standard dosing guidelines.  Be aware that quinidine greatly inhibits CYP2D6, effectively converting normal metabolizer to poor metabolizers.  \r\n\r\nThe drug label recommends caution when prescribing quinidine with CYP2D6 substrates.  Adjust quinidine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Quinidine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -4043,9 +4232,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2D6. Initiate quinidine therapy per standard dosing guidelines.  Be aware that quinidine greatly inhibits CYP2D6, effectively converting normal metabolizer to poor metabolizers.  \r\n\r\nThe drug label recommends caution when prescribing quinidine with CYP2D6 substrates.  Adjust quinidine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Quinidine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -4056,9 +4244,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2D6. Initiate quinidine therapy per standard dosing guidelines.  Adjust quinidine dose based upon patient response to therapy and clinical judgment.\r\n\r\nQuinidine greatly inhibits CYP2D6, effectively converting normal metabolizer to poor metabolizers.  The drug label recommends caution when prescribing quinidine with CYP2D6 substrates.",
         "drug": "Quinidine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4069,9 +4256,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2D6. Initiate quinidine therapy per standard dosing guidelines. Adjust quinidine dose based upon patient response to therapy and clinical judgment.\r\n\r\nQuinidine greatly inhibits CYP2D6, effectively converting normal metabolizer to poor metabolizers.  Caution is recommended when prescribing quinidine with CYP2D6 substrates.",
         "drug": "Quinidine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4082,9 +4268,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2D6. Initiate dextromethorphan and quinidine therapy per standard dosing guidelines.  Be aware that CYP2D6 poor metabolizers may be at risk of experiencing toxicity from dextromethorphan.  Efficacy is not expected to be affected.  Adjust dextromethorphan and quinidine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Dextromethorphan and quinidine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4095,9 +4280,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2D6. Initiate dextromethorphan and quinidine therapy per standard dosing guidelines.  Adjust dextromethorphan and quinidine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Dextromethorphan and quinidine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4108,9 +4292,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2D6. Initiate dextromethorphan and quinidine therapy per standard dosing guidelines.  Adjust dextromethorphan and quinidine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Dextromethorphan and quinidine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4121,9 +4304,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2D6 which may result in increased drug clearance and subtherapeutic drug concentrations. Initiate dextromethorphan and quinidine therapy per standard dosing guidelines. Adjust dextromethorphan and quinidine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Dextromethorphan and quinidine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4134,9 +4316,8 @@
         ],
         "rec": "Use terbinafine per standard dosing guidelines.   Initiate terbinafine therapy per standard dosing guidelines.  Adjust terbinafine dose based upon patient response to therapy and clinical judgment.\r\n\r\nTerbinafine is an inhibitor of CYP2D6 and has an effect on metabolism of: caffeine, cimetidine, cyclosporine, desipramine, fluconazole, and rifampin. Co-administration of terbinafine with drugs dependent on CYP2D6 for metabolism should be done with careful monitoring and may require a reduction in dose of the CYP2D6-metabolized drug.",
         "drug": "Terbinafine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4147,9 +4328,8 @@
         ],
         "rec": "Use terbinafine per standard dosing guidelines.   Initiate terbinafine therapy per standard dosing guidelines.  Adjust terbinafine dose based upon patient response to therapy and clinical judgment.\r\n\r\nTerbinafine is an inhibitor of CYP2D6 and has an effect on metabolism of: caffeine, cimetidine, cyclosporine, desipramine, fluconazole, and rifampin. Co-administration of terbinafine with drugs dependent on CYP2D6 for metabolism should be done with careful monitoring and may require a reduction in dose of the CYP2D6-metabolized drug.",
         "drug": "Terbinafine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4160,9 +4340,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2D6. Initiate terbinafine therapy per standard dosing guidelines.  Adjust terbinafine dose based upon patient response to therapy and clinical judgment.\r\n\r\nTerbinafine is an inhibitor of CYP2D6 and has an effect on metabolism of: caffeine, cimetidine, cyclosporine, desipramine, fluconazole, and rifampin. Co-administration of terbinafine with drugs dependent on CYP2D6 for metabolism should be done with careful monitoring and may require a reduction in dose of the CYP2D6-metabolized drug.",
         "drug": "Terbinafine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4173,9 +4352,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2D6. Initiate terbinafine therapy per standard dosing guidelines. Adjust terbinafine dose based upon patient response to therapy and clinical judgment.\r\n\r\nTerbinafine is an inhibitor of CYP2D6 and has an effect on metabolism of: caffeine, cimetidine, cyclosporine, desipramine, fluconazole, and rifampin. Co-administration of terbinafine with drugs dependent on CYP2D6 for metabolism should be done with careful monitoring and may require a reduction in dose of the CYP2D6-metabolized drug",
         "drug": "Terbinafine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4186,9 +4364,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2D6. Initiate tetrabenazine therapy per standard dosing guidelines (maximum daily dose in poor metabolizers is 50 mg with a maximum single dose of 25 mg).  Adjust tetrabenazine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Tetrabenazine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -4199,9 +4376,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2D6. Initiate tetrabenazine therapy per standard dosing guidelines (maximum daily dose in intermediate metabolizers is 100 mg with a maximum single dose of 37.5 mg).  Adjust tetrabenazine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Tetrabenazine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4212,9 +4388,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2D6. Initiate tetrabenazine therapy per standard dosing guidelines (maximum daily dose in normal metabolizers is 100 mg with a maximum single dose of 37.5 mg).  Adjust tetrabenazine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Tetrabenazine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4225,9 +4400,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2D6. Initiate tetrabenazine therapy per standard dosing guidelines. Adjust tetrabenazine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Tetrabenazine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4238,9 +4412,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2D6. Due to reduced drug clearance thioridazine is not recommended for this patient.",
         "drug": "Thioridazine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -4251,9 +4424,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2D6. Initiate thioridazine therapy per standard dosing guidelines.  Adjust thioridazine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Thioridazine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4264,9 +4436,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2D6. Initiate thioridazine therapy per standard dosing guidelines.  Adjust thioridazine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Thioridazine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4277,9 +4448,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2D6. Initiate thioridazine therapy per standard dosing guidelines. Adjust thioridazine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Thioridazine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4290,9 +4460,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2D6. Initiate tolterodine therapy per standard dosing guidelines.  Due to reduced drug clearance be aware to possible changes in QT interval.  Adjust tolterodine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Tolterodine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -4303,9 +4472,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2D6. Initiate tolterodine therapy per standard dosing guidelines.  Adjust tolterodine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Tolterodine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4316,9 +4484,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2D6. Initiate tolterodine therapy per standard dosing guidelines.  Adjust tolterodine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Tolterodine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4329,9 +4496,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2D6. Initiate tolterodine therapy per standard dosing guidelines. Adjust tolterodine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Tolterodine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4342,9 +4508,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2D6. The maximum recommended dose of vortioxetine is 10 mg/day in known CYP2D6 poor metabolizers. Be aware that vortioxetine dosing may require a 50% reduction if administered along with strong CYP2D6 inhibitors (e.g. bupropion, fluoxetine, paroxetine, quinidine).  Adjust vortioxetine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Vortioxetine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -4355,9 +4520,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2D6. Initiate vortioxetine therapy per standard dosing guidelines. Adjust vortioxetine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Vortioxetine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4368,9 +4532,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2D6. Initiate vortioxetine therapy per standard dosing guidelines.  Adjust vortioxetine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Vortioxetine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4381,9 +4544,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2D6. Initiate vortioxetine therapy per standard dosing guidelines. Adjust vortioxetine dose based upon patient response to therapy and clinical judgment.",
         "drug": "Vortioxetine",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4394,9 +4556,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2D6 and is more likely to have an increased response to ondansetron. This increased response leads to a reduced risk of vomiting after chemotherapy or anesthesia.  Other genetic and clinical factors may also influence the risk of vomiting after chemotherapy or anesthesia. Initiate ondansetron per standard dosing guidelines and adjust ondansetron dose based upon patient response to therapy and clinical judgment.",
         "drug": "Ondansetron",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4407,9 +4568,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2D6 and is more likely to have an increased response to ondansetron. This increased response leads to a reduced risk of vomiting after chemotherapy or anesthesia.  Other genetic and clinical factors may also influence the risk of vomiting after chemotherapy or anesthesia. Initiate ondansetron per standard dosing guidelines and adjust ondansetron dose based upon patient response to therapy and clinical judgment.",
         "drug": "Ondansetron",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4420,9 +4580,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2D6 and is more likely to have an increased response to ondansetron. This increased response leads to a reduced risk of vomiting after chemotherapy or anesthesia.  Other genetic and clinical factors may also influence the risk of vomiting after chemotherapy or anesthesia. Initiate ondansetron per standard dosing guidelines and adjust ondansetron dose based upon patient response to therapy and clinical judgment.",
         "drug": "Ondansetron",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4433,9 +4592,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2D6 and is more likely to have an reduced response to ondansetron than normal metabolizers. This reduced response leads to an increased risk of vomiting after chemotherapy or anesthesia.  Other genetic and clinical factors may also influence the risk of vomiting after chemotherapy or anesthesia. Initiate ondansetron per standard dosing guidelines and adjust ondansetron dose based upon patient response to therapy and clinical judgment.",
         "drug": "Ondansetron",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -4448,7 +4606,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -4463,7 +4622,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -4478,7 +4638,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -4493,7 +4654,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -4508,7 +4670,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -4521,7 +4684,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4536,7 +4700,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -4551,7 +4716,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4566,7 +4732,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -4581,7 +4748,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -4594,7 +4762,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4609,7 +4778,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -4624,7 +4794,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4639,7 +4810,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -4654,7 +4826,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -4667,7 +4840,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -4682,7 +4856,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -4697,7 +4872,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -4712,7 +4888,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -4727,7 +4904,8 @@
         "drug": "Amitriptyline",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -4740,7 +4918,8 @@
         "drug": "Citalopram",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4753,7 +4932,8 @@
         "drug": "Citalopram",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4766,7 +4946,8 @@
         "drug": "Citalopram",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4779,7 +4960,8 @@
         "drug": "Citalopram",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -4792,7 +4974,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -4807,7 +4990,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -4822,7 +5006,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -4837,7 +5022,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -4852,7 +5038,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -4865,7 +5052,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4880,7 +5068,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -4895,7 +5084,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4910,7 +5100,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -4925,7 +5116,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -4938,7 +5130,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4953,7 +5146,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -4968,7 +5162,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -4983,7 +5178,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -4998,7 +5194,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -5011,7 +5208,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -5026,7 +5224,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -5041,7 +5240,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -5056,7 +5256,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -5071,7 +5272,8 @@
         "drug": "Clomipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -5084,7 +5286,8 @@
         "drug": "Clopidogrel",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5097,7 +5300,8 @@
         "drug": "Clopidogrel",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5110,7 +5314,8 @@
         "drug": "Clopidogrel",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -5123,7 +5328,8 @@
         "drug": "Clopidogrel",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -5136,7 +5342,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -5151,7 +5358,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -5166,7 +5374,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -5181,7 +5390,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -5196,7 +5406,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -5209,7 +5420,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5224,7 +5436,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -5239,7 +5452,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5254,7 +5468,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -5269,7 +5484,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -5282,7 +5498,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5297,7 +5514,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -5312,7 +5530,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5327,7 +5546,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -5342,7 +5562,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -5355,7 +5576,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -5370,7 +5592,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -5385,7 +5608,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -5400,7 +5624,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -5415,7 +5640,8 @@
         "drug": "Doxepin",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -5428,7 +5654,8 @@
         "drug": "Escitalopram",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5441,7 +5668,8 @@
         "drug": "Escitalopram",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5454,7 +5682,8 @@
         "drug": "Escitalopram",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5467,7 +5696,8 @@
         "drug": "Escitalopram",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -5480,7 +5710,8 @@
         "drug": "Esomeprazole",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5493,7 +5724,8 @@
         "drug": "Esomeprazole",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5506,7 +5738,8 @@
         "drug": "Esomeprazole",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5519,7 +5752,8 @@
         "drug": "Esomeprazole",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -5532,7 +5766,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -5547,7 +5782,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -5562,7 +5798,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -5577,7 +5814,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -5592,7 +5830,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -5605,7 +5844,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5620,7 +5860,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -5635,7 +5876,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5650,7 +5892,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -5665,7 +5908,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -5678,7 +5922,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5693,7 +5938,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -5708,7 +5954,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5723,7 +5970,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -5738,7 +5986,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -5751,7 +6000,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -5766,7 +6016,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -5781,7 +6032,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -5796,7 +6048,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -5811,7 +6064,8 @@
         "drug": "Imipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -5824,7 +6078,8 @@
         "drug": "Lansoprazole",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -5837,7 +6092,8 @@
         "drug": "Lansoprazole",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5850,7 +6106,8 @@
         "drug": "Lansoprazole",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5863,7 +6120,8 @@
         "drug": "Lansoprazole",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5876,7 +6134,8 @@
         "drug": "Moclobemide",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5889,7 +6148,8 @@
         "drug": "Moclobemide",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5902,7 +6162,8 @@
         "drug": "Moclobemide",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5915,7 +6176,8 @@
         "drug": "Moclobemide",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5928,7 +6190,8 @@
         "drug": "Omeprazole",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5941,7 +6204,8 @@
         "drug": "Omeprazole",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5954,7 +6218,8 @@
         "drug": "Omeprazole",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -5967,7 +6232,8 @@
         "drug": "Omeprazole",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -5980,7 +6246,8 @@
         "drug": "Pantoprazole",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -5993,7 +6260,8 @@
         "drug": "Pantoprazole",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6006,7 +6274,8 @@
         "drug": "Pantoprazole",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6019,7 +6288,8 @@
         "drug": "Pantoprazole",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -6030,9 +6300,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2C19. Initiate rabeprazole therapy per standard dosing guidelines.  Adjust rabeprazole dose based upon patient response to therapy and clinical judgment.",
         "drug": "Rabeprazole",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6043,9 +6312,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2C19. Initiate rabeprazole therapy per standard dosing guidelines.  Adjust rabeprazole dose based upon patient response to therapy and clinical judgment.",
         "drug": "Rabeprazole",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6056,9 +6324,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2C19. Initiate rabeprazole therapy per standard dosing guidelines.  Adjust rabeprazole dose based upon patient response to therapy and clinical judgment.",
         "drug": "Rabeprazole",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6069,9 +6336,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2C19. Initiate rabeprazole therapy per standard dosing guidelines.  Adjust rabeprazole dose based upon patient response to therapy and clinical judgment.",
         "drug": "Rabeprazole",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6082,9 +6348,8 @@
         ],
         "rec": "The patient is a poor metabolizer of CYP2C19. Consider a 50% reduction of standard sertraline dosing. Based on genotype and age of this patient, initiate therapy with  ___. Monitor closely for adverse drug reactions due to reduced drug clearance.  Adjust sertraline dose based upon patient response to therapy and clinical judgment.",
         "drug": "Sertraline",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -6095,9 +6360,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2C19. Initiate sertraline therapy per standard dosing guidelines.  Be alert to adverse drug events and adjust sertraline dose based upon patient response to therapy and clinical judgment.",
         "drug": "Sertraline",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6108,9 +6372,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2C19. Initiate sertraline therapy per standard dosing guidelines.  Adjust sertraline dose based upon patient response to therapy and clinical judgment.",
         "drug": "Sertraline",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6121,9 +6384,8 @@
         ],
         "rec": "The patient is a ultrarapid metabolizer for CYP2C19. Initiate sertraline therapy per standard dosing guidelines.  Adjust sertraline dose based upon patient response to therapy and clinical judgment.",
         "drug": "Sertraline",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6136,7 +6398,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -6151,7 +6414,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -6166,7 +6430,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -6181,7 +6446,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -6196,7 +6462,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -6209,7 +6476,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6224,7 +6492,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -6239,7 +6508,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6254,7 +6524,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -6269,7 +6540,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -6282,7 +6554,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6297,7 +6570,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -6312,7 +6586,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6327,7 +6602,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -6342,7 +6618,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -6355,7 +6632,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -6370,7 +6648,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -6385,7 +6664,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -6400,7 +6680,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -6415,7 +6696,8 @@
         "drug": "Trimipramine",
         "pubmed": [
             "23486447"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -6426,9 +6708,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2C19. Initiate voriconazole therapy per standard dosing guidelines.  Adjust voriconazole dose based upon patient response to therapy and clinical judgment.",
         "drug": "Voriconazole",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6439,9 +6720,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2C19. Initiate voriconazole therapy per standard dosing guidelines.  Adjust voriconazole dose based upon patient response to therapy and clinical judgment.",
         "drug": "Voriconazole",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6452,9 +6732,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2C19. Initiate voriconazole therapy per standard dosing guidelines.  Adjust voriconazole dose based upon patient response to therapy and clinical judgment.",
         "drug": "Voriconazole",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6465,9 +6744,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2C19. Initiate voriconazole therapy per standard dosing guidelines.  Adjust voriconazole dose based upon patient response to therapy and clinical judgment.",
         "drug": "Voriconazole",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6478,9 +6756,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2C19. Initiate carisoprodol therapy per standard dosing guidelines.  Adjust carisoprodol dose based upon patient response to therapy and clinical judgment.",
         "drug": "Carisoprodol",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6491,9 +6768,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2C19. Initiate carisoprodol therapy per standard dosing guidelines.  Adjust carisoprodol dose based upon patient response to therapy and clinical judgment.",
         "drug": "Carisoprodol",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6504,9 +6780,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2C19. Initiate carisoprodol therapy per standard dosing guidelines. Carisoprodol should be used with caution due to a 4-fold increase in exposure to carisoprodol and a 50% decreased exposure to meprobamate (a metabolite of carisoprodol).  Adjust carisoprodol dose based upon patient response to therapy and clinical judgment.",
         "drug": "Carisoprodol",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -6517,9 +6792,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2C19. Initiate carisoprodol therapy per standard dosing guidelines.  Adjust carisoprodol dose based upon patient response to therapy and clinical judgment.",
         "drug": "Carisoprodol",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6530,9 +6804,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2C19. Initiate clobazam therapy per standard dosing guidelines for poor metabolizers initial dose of clobazam should be 5 mg/day. Patients can be titrated initially to 10 - 20 mg/day, and then titrated further to a maximum daily dose of 40 mg, if tolerated.  Adjust clobazam dose based upon patient response to therapy and clinical judgment.",
         "drug": "Clobazam",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -6543,9 +6816,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2C19. Initiate clobazam therapy per standard dosing guidelines.  Adjust clobazam dose based upon patient response to therapy and clinical judgment.",
         "drug": "Clobazam",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6556,9 +6828,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2C19. Initiate clobazam therapy per standard dosing guidelines.  Adjust clobazam dose based upon patient response to therapy and clinical judgment.",
         "drug": "Clobazam",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6569,9 +6840,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2C19. Initiate clobazam therapy per standard dosing guidelines.  Adjust clobazam dose based upon patient response to therapy and clinical judgment.",
         "drug": "Clobazam",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6582,9 +6852,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2C19. Initiate dexlansoprazole therapy per standard dosing guidelines.  Adjust dexlansoprazole dose based upon patient response to therapy and clinical judgment.",
         "drug": "Dexlansoprazole",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6595,9 +6864,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2C19. Initiate dexlansoprazole therapy per standard dosing guidelines.  Adjust dexlansoprazole dose based upon patient response to therapy and clinical judgment.",
         "drug": "Dexlansoprazole",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6608,9 +6876,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2C19. Initiate dexlansoprazole therapy per standard dosing guidelines.  Adjust dexlansoprazole dose based upon patient response to therapy and clinical judgment.",
         "drug": "Dexlansoprazole",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6621,9 +6888,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2C19. Initiate dexlansoprazole therapy per standard dosing guidelines.  Adjust dexlansoprazole dose based upon patient response to therapy and clinical judgment.",
         "drug": "Dexlansoprazole",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6634,9 +6900,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2C19. Initiate diazepam therapy per standard dosing guidelines. Poor metabolizers may have increased metabolism of diazepam and may emerge from anesthesia less rapidly. Other genetic and clinical factors may also influence metabolism of diazepam.  Adjust diazepam dose based upon patient response to therapy and clinical judgment.",
         "drug": "Diazepam",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6647,9 +6912,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2C19. Initiate diazepam therapy per standard dosing guidelines. Intermediate metabolizers may have increased metabolism of diazepam and may emerge from anesthesia less rapidly. Other genetic and clinical factors may also influence metabolism of diazepam.  Adjust diazepam dose based upon patient response to therapy and clinical judgment.",
         "drug": "Diazepam",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6660,9 +6924,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2C19. Initiate diazepam therapy per standard dosing guidelines.  Adjust diazepam dose based upon patient response to therapy and clinical judgment.",
         "drug": "Diazepam",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6673,9 +6936,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2C19. Initiate diazepam therapy per standard dosing guidelines.  Adjust diazepam dose based upon patient response to therapy and clinical judgment.",
         "drug": "Diazepam",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6686,9 +6948,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2C19. Initiate prasugrel therapy per standard dosing guidelines.  Adjust prasugrel dose based upon patient response to therapy and clinical judgment.",
         "drug": "Prasugrel",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6699,9 +6960,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2C19. Initiate prasugrel therapy per standard dosing guidelines.  Adjust prasugrel dose based upon patient response to therapy and clinical judgment.",
         "drug": "Prasugrel",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6712,9 +6972,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2C19. Initiate prasugrel therapy per standard dosing guidelines.  Adjust prasugrel dose based upon patient response to therapy and clinical judgment.",
         "drug": "Prasugrel",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6725,9 +6984,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2C19. Initiate prasugrel therapy per standard dosing guidelines.  Adjust prasugrel dose based upon patient response to therapy and clinical judgment.",
         "drug": "Prasugrel",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6738,9 +6996,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2C19. Initiate ticagrelor therapy per standard dosing guidelines.  Adjust ticagrelor dose based upon patient response to therapy and clinical judgment.",
         "drug": "Ticagrelor",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6751,9 +7008,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2C19. Initiate ticagrelor therapy per standard dosing guidelines.  Adjust ticagrelor dose based upon patient response to therapy and clinical judgment.",
         "drug": "Ticagrelor",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6764,9 +7020,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2C19. Initiate ticagrelor therapy per standard dosing guidelines.  Adjust ticagrelor dose based upon patient response to therapy and clinical judgment.",
         "drug": "Ticagrelor",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6777,9 +7032,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2C19. Initiate ticagrelor therapy per standard dosing guidelines.  Adjust ticagrelor dose based upon patient response to therapy and clinical judgment.",
         "drug": "Ticagrelor",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6790,9 +7044,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP2C19. Initiate drospirenone and ethinyl estradiol therapy per standard dosing guidelines.  Adjust drospirenone and ethinyl estradiol dose based upon patient response to therapy and clinical judgment.",
         "drug": "Drospirenone and ethinyl estradiol",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6803,9 +7056,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP2C19. Initiate drospirenone and ethinyl estradiol therapy per standard dosing guidelines.  Adjust drospirenone and ethinyl estradiol dose based upon patient response to therapy and clinical judgment.",
         "drug": "Drospirenone and ethinyl estradiol",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6816,9 +7068,8 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP2C19. Initiate drospirenone and ethinyl estradiol therapy per standard dosing guidelines.  Adjust drospirenone and ethinyl estradiol dose based upon patient response to therapy and clinical judgment.",
         "drug": "Drospirenone and ethinyl estradiol",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6829,9 +7080,8 @@
         ],
         "rec": "The patient is an ultrarapid metabolizer for CYP2C19. Initiate drospirenone and ethinyl estradiol therapy per standard dosing guidelines.  Adjust drospirenone and ethinyl estradiol dose based upon patient response to therapy and clinical judgment.",
         "drug": "Drospirenone and ethinyl estradiol",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6846,7 +7096,8 @@
             "18086475",
             "18180754",
             "17767146"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6861,7 +7112,8 @@
             "18086475",
             "18180754",
             "17767146"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -6876,7 +7128,8 @@
             "18058343",
             "17654295",
             "15492764"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6891,7 +7144,8 @@
             "18058343",
             "17654295",
             "15492764"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -6904,7 +7158,8 @@
         "drug": "Azathioprine",
         "pubmed": [
             "21270794"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6917,7 +7172,8 @@
         "drug": "Azathioprine",
         "pubmed": [
             "21270794"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -6930,7 +7186,8 @@
         "drug": "Azathioprine",
         "pubmed": [
             "21270794"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -6943,7 +7200,8 @@
         "drug": "Mercaptopurine",
         "pubmed": [
             "21270794"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6956,7 +7214,8 @@
         "drug": "Mercaptopurine",
         "pubmed": [
             "21270794"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -6969,7 +7228,8 @@
         "drug": "Mercaptopurine",
         "pubmed": [
             "21270794"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -6982,7 +7242,8 @@
         "drug": "Thioguanine",
         "pubmed": [
             "21270794"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -6995,7 +7256,8 @@
         "drug": "Thioguanine",
         "pubmed": [
             "21270794"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7008,7 +7270,8 @@
         "drug": "Thioguanine",
         "pubmed": [
             "21270794"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -7021,7 +7284,8 @@
         "drug": "Boceprevir",
         "pubmed": [
             "24096968"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7034,7 +7298,8 @@
         "drug": "Boceprevir",
         "pubmed": [
             "24096968"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7047,7 +7312,8 @@
         "drug": "Peginterferon-alfa-2a",
         "pubmed": [
             "24096968"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7060,7 +7326,8 @@
         "drug": "Peginterferon-alfa-2a",
         "pubmed": [
             "24096968"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7073,7 +7340,8 @@
         "drug": "Ribavirin",
         "pubmed": [
             "24096968"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7086,7 +7354,8 @@
         "drug": "Ribavirin",
         "pubmed": [
             "24096968"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7099,7 +7368,8 @@
         "drug": "Telaprevir",
         "pubmed": [
             "24096968"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7112,7 +7382,8 @@
         "drug": "Telaprevir",
         "pubmed": [
             "24096968"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7125,7 +7396,8 @@
         "drug": "Peginterferon-alfa-2b",
         "pubmed": [
             "24096968"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7138,7 +7410,8 @@
         "drug": "Peginterferon-alfa-2b",
         "pubmed": [
             "24096968"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7151,7 +7424,8 @@
         "drug": "Capecitabine",
         "pubmed": [
             "23988873"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7164,7 +7438,8 @@
         "drug": "Capecitabine",
         "pubmed": [
             "23988873"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7177,7 +7452,8 @@
         "drug": "Capecitabine",
         "pubmed": [
             "23988873"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -7191,7 +7467,8 @@
         "pubmed": [
             "23988873",
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7205,7 +7482,8 @@
         "pubmed": [
             "23988873",
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7219,7 +7497,8 @@
         "pubmed": [
             "23988873",
             "21412232"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -7233,7 +7512,8 @@
         "pubmed": [
             "23988873",
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7247,7 +7527,8 @@
         "pubmed": [
             "23988873",
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7261,7 +7542,8 @@
         "pubmed": [
             "23988873",
             "21412232"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -7274,7 +7556,8 @@
         "drug": "Carbamazepine",
         "pubmed": [
             "23695185"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -7287,7 +7570,8 @@
         "drug": "Carbamazepine",
         "pubmed": [
             "23695185"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7298,9 +7582,8 @@
         ],
         "rec": "The patient is an HLA-B*15:02 allele carrier.  Phenytoin is not recommended due to an increased risk of phenytoin-associated cutaneous adverse reactions.  Phenytoin is associated life-threatening severe skin reactions: Stevens-Johnson syndrome (SJS) and toxic epidermal necrolysis (TEN). It also causes a syndrome of fever and organ dysfunction called the hypersensitivity syndrome (HSS).",
         "drug": "Phenytoin",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "High"
     },
     {
         "genes": [
@@ -7315,7 +7598,8 @@
         "drug": "Phenytoin",
         "pubmed": [
             "25099164"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -7330,7 +7614,8 @@
         "drug": "Phenytoin",
         "pubmed": [
             "25099164"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -7345,7 +7630,8 @@
         "drug": "Phenytoin",
         "pubmed": [
             "25099164"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -7356,9 +7642,8 @@
         ],
         "rec": "The patient does not carry the  HLA-B*15:02 allele and has normal population risk for phenytoin associated hypersensitivity syndromes and severe cutaneous reactions. Initiate carbamazepine therapy per standard dosing guidelines.",
         "drug": "Phenytoin",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7373,7 +7658,8 @@
         "drug": "Phenytoin",
         "pubmed": [
             "25099164"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7388,7 +7674,8 @@
         "drug": "Phenytoin",
         "pubmed": [
             "25099164"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7403,7 +7690,8 @@
         "drug": "Phenytoin",
         "pubmed": [
             "25099164"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7416,7 +7704,8 @@
         "drug": "Carbamazepine",
         "pubmed": [
             "24597466"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -7429,7 +7718,8 @@
         "drug": "Carbamazepine",
         "pubmed": [
             "24597466"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7440,9 +7730,8 @@
         ],
         "rec": "The patient has normal population risk for cerivastatin-related rhabdomyolysis based on SLCO1B1 genotype. Other clinical and genetic factors may influence risk. Initiate cerivastatin therapy per standard dosing guidelines. Adjust cerivastatin dose based upon patient response to therapy and clinical judgment.",
         "drug": "Cerivastatin",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7453,9 +7742,8 @@
         ],
         "rec": "The patient  may have an increased risk for cerivastatin-related rhabdomyolysis based on SLCO1B1 genotype. Other clinical and genetic factors may influence risk. Initiate cerivastatin therapy per standard dosing guidelines. Adjust cerivastatin dose based upon patient response to therapy and clinical judgment.",
         "drug": "Cerivastatin",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7466,9 +7754,8 @@
         ],
         "rec": "The patient has an increased risk for cerivastatin-related rhabdomyolysis based on SLCO1B1 genotype. Other clinical and genetic factors may influence risk. Consider an alternative statin (e.g. atorvastatin, pitavastatin, pravastatin, rosuvastatin) and adjust  dose based upon patient response to therapy and clinical judgment.",
         "drug": "Cerivastatin",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7481,7 +7768,8 @@
         "drug": "Simvastatin",
         "pubmed": [
             "22617227"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7494,7 +7782,8 @@
         "drug": "Simvastatin",
         "pubmed": [
             "22617227"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7507,7 +7796,8 @@
         "drug": "Simvastatin",
         "pubmed": [
             "22617227"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -7518,9 +7808,8 @@
         ],
         "rec": "The patient in a normal metaboblizer for TMEM43/XPC and has normal population risk for ototoxicity and neutropenia based on TMEM43/XPC genotype.  Other clinical and genetic factors may influence risk and toxicity.",
         "drug": "Cisplatin",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7531,9 +7820,8 @@
         ],
         "rec": "The patient is a poor metabolizer for TMEM43/XPC and has an increased risk for ototoxicity and neutropenia based on TMEM43/XPC genotype. Other clinical and genetic factors may influence risk and toxicity.",
         "drug": "Cisplatin",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7546,7 +7834,8 @@
         "drug": "Hormonal contraceptives for systemic use",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7559,7 +7848,8 @@
         "drug": "Hormonal contraceptives for systemic use",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7572,7 +7862,8 @@
         "drug": "Irinotecan",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7585,7 +7876,8 @@
         "drug": "Irinotecan",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7596,9 +7888,8 @@
         ],
         "rec": "The patient has a normal risk associated with UGT1A1 gentotype. Initiate indacaterol therapy per standard dosing guidelines.  Adjust indacaterol dose based upon patient response to therapy and clinical judgment.",
         "drug": "Indacaterol",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7609,9 +7900,8 @@
         ],
         "rec": "The patient has a high risk associated with UGT1A1 gentotype. Initiate indacaterol therapy per standard dosing guidelines.  Adjust indacaterol dose based upon patient response to therapy and clinical judgment.",
         "drug": "Indacaterol",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7624,7 +7914,8 @@
         "drug": "Ivacaftor",
         "pubmed": [
             "24598717"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7637,7 +7928,8 @@
         "drug": "Ivacaftor",
         "pubmed": [
             "24598717"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -7651,7 +7943,8 @@
         "pubmed": [
             "17488658",
             "19144510"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7665,7 +7958,8 @@
         "pubmed": [
             "17488658",
             "19144510"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7678,7 +7972,8 @@
         "drug": "Methotrexate",
         "pubmed": [
             "17410198"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7691,7 +7986,8 @@
         "drug": "Methotrexate",
         "pubmed": [
             "17410198"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7704,7 +8000,8 @@
         "drug": "Rasburicase",
         "pubmed": [
             "24787449"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7717,7 +8014,8 @@
         "drug": "Rasburicase",
         "pubmed": [
             "24787449"
-        ]
+        ],
+        "risk": "High"
     },
     {
         "genes": [
@@ -7730,7 +8028,8 @@
         "drug": "Rasburicase",
         "pubmed": [
             "24787449"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7743,7 +8042,8 @@
         "drug": "Tacrolimus",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7756,7 +8056,8 @@
         "drug": "Tacrolimus",
         "pubmed": [
             "21412232"
-        ]
+        ],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7767,9 +8068,8 @@
         ],
         "rec": "Based on patient genotype, initial warfarin dosing estimate is ___.  INR should be used to adjust warfarin dosing.",
         "drug": "Warfarin",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7780,9 +8080,8 @@
         ],
         "rec": "Based on patient genotype, initial warfarin dosing estimate is ___.  INR should be used to adjust warfarin dosing.",
         "drug": "Warfarin",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7793,9 +8092,8 @@
         ],
         "rec": "Based on patient genotype, initial warfarin dosing estimate is ___.  INR should be used to adjust warfarin dosing.",
         "drug": "Warfarin",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7806,9 +8104,8 @@
         ],
         "rec": "The patient is a normal metabolizer for COMT. Initiate cisplatin therapy per standard dosing guidelines.  Adjust cisplatin dose based upon patient response to therapy, therapeutic drug monitoring, and clinical judgment.",
         "drug": "Cisplatin",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7819,9 +8116,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for COMT. Initiate cisplatin therapy per standard dosing guidelines.  Adjust cisplatin dose based upon patient response to therapy, therapeutic drug monitoring, and clinical judgment.",
         "drug": "Cisplatin",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7832,9 +8128,8 @@
         ],
         "rec": "The patient is a poor metabolizer for COMT. Initiate cisplatin therapy per standard dosing guidelines.  Adjust cisplatin dose based upon patient response to therapy, therapeutic drug monitoring, and clinical judgment.",
         "drug": "Cisplatin",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7845,9 +8140,8 @@
         ],
         "rec": "The patient has an unfavorable genotype for response to statins.",
         "drug": "Statins",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7858,9 +8152,8 @@
         ],
         "rec": "The patient has a favorable genotype for response to statins.",
         "drug": "Statins",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7871,9 +8164,8 @@
         ],
         "rec": "The patient has a favorable genotype for response to tacrolimus.  Initiate tacrolimus therapy per standard dosing guidelines.",
         "drug": "Tacrolimus",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7884,9 +8176,8 @@
         ],
         "rec": "The patient has an unfavorable genotype for response to tacrolimus. Initiate tacrolimus therapy per standard dosing guidelines.",
         "drug": "Tacrolimus",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7897,9 +8188,8 @@
         ],
         "rec": "The patient may have an increased chance of response to citalopram treatment based on GRIK4 genotype. However, the patient may still be at risk for non-response to citalopram treatment. Other genetic and clinical factors may also influence chance of responding.",
         "drug": "Citalopram",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7910,9 +8200,8 @@
         ],
         "rec": "The patient may have a decreased chance of response to citalopram treatment based on GRIK4 genotype. Other genetic and clinical factors may also influence chance of responding.",
         "drug": "Citalopram",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7923,9 +8212,8 @@
         ],
         "rec": "The patient has a normal acetylator phenotype and may have increased metabolism of isoniazid. Other genetic and clinical factors may also influence isoniazid metabolism and clearance. Adjust isoniazid dose based upon patient response to therapy and clinical judgment.",
         "drug": "Isoniazid",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7936,9 +8224,8 @@
         ],
         "rec": "The patient has an intermediate acetylator phenotype and may have increased metabolism of isoniazid. Other genetic and clinical factors may also influence isoniazid metabolism and clearance. Adjust isoniazid dose based upon patient response to therapy and clinical judgment.",
         "drug": "Isoniazid",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7949,9 +8236,8 @@
         ],
         "rec": "The patient has a poor/slow acetylator and may have decreased metabolism of isoniazid. Other genetic and clinical factors may also influence isoniazid metabolism and clearance. Adjust isoniazid dose based upon patient response to therapy and clinical judgment.",
         "drug": "Isoniazid",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Medium"
     },
     {
         "genes": [
@@ -7962,9 +8248,8 @@
         ],
         "rec": "The patient is a poor metabolizer for CYP3A4. Initiate ticagrelor therapy per standard dosing guidelines.  Adjust ticagrelor dose based upon patient response to therapy and clinical judgment.",
         "drug": "Ticagrelor",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7975,9 +8260,8 @@
         ],
         "rec": "The patient is an intermediate metabolizer for CYP3A4. Initiate ticagrelor therapy per standard dosing guidelines.  Adjust ticagrelor dose based upon patient response to therapy and clinical judgment.",
         "drug": "Ticagrelor",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     },
     {
         "genes": [
@@ -7988,8 +8272,7 @@
         ],
         "rec": "The patient is a normal metabolizer for CYP3A4. Initiate ticagrelor therapy per standard dosing guidelines.  Adjust ticagrelor dose based upon patient response to therapy and clinical judgment.",
         "drug": "Ticagrelor",
-        "pubmed": [
-            ""
-        ]
+        "pubmed": [],
+        "risk": "Low"
     }
 ]

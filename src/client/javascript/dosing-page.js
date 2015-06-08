@@ -87,22 +87,19 @@ module.exports = function(){
 		}
 		return doc;
 	}
-	/* Serialize an existing field and return the updated document. This has to be differnt from the serializeNewField
-	 * because there are several fixed inputs once a field has been rendered that cannot be changed, but must be added
+	/* Serialize an existing field and return the mutable fields.
 	 */
 	var serializeField = function(context,type){
 		var doc = {};
 		var fields = $(context).serializeArray();
-		doc.pgx_1 = pageOptions.gene;
 		for (var i = 0; i < fields.length; i++ ){
 			if (fields[i].value !== "" && fields[i] != "None"){
 				doc[fields[i].name] = fields[i].value;
 			}
 		}
-		
+		//Add additional fields.
 		if (type == 'interaction'){
-			//add the links taht are present
-			doc.class_1 = $(context).find('.p-class-name').text();
+			//additionally add the pubmedID's
 			var linksArr = $(context).find('.pubmed-link');
 			var links = [];
 			for (var i = 0; i < linksArr.length; i++ ){
@@ -111,22 +108,8 @@ module.exports = function(){
 				}
 			}
 			doc.pubmed = links;
-			var class_2 = $(context).find('.s-class-name').text();
-			var pgx_2 = $(context).find('.s-gene-name').text();
-			if ( pgx_2 ){
-				doc.pgx_2 = pgx_2;
-				doc.class_2  = class_2;
-			}
-			doc.drug = $(context).closest('.drug-cont').data('drug');
-		} else if ( type == 'future' ){
-			doc.future = {};
-			doc.future[$(context).find('.p-class-name').text()] = {rec:doc.rec};
-			doc.Therapeutic_Class = $(context).find('.p-class-name').text();
 		} else if ( type == 'haplotype' ){
-			doc.haplotypes = {}
-			doc.haplotypes[$(context).find('.p-class-name').text()] = [doc.allele_1,doc.allele_2];
-			doc.Therapeutic_Class = $(context).find('.p-class-name').text();
-			doc.class = doc.Therapeutic_Class;
+			doc.haplotypes = [doc.allele_1,doc.allele_2];
 		}
 
 		return doc;
@@ -180,15 +163,7 @@ module.exports = function(){
 						$(currentRows[i]).show();
 				}
 			});
-			//when you click on a dose row, navigate to the current dosing information 
-			$('.dose-row').on('click',function(e){
-				e.preventDefault();
-				var name = $(this).data('name').replace('/','%2F');
-				var location = '/dosing/current/' + name;
-				window.location.replace(location);
-			});
-
-
+			
 			/* Handler to show the form to add a new gene */
 			$('#add-new-gene').on('click',function(e){
 				e.preventDefault();
@@ -332,7 +307,7 @@ module.exports = function(){
 				$('#new-interaction-form').on('valid.fndtn.abide', function (){
 					var doc = serializeNewField(this,'interaction');
 					Promise.resolve($.ajax({
-						url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=interaction&newdoc=true',
+						url:'/database/dosing/genes/' + pageOptions.gene + '/new?type=interaction',
 						type:"POST",
 				 		contentType:"application/json",
 				 		dataType:"json",
@@ -508,11 +483,12 @@ module.exports = function(){
 				 * after the deletion is confirmed by revealing a modal */
 				$('#delete-all').on('click',function(e){
 					e.preventDefault();
+					var id = $(this).data('id');
 					confirmAction("Are you sure you want to delete all dosing recomendations for " + pageOptions.gene,"This will permanately delete all entries and they will no longer be available for report generation")
 					.then(function(result){
 						if (result){
 							Promise.resolve($.ajax({
-								url:'/database/dosing/genes/' + pageOptions.gene + '/delete?type=all', 
+								url:'/database/dosing/genes/' + pageOptions.gene + '/delete?type=all&id=' + id, 
 								type:'POST',
 								contentType:'application/json',
 								dataType:'json'
@@ -606,9 +582,11 @@ module.exports = function(){
 				 * Additionally, display a message when the update is complete. */
 				context.find("form").on("valid.fndtn.abide",function(){
 					var _this =this;
+					var id = $(this).data('id');
 					var o = serializeField(this,'future');
+					console.log(id);
 					Promise.resolve($.ajax({
-						url:"/database/dosing/genes/" + pageOptions.gene + "/update?type=recomendation",
+						url:"/database/dosing/genes/" + pageOptions.gene + "/update?type=recomendation&id=" + id,
 						type:"POST",
 						contentType:"application/json",
 						dataType:'json',
@@ -624,7 +602,7 @@ module.exports = function(){
 						}
 					}).catch(function(err){
 						$(_this).find('.alert-message').text(err.message).closest('.alert-box').slideDown();
-					}); 
+					});
 				});
 				
 
@@ -632,17 +610,15 @@ module.exports = function(){
 				 * if the request is successful, remove the entry and its HTML entirely from the apge */
 				context.find(".delete-table").on('click',function(e){
 					e.preventDefault();
-					var o = serializeField($(this).closest('form'),'future');
 					var row = $(this).closest('tr');
+					var id = $(this).closest('form').data('id');
 					confirmAction("Are you sure you want to delete the selected recomendation table?","Once deleted it will no longer show up on any subsequent reports")
 					.then(function(result){
 						if (result){
 							Promise.resolve($.ajax({
-								url:"/database/dosing/genes/" + pageOptions.gene + "/delete?type=recomendation",
+								url:"/database/dosing/genes/" + pageOptions.gene + "/delete?type=recomendation&id=" + id,
 								type:"POST",
-								dataType:'json',
-								contentType:'application/json',
-								data:JSON.stringify(o)
+								dataType:'json'
 							})).then(function(result){
 								if (result.statusCode == 200 ){
 									row.remove();
@@ -675,10 +651,11 @@ module.exports = function(){
 				 * returns with a success resoonse then set the data-originalvalue for each field to
 				 * the new values, diable all inout fields and hide the edit buttons. */
 				context.find('form').on('valid.fndtn.abide',function(e){
+					var id = $(this).data('id');
 					var o = serializeField(this,'haplotype');
 					var _this = this;
 					Promise.resolve($.ajax({
-						url:'/database/dosing/genes/'+ pageOptions.gene + '/update?type=haplotype',
+						url:'/database/dosing/genes/'+ pageOptions.gene + '/update?type=haplotype&id=' + id,
 						type:'POST',
 						contentType:'application/json',
 						dataType:'json',
@@ -699,17 +676,14 @@ module.exports = function(){
 				 * If successful entirely remove all html for the entry */
 				context.find('.delete-table').on('click',function(){
 					var form = $(this).closest('form');
-					var o = serializeField(form,'haplotype');
 					var row = $(this).closest('tr');
 					confirmAction("Are you sure you want to delete the selected haplotype association?","Once deleted it will no longer show up on any subsequent reports")
 					.then(function(result){
 						if (result){
 							Promise.resolve($.ajax({
-								url:"/database/dosing/genes/" + pageOptions.gene + "/delete?type=haplotype",
+								url:"/database/dosing/genes/" + pageOptions.gene + "/delete?type=haplotype&id=" + id,
 								type:"POST",
-								dataType:'json',
-								contentType:'application/json',
-								data:JSON.stringify(o)
+								dataType:'json'
 							})).then(function(result){
 								if (result.statusCode == 200 ){
 									row.remove();
@@ -757,8 +731,9 @@ module.exports = function(){
 				context.find('form').on('valid.fndtn.abide',function(e){
 					var _this = $(this);
 					var doc = serializeField(this,'interaction');
+					var id = $(this).data('id');
 					Promise.resolve($.ajax({
-						url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=interaction',
+						url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=interaction&id=' + id,
 						type:"POST",
 						contentType:'application/json',
 						dataType:'json',
@@ -783,16 +758,14 @@ module.exports = function(){
 				//delet the specified dose table after confirming its removal
 				context.find(".delete-table").on('click',function(e){
 					var form = $(this).closest('form');
-					var o = serializeField(form,'interaction');
+					var id = form.data('id');
 					confirmAction("Are you sure you want to delete the selected dosing table?","Once deleted it will no longer show up on any subsequent reports")
 					.then(function(result){
 						if (result){
 							Promise.resolve($.ajax({
-								url:"/database/dosing/genes/" + pageOptions.gene +"/delete?type=interaction",
+								url:"/database/dosing/genes/" + pageOptions.gene +"/delete?type=interaction&id="+ id,
 								type:"POST",
-								contentType:"application/json",
-								dataType:'json',
-								data:JSON.stringify(o)
+								dataType:'json'
 							})).then(function(result){
 								if (result.statusCode == 200){	
 									$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();
@@ -815,7 +788,29 @@ module.exports = function(){
 			}
 		}
 	}
-		
+	
+	//arrangeRecomendations by drug		
+	var arrangeRecs = function(input){
+		var out = {};
+		var sortedOut = [];
+		if (input.recomendations){
+			for (var i = 0; i < input.recomendations.length; i++ ){
+				if (!out.hasOwnProperty(input.recomendations[i].drug)){
+					out[input.recomendations[i].drug] = [];
+				}
+
+				out[input.recomendations[i].drug].push(input.recomendations[i])
+			}
+			var keys = Object.keys(out).sort();
+			for (i = 0; i < keys.length; i++ ){
+				sortedOut.push({drug:keys[i],recs:out[keys[i]]});
+			}
+
+			input.recomendations = sortedOut;
+		}
+
+		return input;
+	}	
 
 	/* Render The appropriate html depending on what the url is. Additionally
 	 * get the content and add all event listeners */
@@ -860,13 +855,16 @@ module.exports = function(){
 					dataType:'json'
 				}));
 			}).then(function(result){
-				resultObj = result;
+				resultObj = arrangeRecs(result);
+
+				console.log(resultObj);
 				return Promise.resolve($.ajax({
 					url:'/database/dosing/classes',
 					type:'GET',
 					dataType:'json'
 				}));
 			}).then(function(result){
+				console.log(resultObj);
 				resultObj.classes = result[0].classes;
 				return templates.drugs.current(resultObj);
 			}).then(function(renderedHtml){
@@ -894,6 +892,8 @@ module.exports = function(){
 
 			}).then(function(){
 				$('#toggle-all').trigger('click');
+			}).catch(function(err){
+				console.log(err);
 			});
 		}
 

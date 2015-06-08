@@ -6,6 +6,8 @@ var ObjectID = require("mongodb").ObjectID;
 var genReport = require('../lib/genReport');
 var dbFunctions = require("../models/mongodb_functions");
 
+var dbConstants = constants.dbConstants;
+
 
 /* Collection of routes associated with drug dosing recomendations
  * the report generation, and the ui modification of the recomendations
@@ -28,7 +30,7 @@ module.exports = function(app,logger,opts){
 	/* Whenever geneID parameter is included in a url first ensure that the
 	 * gene ID exists prior to loading information */
 	app.param('geneID',function(req,res,next,geneID){
-		dbFunctions.checkInDatabase(constants.dbConstants.DRUGS.DOSING.COLLECTION,constants.dbConstants.DRUGS.DOSING.ID_FIELD,geneID)
+		dbFunctions.checkInDatabase(constants.dbConstants.DRUGS.ALL.COLLECTION,constants.dbConstants.DRUGS.ALL.ID_FIELD,geneID)
 		.then(function(result){
 			if (result)
 				next();
@@ -88,7 +90,7 @@ module.exports = function(app,logger,opts){
 
 	/* get all of the current genes that have dosing recomendations */
 	app.get('/database/dosing/genes', utils.isLoggedIn, function(req,res){
-		dbFunctions.drugs.getGenes(req.user.username).then(function(result){
+		dbFunctions.drugs.getGenes(req.user.username).then(function(result){	
 			res.send(result);
 		});
 	});
@@ -117,149 +119,101 @@ module.exports = function(app,logger,opts){
 	 * any of the existing as well. If the upadte is successfull the req is redirected to /success witha  message, however if it
 	 * is not, it will be redirected to /failure
 	 */
+
 	app.post('/database/dosing/genes/:geneID/update',utils.isLoggedIn,function(req,res){
+		var query,update,collection;
 		var doc = req.body;
-		var string,query,update;
 		var type = req.query.type;
-		var newdoc = req.query.newdoc == "true" ? true : false;
-		var backstring;
+		var id = ObjectID(req.query.id);
+		var user = req.user.username;
 
-		//Add or update a dosing recomednation
-		if (type == "interaction"){
-			query = {};
-			update = {$set:{}};
-			var updateObj = {};
+		if (type == 'interaction') collection = dbConstants.DRUGS.DOSING.COLLECTION;
+		else if (type == 'recomendation') collection = dbConstants.DRUGS.FUTURE.COLLECTION;
+		else if (type == 'haplotype') collection = dbConstants.DRUGS.HAPLO.COLLECTION;
 
-			//Generate the query string. You can search through nested objectes by conecting a string with dots and setting as the query in mongodb
-			string = constants.dbConstants.DRUGS.DOSING.RECOMENDATIONS + '.' + doc.drug + '.' + doc.class_1;
-			if (doc.class_2 && doc.pgx_2){
-				//In this case we are going to serach through the secondary parameter, as well as serach in the reverse direction, since a secondary gene is included
-				string += ".secondary." +  doc.pgx_2 + "." + doc.class_2;
-				backstring = constants.dbConstants.DRUGS.DOSING.RECOMENDATIONS + '.' + doc.drug + '.' + doc.class_2 + '.secondary.' + doc.pgx_1 + '.' + doc.class_1;
-			}
-			//Set the query for the gene and then reqrieve the gene informatino
-			query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
-			dbFunctions.drugs.getGeneDosing(req.params.geneID,req.user.username).then(function(result){
-				//generate the document that is to be updated
-				var obj = utils.createNestedObject(string,result,doc);
-
-				//if his is a new document and the incoming obj is not new, reject it
-				if (newdoc && !obj.isNew){
-					// this is a terminal document meaning that the therapeutic classs already exists adn this is an update
-					req.flash('statusCode','202');
-					req.flash('message',"Entry for the provided genes and therapeutic classes already exists within the database. Please modify the existing entry or change the parameters.");
-					req.flash('error',"Error: Duplicate Entry");
-					res.redirect('/failure');
-					
-				} else {
-					//update the entry
-					update.$set[obj.depth]  = obj.cont;
-					dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update,undefined,req.user.username)
-					.then(function(){
-						if (backstring){
-							//similarily if there is a second interaciton, update (or create if necessary) the corresponding relationship
-						 	query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = doc.pgx_2;
-						 	dbFunctions.drugs.getGeneDosing(doc.pgx_2,req.user.username).then(function(result){
-						 		if (!result){
-						 			return createNewDoc(doc.pgx_2).then(function(){
-						 				return dbFunctions.drugs.getGeneDosing(doc.pgx_2,req.user.username);
-						 			})
-								} else {
-									return result;
-								}
-							}).then(function(result){
-						 		var obj = utils.createNestedObject(backstring,result,doc);
-						 		var update = {$set:{}};
-						 		update.$set[obj.depth] = obj.cont;
-						 		return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update,undefined,req.user.username);
-							});
-						}	
-					}).then(function(){
-						req.flash('message','entry updated successfully');
-						req.flash('statusCode','200');
-						res.redirect('/success');
-					}).catch(function(err){
-						req.flash('error',err.toString());
-						req.flash('message',err.message);
-						req.flash('statusCode','500');
-						res.redirect('/failure');
-					});
-				}
-			});
-
-		// This is a future recomendation.
-		} else if (type == 'recomendation'){
-			//first check to ensure that the entry is unique;
-			string = constants.dbConstants.DRUGS.DOSING.FUTURE + '.' + doc.Therapeutic_Class;
-			query = {};
-			query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
-			query[string] = {$exists:true};
-
-			dbFunctions.findOne(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,req.user.username)
-			.then(function(result){
-				// if this is supposed to be a new doc inform the user an entry already exists
-				if ( newdoc === true && result !== null ){
-					req.flash('statusCode','202');
-					req.flash('message',"Entry for the provided genes and therapeutic classes already exists within the database. Please modify the existing entry or change the parameters.");
-					req.flash('error',"Error: Duplicate Entry");
-					res.redirect('/failure');
-				} else {
-					//update the document with a new entry
-					query = {};
-					query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
-					update = {$set:{}};
-					update.$set[string] = doc.future[doc.Therapeutic_Class];
-					return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update,undefined,req.user.username)
-					.then(function(){
-						req.flash('statusCode', '200');
-						req.flash('message', "Entry successfully added");
-						res.redirect('/success');
-					});
-				}
-			}).catch(function(err){
-				req.flash('statusCode','500');
-				req.flash('message','An error was encountered when attempting to insert the new entry into the database');
-				req.flash('error',err.toString());
-				res.redirect('/failure');
-			});
-
-		// this is the ahplotype associations
-		} else if (type == "haplotype") {
-			string = constants.dbConstants.DRUGS.DOSING.HAPLO + '.' + doc.class;
-			query = {};
-			query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
-			query[string] = {$exists:true};
-
-			//check to se eif the entry exists
-			dbFunctions.findOne(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,req.user.username).then(function(result){
-				//if this is a new doc and a result wass found inform the user that it already exsits
-				if (result !== null && newdoc === true){
-					req.flash('statusCode','202');
-					req.flash('message',"Entry for the provided genes and therapeutic classes already exists within the database. Please modify the existing entry or change the parameters.");
-					req.flash('error',"Error: Duplicate Entry");
-					res.redirect('/failure');
-				} else {
-					//update
-					query = {};
-					query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
-					update = {$set:{}};
-					update.$set[string] = doc.haplotypes[doc.class];	
-					return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update,undefined,req.user.username)
-					.then(function(result){
-						req.flash('statusCode','200');
-						req.flash('message','Entry Successfully Added');
-						res.redirect('/success');
-					});
-				}
-			}).catch(function(err){
-				logger('error',err,{user:user});
-				req.flash('statusCode','500');
-				req.flash('message','An error was encountered when attempting to insert the new entry into the database');
-				req.flash('error',err.toString());
-				res.redirect('/failure');
-			});
-		}
+		var query = {_id:id};
+		update = {$set:doc};
+		dbFunctions.update(collection,query,update,undefined,user)
+		.then(function(){
+			req.flash('message','entry updated successfully');
+			req.flash('statusCode','200');
+			res.redirect('/success');
+		}).catch(function(err){
+			logger('error',err,{user:user});
+			req.flash('error',err.toString());
+			req.flash('message',err.message);
+			req.flash('statusCode','500');
+			res.redirect('/failure');
+		});
 	});
+
+	app.post('/datase/dosing/genes/:geneID/new',utils.isLoggedIn,function(req,res){
+		var query = {},collection,field;
+		var doc = req.body;
+		var gene = req.body.gene || req.body.genes; //it will either be an array of gene sor a single gene.
+		var type = req.query.type;
+		var user = req.user.username;
+		
+		if (type == 'interaction') {
+			collection = dbConstants.DRUGS.DOSING.COLLECTION;
+			field = dbConstants.DRUGS.ALL.RECOMENDATIONS;
+			query[dbConstants.DRUGS.DOSING.GENES] = gene;
+			query[dbConstants.DRUGS.DOSING.CLASSES] = req.body.classes;
+			query[dbConstants.DRUGS.DOSING.DRUG] = req.body.drug;
+		} else if (type == 'recomendation') {
+			collection = dbConstants.DRUGS.FUTURE.COLLECTION;
+			field = dbConstants.DRUGS.ALL.RECOMENDATIONS;
+			query[dbConstants.DRUGS.FUTURE.ID_FIELD] = gene;
+			query[dbConstants.DRUGS.FUTURE.CLASS] = req.body.class;
+		} else if (type == 'haplotype') {
+			collection = dbConstants.DRUGS.HAPLO.COLLECTION;
+			field = dbConstants.DRUGS.ALL.RECOMENDATIONS;
+			query[dbConstants.DRUGS.HAPLO.ID_FIELD] = gene;
+			//If either the haplotype pair, or the therapeutic class for that gene is found we want
+			//the search to return a new entry, so we do not overwrite the current entry;
+			query.$or = [];
+			var temp = {};
+			temp[dbConstants.DRUGS.HAPLO.CLASS] = req.body.class;
+			query.$or.push(temp);
+			temp = {};
+			temp[dbConstants.DRUGS.HAPLO.HAPLOTYPES] = req.body.haplotypes;
+			query.$or.push(temp);
+		}
+		
+		dbFunctions.findOne(collection,query,user).then(function(result){
+			var newDoc;
+			if (!result){
+				dbFunctions.insert(collection,doc,user).then(function(result){
+					newDoc = result;
+					//now update the array of object ids in the ALL field
+					var update = {$push:{}};
+					var query = {};
+					if (Object.prototype.toString.call(gene) == '[Object String]') gene = [gene];
+					query[dbConstants.DRUGS.ALL.ID_FIELD] = {$in:gene};
+					update.$push[field] = ObjectID(result._id);
+
+					return dbFunctions.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,{multi:true},user)
+				}).then(function(){
+					newDoc.statusCode = '200';
+					newDoc.message = 'Successfully inserted document'
+					res.send(newDoc);
+				}).catch(function(err){
+					logger('error',err,{user:user});
+					req.flash('error',err.toString());
+					req.flash('message',err.message);
+					req.flash('statusCode','500');
+					res.redirect('/failure');
+
+				})
+			} else {
+				req.flash('message','Duplicate entry already exists');
+				req.flash('statusCode','500');
+				res.redirect('/failure');
+			}
+		});
+
+
+	})
 	
 
 	/* Delete the entry corresponding to the type specified in the url. There are 4 defined 'Types'.
@@ -269,63 +223,24 @@ module.exports = function(app,logger,opts){
 	 * Interaction - removing a current dosing guideline.
 	 */
 	app.post('/database/dosing/genes/:geneID/delete',utils.isLoggedIn,function(req,res){
+		var collection,user,query
 		var type = req.query.type;
-		var doc = req.body;
-		var promise, message;
-		var string,backstring,query,update;
-		if (type === 'all'){
-			promise = dbFunctions.drugs.removeGeneEntry(req.params.geneID).then(function(result){
-				message = 'Successfully removed single ' + type + ' entry for ' + req.params.geneID;
-				return result;
-			});
-			
-		} else {
-			promise = dbFunctions.drugs.getGeneDosing(req.params.geneID,req.user.username).then(function(geneObj){
-				query = {};
-				query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = req.params.geneID;
-				if (type == 'interaction'){
-					string = constants.dbConstants.DRUGS.DOSING.RECOMENDATIONS +'.' + doc.drug + '.' + doc.class_1;
-					if (doc.pgx_2){
-						string += '.secondary.' + doc.pgx_2  + '.' + doc.class_2
-						backstring = constants.dbConstants.DRUGS.DOSING.RECOMENDATIONS + '.' + doc.drug +'.' + doc.class_2 + '.secondary.' + doc.pgx_1 + doc.class_1;						
-					}
-				} else if (type == 'recomendation'){
-					string = constants.dbConstants.DRUGS.DOSING.FUTURE + '.' + doc.Therapeutic_Class;
-				} else if (type == 'haplotype'){
-					string = constants.dbConstants.DRUGS.DOSING.HAPLO + '.' + doc.Therapeutic_Classl;
-				}
+		var id = ObjectID(req.query.id);
+		
 
-				update = utils.createNestedObject(string,geneObj,{},true);
-				return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update,undefined,req.user.username)
-				.then(function(result){
-					if (backstring){
-						return dbFunctions.drugs.getGeneDosing(doc.pgx_2,req.user.username).then(function(result){
-							update = utils.createNestedObject(backstring,result,{},true);
-							query[constants.dbConstants.DRUGS.DOSING.ID_FIELD] = doc.pgx_2;
-							return dbFunctions.update(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,update,undefined,req.user.username);
-						})
-					} else {
-						return result;
-					}
-				}).then(function(result){
-					message = "Successfully removed entries from database";
-					return result;
-				});
-			});
-		}
-
-		promise.then(function(){
+		dbFunctions.drugs.removeEntry(id,type,user).then(function(result){
+			req.flash('message','Entry Successfully removed from database');
 			req.flash('statusCode','200');
-			req.flash('message',message);
 			res.redirect('/success');
 		}).catch(function(err){
 			logger('error',err,{user:user});
-			req.flash('statusCode','500');
 			req.flash('error',err.toString());
-			req.flash('message','unable to remove entries');
+			req.flash('message',err.message);
+			req.flash('statusCode','500');
 			res.redirect('/failure');
+
 		});
-	});
+	})
 	/* Delete all entries corresponding to the current geneID. removes all drug recomendations
 	 * for the specifi
 
@@ -337,7 +252,7 @@ module.exports = function(app,logger,opts){
 		dbFunctions.checkInDatabase(constants.dbConstants.DRUGS.DOSING.COLLECTION,constants.dbConstants.DRUGS.DOSING.ID_FIELD,newGene)
 		.then(function(exists){
 			if (!exists){
-				createNewDoc(newGene,req.user.username).then(function(result){
+				dbFunctions.drugs.createNewDoc(newGene,req.user.username).then(function(result){
 					if (result) {
 						req.flash('statusCode','200');
 						req.flash('message','Gene successfully inserted to dosing tables');

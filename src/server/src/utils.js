@@ -1,6 +1,5 @@
-var dbFunctions = require('../models/mongodb_functions'),
-	constants = require('../lib/conf/constants.json'),
-	Promise = require('bluebird');
+var constants = require('../lib/conf/constants.json')
+var dbFunctions = require(constants.nodeConstants.SERVER_DIR + "/models/mongodb_functions"),
 	_ = require('underscore');
 /* utility functions available for all routes
  * @author Patrick Magee */

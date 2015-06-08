@@ -59,12 +59,18 @@
 			<thead>
 				<tr>
 					<th>Gene</th>
+					<th class="text-center">Number of Recommendations</th>
+					<th class="text-center">Number of Future Considerations</th>
+					<th class="text-center">Number of Associated Haplotypes</th>
 				</tr>
 			</thead>
 			<tbody>
 				{{#each genes}}
-				<tr class="dose-row" data-name="{{gene}}">
+				<tr class="dose-row" onclick="document.location='/dosing/current/{{gene}}'">
 					<td>{{gene}}</td>
+					<td class="text-center">{{numRecs}}</td>
+					<td class="text-center">{{numFuture}}</td>
+					<td class="text-center">{{numHaplo}}</td>
 				</tr>
 				{{/each}}
 			</tbody>

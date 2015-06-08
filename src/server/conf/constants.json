@@ -103,6 +103,12 @@
 			"REPORT":{
 				"DEFAULT":"{{DIR}}/views/default-dosing-report.hbs"
 			},
+			"HAPLO":{
+				"COLLECTION":"haplotypes",
+				"ID_FIELD":"gene",
+				"CLASS":"class",
+				"HAPLOTYPES":"haplotypes"
+			},
 			"DOSING":{
 				"DEFAULT":"{{DIR}}/lib/conf/dosing_guidelines.json",
 				"COLLECTION":"drugRecomendations",

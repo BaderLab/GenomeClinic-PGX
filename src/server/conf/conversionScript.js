@@ -1,5 +1,5 @@
 var fs = require('fs');
-var d = require('./dosing_guidelines.json');
+var d = require('./old_dosing_guidelines.json');
 
 var out = {};
 var genes = [];
@@ -65,7 +65,11 @@ for (var i=0; i<d.length; i++ ){
 			tempR.classes = [riskKeys[k]]
 			tempR.rec = d[i].recomendations[drugs[j]][riskKeys[k]].rec
 			tempR.drug = drugs[j];
-			tempR.pubmed = d[i].recomendations[drugs[j]][riskKeys[k]].pubmed;
+			var pubmed = d[i].recomendations[drugs[j]][riskKeys[k]].pubmed;
+			if (pubmed == undefined) pubmed = [];
+			else if (pubmed.length == 1 && pubmed[0] == "" ) pubmed = [];
+			tempR.pubmed = pubmed; 
+			tempR.risk = d[i].recomendations[drugs[j]][riskKeys[k]].risk;
 
 			recomendations.push(tempR);
 
@@ -87,7 +91,11 @@ for (var i=0; i<d.length; i++ ){
 					}
 					tempR.rec = d[i].recomendations[drugs[j]][riskKeys[k]].secondary[secondaryKeys[l]][secClasses[m]].rec;
 					tempR.drug = drugs[j];
+					var pubmed = d[i].recomendations[drugs[j]][riskKeys[k]].secondary[secondaryKeys[l]][secClasses[m]].pubmed;
+					if (pubmed == undefined) pubmed = [];
+					else if (pubmed.length == 1 && pubmed[0] == "" ) pubmed = [];
 					tempR.pubmed = d[i].recomendations[drugs[j]][riskKeys[k]].secondary[secondaryKeys[l]][secClasses[m]].pubmed;
+					tempR.risk = d[i].recomendations[drugs[j]][riskKeys[k]].secondary[secondaryKeys[l]][secClasses[m]].risk
 					
 
 					recomendations.push(tempR);
@@ -98,5 +106,5 @@ for (var i=0; i<d.length; i++ ){
 }
 
 
-fs.writeFileSync('new_dosing_recomendations.json',JSON.stringify(recomendations,0,4));
-fs.writeFileSync('new_future_recomendations.json',JSON.stringify(future,0,4));
+fs.writeFileSync('dosing_guidelines.json',JSON.stringify(recomendations,0,4));
+fs.writeFileSync('future_guidelines.json',JSON.stringify(future,0,4));
