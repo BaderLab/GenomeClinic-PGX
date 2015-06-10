@@ -1,5 +1,4 @@
-var utils = require('../lib/utils');
-var Promise = require('bluebird');
+var utils = require('../lib/utils'); var Promise = require('bluebird');
 var fs = require('fs');
 var constants = require("../lib/conf/constants.json");
 var ObjectID = require("mongodb").ObjectID;
@@ -147,7 +146,7 @@ module.exports = function(app,logger,opts){
 		});
 	});
 
-	app.post('/datase/dosing/genes/:geneID/new',utils.isLoggedIn,function(req,res){
+	app.post('/database/dosing/genes/:geneID/new',utils.isLoggedIn,function(req,res){
 		var query = {},collection,field;
 		var doc = req.body;
 		var gene = req.body.gene || req.body.genes; //it will either be an array of gene sor a single gene.
@@ -162,12 +161,12 @@ module.exports = function(app,logger,opts){
 			query[dbConstants.DRUGS.DOSING.DRUG] = req.body.drug;
 		} else if (type == 'recomendation') {
 			collection = dbConstants.DRUGS.FUTURE.COLLECTION;
-			field = dbConstants.DRUGS.ALL.RECOMENDATIONS;
+			field = dbConstants.DRUGS.ALL.FUTURE;
 			query[dbConstants.DRUGS.FUTURE.ID_FIELD] = gene;
 			query[dbConstants.DRUGS.FUTURE.CLASS] = req.body.class;
 		} else if (type == 'haplotype') {
 			collection = dbConstants.DRUGS.HAPLO.COLLECTION;
-			field = dbConstants.DRUGS.ALL.RECOMENDATIONS;
+			field = dbConstants.DRUGS.ALL.HAPLO;
 			query[dbConstants.DRUGS.HAPLO.ID_FIELD] = gene;
 			//If either the haplotype pair, or the therapeutic class for that gene is found we want
 			//the search to return a new entry, so we do not overwrite the current entry;
@@ -176,10 +175,9 @@ module.exports = function(app,logger,opts){
 			temp[dbConstants.DRUGS.HAPLO.CLASS] = req.body.class;
 			query.$or.push(temp);
 			temp = {};
-			temp[dbConstants.DRUGS.HAPLO.HAPLOTYPES] = req.body.haplotypes;
+			temp[dbConstants.DRUGS.HAPLO.HAPLOTYPES] = req.body.haplotypes.sort();
 			query.$or.push(temp);
 		}
-		
 		dbFunctions.findOne(collection,query,user).then(function(result){
 			var newDoc;
 			if (!result){
@@ -188,12 +186,12 @@ module.exports = function(app,logger,opts){
 					//now update the array of object ids in the ALL field
 					var update = {$push:{}};
 					var query = {};
-					if (Object.prototype.toString.call(gene) == '[Object String]') gene = [gene];
+					if (Object.prototype.toString.call(gene) == '[object String]') gene = [gene];
 					query[dbConstants.DRUGS.ALL.ID_FIELD] = {$in:gene};
 					update.$push[field] = ObjectID(result._id);
-
 					return dbFunctions.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,{multi:true},user)
-				}).then(function(){
+				}).then(function(result){
+					console.log(result);
 					newDoc.statusCode = '200';
 					newDoc.message = 'Successfully inserted document'
 					res.send(newDoc);

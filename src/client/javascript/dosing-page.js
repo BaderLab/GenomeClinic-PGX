@@ -95,15 +95,12 @@ module.exports = function(){
 			}
 			doc.pubmed = links;
 		} else if ( type == 'future' ){
-			doc.future = {};
-			doc.future[doc.Therapeutic_Class] = {
-				rec:doc.rec
-			};
-
+			doc.gene = pageOptions.gene;
 		} else if ( type == 'haplotype' ){
-			doc.haplotypes = {}
-			doc.haplotypes[doc.Therapeutic_Class] = [doc.allele_1,doc.allele_2];
-			doc.class = doc.Therapeutic_Class;
+			doc.gene = pageOptions.gene;
+			doc.haplotypes = [doc.allele_1,doc.allele_2];
+			delete doc.allele_1;
+			delete doc.allele_2;
 		}
 		return doc;
 	}
@@ -158,6 +155,27 @@ module.exports = function(){
 		});
 		return promise;
 	};
+
+
+	var drugHeaderHTML = '<table class="drug-cont large-12 small-12 medium-12" data-drug="{{drug}}">\
+			<thead>\
+				<tr class="drug-cont-header" data-state="open">\
+					<th>\
+						<div class="row">\
+							<div class="large-11 small-10 medium-11 columns">\
+								<h3><strong>{{drug}}</strong></h3>\
+							</div>\
+							<div class="large-1 small-2 medium-1 columns">\
+								<i class="minimize fa fa-chevron-up fa-2x" style="color:black"></i>\
+								<i class="expand fa fa-chevron-down fa-2x" style="color:black;display:none;"></i>\
+							</div>\
+						</div>\
+					</th>\
+				</tr>\
+			</thead>\
+			<tbody class="interactions">\
+			</tbody>\
+		</table>'
 
 
 	/* all page handlers for working with dosing tables and drug recomendations */
@@ -343,7 +361,8 @@ module.exports = function(){
 				$('#new-interaction-form').on('valid.fndtn.abide', function (){
 					var doc = serializeNewField(this,'interaction');
 					console.log(doc);
-					/*Promise.resolve($.ajax({
+					var context;
+					Promise.resolve($.ajax({
 						url:'/database/dosing/genes/' + pageOptions.gene + '/new?type=interaction',
 						type:"POST",
 				 		contentType:"application/json",
@@ -354,38 +373,34 @@ module.exports = function(){
 							var currentDrugCont = $('.drug-cont');
 							var currentDrugs=[];
 							var num = $('#main_content').find('form').length;
-							doc.num = num;
+							result.num = num;
 							//GET NAMES OF CURRENT DRUGS
 							for (var i=0; i < currentDrugCont.length; i++ ){
 								currentDrugs.push($(currentDrugCont[i]).data('drug'));
 							}
 							//If this is a new drug, add a new drug table
-							if (currentDrugs.indexOf(doc.drug) !== -1 ){
-								promise = templates.drugs.new(doc).then(function(renderedHtml){
-									$('.drug-cont[data-drug=' + doc.drug).find('.interactions').append(renderedHtml);
+							if (currentDrugs.indexOf(result.drug) === -1 ){
+								promise = new Promise(function(resolve,reject){
+									var headerHtml = drugHeaderHTML.replace(/\{\{drug\}\}/g,result.drug);
+									$('#main_content').append(headerHtml).each(function(){
+										context = $('.drug-cont[data-drug=' + result.drug + ']');
+										resolve();
+									});
+								});
+							} 
+
+							return promise.then(function(){
+								return templates.drugs.new(result).then(function(renderedHtml){
+									return $('.drug-cont[data-drug='+ result.drug + ']').find('.interactions').append(renderedHtml);
 								}).then(function(){
-									var context = $('#form-' + num.toString()).closest('tr');
+									if (currentDrugs.indexOf(result.drug) === -1 ) context = $('.drug-cont[data-drug=' + result.drug + ']');
+									else context = $('.drug-cont[data-drug=' + result.drug + ']').last('tr').find('form');
+
 									context.foundation(abideOptions);
 									_this.interactions(context);
 									_this.generic(context);
 									setSelects(context);
 								});
-							//This is not a new drug, append the html to a previous table
-							} else {
-								doc.newDrug = true;
-								promise = templates.drugs.new(doc).then(function(renderedHtml){
-									return $('#main_content').append(renderedHtml);
-								}).then(function(){
-									var context = $('.drug-cont[data-drug=' + doc.drug+ ']')
-									utility.refresh(abideOptions,context);
-									_this.generic(context);
-									_this.interactions(context);
-									setSelects(context);
-								});
-							}
-							
-							return promise.then(function(){
-								$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();
 							});
 						} else {
 							$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();
@@ -394,7 +409,7 @@ module.exports = function(){
 						$('#new-interaction-cancel-trigger').trigger('click');					
 					}).catch(function(err){
 						$('#error-display-message').text(err.toString()).closest('#error-display-box').slideDown();
-					});*/
+					});
 				});
 				
 				//*============================
@@ -431,15 +446,16 @@ module.exports = function(){
 				 * to that already exists */
 				$("#new-recomendation-form").on('valid.fndtn.abide',function(){
 					var o = serializeNewField(this,'future');
+					console.log(o);
 					Promise.resolve($.ajax({
-						url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=recomendation&newdoc=true',
+						url:'/database/dosing/genes/' + pageOptions.gene + '/new?type=recomendation',
 						type:"POST",
 						contentType:'application/json',
 						dataType:'json',
 						data:JSON.stringify(o)
 					})).then(function(result){
 						if (result.statusCode == 200){
-							templates.drugs.future(o).then(function(renderedHtml){
+							templates.drugs.future({future:[result]}).then(function(renderedHtml){
 								return $('#future-recomendations').find('tbody').append(renderedHtml);
 							}).then(function(){
 								var context = $('#future-recomendations').find('tbody').last('tr')
@@ -489,15 +505,17 @@ module.exports = function(){
 				 * to that already exists */
 				$('#new-haplotype-form').on('valid.fndtn.abide',function(){
 					var o = serializeNewField(this,'haplotype');
+					console.log(o);
 					Promise.resolve($.ajax({
-						url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=haplotype&newdoc=true',
+						url:'/database/dosing/genes/' + pageOptions.gene + '/new?type=haplotype',
 						type:'POST',
 						contentType:'application/json',
 						dataType:'json',
 						data:JSON.stringify(o)
 					})).then(function(result){
+						console.log(result)
 						if (result.statusCode == 200 ){
-							templates.drugs.haplo(o).then(function(renderedHtml){
+							templates.drugs.haplo({ haplotypes : [result] }).then(function(renderedHtml){
 								return $("#haplotypes").find('tbody').append(renderedHtml)
 							}).then(function(){
 								var context = $('#haplotypes').find('tbody').last('tr');
@@ -705,8 +723,8 @@ module.exports = function(){
 						data:JSON.stringify(o)
 					})).then(function(result){
 						if (result.statusCode == 200 ){
-							$(_this).find('input[name=allele_1]').data('originalvalue',o.allele_1);
-							$(_this).find('input[name=allele_2]').data('originalvalue',o.allele_2);
+							$(_this).find('input[name=allele_1]').data('originalvalue',result.haplotypes[0]);
+							$(_this).find('input[name=allele_2]').data('originalvalue',result.haplotypes[1]);
 							$(_this).find('.cancel-changes').trigger('click');
 							$(_this).find('.alert-message').text(result.message).closest('.alert-box').slideDown();
 						} else {
@@ -720,6 +738,7 @@ module.exports = function(){
 				context.find('.delete-table').on('click',function(){
 					var form = $(this).closest('form');
 					var row = $(this).closest('tr');
+					var id = form.data('id');
 					confirmAction("Are you sure you want to delete the selected haplotype association?","Once deleted it will no longer show up on any subsequent reports")
 					.then(function(result){
 						if (result){
