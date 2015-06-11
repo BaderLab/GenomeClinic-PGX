@@ -113,12 +113,10 @@ module.exports = function(app,logger,opts){
 	});
 
 
-	/* Update or create a new entry in the database for a specific gene. Depending on the type, the request can create a new 
-	 * Interaciton (dosing recomendation) a new future recomendation, or a new haplotype association. Additionaly it can modify
-	 * any of the existing as well. If the upadte is successfull the req is redirected to /success witha  message, however if it
-	 * is not, it will be redirected to /failure
+	/* Update an entry based on the document's ObjectID. depending on the typ, it will either update the 
+	 * interaction(recomendation) the future recomendation, or the haplotype association. The update function
+	 * handles the sorting of the input array in order to allow for easier matching. 
 	 */
-
 	app.post('/database/dosing/genes/:geneID/update',utils.isLoggedIn,function(req,res){
 		var query,update,collection;
 		var doc = req.body;
@@ -126,10 +124,14 @@ module.exports = function(app,logger,opts){
 		var id = ObjectID(req.query.id);
 		var user = req.user.username;
 
-		if (type == 'interaction') collection = dbConstants.DRUGS.DOSING.COLLECTION;
-		else if (type == 'recomendation') collection = dbConstants.DRUGS.FUTURE.COLLECTION;
-		else if (type == 'haplotype') collection = dbConstants.DRUGS.HAPLO.COLLECTION;
-
+		if (type == 'interaction') {
+			collection = dbConstants.DRUGS.DOSING.COLLECTION;
+		} else if (type == 'recomendation'){ 
+			collection = dbConstants.DRUGS.FUTURE.COLLECTION;
+		} else if (type == 'haplotype') {
+			doc.haplotypes = doc.haplotypes.sort();
+			collection = dbConstants.DRUGS.HAPLO.COLLECTION;
+		}
 		var query = {_id:id};
 		update = {$set:doc};
 		dbFunctions.update(collection,query,update,undefined,user)
@@ -145,11 +147,17 @@ module.exports = function(app,logger,opts){
 			res.redirect('/failure');
 		});
 	});
+	
 
+	/* Enter a new entry for a interaction, a future recomendation or a haplotype association on a gene wise basis.
+	 * The route will first ensure that the entry being inputted is a unique entry to begin with, If an entry with 
+	 * the same fields is found, the route returns a failure with a failure message. If no similar entry is found,
+	 * a single entry is inserted into the corresponding collection, the Object ID is then pushed to the appropriate
+	 * array for the correspoing genes */
 	app.post('/database/dosing/genes/:geneID/new',utils.isLoggedIn,function(req,res){
 		var query = {},collection,field;
 		var doc = req.body;
-		var gene = req.body.gene || req.body.genes; //it will either be an array of gene sor a single gene.
+		var gene = req.body.gene || req.body.genes; //it will either be an array of gene sort a single gene.
 		var type = req.query.type;
 		var user = req.user.username;
 		
@@ -181,6 +189,7 @@ module.exports = function(app,logger,opts){
 			temp[dbConstants.DRUGS.HAPLO.HAPLOTYPES] = doc.haplotypes.sort();
 			query.$or.push(temp);
 		}
+		/* Ensure this is a new 'unique entry' */
 		dbFunctions.findOne(collection,query,user).then(function(result){
 			var newDoc;
 			if (!result){
@@ -218,9 +227,10 @@ module.exports = function(app,logger,opts){
 
 	/* Delete the entry corresponding to the type specified in the url. There are 4 defined 'Types'.
 	 * All - removes the entire entry for the gene
-	 * Haplotype - remove a single entry for a haplotype
+	 * Haplotype - remove a single entry for a haplotype.
 	 * Future - remove a future dosing recomendation
 	 * Interaction - removing a current dosing guideline.
+	 * Since
 	 */
 	app.post('/database/dosing/genes/:geneID/delete',utils.isLoggedIn,function(req,res){
 		var collection,user,query
@@ -241,8 +251,7 @@ module.exports = function(app,logger,opts){
 
 		});
 	})
-	/* Delete all entries corresponding to the current geneID. removes all drug recomendations
-	 * for the specifi
+	
 
 	/* Initialize a new drug recomendation document. first checks to ensure there already is not
 	 * A gene the same as newGene. if this returns false a new document is inserted with the value
@@ -281,10 +290,116 @@ module.exports = function(app,logger,opts){
 	});
 	
 
-	/* Get the Metabolic Status's based on the haplotypes of an individual * /
+	/* Get the Metabolic Status's based on the haplotypes of an individual */
+
+	app.post('/database/recommendations/haplotypes/get',utils.isLoggedIn,function(req,res){
+		var doc = req.body;//array with the format [{haplotypes:[],gene:''}]
+		var output = [];
+		var user = req.user.username;		
+
+		Promise.resolve(doc).each(function(item){
+			var query = {};
+			query[constants.dbConstants.DRUGS.ALL.ID_FIELD] = item.gene;
+			return dbFunctions.findOne(constants.dbConstants.DRUGS.ALL.COLLECTION,query,user)
+			.then(function(result){
+				if (result){
+					if (result[constants.dbConstants.DRUGS.ALL.HAPLO].length > 0){
+						var query = {'_id':{$in:result[constants.dbConstants.DRUGS.ALL.HAPLO]}}
+						query[constants.dbConstants.DRUGS.HAPLO.HAPLOTYPES] = item.haplotypes.sort();
+						return dbFunctions.findOne(constants.dbConstants.DRUGS.HAPLO.COLLECTION,query,user)
+						.then(function(hapDoc){
+							if (hapDoc){
+								output.push(hapDoc);
+							} else {
+								item.class = undefined;
+								output.push(item);
+							}
+						});
+					} else {
+						item.class = undefined;
+						output.push(item);
+					}
+				} else {
+					item.class = undefined;
+					output.push(item);	
+				}
+			});
+		}).then(function(){
+			res.send(output);
+		});
+	});
+
+	app.post('/database/recommendations/haplotypes/set',utils.isLoggedIn, function(req,res){})
+
+	
 	/* Generate the possible recomendations for a patient based on the haplotype profile of that patient 
 	 * As well as the Metabolic status for the patient. return  all recomendations in a drug wise manner.
 	 * Ideally, return only a single recomendation per drug. */
+	app.post('/database/recommendations/recommendations/get',utils.isLoggedIn, function(req,res){
+		var recs = req.body; //(should be gene / clas object);
+		var recIDS = [];
+		var geneComb={};
+		var recByDrug = {};
+		var finalRecomendations = [];
+		var user = req.user.username;
+
+		for (var i = 0; i < recs.length; i++ ){
+			geneComb[recs[i].gene] = recs[i].class;
+		}
+
+		//console.log(geneComb);
+		Promise.resolve(recs).each(function(item){
+			var query = {}
+			query[constants.dbConstants.DRUGS.ALL.ID_FIELD] = item.gene;
+			return dbFunctions.findOne(constants.dbConstants.DRUGS.ALL.COLLECTION,query,user)
+			.then(function(result){
+				if (result){
+					recIDS = recIDS.concat(result[constants.dbConstants.DRUGS.ALL.RECOMENDATIONS])
+				}
+			})
+		}).then(function(){
+			//get all recomendation documents for the current gene sets//
+			var query = {'_id':{$in:recIDS}};
+			return dbFunctions.find(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,undefined,undefined,user);
+		}).then(function(result){
+			var set;
+			//Cycle through the results and genereate a list of prospective candidates. always take the potential 
+			//Recomendation that is reliant on more genes.
+			for (var i = 0; i < result.length; i++ ){
+				set = true;
+				for (var j = 0; j < result[i][constants.dbConstants.DRUGS.DOSING.GENES].length; j++ ){
+					//console.log(geneComb[result[i][constants.dbConstants.DRUGS.DOSING.GENES][j]])
+					//console.log(geneComb[result[i][constants.dbConstants.DRUGS.DOSING.GENES][j]] + " || " + result[i][constants.dbConstants.DRUGS.DOSING.CLASSES][j])
+					//console.log(geneComb[result[i][constants.dbConstants.DRUGS.DOSING.GENES][j]] == result[i][constants.dbConstants.DRUGS.DOSING.CLASSES][j])
+					if (geneComb[result[i][constants.dbConstants.DRUGS.DOSING.GENES][j]] != result[i][constants.dbConstants.DRUGS.DOSING.CLASSES][j]){
+						set = false;
+					}
+				}
+				//console.log(set);
+				if (set){
+					if (recByDrug.hasOwnProperty(result[i][constants.dbConstants.DRUGS.DOSING.DRUG])){
+						if (recByDrug[result[i][constants.dbConstants.DRUGS.DOSING.DRUG]][constants.dbConstants.DRUGS.DOSING.GENES].length < result[i][constants.dbConstants.DRUGS.DOSING.GENES].length ){
+							recByDrug[result[i][constants.dbConstants.DRUGS.DOSING.DRUG]] = result[i];
+						}
+					} else {
+						recByDrug[result[i][constants.dbConstants.DRUGS.DOSING.DRUG]] = result[i];
+					}
+				}
+
+			};
+			var keys = Object.keys(recByDrug);
+			for ( i = 0; i < keys.length; i++ ){
+				finalRecomendations.push(recByDrug[keys[i]]);
+			}
+		}).then(function(){
+			res.send(finalRecomendations);
+			//res.send(finalRecomendations);
+		});
+	});
+
+	app.post('/database/recommendations/future/get',utils.isLoggedIn,function(req,res){
+
+	})
 	
 	/* Generate the dosing recomendation report */
 	app.post('/browsepatients/dosing/:patientID/report', utils.isLoggedIn,function(req,res){
