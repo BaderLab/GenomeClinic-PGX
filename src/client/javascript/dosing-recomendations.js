@@ -376,9 +376,6 @@ module.exports = {
 			// refresh foundation
 			return utility.refresh();
 		}).then(function(){
-			utility.pubMedParser().then(function(result){
-				console.log(result);
-			})
 			//add hanlders
 			_this.staticHandlers();
 		});
