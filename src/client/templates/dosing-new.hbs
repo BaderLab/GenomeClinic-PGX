@@ -1,106 +1,129 @@
-<tr>
-	<td>
-		<div class="large-12 small-12 medium-12 columns">
-			<form data-abide="ajax" data-id="{{_id}}">
+{{#if new}}
+<table class="drug-cont large-12 small-12 medium-12" data-drug="{{drug}}">
+	<thead>
+		<tr class="drug-cont-header" data-state="open">
+			<th>
 				<div class="row">
-			  		<div class="small-12 columns">
-				    	<div data-alert class="alert-box radius secondary" style="display:none">
-				    	<!-- Alert message goes here -->
-					      	<div class="row">
-					        	<div class="small-11 columns">
-					        	  	<p></p>
-					        	</div>
-					      		<div class="small-1 columns">
-					        		<a href="#" class='close-box'><i class="fi-x size-16" style="color:#606060"></i></a>
-					      		</div>
-					    	</div>
-					    </div>
+					<div class="large-11 small-10 medium-11 columns">
+						<h3><strong>{{drug}}</strong></h3>
+					</div>
+					<div class="large-1 small-2 medium-1 columns">
+						<i class="minimize fa fa-chevron-up fa-2x" style="color:black"></i>
+						<i class="expand fa fa-chevron-down fa-2x" style="color:black;display:none;"></i>
 					</div>
 				</div>
-				<div class="row">
-					<div class="small-2 large-2 medium-2 right columns">
-						<a href="#" class="edit-table right button tiny secondary radius"><i class="fi-pencil size-16" style="color:#A2A2A2"></i></a>
-					</div>
-					<div class="small-10 large-10 medium-10 columns left">
-						<label><h6><b>Dependant Genes</b></h6></label>
-					</div>
-				</div>
-				{{#each genes}}
-				<div class="row">
-					<div class="small-4 large-2 medium-3 columns">
-						<h6>Gene:</h6>
-					</div>
-					<div class="small-8 large-3 medium-3 columns">
-						<h6 class='left'><i>{{this}}</i></h6>
-					</div>
-					<div class="small-4 large-3 medium-3 columns">
-						<h6>Metabolic Status:</h6>
-					</div>
-					<div class="small-8 large-4 medium-3 columns">
-						<h6 class='left class-name'><i>{{lookup ../classes @index}}</i></h6>
-					</div>
-				</div>
-				{{/each}}
-				<br>
-				<div class="row">
-					<div class="large-6 small-12 medium-6 columns">
-						<div class="row collapse prefix-radius">
-							<div class="large-4 small-4 medium-4 columns">
-								<span class="prefix">Risk</span>
-							</div>
-							<div class="large-8 small-8 medium-8 columns left">
-								<select name="risk" disabled="disabled" data-originalvalue="{{risk}}" value="{{risk}}" required>
-									<option>Low</option>
-									<option>Medium</option>
-									<option>High</option>
-								</select>
-								<small class="error">Required</small>
+			</th>
+		</tr>
+	</thead>
+	<tbody class="interactions">
+{{/if}}
+
+		<tr>
+			<td>
+				<div class="large-12 small-12 medium-12 columns">
+					<form data-abide="ajax" data-id="{{_id}}">
+						<div class="row">
+					  		<div class="small-12 columns">
+						    	<div data-alert class="alert-box radius secondary" style="display:none">
+						    	<!-- Alert message goes here -->
+							      	<div class="row">
+							        	<div class="small-11 columns">
+							        	  	<p></p>
+							        	</div>
+							      		<div class="small-1 columns">
+							        		<a href="#" class='close-box'><i class="fi-x size-16" style="color:#606060"></i></a>
+							      		</div>
+							    	</div>
+							    </div>
 							</div>
 						</div>
-					</div>
-				</div>
-				<div class="row">
-					<div class="large-12 small-12 medium-12 columns">
-						<label><h6><b>Recomendation</b></h6></label>
-						<textarea name="rec" rows=4 data-originalvalue="{{rec}}" disabled="disabled" required>{{rec}}</textarea>
-						<small class="error">Required</small>
-					</div>
-				</div>
-				<div class="row">
-					<div class="large-12 small-12 medium-12 columns">
-						<label><h6><b>Pubmed Citations</b></h6></label>
 						<div class="row">
-							<div class="small-12 medium-4 large-4 columns add-new-pubmed edit hide">
-								<div class="row collapse postfix-radius">
-									<div class="large-10 medium-10 small-10 columns">
-										<input class="add-new-pubmed-input" type="text" placeholder="Pubmed ID">
+							<div class="small-2 large-2 medium-2 right columns">
+								<a href="#" class="edit-table right button tiny secondary radius"><i class="fi-pencil size-16" style="color:#A2A2A2"></i></a>
+							</div>
+							<div class="small-10 large-10 medium-10 columns left">
+								<label><h6><b>Dependant Genes</b></h6></label>
+							</div>
+						</div>
+						{{#each genes}}
+						<div class="row">
+							<div class="small-4 large-2 medium-3 columns">
+								<h6>Gene:</h6>
+							</div>
+							<div class="small-8 large-3 medium-3 columns">
+								<h6 class='left'><i>{{this}}</i></h6>
+							</div>
+							<div class="small-4 large-3 medium-3 columns">
+								<h6>Metabolic Status:</h6>
+							</div>
+							<div class="small-8 large-4 medium-3 columns">
+								<h6 class='left class-name'><i>{{lookup ../classes @index}}</i></h6>
+							</div>
+						</div>
+						{{/each}}
+						<br>
+						<div class="row">
+							<div class="large-6 small-12 medium-6 columns">
+								<div class="row collapse prefix-radius">
+									<div class="large-4 small-4 medium-4 columns">
+										<span class="prefix">Risk</span>
 									</div>
-									<div class="large-2 medium-2 small-2 columns">
-										<a href="#" class="postfix add-new-pubmed-button button secondary tiny" style="margin-bottom:0"><i class="fi-plus"></i></a>
+									<div class="large-8 small-8 medium-8 columns left">
+										<select name="risk" disabled="disabled" data-originalvalue="{{risk}}" value="{{risk}}" required>
+											<option>Low</option>
+											<option>Medium</option>
+											<option>High</option>
+										</select>
+										<small class="error">Required</small>
 									</div>
 								</div>
 							</div>
-							<div class="pubmed-links small-12 medium-8 large-8 columns left size-16" style="margin-top:13px">
-								{{#each pubmed}}
-								<span class="pubmed-link-combo">
-									<a href="http://www.ncbi.nlm.nih.gov/pubmed/{{this}}" class="pubmed-link" target="_blank" style="margin-left:10px;" data-link="{{this}}">{{this}}</a>
-									<a href="#" class="edit pubmed-remove-link hide" data-link="{{this}}"><i class="fi-x"></i></a>
-								</span>
-								{{/each}}
+						</div>
+						<div class="row">
+							<div class="large-12 small-12 medium-12 columns">
+								<label><h6><b>Recomendation</b></h6></label>
+								<textarea name="rec" rows=4 data-originalvalue="{{rec}}" disabled="disabled" required>{{rec}}</textarea>
+								<small class="error">Required</small>
 							</div>
 						</div>
-					</div>
+						<div class="row citations">
+							<div class="large-12 small-12 medium-12 columns">
+								<label><h6><b>Pubmed Citations</b></h6></label>
+								<div class="row">
+									<div class="small-12 medium-4 large-4 columns add-new-pubmed edit hide">
+										<div class="row collapse postfix-radius">
+											<div class="large-10 medium-10 small-10 columns">
+												<input class="add-new-pubmed-input" type="text" placeholder="Pubmed ID">
+											</div>
+											<div class="large-2 medium-2 small-2 columns">
+												<a href="#" class="postfix add-new-pubmed-button button secondary tiny" style="margin-bottom:0"><i class="fi-plus"></i></a>
+											</div>
+										</div>
+									</div>
+									<div class="small-12 medium-8 large-8 columns left size-16" style="margin-top:13px">
+										<ol class="pubmed-links" stlye="font-size:1em">
+										{{#each pubmed}}
+											<li class="pubmed-link-combo" data-id={{this}}>{{{lookup ../../../citations this}}}&nbsp&nbsp <a href="#" class="edit pubmed-remove-link hide" data-link="{{this}}"><i class="fi-x"></i></a></li>
+										{{/each}}
+										</ol>	
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">	
+							<div class="large-4 small-12 medium-6 columns right">
+								<ul class="button-group even-3 form-triggers" style="display:none">
+									<li><button type="submit" class="button success tiny submit-changes">Submit</button></li>
+									<li><a href="#" class="button tiny cancel-changes">Cancel</a></li>
+									<li><a href="#" class="button tiny alert delete-table">Delete</a></li>
+								</ul>
+							</div>
+						</div>
+					</form>
 				</div>
-				<div class="row">	
-					<div class="large-4 small-12 medium-6 columns right">
-						<ul class="button-group even-3 form-triggers" style="display:none">
-							<li><button type="submit" class="button success tiny submit-changes">Submit</button></li>
-							<li><a href="#" class="button tiny cancel-changes">Cancel</a></li>
-							<li><a href="#" class="button tiny alert delete-table">Delete</a></li>
-						</ul>
-					</div>
-				</div>
-			</form>
-		</div>
-	</td>
-</tr>
+			</td>
+		</tr>
+{{#if new}}
+	</tbody>
+</table>
+{{/if}}

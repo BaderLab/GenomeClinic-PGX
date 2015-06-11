@@ -86,11 +86,11 @@ module.exports = function(){
 				doc.genes.push($(addGenes[i]).find(".gene-name").val())
 				doc.classes.push($(addGenes[i]).find(".class-name").val())
 			}
-			var linksArr = $(context).find('.pubmed-link');
+			var linksArr = $(context).find('.pubmed-link-combo');
 			var links = [];
 			for (var i = 0; i < linksArr.length; i++ ){
 				if (!$(linksArr[i]).hasClass('temp-remove')){
-					links.push($(linksArr[i]).data('link'));
+					links.push($(linksArr[i]).data('id'));
 				}
 			}
 			doc.pubmed = links;
@@ -117,11 +117,11 @@ module.exports = function(){
 		//Add additional fields.
 		if (type == 'interaction'){
 			//additionally add the pubmedID's
-			var linksArr = $(context).find('.pubmed-link');
+			var linksArr = $(context).find('.pubmed-link-combo');
 			var links = [];
 			for (var i = 0; i < linksArr.length; i++ ){
-				if (!$(linksArr[i]).closest('span').hasClass('temp-hide')){
-					links.push($(linksArr[i]).data('link'));
+				if (!$(linksArr[i]).hasClass('temp-hide')){
+					links.push($(linksArr[i]).data('id'));
 				}
 			}
 			doc.pubmed = links;
@@ -156,26 +156,7 @@ module.exports = function(){
 		return promise;
 	};
 
-	/* jshint multistr: true */
-	var drugHeaderHTML = '<table class="drug-cont large-12 small-12 medium-12" data-drug="{{drug}}"\
-			<thead>\
-				<tr class="drug-cont-header" data-state="open">\
-					<th>\
-						<div class="row">\
-							<div class="large-11 small-10 medium-11 columns">\
-								<h3><strong>{{drug}}</strong></h3>\
-							</div>\
-							<div class="large-1 small-2 medium-1 columns">\
-								<i class="minimize fa fa-chevron-up fa-2x" style="color:black"></i>\
-								<i class="expand fa fa-chevron-down fa-2x" style="color:black;display:none;"></i>\
-							</div>\
-						</div>\
-					</th>\
-				</tr>\
-			</thead>\
-			<tbody class="interactions">\
-			</tbody>\
-		</table>'
+	
 
 
 	/* all page handlers for working with dosing tables and drug recomendations */
@@ -360,7 +341,6 @@ module.exports = function(){
 				 * to that already exists */
 				$('#new-interaction-form').on('valid.fndtn.abide', function (){
 					var doc = serializeNewField(this,'interaction');
-					console.log(doc);
 					var context;
 					Promise.resolve($.ajax({
 						url:'/database/dosing/genes/' + pageOptions.gene + '/new?type=interaction',
@@ -370,32 +350,29 @@ module.exports = function(){
 						data:JSON.stringify(doc)
 					})).then(function(result){
 						if (result.statusCode == 200 ){
-							var currentDrugCont = $('.drug-cont');
-							var currentDrugs=[];
-							var num = $('#main_content').find('form').length;
-							result.num = num;
-							//GET NAMES OF CURRENT DRUGS
-							for (var i=0; i < currentDrugCont.length; i++ ){
-								currentDrugs.push($(currentDrugCont[i]).data('drug'));
-							}
-							//If this is a new drug, add a new drug table
-							if (currentDrugs.indexOf(result.drug) === -1 ){
-								promise = new Promise(function(resolve,reject){
-									var headerHtml = drugHeaderHTML.replace(/\{\{drug\}\}/g,result.drug);
-									$('#main_content').append(headerHtml).each(function(){
-										context = $('.drug-cont[data-drug=' + result.drug + ']');
-										resolve();
-									});
-								});
-							} 
-
-							return promise.then(function(){
-								return templates.drugs.new(result).then(function(renderedHtml){
-									return $('.drug-cont[data-drug='+ result.drug + ']').find('.interactions').append(renderedHtml);
+							return utility.pubMedParser(result.pubmed).then(function(citations){
+								result.citations = citations;
+								var currentDrugCont = $('.drug-cont');
+								var currentDrugs=[];
+								var num = $('#main_content').find('form').length;
+								result.num = num;
+								//GET NAMES OF CURRENT DRUGS
+								for (var i=0; i < currentDrugCont.length; i++ ){
+									currentDrugs.push($(currentDrugCont[i]).data('drug'));
+								}
+								//If this is a new drug, add a new drug table
+								if (currentDrugs.indexOf(result.drug) === -1 ){
+									result.new = true;
+								}
+								promise = templates.drugs.new(result).then(function(renderedHtml){
+									if (result.new){
+										return $('#main_content').append(renderedHtml)
+									} else {
+										return $('.drug-cont[data-drug=' + result.drugs + ']').find('.interactions').append(renderedHtml);
+									}
 								}).then(function(){
-									if (currentDrugs.indexOf(result.drug) === -1 ) context = $('.drug-cont[data-drug=' + result.drug + ']');
+									if (result.new) context = $('.drug-cont[data-drug=' + result.drug + ']');
 									else context = $('.drug-cont[data-drug=' + result.drug + ']').last('tr').find('form');
-
 									context.foundation(abideOptions);
 									_this.interactions(context);
 									_this.generic(context);
@@ -446,7 +423,6 @@ module.exports = function(){
 				 * to that already exists */
 				$("#new-recomendation-form").on('valid.fndtn.abide',function(){
 					var o = serializeNewField(this,'future');
-					console.log(o);
 					Promise.resolve($.ajax({
 						url:'/database/dosing/genes/' + pageOptions.gene + '/new?type=recomendation',
 						type:"POST",
@@ -505,7 +481,6 @@ module.exports = function(){
 				 * to that already exists */
 				$('#new-haplotype-form').on('valid.fndtn.abide',function(){
 					var o = serializeNewField(this,'haplotype');
-					console.log(o);
 					Promise.resolve($.ajax({
 						url:'/database/dosing/genes/' + pageOptions.gene + '/new?type=haplotype',
 						type:'POST',
@@ -513,7 +488,6 @@ module.exports = function(){
 						dataType:'json',
 						data:JSON.stringify(o)
 					})).then(function(result){
-						console.log(result)
 						if (result.statusCode == 200 ){
 							templates.drugs.haplo({ haplotypes : [result] }).then(function(renderedHtml){
 								return $("#haplotypes").find('tbody').append(renderedHtml)
@@ -615,17 +589,21 @@ module.exports = function(){
 
 				// add a new pubmed link
 				context.find('.add-new-pubmed-button').on('click', function(e){
+					var __this = this;
 					e.preventDefault();
 					var val = $(this).closest('.row').find(".add-new-pubmed-input").val();
 					if (val !== ""){
-						var html = '<span class="pubmed-link-combo temp-remove">'
-						html += '<a href="http://www.ncbi.nlm.nih.gov/pubmed/' + val + '" class="pubmed-link" target="_blank" style="margin-left:10px;" data-link="' + val + '">' + val + '</a>'
-						html += '<a href="#" class="edit pubmed-remove-link" style="display:inline;">&nbsp<i class="fi-x"></i></a></span>'
-						var context = $(this).closest('form').find('.pubmed-links');
-						context.append(html);
-						utility.refresh(context);
-						_this.generic(context);
-					}
+						utility.pubMedParser(val).then(function(citations){
+							if (citations[val]){
+								var html= "<li class='pubmed-link-combo' data-id=" + val + ">" + citations[val] +"\
+								&nbsp&nbsp <a href='#' class='edit pubmed-remove-link ' data-link=" + val + "><i class='fi-x'></i></a></li>"
+								var context = $(__this).closest('.citations').find('.pubmed-links');
+								context.append(html);
+								utility.refresh(context);
+								_this.generic(context);
+							}
+						})
+					};
 					$(this).closest('.row').find(".add-new-pubmed-input").val('');
 				});
 
@@ -926,6 +904,18 @@ module.exports = function(){
 			}).then(function(result){
 				resultObj.classes = result[0].classes;
 				pageOptions.classes = result[0].classes;
+				var pubmedIds = [];
+				for (var i=0; i < resultObj.recomendations.length; i++ ){
+					for (var j = 0; j <resultObj.recomendations[i].recs.length; j++){
+						pubmedIds = pubmedIds.concat(resultObj.recomendations[i].recs[j].pubmed);
+					}
+					
+				}
+				return utility.pubMedParser(pubmedIds).then(function(citations){
+					resultObj.citations = citations;
+
+				})
+			}).then(function(){
 				return templates.drugs.current(resultObj);
 			}).then(function(renderedHtml){
 				return $('#main').html(renderedHtml);
