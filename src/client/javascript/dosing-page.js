@@ -156,8 +156,8 @@ module.exports = function(){
 		return promise;
 	};
 
-
-	var drugHeaderHTML = '<table class="drug-cont large-12 small-12 medium-12" data-drug="{{drug}}">\
+	/* jshint multistr: true */
+	var drugHeaderHTML = '<table class="drug-cont large-12 small-12 medium-12" data-drug="{{drug}}"\
 			<thead>\
 				<tr class="drug-cont-header" data-state="open">\
 					<th>\

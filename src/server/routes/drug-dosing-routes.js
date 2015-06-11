@@ -156,14 +156,17 @@ module.exports = function(app,logger,opts){
 		if (type == 'interaction') {
 			collection = dbConstants.DRUGS.DOSING.COLLECTION;
 			field = dbConstants.DRUGS.ALL.RECOMENDATIONS;
+			var sortedOutput = utils.sortWithIndeces(gene,doc.classes);
+			gene = sortedOutput.first;
+			doc.classes = sortedOutput.second;
 			query[dbConstants.DRUGS.DOSING.GENES] = gene;
-			query[dbConstants.DRUGS.DOSING.CLASSES] = req.body.classes;
-			query[dbConstants.DRUGS.DOSING.DRUG] = req.body.drug;
+			query[dbConstants.DRUGS.DOSING.CLASSES] = doc.classes;
+			query[dbConstants.DRUGS.DOSING.DRUG] = doc.drug;
 		} else if (type == 'recomendation') {
 			collection = dbConstants.DRUGS.FUTURE.COLLECTION;
 			field = dbConstants.DRUGS.ALL.FUTURE;
 			query[dbConstants.DRUGS.FUTURE.ID_FIELD] = gene;
-			query[dbConstants.DRUGS.FUTURE.CLASS] = req.body.class;
+			query[dbConstants.DRUGS.FUTURE.CLASS] = doc.class;
 		} else if (type == 'haplotype') {
 			collection = dbConstants.DRUGS.HAPLO.COLLECTION;
 			field = dbConstants.DRUGS.ALL.HAPLO;
@@ -172,10 +175,10 @@ module.exports = function(app,logger,opts){
 			//the search to return a new entry, so we do not overwrite the current entry;
 			query.$or = [];
 			var temp = {};
-			temp[dbConstants.DRUGS.HAPLO.CLASS] = req.body.class;
+			temp[dbConstants.DRUGS.HAPLO.CLASS] = doc.class;
 			query.$or.push(temp);
 			temp = {};
-			temp[dbConstants.DRUGS.HAPLO.HAPLOTYPES] = req.body.haplotypes.sort();
+			temp[dbConstants.DRUGS.HAPLO.HAPLOTYPES] = doc.haplotypes.sort();
 			query.$or.push(temp);
 		}
 		dbFunctions.findOne(collection,query,user).then(function(result){
@@ -191,7 +194,6 @@ module.exports = function(app,logger,opts){
 					update.$push[field] = ObjectID(result._id);
 					return dbFunctions.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,{multi:true},user)
 				}).then(function(result){
-					console.log(result);
 					newDoc.statusCode = '200';
 					newDoc.message = 'Successfully inserted document'
 					res.send(newDoc);
@@ -278,6 +280,12 @@ module.exports = function(app,logger,opts){
 		});
 	});
 	
+
+	/* Get the Metabolic Status's based on the haplotypes of an individual * /
+	/* Generate the possible recomendations for a patient based on the haplotype profile of that patient 
+	 * As well as the Metabolic status for the patient. return  all recomendations in a drug wise manner.
+	 * Ideally, return only a single recomendation per drug. */
+	
 	/* Generate the dosing recomendation report */
 	app.post('/browsepatients/dosing/:patientID/report', utils.isLoggedIn,function(req,res){
 		var options = {
@@ -317,4 +325,6 @@ module.exports = function(app,logger,opts){
 		});
 
 	});
+	
+
 };
