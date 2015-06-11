@@ -346,8 +346,6 @@ module.exports = function(app,logger,opts){
 		for (var i = 0; i < recs.length; i++ ){
 			geneComb[recs[i].gene] = recs[i].class;
 		}
-
-		//console.log(geneComb);
 		Promise.resolve(recs).each(function(item){
 			var query = {}
 			query[constants.dbConstants.DRUGS.ALL.ID_FIELD] = item.gene;
@@ -368,14 +366,10 @@ module.exports = function(app,logger,opts){
 			for (var i = 0; i < result.length; i++ ){
 				set = true;
 				for (var j = 0; j < result[i][constants.dbConstants.DRUGS.DOSING.GENES].length; j++ ){
-					//console.log(geneComb[result[i][constants.dbConstants.DRUGS.DOSING.GENES][j]])
-					//console.log(geneComb[result[i][constants.dbConstants.DRUGS.DOSING.GENES][j]] + " || " + result[i][constants.dbConstants.DRUGS.DOSING.CLASSES][j])
-					//console.log(geneComb[result[i][constants.dbConstants.DRUGS.DOSING.GENES][j]] == result[i][constants.dbConstants.DRUGS.DOSING.CLASSES][j])
 					if (geneComb[result[i][constants.dbConstants.DRUGS.DOSING.GENES][j]] != result[i][constants.dbConstants.DRUGS.DOSING.CLASSES][j]){
 						set = false;
 					}
 				}
-				//console.log(set);
 				if (set){
 					if (recByDrug.hasOwnProperty(result[i][constants.dbConstants.DRUGS.DOSING.DRUG])){
 						if (recByDrug[result[i][constants.dbConstants.DRUGS.DOSING.DRUG]][constants.dbConstants.DRUGS.DOSING.GENES].length < result[i][constants.dbConstants.DRUGS.DOSING.GENES].length ){
@@ -393,7 +387,6 @@ module.exports = function(app,logger,opts){
 			}
 		}).then(function(){
 			res.send(finalRecomendations);
-			//res.send(finalRecomendations);
 		});
 	});
 
