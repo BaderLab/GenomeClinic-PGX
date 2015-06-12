@@ -1439,8 +1439,6 @@ var dbFunctions = function(){
 					return find(dbConstants.DRUGS.HAPLO.COLLECTION,{_id:{$in:haploIDs}},undefined,undefined,user);
 				}).then(function(haplo){
 					if (haplo.length > 0 ) record[dbConstants.DRUGS.ALL.HAPLO] = haplo;
-					//add to out.
-					console.log(record);
 					out.push(record);
 					//if (record[dbConstants.DRUGS.ALL.RECOMENDATIONS] || record[dbConstants.DRUGS.ALL.FUTURE] || record[dbConstants.DRUGS.ALL.HAPLO]) out.push(record);
 				});
@@ -1468,7 +1466,6 @@ var dbFunctions = function(){
 					/* for each reomendation, fid the associated genes, remove the oID from the genes, then delete the
 					 * recomendation entry itself */
 					return Promise.resolve(recIDs).each(function(id){
-						console.log(id);
 						return self.findOne(dbConstants.DRUGS.DOSING.COLLECTION,{_id:id},user).then(function(result){
 							var genes = result.genes;
 							var update = {$pull:{}};

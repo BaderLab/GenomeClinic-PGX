@@ -143,6 +143,8 @@ module.exports = {
 						index = output.citations.length
 					}
 					temp.pubmed.push(output.citations.length);
+					temp.pubmedString = temp.pubmed.join(', ');
+
 				}
 				//remove any fields not filled in
 				output.drugs.push(temp);
@@ -179,7 +181,9 @@ module.exports = {
 	serializeForm : function(){
 		var output  = this.serializeInputs();
 		var recs = this.serializeRecomendations();
-		output.citations = recs.citations;
+		output.citations = recs.citations.map(function(item,ind){
+			return {index:ind+1,citation:item}
+		});
 		output.recomendations = recs.drugs;
 		output.genes = this.serializeTable();
 		output.future = this.serializeFuture();
