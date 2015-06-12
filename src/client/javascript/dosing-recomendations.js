@@ -150,7 +150,8 @@ module.exports = {
 		}
 
 		//If there are no recomendations do not return an empty doc, instead return undefined
-		output = Object.keys(output).length > 0 ? output : undefined;
+		console.log(output.drugs);
+		output.drugs = output.drugs.length > 0 ? output.drugs : undefined;
 		return output;
 	},
 
@@ -183,8 +184,14 @@ module.exports = {
 		output.genes = this.serializeTable();
 		output.future = this.serializeFuture();
 		if (output.recomendations){
-			output.drugsOfInterest = Object.keys(output.recomendations).join(", ");
+			output.drugsOfInterest = [];
+			for (var i = 0; i < output.recomendations.length; i++ ){
+				output.drugsOfInterest.push(output.recomendations[i].drug);
+			}
+
+			output.drugsOfInterest = output.drugsOfInterest.join(', ');
 		}
+		console.log(output);
 		return output;
 	},
 
