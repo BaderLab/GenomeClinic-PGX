@@ -831,6 +831,7 @@ module.exports = function(){
 	
 	//arrangeRecomendations by drug		
 	var arrangeRecs = function(input){
+		console.log(input);
 		var out = {};
 		var sortedOut = [];
 		if (input.recomendations){
@@ -895,6 +896,7 @@ module.exports = function(){
 					dataType:'json'
 				}));
 			}).then(function(result){
+				console.log(result);
 				resultObj = arrangeRecs(result);
 				return Promise.resolve($.ajax({
 					url:'/database/dosing/classes',
@@ -905,6 +907,7 @@ module.exports = function(){
 				resultObj.classes = result[0].classes;
 				pageOptions.classes = result[0].classes;
 				var pubmedIds = [];
+				console.log(resultObj);
 				for (var i=0; i < resultObj.recomendations.length; i++ ){
 					for (var j = 0; j <resultObj.recomendations[i].recs.length; j++){
 						pubmedIds = pubmedIds.concat(resultObj.recomendations[i].recs[j].pubmed);
@@ -942,9 +945,9 @@ module.exports = function(){
 
 			}).then(function(){
 				$('#toggle-all').trigger('click');
-			}).catch(function(err){
+			})/*.catch(function(err){
 				console.log(err);
-			});
+			})*/;
 		}
 
 		return promise;

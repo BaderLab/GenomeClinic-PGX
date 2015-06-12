@@ -1429,18 +1429,18 @@ var dbFunctions = function(){
 				//Find all recomendations
 				return find(dbConstants.DRUGS.DOSING.COLLECTION,{_id:{$in:recIDs}},undefined,undefined,user).then(function(recomendations){
 					if (recomendations.length > 0) record[dbConstants.DRUGS.ALL.RECOMENDATIONS] = recomendations;
-					else record[dbConstants.DRUGS.ALL.RECOMENDATIONS] = undefined;
+					
 				}).then(function(){
 					return find(dbConstants.DRUGS.FUTURE.COLLECTION,{_id:{$in:futureIDs}},undefined,undefined,user);
 				}).then(function(future){
 					if (future.length > 0 ) record[dbConstants.DRUGS.ALL.FUTURE] = future;
-					else record[dbConstants.DRUGS.ALL.FUTURE] = undefined;
+					
 				}).then(function(){
 					return find(dbConstants.DRUGS.HAPLO.COLLECTION,{_id:{$in:haploIDs}},undefined,undefined,user);
 				}).then(function(haplo){
 					if (haplo.length > 0 ) record[dbConstants.DRUGS.ALL.HAPLO] = haplo;
-					else record[dbConstants.DRUGS.ALL.HAPLO] = undefined;
 					//add to out.
+					console.log(record);
 					out.push(record);
 					//if (record[dbConstants.DRUGS.ALL.RECOMENDATIONS] || record[dbConstants.DRUGS.ALL.FUTURE] || record[dbConstants.DRUGS.ALL.HAPLO]) out.push(record);
 				});
