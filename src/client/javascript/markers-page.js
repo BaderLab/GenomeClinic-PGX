@@ -3,9 +3,7 @@
  *
  * @Patrick Magee
  */
-var $ = require("jquery"),
-	templates = require('./templates'),
-	utility = require('./utility'),
+var utility = require('./utility'),
 	pgxConstants = require('../../server/conf/constants.json').dbConstants.PGX;
 
 module.exports = function(){

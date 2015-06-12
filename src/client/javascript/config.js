@@ -2,12 +2,11 @@
  * Config page  for initial server startup.
  * @author Ron Ammar
  */
-var $ = require("jquery"),
-	template = require('./templates').config,
-	aux = require('../conf/config.json'),
+var aux = require('../conf/config.json'),
 	utility = require('./utility'),
 	constants = require('../../server/conf/constants.json').dbConstants.ANNO;
 
+console.log(templates);
 
 
 module.exports = function() {

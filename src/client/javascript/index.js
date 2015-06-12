@@ -4,8 +4,8 @@
  * 
  * @author Patrick Magee
  */
-var $ = require('jquery');
-var templates = require('./templates');
+
+
 var projects = require('./projects'),
 	status = require('./status-page'),
 	uploader = require('./uploader'),
@@ -20,7 +20,7 @@ var projects = require('./projects'),
 
 
 
-(function(){
+$(document).ready(function(){
 	var location = window.location.pathname;
 	Promise.resolve().then(function(){
 		if (location == '/'){
@@ -47,4 +47,4 @@ var projects = require('./projects'),
 			return dosing();
 		}
 	});
-})();
+});

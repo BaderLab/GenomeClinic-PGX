@@ -3,7 +3,6 @@
 */
 
 var pgx = require('./pgx'),
-	templates = require('./templates'),
 	utility = require('./utility');
 
 

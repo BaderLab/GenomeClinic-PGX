@@ -37,12 +37,18 @@ var paths = {
 			dest:'build/public/js'
 		},
 		vendorBundle:{
-			src:[
-				'src/client/javascript/lib/jquery.js',
-				'src/client/javascript/lib/foundation.min.js',
-				],
+			//src:[
+			//	'src/client/javascript/lib/jquery.js',
+			//	'src/client/javascript/lib/foundation.min.js',
+			//	],
+			src:'src/client/javascript/vendor.js',
 			name:'vendor.bundle.min.js',
 			dest:'build/public/js/vendor'
+		},
+		templates:{
+			src:'./src/client/javascript/templates.js',
+			name:'templates.js',
+			dest:'build/public/js'
 		},
 		modernizr:{
 			src:'src/client/javascript/lib/modernizr.js',
@@ -150,6 +156,13 @@ gulp.task('client-js',function(){
 		.pipe( gutil.env.type==='production' ? uglify():gutil.noop()  )
 		.pipe( gulp.dest(paths.client.browserify.dest) );
 });
+
+gulp.task('client-templates',function(){
+	return browserify(paths.client.templates.src,{debug:true})
+	.bundle()
+	.pipe( source(paths.client.templates.name ) )
+	.pipe( gulp.dest(paths.client.templates.dest))
+})
 gulp.task('client-modernizr',function(){
 	return gulp.src(paths.client.modernizr.src)
 	.pipe( gulp.dest(paths.client.modernizr.dest) );
@@ -162,7 +175,7 @@ gulp.task('client-views',function(){
 
 gulp.task('client-vendor', ['client-modernizr'],function(){
 	return gulp.src(paths.client.vendorBundle.src)
-	.pipe( concat(paths.client.vendorBundle.name) )
+	//.pipe( concat(paths.client.vendorBundle.name) )
 	.pipe( uglify() )
 	.pipe( gulp.dest(paths.client.vendorBundle.dest) );
 });
@@ -189,7 +202,7 @@ gulp.task('client-icon',function(){
 });
 
 gulp.task('client',function(next){
-	runSequence('client-js','client-views','client-vendor','client-css','client-img','client-icon',next);
+	runSequence('client-js','client-views','client-templates','client-vendor','client-css','client-img','client-icon',next);
 });
 
 gulp.task('server-routes',function(){
@@ -264,11 +277,11 @@ gulp.task("phantom",function(){
 });
 
 gulp.task('jshint',function(){
-	if (gutil.env.type !== 'production'){
+	/*if (gutil.env.type !== 'production'){
 		return gulp.src(paths.jshint)
 		.pipe(jshint())
 		.pipe(jshint.reporter(jshstylish));
-	}
+	}*/
 });
 
 gulp.task('prewatch', ['jshint'], function(){

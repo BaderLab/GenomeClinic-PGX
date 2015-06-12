@@ -10,9 +10,7 @@
  * html page
  * @author Patrick Magee
  */
-var $ = require('jquery'),
-	templates = require('./templates'),
-	utility = require('./utility'),
+var utility = require('./utility'),
 	constants = require('../../server/conf/constants.json').dbConstants.USERS;
 
 module.exports = function(location){

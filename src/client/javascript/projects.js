@@ -5,9 +5,7 @@
  * patients from a specific module
  * @author Patrick Magee
  */
-var $ = require('jquery'),
-	templates = require('./templates'),
-	utility = require('./utility'),
+var utility = require('./utility'),
 	patientConstants = require('../../server/conf/constants.json').dbConstants.PATIENTS,
 	projectConstants = require('../../server/conf/constants.json').dbConstants.PROJECTS,
 	userConstants = require('../../server/conf/constants.json').dbConstants.USERS;

@@ -6,9 +6,7 @@
  *
  * @author Patrick Magee
  */
-var $ = require("jquery"),
-	templates = require('./templates.js'),
-	utility = require('./utility');
+var utility = require('./utility');
 
 
 module.exports = function(){

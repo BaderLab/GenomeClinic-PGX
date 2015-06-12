@@ -3,9 +3,7 @@
  * @author Ron Ammar
  */
 
-var $ = require('jquery'),
-	templates = require('./templates'),
-	utility = require('./utility'),
+var utility = require('./utility'),
 	pgx = require('./pgx'),
 	dosing = require('./dosing-recomendations');
 

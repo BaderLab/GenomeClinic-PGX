@@ -3,9 +3,7 @@
  * recomendations.
  *@author Patrick Magee */
 
-var $ = require("jquery"),
-	templates = require('./templates'),
-	utility = require('./utility');
+var utility = require('./utility');
 
 module.exports = function(){
 	//add new methods to adbide validation

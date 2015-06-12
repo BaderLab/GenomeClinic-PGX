@@ -2,9 +2,7 @@
  * haplotype information
  *@patrick magee */
 
-var $  = require('jquery'),
-	templates = require('./templates'),
-	utility = require('./utility');
+var utility = require('./utility');
 
 var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 

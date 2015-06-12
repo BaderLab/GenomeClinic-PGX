@@ -11,9 +11,17 @@
 
     <!-- Font awesome vector graphic icons -->
     <link rel="stylesheet" href="/static/icons/font-awesome-4.2.0/css/font-awesome.min.css" />
-
-    <script type="text/javascript" src="/static/js/vendor/modernizr.js"></script>
-
+    <script type="text/javascript" src="/static/js/vendor/vendor.bundle.min.js"></script>
+    <script type="text/javascript" src="/static/js/templates.js"></script>
+    
+    {{#each src}}
+    <script type="text/javascript" src="{{this}}"></script>
+    {{/each}}
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $(document).foundation()
+      });
+    </script>
     <link rel="icon" href="/static/img/pharmacogenomics.jpg" />
     <link rel="author" href="/static/humans.txt" />
   </head>
@@ -136,12 +144,5 @@
         </div>
       </div>
     </div>
-    <script type="text/javascript" src="/static/js/vendor/vendor.bundle.min.js"></script>
-    {{#each src}}
-    <script type="text/javascript" src="{{this}}"></script>
-    {{/each}}
-    <script type="text/javascript">
-      $(document).foundation()
-    </script>
   </body>
 </html>

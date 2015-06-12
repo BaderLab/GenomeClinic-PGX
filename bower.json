@@ -1,0 +1,41 @@
+{
+  "name": "GenomClinic-PGX",
+  "description": "Web-based Clinical Genome Pharmacogenomics Interpretation",
+  "version": "0.0.2",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BaderLab/GenomeClinic-PGX.git"
+  },
+  "contributors": [
+    {
+      "name": "Patrick Magee",
+      "email": "patrickmageee@gmail.com"
+    },
+    {
+      "name": "Ron Ammar",
+      "email": "ron.ammar@gmail.com"
+    }
+  ],
+  "keywords": [
+    "pgx",
+    "pharmacogenomics",
+    "variant",
+    "node",
+    "analysis",
+    "clinical",
+    "npm",
+    "node",
+    "nodejs",
+    "jquery"
+  ],
+  "engines": {
+    "node": ">=10.0"
+  },
+  "main": "build/webapp.js",
+  "dependencies": {
+    "blueimp-file-upload": "~9.10.1",
+    "foundation": "~5.5.2",
+    "jquery": "~2.1.4",
+    "font-awesome": "~4.3.0"
+  }
+}

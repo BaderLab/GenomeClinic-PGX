@@ -3,9 +3,7 @@
  * @author Ron Ammar
 */
 
-var $ = require("jquery"),
-	templates = require('./templates'),
-	utility = require('./utility');
+var utility = require('./utility');
 //Handlebars = require('hbsfy/runtime');
 
 ///// main object to be returned
