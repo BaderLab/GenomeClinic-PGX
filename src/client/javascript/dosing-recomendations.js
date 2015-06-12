@@ -10,6 +10,20 @@ var pgx = require('./pgx'),
 //container for page options to be stored in
 var pageOptions = {};
 
+/* jshint multistr:true */
+var emptyFieldhtml = '<div class="row">\
+						<div class="small-12 columns">\
+					    	<div data-alert class="alert-box radius secondary">\
+					    	<!-- Alert message goes here -->\
+						      	<div class="row">\
+						        	<div class="small-12 columns">\
+						        	  	<p class="alert-message">{{message}}</p>\
+						        	</div>\
+						    	</div>\
+						    </div>\
+						</div>\
+					</div>'
+
 module.exports = {
 	/* The PGX analysis table is the basis for all recomendations. It contains not only the haplotypes,
 	 * but also the predicted Therapeutic class. The claass can be changed by the user (this will be remembered 
@@ -32,6 +46,7 @@ module.exports = {
 					$(rows[i]).find(".allele_2").text()
 				];
 				temp.class = $(rows[i]).find('.therapeutic-class').val();
+				temp._id = $(rows[i]).find('select').data('id');
 				output.push(temp);
 			}
 		}
@@ -94,47 +109,79 @@ module.exports = {
 	 * an object. Each drug has one recomednation is is the primary key of the output object
 	 */
 	serializeRecomendations : function(){
-		var output = {};
-		var temp,drug,pubmed;
-		var fields = $('.recomendation-field'); // Gather all of the receomendations
+		var output = {drugs:[],citations:[]}
+		var temp,drug,pubmed,genes,classes,index;
+		var fields = $('.recomendation-field'); 
+		// Gather all of the receomendations
 		//If the user has toggled the recomendations off dont iterate over them
 		if ($('#drug-recomendations').is(':visible')){
 			for (var i = 0; i < fields.length; i++ ){
 				drug = $(fields[i]).find('.drug-name').text();
 				temp = {};
-				temp.rec = $(fields[i]).find(".recomendation-rec").val();
-				temp.risk = $(fields[i]).find(".recomendation-risk").text();
-				temp.pgx_1 = $(fields[i]).find(".recomendation-pgx-1").text();
-				temp.class_1 = $(fields[i]).find(".recomendation-class-1").text();
-				temp.pgx_2 = $(fields[i]).find(".recomendation-pgx-2").text();
-				temp.class_2 = $(fields[i]).find(".recomendation-class-2").text();
-				pubmed = $(fields[i]).find(".recomendation-pubmed").find('a');
+				temp.drug = drug;
+				temp.genes = [];
+				temp.classes = [];
 				temp.pubmed = [];
-				//add the associated links
+				temp.rec = $(fields[i]).find(".rec").val();
+				temp.risk = $(fields[i]).find(".risk").text();
+
+				genes = $(fields[i]).find('.gene-name');
+				for (var j = 0; j < genes.length; j++){
+					temp.genes.push($(genes[i]).text());
+				}
+
+				classes = $(fields[i]).find('.class-name');
+				for (var j = 0; j < genes.length; j++){
+					temp.classes.push($(genes[i]).text());
+				}
+				pubmed = $(fields[i]).find(".pubmed");
+				//add the associated citations
 				for(var j=0; j < pubmed.length; j++ ){
-					temp.pubmed.push($(pubmed[j]).attr('href'));
+					index = output.citations.indexOf($(pubmed[j]).text());
+					if (index == -1 ) {
+						output.citations.push($(pubmed[j]).text());
+						index = output.citations.length
+					}
+					temp.pubmed.push(output.citations.length);
 				}
 				//remove any fields not filled in
-				if (temp.pubmed.length === 0 ) delete temp.pubmed;
-				if (!temp.class_2) delete temp.class_2;
-				if (!temp.pgx_2) delete temp.pgx_2;
-				//output[drug].push(temp);
-				output[drug] = temp;
+				output.drugs.push(temp);
 			}
 		}
+
 		//If there are no recomendations do not return an empty doc, instead return undefined
 		output = Object.keys(output).length > 0 ? output : undefined;
 		return output;
 	},
+
+	serializeFuture : function (){
+		output = [];
+		var temp;
+		var fields = $('.future-field')
+		if ($('#drug-recomendations').is(':visible')){
+			for (var i = 0; i < fields.length; i++ ){
+				temp = {};
+				temp.rec = $(fields[i]).find(".rec").val();
+				temp.class = $(fields[i]).find(".class-name").text();
+				temp.gene = $(fields[i]).find(".gene-name").text();
+
+				output.push(temp);
+			}
+		
+		}
+		return output;
+	}, 
 
 	/* function to serialize the entire form. Calls the other serialize functions in order and 
 	 * adds the results to a single output object
 	 */
 	serializeForm : function(){
 		var output  = this.serializeInputs();
-		output.recomendations = this.serializeRecomendations();
+		var recs = this.serializeRecomendations();
+		output.citations = recs.citations;
+		output.recomendations = recs.drugs;
 		output.genes = this.serializeTable();
-		output.future = this.setFuture();
+		output.future = this.serializeFuture();
 		if (output.recomendations){
 			output.drugsOfInterest = Object.keys(output.recomendations).join(", ");
 		}
@@ -158,6 +205,7 @@ module.exports = {
 				if (result[i].hasOwnProperty('class')){
 					$(rows[i]).find('select').val(result[i].class);
 				}
+				$(rows[i]).find('select').data('id',result[i]._id);
 			}
 		});
 	},
@@ -169,25 +217,44 @@ module.exports = {
 	sendHaplos : function(){
 		var tableValues = this.serializeTable();
 		var promises = [];
+		var rows = $('.gene-row');
 		// Iterate over each row
 		$.each(tableValues,function(index,data){
-			var promise = new $.Deferred(); //new deffered promise
-			data.haplotypes = {};
-			data.haplotypes[data.class] = [data.hap.allele_1,data.hap.allele_2];
+			var promise,update={};
+			var def = new $.Deferred();
+
+			if (data._id !== undefined ){
+				update.class = data.class;
+				promise = Promise.resolve($.ajax({
+					url:"/database/dosing/genes/" + data.gene + '/update?type=haplotype&id=' + data._id,
+					type:'POST',
+					contentType:'application/json',
+					dataType:'json',
+					data:JSON.stringify(update)
+				}));
+			} else {
+				delete data._id
+				promise = Promise.resolve($.ajax({
+					url:'/database/recommendations/haplotypes/set',
+					type:'POST',
+					contentType:'application/json',
+					dataType:'json',
+					data:JSON.stringify(data)
+				}));
+			}
+			
 			//Submit an ajax request for each gene  to update their haplotype;
-			$.ajax({
-				url:"/database/dosing/genes/" + data.gene + '/update?type=haplotype',
-				type:'POST',
-				contentType:'application/json',
-				dataType:'json',
-				data:JSON.stringify(data)
-			}).done(function(){
-				//once done, resolve the promise;
-				promise.resolve();
-			}).fail(function(){
-				promise.resolve();
+			promise.then(function(result){
+				if (result){
+					if (result.hasOwnProperty('_id')){
+						$(rows[index]).find("select").data('id',result._id);
+					}
+				}
+				def.resolve(result);	
+			}).catch(function(err){
+				def.reject(err)
 			});
-			promises.push(promise);
+			promises.push(def)
 		});
 		//return only when all Ajax request have been successfully completeed and return a single promise.
 		return $.when.apply(promises).promise();
@@ -199,8 +266,25 @@ module.exports = {
 	 * loaded, set the set the therapeutic classes of the haplotypes, then render the recomendations
 	 */
 	getFutureRecommendations : function(){
-
-
+		var _this = this;
+		var tableValues = this.serializeTable();
+		return Promise.resolve($.ajax({
+			url:'/database/recommendations/future/get',
+			type:"POST",
+			contentType:"application/json",
+			dataType:'json',
+			data:JSON.stringify(tableValues)
+		})).then(function(result){
+			if (result.length === 0) {
+				return $('#future-recomendations').html(emptyFieldhtml.replace(/\{\{message\}\}/,'There are no future considerations to report'))
+			} else {
+			 	return templates.drugs.rec.future({future:result}).then(function(renderedHtml){
+					$('#future-recomendations').html(renderedHtml);
+				}).then(function(){
+					return _this.recomendationHandlers("#future-recomendations");
+				});
+			}
+		});
 	},
 
 	/* based on the current status of the therapeutic classes on the PGX table, get and render the current
@@ -223,16 +307,19 @@ module.exports = {
 			for (var i=0; i < result.length; i++ ){
 				pubMedIDs = pubMedIDs.concat(result[i].pubmed);
 			}
-			if ( result.length === 0 ) result = undefined;
-			return utility.pubMedParser(pubMedIDs).then(function(citations){
-				return templates.drugs.rec.recs({recomendation:result,citations:citations})
-			});
-		}).then(function(renderedHtml){
-				$('#drug-recomendations').html(renderedHtml);
-		}).then(function(){
-			_this.recomendationHandlers();
-		});
+			if ( result.length === 0 ){
+				return $('#drug-recomendations').html(emptyFieldhtml.replace(/\{\{message\}\}/,'There are no recommendations to report'))
 
+			} else {
+				return utility.pubMedParser(pubMedIDs).then(function(citations){
+					return templates.drugs.rec.recs({recomendation:result,citations:citations})
+				}).then(function(renderedHtml){
+					$('#drug-recomendations').html(renderedHtml);
+				}).then(function(){
+					_this.recomendationHandlers('#drug-recomendations');
+				})
+			}
+		});
 	},
 	/* Page handlers */
 	staticHandlers : function(){
@@ -254,6 +341,7 @@ module.exports = {
 		 * there are any new recomendations and re-render the contents */
 		$('.therapeutic-class').on('change',function(){
 			_this.getRecomendations();
+			_this.getFutureRecommendations();
 		});
 
 		/* If on, recomednations are included, however if the user selects off, then no recomendations are included */
@@ -263,6 +351,15 @@ module.exports = {
 				$('#drug-recomendations').slideDown();
 			} else {
 				$('#drug-recomendations').slideUp();
+			}
+		});
+
+		$('#turnofffuture').on('click',function(){
+			var isChecked = $(this).is(':checked');
+			if (isChecked){
+				$('#future-recomendations').slideDown();
+			} else {
+				$('#future-recomendations').slideUp();
 			}
 		});
 
@@ -319,8 +416,8 @@ module.exports = {
 		});
 	},
 
-	recomendationHandlers:function(){
-		$('.recomendation-field').find('a.button').on('click',function(e){
+	recomendationHandlers:function(context){
+		$(context).find('a.button').on('click',function(e){
 			e.preventDefault();
 			$(this).closest('fieldset').slideUp(function(){
 				$(this).remove()
@@ -372,6 +469,8 @@ module.exports = {
 			// get information from each gene
 		}).then(function(){
 			return _this.getRecomendations();
+		}).then(function(){
+			return _this.getFutureRecommendations();
 		}).then(function(){
 			// refresh foundation
 			return utility.refresh();

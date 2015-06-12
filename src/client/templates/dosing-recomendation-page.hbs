@@ -306,7 +306,25 @@
 					</fieldset>
 					<div class="row">
 						<div class="large-8 small-6 medium-6 columns">
-							<h3>Drug Recomendations</h3>
+							<h3>Future Considerations Based on Genetic Profile</h3>
+						</div>
+						<div class="large-3 small-4 medium-4 columns">
+							<h5>Include Future Considerations?</h5>
+						</div>
+						<div class="large-1 small-2 medium-2 columns">
+							<div class="switch right radius">
+								<input type="checkbox" id="turnofffuture" checked>
+								<label for="turnofffuture"></label>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="large-12 small-12 medium-12 columns" id="future-recomendations">
+						</div>
+					</div>
+					<div class="row">
+						<div class="large-8 small-6 medium-6 columns">
+							<h3>Drug Recommendations</h3>
 						</div>
 						<div class="large-3 small-4 medium-4 columns">
 							<h5>Include Recommendations?</h5>
@@ -318,27 +336,10 @@
 							</div>
 						</div>
 					</div>
-					{{#if pgxGenes}}
 					<div class="row">
 						<div class="large-12 small-12 medium-12 columns" id="drug-recomendations">
 						</div>
-					<div>
-					{{else}}
-					<fieldset>
-						<div class="row">
-							<div class="large-12 small-12 medium-12 columns">
-								<div data-alert class="alert-box radius secondary" id="error-display-box">
-							      <!-- Alert message goes here -->
-							      	<div class="row">
-							          	<div class="small-11 columns">
-							             	<p id="error-display-message">There are no drug recomendations for the current patient</p>
-							          	</div>
-							       	</div>
-							    </div>
-							</div>
-						</div>
-					</fieldset>
-					{{/if}}
+					</div>
 					<div class="row">
 						<div class="large-3 small-12 medium-4 right columns">
 							<button type="submit" class="button radius large-12 small-12 medium-12">Generate Report</button>

@@ -32,6 +32,7 @@ var index = require('../templates/index.hbs'),
 	dosing_future = require('../templates/dosing-future.hbs'),
 	dosing_rec_page = require('../templates/dosing-recomendation-page.hbs'),
 	dosing_rec_rec = require('../templates/dosing-recomendation-recs.hbs'),
+	dosing_rec_future = require('../templates/dosing-recommendations-future.hbs')
 	dosing_haplo = require('../templates/dosing-haplotypes.hbs'),
 	dosing_add = require('../templates/dosing-additional-gene.hbs'),
 	spinner = require('../templates/spinner.hbs');
@@ -92,7 +93,8 @@ module.exports = {
 		gene:_t(dosing_add),
 		rec:{
 			index:_t(dosing_rec_page),
-			recs:_t(dosing_rec_rec)
+			recs:_t(dosing_rec_rec),
+			future:_t(dosing_rec_future)
 		}
 	}
 };

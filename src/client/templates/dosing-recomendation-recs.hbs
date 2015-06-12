@@ -1,4 +1,3 @@
-{{#if recomendation}}
 {{#each recomendation}}
 	<fieldset class="recomendation-field" data-id="{{_id}}">
 		<legend class="drug-name">{{drug}}</legend>
@@ -47,18 +46,4 @@
 		</div>
 	</fieldset>
 {{/each}}
-{{else}}
-<div class="row">
-	<div class="small-12 columns">
-    	<div data-alert class="alert-box radius secondary">
-    	<!-- Alert message goes here -->
-	      	<div class="row">
-	        	<div class="small-12 columns">
-	        	  	<p class="alert-message">No recomendations to report</p>
-	        	</div>
-	    	</div>
-	    </div>
-	</div>
-</div>
-{{/if}}
 
