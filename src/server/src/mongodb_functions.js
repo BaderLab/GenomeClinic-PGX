@@ -1126,7 +1126,7 @@ var dbFunctions = function(){
 		else if (rsID)
 			query[dbConstants.PGX.COORDS.ID_FIELD] = rsID;
 
-		return find(dbConstants.PGX.COORDS.COLLECTION,query,{"_id":0},null,username)
+		return find(dbConstants.PGX.COORDS.COLLECTION,query,undefined,null,username)
 		.then(function(result){
 			var out = {};
 			for (var i = 0; i < result.length; i++ ){
@@ -1185,7 +1185,7 @@ var dbFunctions = function(){
 	};
 
 	//Update the specified gene with the requqired parameter Doc
-	this.updatePGXGene = function(geneName,doc,user){
+	this.updatePGXGene = function(id,doc,user){
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(geneName) == "[object String]");
 		assert(Object.prototype.toString.call(doc) == "[object Object]");
