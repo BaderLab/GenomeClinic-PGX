@@ -13,9 +13,9 @@
 var utility = require('./utility'),
 	constants = require('../../server/conf/constants.json').dbConstants.USERS;
 
-module.exports = function(location){
+(function(){
 
-	
+	var location = window.location.pathname;
 	//=======================================================================
   	// Abide Validation
   	//=======================================================================
@@ -162,5 +162,9 @@ module.exports = function(location){
 			
 		});
 	};
-	return checkAuthAndRender();
-};
+
+	
+	$(document).ready(function(){
+		return checkAuthAndRender();
+	});
+})();

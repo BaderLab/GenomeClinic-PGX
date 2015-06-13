@@ -33,7 +33,13 @@ module.exports = function(app,logger,opts){
 				if (!configured) {
 					configured= resolved_config;
 				}
-				utils.render(req,res);
+				var options = {
+					code:{
+						code: "$(document).ready(function(){templates.index({title:'PGX Webapp'}).then(function(renderedHtml){$('#main').html(renderedHtml);});});",
+						type:"text/javascript"
+					}
+				}
+				utils.render(req,res,options);
 			} else {
 				res.redirect('/config');
 			}
@@ -48,7 +54,7 @@ module.exports = function(app,logger,opts){
 		dbFunctions.getAdminEmail()
 		.then(function(result){
 			if (result === req.user.username)
-				utils.render(req,res);	
+				utils.render(req,res,{scripts:'config.js'});	
 			else {
 				if (configured === undefined){
 					dbFunctions.isConfigured()
@@ -80,7 +86,7 @@ module.exports = function(app,logger,opts){
 	//==================================================================
 
 	app.get(['/statuspage'], utils.isLoggedIn, function(req,res){
-		utils.render(req,res);
+		utils.render(req,res,{scripts:'status-page.js'});
 	});
 
 

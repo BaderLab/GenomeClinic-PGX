@@ -11,7 +11,7 @@ var utility = require('./utility'),
 	userConstants = require('../../server/conf/constants.json').dbConstants.USERS;
 
 
-module.exports = function(){
+(function(){
 	var patientInformation, projectInfo, owner,user,LOCATION,PROJECTID;
 	var selected = [];
 
@@ -623,7 +623,7 @@ module.exports = function(){
 			}
 		});
 	};
-
-	return main();
-
-};
+	$(document).ready(function(){
+		return main();
+	});
+})();

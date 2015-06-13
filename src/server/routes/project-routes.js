@@ -15,7 +15,7 @@ module.exports = function(app,logger,opts){
 	]
 
 	app.get(renderPages, utils.isLoggedIn, function(req,res){
-		utils.render(req,res);
+		utils.render(req,res,{scripts:'projects.js'});
 	});
 
 	//==================================================================
@@ -27,7 +27,7 @@ module.exports = function(app,logger,opts){
 			if (result)
 				next();
 			else
-				utils.render(req,res,true);
+				utils.render(req,res,'notFound');
 		});
 	});
 	//==================================================================

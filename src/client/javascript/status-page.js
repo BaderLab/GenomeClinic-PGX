@@ -9,7 +9,7 @@
 var utility = require('./utility');
 
 
-module.exports = function(){
+(function(){
 
 	var arraysEqual = function(arr1, arr2) {
 	    if(arr1.length !== arr2.length)
@@ -150,6 +150,7 @@ module.exports = function(){
 	//var main = function(){
 	//	checkStatusHtml();
 	//}
-	return checkStatusHtml();
-	
-};
+	$(document).ready(function(){
+		return checkStatusHtml();
+	})
+})();

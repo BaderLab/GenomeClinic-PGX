@@ -21,8 +21,8 @@ module.exports = function(app,logger,opts){
 		'/dosing',
 		'/dosing/current/:geneID',
 		'/dosing/new',
-		'/browsepatients/dosing/:patientID'
 	];
+
 	//==========================================================
 	// Parameters
 	//==========================================================
@@ -34,7 +34,7 @@ module.exports = function(app,logger,opts){
 			if (result)
 				next();
 			else
-				utils.render(req,res,'notfound');
+				utils.render(req,res,{type:'notfound'});
 		});
 	});	
 
@@ -74,9 +74,12 @@ module.exports = function(app,logger,opts){
 
 	/* Render the main web pages for dosing */
 	app.get(renderRoutes,utils.isLoggedIn, function(req,res){
-		utils.render(req,res);
+		utils.render(req,res,{scripts:'dosing-page.js'});
 	});
 
+	app.get('/browsepatients/dosing/:patientID',utils.isLoggedIn,function(req,res){
+		utils.render(req,res,{scripts:'patients.js'})
+	})
 	//==========================================================
 	//Dosing main page routes 
 	//==========================================================

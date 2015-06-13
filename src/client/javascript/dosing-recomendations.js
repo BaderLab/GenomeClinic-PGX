@@ -24,6 +24,7 @@ var emptyFieldhtml = '<div class="row">\
 					</div>'
 
 module.exports = {
+
 	/* The PGX analysis table is the basis for all recomendations. It contains not only the haplotypes,
 	 * but also the predicted Therapeutic class. The claass can be changed by the user (this will be remembered 
 	 * when the user submits the new form), or it can be left the same. Serializing the table will result in an
@@ -488,6 +489,5 @@ module.exports = {
 			//add hanlders
 			_this.staticHandlers();
 		});
-
 	}
 };

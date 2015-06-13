@@ -5,7 +5,7 @@
 
 var utility = require('./utility');
 
-module.exports = function(){
+(function(){
 	//add new methods to adbide validation
 	var pageOptions = {
 		location:undefined,
@@ -946,5 +946,7 @@ module.exports = function(){
 
 		return promise;
 	};
-	return main();	
-};
+	$(document).ready(function(){
+		return main();
+	});
+})();

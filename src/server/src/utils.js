@@ -9,28 +9,29 @@ module.exports = {
 			return next();
 		res.redirect('/login');
 	},
-	render:function(req,res,type,_o,scripts){
+	render:function(req,res,_o){
 		var template;
 		template = 'layout.hbs';
-		if (!scripts)
-			scripts = [];
 		if (!_o){
 			_o = {};
+		}
+		if (!_o.scripts)
+			_o.scripts = [];
+		else if (Object.prototype.toString.call(_o.scripts) == '[object String]')
+			_o.scripts = [_o.scripts];
+
+		for (var i = 0; i < _o.scripts.length; i++){
+			_o.scripts[i] = '/static/js/' + _o.scripts[i];
 		}
 
 		_o.title = 'PGX webapp';
 		_o.cache = true;
 
-		if (type == "construction")
+		if (_o.type == "construction")
 			_o.construction = true;
-		else if (type == 'notfound') {
+		else if (_o.type == 'notfound') {
 			_o.notfound = true;
-		} else {
-			scripts.push("/static/js/bundle.min.js");
 		}
-		
-		if (scripts)
-			_o.src = scripts;
 		if (req.isAuthenticated()) {
 			_o.authenticated = true;
 			_o.user = req.user.username;

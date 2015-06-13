@@ -6,10 +6,8 @@ var aux = require('../conf/config.json'),
 	utility = require('./utility'),
 	constants = require('../../server/conf/constants.json').dbConstants.ANNO;
 
-console.log(templates);
 
-
-module.exports = function() {
+(function(){
 //=======================================================================
 // Auxiliary helper functions
 //=======================================================================
@@ -129,7 +127,7 @@ module.exports = function() {
 		var options = {
 			'annotations':Object.keys(aux.ANNOVAR_ANNOTATIONS)
 		};
-		return template(options).then(function(renderedHtml){
+		return template.config(options).then(function(renderedHtml){
 			$('#main').html(renderedHtml);
 		}).then(function(){
 			utility.refresh();
@@ -137,8 +135,11 @@ module.exports = function() {
 			handler();
 		});
 	};
-	return render();
-};
+
+	$(document).ready(function(){
+		return render();
+	});
+})();
 
 
 
