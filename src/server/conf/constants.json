@@ -93,19 +93,38 @@
 			}
 		},
 		"DRUGS":{
+			"ALL":{
+				"COLLECTION":"dosing",
+				"ID_FIELD":"gene",
+				"RECOMENDATIONS":"recomendations",
+				"FUTURE":"future",
+				"HAPLO":"haplotypes"
+			},
 			"REPORT":{
 				"DEFAULT":"{{DIR}}/views/default-dosing-report.hbs"
+			},
+			"HAPLO":{
+				"COLLECTION":"haplotypes",
+				"ID_FIELD":"gene",
+				"CLASS":"class",
+				"HAPLOTYPES":"haplotypes"
 			},
 			"DOSING":{
 				"DEFAULT":"{{DIR}}/lib/conf/dosing_guidelines.json",
 				"COLLECTION":"drugRecomendations",
-				"ID_FIELD":"gene",
-				"RECOMENDATIONS":"recomendations",
-				"REC_FIELD" : "rec",
+				"GENES":"genes",
+				"DRUG":"drug",
+				"CLASSES":"classes",
+				"RECOMENDATIONS":"rec",
 				"PMID":"pubmed",
-				"RISK":"risk",
-				"FUTURE":"future",
-				"HAPLO":"haplotypes"
+				"RISK":"risk"
+			},
+			"FUTURE":{
+				"DEFAULT":"{{DIR}}/lib/conf/future_guidelines.json",
+				"COLLECTION":"future",
+				"ID_FIELD":"gene",
+				"CLASS" : "class",
+				"RECOMENDATIONS":"rec"
 			},
 			"CLASSES":{
 				"DEFAULT":"{{DIR}}/lib/conf/therapeutic_classes.json",

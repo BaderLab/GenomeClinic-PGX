@@ -1,7 +1,6 @@
 /* Templates to be rendered and precompiled prior to be sent to webpage
  * @author Patrick Magee
  */
-var $ = require('jquery');
 var index = require('../templates/index.hbs'),
 	login = require('../templates/login.hbs'),
 	signup = require('../templates/signup.hbs'),
@@ -32,7 +31,9 @@ var index = require('../templates/index.hbs'),
 	dosing_future = require('../templates/dosing-future.hbs'),
 	dosing_rec_page = require('../templates/dosing-recomendation-page.hbs'),
 	dosing_rec_rec = require('../templates/dosing-recomendation-recs.hbs'),
+	dosing_rec_future = require('../templates/dosing-recommendations-future.hbs'),
 	dosing_haplo = require('../templates/dosing-haplotypes.hbs'),
+	dosing_add = require('../templates/dosing-additional-gene.hbs'),
 	spinner = require('../templates/spinner.hbs');
 /* return a promisfied version of the template that accepts a single parameter
  * o to render the template */
@@ -45,52 +46,57 @@ var _t = function(t){
 };
 
 
-//Return object with All the templates
-module.exports = {
-	index:_t(index),
-	spinner:_t(spinner),
-	login:_t(login),
-	signup:_t(signup),
-	recover:_t(recover),
-	setpassword:_t(setpassword),
-	statuspage:{
-		index:_t(statuspageIndex),
-		row:_t(statuspageRow)
-	},
-	uploadpage:{
-		index:_t(uploadpageIndex),
-		vcf:_t(uploadpageVcf),
-		progress:_t(uploadpageProgress)
-	},
-	project:{
-		index:_t(projectIndex),
-		new:_t(projectNew),
-		info:_t(projectInfo),
-		user:_t(projectUser)
-	},
-	patient:_t(patient),
-	pgx:_t(pgx),
-	config:_t(config),
-	haplotypes:{
-		index:_t(phase_page),
-		current:_t(phase_current),
-		row:_t(phase_add_row),
-		haplotype:_t(phase_add_haplotype),
-		new:_t(phase_new)
-	},
-	markers:{
-		index:_t(marker_page),
-		row:_t(marker_add_row)
-	},
-	drugs:{
-		index:_t(dosing_page),
-		current:_t(dosing_current),
-		new:_t(dosing_new),
-		future:_t(dosing_future),
-		haplo:_t(dosing_haplo),
-		rec:{
-			index:_t(dosing_rec_page),
-			recs:_t(dosing_rec_rec)
+//Return object with All the templates\
+(function(){
+	window.templates = {
+	//module.exports = {
+		index:_t(index),
+		spinner:_t(spinner),
+		login:_t(login),
+		signup:_t(signup),
+		recover:_t(recover),
+		setpassword:_t(setpassword),
+		statuspage:{
+			index:_t(statuspageIndex),
+			row:_t(statuspageRow)
+		},
+		uploadpage:{
+			index:_t(uploadpageIndex),
+			vcf:_t(uploadpageVcf),
+			progress:_t(uploadpageProgress)
+		},
+		project:{
+			index:_t(projectIndex),
+			new:_t(projectNew),
+			info:_t(projectInfo),
+			user:_t(projectUser)
+		},
+		patient:_t(patient),
+		pgx:_t(pgx),
+		config:_t(config),
+		haplotypes:{
+			index:_t(phase_page),
+			current:_t(phase_current),
+			row:_t(phase_add_row),
+			haplotype:_t(phase_add_haplotype),
+			new:_t(phase_new)
+		},
+		markers:{
+			index:_t(marker_page),
+			row:_t(marker_add_row)
+		},
+		drugs:{
+			index:_t(dosing_page),
+			current:_t(dosing_current),
+			new:_t(dosing_new),
+			future:_t(dosing_future),
+			haplo:_t(dosing_haplo),
+			gene:_t(dosing_add),
+			rec:{
+				index:_t(dosing_rec_page),
+				recs:_t(dosing_rec_rec),
+				future:_t(dosing_rec_future)
+			}
 		}
-	}
-};
+	};
+})()

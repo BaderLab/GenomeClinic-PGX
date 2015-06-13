@@ -6,14 +6,27 @@
     <title>{{title}}</title>
     <link rel="stylesheet" href="/static/css/bundle.min.css" />
 
-    <!-- Foundation vector graphic icon fonts -->
-    <link rel="stylesheet" href="/static/icons/foundation-icons/foundation-icons.css" />
-
-    <!-- Font awesome vector graphic icons -->
+    <!-- Icons -->
+    <link rel="stylesheet" href="/static/icons/foundation-icons.css" />
     <link rel="stylesheet" href="/static/icons/font-awesome-4.2.0/css/font-awesome.min.css" />
 
-    <script type="text/javascript" src="/static/js/vendor/modernizr.js"></script>
-
+    <!-- Js --> 
+    <script type="text/javascript" src="/static/js/vendor/vendor.bundle.min.js"></script>
+    <script type="text/javascript" src="/static/js/templates.js"></script>
+    
+    {{#each scripts}}
+    <script type="text/javascript" src="{{this}}"></script>
+    {{/each}}
+    {{#if code}}
+    <script type="{{code.type}}">
+      {{{code.code}}}
+    </script>
+    {{/if}}
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $(document).foundation()
+      });
+    </script>
     <link rel="icon" href="/static/img/pharmacogenomics.jpg" />
     <link rel="author" href="/static/humans.txt" />
   </head>
@@ -136,12 +149,5 @@
         </div>
       </div>
     </div>
-    <script type="text/javascript" src="/static/js/vendor/vendor.bundle.min.js"></script>
-    {{#each src}}
-    <script type="text/javascript" src="{{this}}"></script>
-    {{/each}}
-    <script type="text/javascript">
-      $(document).foundation()
-    </script>
   </body>
 </html>

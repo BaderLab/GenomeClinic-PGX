@@ -164,8 +164,8 @@
 				{{#each genes}}
 					<tr class="rec">
 						<td class="size-8" style="padding:1%">{{gene}}</td>
-						<td class="size-8" style="padding:1%">{{hap.allele_1}}</td>
-						<td class="size-8" style="padding:1%">{{hap.allele_2}}</td>
+						<td class="size-8" style="padding:1%">{{haplotypes.[0]}}</td>
+						<td class="size-8" style="padding:1%">{{haplotypes.[1]}}</td>
 						<td class="size-8" style="padding:1%">{{class}}</td>
 					</tr>
 				{{/each}}
@@ -194,7 +194,7 @@
 						<tbody>
 						{{#each future}}
 							<tr class="rec">
-								<td class="size-8" style="padding:1%">{{@key}}</td>
+								<td class="size-8" style="padding:1%">{{gene}}</td>
 								<td class="size-8" style="padding:1%">{{class}}</td>
 								<td class="size-8" style="padding:1%">{{rec}}</td>
 							</tr>
@@ -225,9 +225,9 @@
 					<tbody>
 			  		{{#each recomendations}}
 			  			<tr class="rec">
-							<td class="size-8" style="padding:1%">{{@key}}</td>
+							<td class="size-8" style="padding:1%">{{drug}}</td>
 							<td><div class="circle risk-{{risk}}"></div></td>
-							<td class="size-8" style="padding:1%">{{rec}}</td>
+							<td class="size-8" style="padding:1%">{{rec}}<sup>{{pubmedString}}</i></sup></td>
 						</tr>
 					{{/each}}
 					</tbody>
@@ -273,6 +273,14 @@
 		  		</div>
 	  		</div>
 		</section>
+		<br>
+		<br>
+		<section>
+			{{#each citations}}
+			<p clas="size-8">{{index}}. {{citation}}</p>
+			{{/each}}	
+		</section>
+
 	</body>
 </html> 
 

@@ -6,6 +6,7 @@
  */
 var express= require("express"),
 	Promise= require("bluebird"),
+	dbFunctions = require("./models/mongodb_functions"),
 	path = require("path"),
 	fs = Promise.promisifyAll(require('fs')),
 	passport = require('passport'),
@@ -19,12 +20,11 @@ var express= require("express"),
 	morgan = require('morgan'),
 	constants = require('./lib/conf/constants.json'),
 	cons = require('consolidate'),
-	logger = require('./lib/logger'),
-	dbFunctions = require("./models/mongodb_functions");
+	logger = require('./lib/logger');
+	
 
 var dbConstants = constants.dbConstants;
 var nodeConstants = constants.nodeConstants;
-
 //=======================================================================
 // Command Line Options
 //=======================================================================

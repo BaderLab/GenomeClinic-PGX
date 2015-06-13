@@ -1,7 +1,7 @@
 {{#each future}}
 <tr>
 	<td>
-		<form data-abide="ajax" class="thereapeutic-class">
+		<form data-abide="ajax" id="{{_id}}" class="thereapeutic-class" data-id="{{_id}}">
 			<div class="row">
 		  		<div class="small-12 columns">
 			    	<div data-alert class="alert-box radius secondary" style="display:none">
@@ -19,10 +19,10 @@
 			</div>
 			<div class="row">
 				<div class="large-3 small-4 medium-3 columns">
-						<h5><b>Therapeutic Class:</b></h5>
+						<h5><b>Metabolic Status:</b></h5>
 				</div>	
 				<div class="large-8 small-6 medium-8 columns">
-					 	<h5 class="p-class-name"><i>{{@key}}</i></h5>
+					 	<h5><i>{{class}}</i></h5>
 				</div>
 				<div class="large-1 small-2 medium-1 columns">
 					<a href="#" class="edit-table right button tiny secondary radius"><i class="fi-pencil size-16" style="color:#A2A2A2"></i></a>
@@ -30,8 +30,9 @@
 			</div>
 			<div class="row">
 				<div class="large-12 small-12 medium-12 columns">
-						<textarea data-originalvalue="{{rec}}" disabled="disabled" name="rec" rows=3 required>{{rec}}</textarea>
-						<small class="error">Required</small>
+					<label><h6><b>Recomendation</b></h6></label>			
+					<textarea data-originalvalue="{{rec}}" disabled="disabled" name="rec" rows=3 required>{{rec}}</textarea>
+					<small class="error">Required</small>
 				</div>
 			</div>
 			<div class="row">

@@ -48,8 +48,12 @@ module.exports = function(app,logger,opts){
 	});
 
 	//Upload page routes
+	var scripts = [
+		'vendor/upload.vendor.min.js',
+		'uploader.js'
+	];
 	app.get('/upload',utils.isLoggedIn, function(req,res){
-		utils.render(req,res);
+		utils.render(req,res,{scripts:scripts});
 	});
 
 	app.use("/upload/vcf", utils.isLoggedIn, uploader.fileHandler());

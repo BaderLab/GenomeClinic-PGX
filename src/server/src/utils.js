@@ -1,5 +1,5 @@
-var dbFunctions = require('../models/mongodb_functions'),
-	constants = require('../lib/conf/constants.json'),
+var constants = require('../lib/conf/constants.json')
+var dbFunctions = require(constants.nodeConstants.SERVER_DIR + "/models/mongodb_functions"),
 	_ = require('underscore');
 /* utility functions available for all routes
  * @author Patrick Magee */
@@ -9,28 +9,29 @@ module.exports = {
 			return next();
 		res.redirect('/login');
 	},
-	render:function(req,res,type,_o,scripts){
+	render:function(req,res,_o){
 		var template;
 		template = 'layout.hbs';
-		if (!scripts)
-			scripts = [];
 		if (!_o){
 			_o = {};
+		}
+		if (!_o.scripts)
+			_o.scripts = [];
+		else if (Object.prototype.toString.call(_o.scripts) == '[object String]')
+			_o.scripts = [_o.scripts];
+
+		for (var i = 0; i < _o.scripts.length; i++){
+			_o.scripts[i] = '/static/js/' + _o.scripts[i];
 		}
 
 		_o.title = 'PGX webapp';
 		_o.cache = true;
 
-		if (type == "construction")
+		if (_o.type == "construction")
 			_o.construction = true;
-		else if (type == 'notfound') {
+		else if (_o.type == 'notfound') {
 			_o.notfound = true;
-		} else {
-			scripts.push("/static/js/bundle.min.js");
 		}
-		
-		if (scripts)
-			_o.src = scripts;
 		if (req.isAuthenticated()) {
 			_o.authenticated = true;
 			_o.user = req.user.username;
@@ -143,5 +144,26 @@ module.exports = {
 	        }
 	    })
 	},
+	/* Sort two lists based on the first list, return an object containinf the first
+	 * and the seocnd sorted lists */
+	sortWithIndeces:function(toSort, toSort2) {
+	  var output = [];
+	  for (var i = 0; i < toSort.length; i++) {
+	    toSort[i] = [toSort[i], i];
+	  }
+	  toSort.sort(function(left, right) {
+	    return left[0] < right[0] ? -1 : 1;
+	  });
+	  var sortIndices = [];
+	  for (var j = 0; j < toSort.length; j++) {
+	    sortIndices.push(toSort[j][1]);
+	    toSort[j] = toSort[j][0];
+	  }	  
+	  for (var i = 0; i < toSort.length; i++ ){
+	  	output[i] = toSort2[sortIndices[i]];
+	  }
 
+
+	  return {first:toSort,second:output};
+	}
 };

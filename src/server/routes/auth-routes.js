@@ -56,7 +56,7 @@ module.exports = function(app,logger,opts,passport){
 		if(req.isAuthenticated())
 			res.redirect('/');
 		else 
-			utils.render(req,res);
+			utils.render(req,res,{scripts:'authentication.js'});
 	});
 	//urlencodedParser
 	app.post('/login',passport.authenticate('local-login',{
@@ -74,7 +74,7 @@ module.exports = function(app,logger,opts,passport){
 			if (req.isAuthenticated())
 				res.redirect('/');
 			else
-				utils.render(req,res);
+				utils.render(req,res,{scripts:'authentication.js'});
 		});
 		//urlencodedParser
 		//parse signup information
@@ -95,7 +95,7 @@ module.exports = function(app,logger,opts,passport){
 			if (req.isAuthenticated())
 				res.redirect('/');
 			else
-				utils.render(req,res);
+				utils.render(req,res,{scripts:'authentication.js'});
 		});
 
 		app.post('/recover',function(req,res){
@@ -139,7 +139,7 @@ module.exports = function(app,logger,opts,passport){
 	}
 
 	app.get('/setpassword',utils.isLoggedIn, function(req,res){
-		utils.render(req,res);
+		utils.render(req,res,{scripts:'authentication.js'});
 	});
 
 	app.post('/setpassword',utils.isLoggedIn,function(req,res){

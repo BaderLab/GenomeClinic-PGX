@@ -12,16 +12,15 @@
  * https://github.com/blueimp/jQuery-File-Upload
  * @author Patrick Magee
 */
-var $ = require('jquery'),
-    templates = require('./templates'),
-    utility = require('./utility');
+var utility = require('./utility');
+
 
 //add the appropriate handlers to the window for handling the transport
-require("./lib/vendor/jquery.ui.widget");
+/*require("./lib/vendor/jquery.ui.widget");
 require("./lib/jquery.iframe-transport");
-require("./lib/jquery.fileupload");
+require("./lib/jquery.fileupload");*/
 
-module.exports = function(){
+(function(){
   //======================================================================================================
   // HELPER FUNCTIONS
   //======================================================================================================
@@ -429,10 +428,12 @@ module.exports = function(){
   };
 
   //render main page html
-  return templates.uploadpage.index()
-  .then(function(renderedHtml){
-    $('#main').html(renderedHtml);
-  }).then(function(){
-    addAllEventListeners();
+ $(document).ready(function(){
+    return templates.uploadpage.index()
+    .then(function(renderedHtml){
+      $('#main').html(renderedHtml);
+    }).then(function(){
+      addAllEventListeners();
+    });
   });
-};
+})();

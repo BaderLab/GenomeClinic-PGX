@@ -217,7 +217,6 @@ function annotateAndAddVariants(options){
 						patientid = patient[dbConstants.PATIENTS.ID_FIELD];
 						collectionid = patient[dbConstants.PATIENTS.COLLECTION_ID];
 						return dbFunctions.count(collectionid).then(function(count){
-							console.log('here-4');
 							if (count + countArray[index] !== num){ // if this is not equal, reject by throwing a new error{
 								var err  = new Error('Num of docuemnts in patient: ' + patientid + ' does not match with original file!' )
 								logger('error',err,{user:user,target:tempOutputFile,action:'wc',arguments:args})

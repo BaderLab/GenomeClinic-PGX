@@ -1,112 +1,110 @@
 var fs = require('fs');
-var d = require('./dosing_guidelines.json');
-
+var d = require('./old_dosing_guidelines.json');
 
 var out = {};
-var repeat = [];
-var temp;
-var c,e,f,g;
-for (var i = 0; i < d.length; i++ ){
-	temp = {};
-	c = d[i];
-	if (!out.hasOwnProperty(c.pgx_1)){
-		out[c.pgx_1] = {
-			gene:c.pgx_1,
-			recomendations:{},
-			haplotypes:{}
-		};
-	}
-	if (!out[c.pgx_1].recomendations.hasOwnProperty(c.drug)){
-		out[c.pgx_1].recomendations[c.drug] = {};
-	}
+var genes = [];
+var future = [];
+var recomendations = [];
 
-	if (!out[c.pgx_1].recomendations[c.drug].hasOwnProperty(c.class_1)){
-		out[c.pgx_1].recomendations[c.drug][c.class_1] = {};
-	}
 
-	if (!out[c.pgx_1].recomendations[c.drug][c.class_1].hasOwnProperty('secondary')){
-			out[c.pgx_1].recomendations[c.drug][c.class_1].secondary = {};	
-	}
+function sortWithIndeces(toSort) {
+  for (var i = 0; i < toSort.length; i++) {
+    toSort[i] = [toSort[i], i];
+  }
+  toSort.sort(function(left, right) {
+    return left[0] < right[0] ? -1 : 1;
+  });
+  toSort.sortIndices = [];
+  for (var j = 0; j < toSort.length; j++) {
+    toSort.sortIndices.push(toSort[j][1]);
+    toSort[j] = toSort[j][0];
+  }
+  return toSort;
+}
 
-	if (c.pgx_2){
-		e = out[c.pgx_1].recomendations[c.drug][c.class_1].secondary;
-		if (!e.hasOwnProperty(c.pgx_2)){
-			e[c.pgx_2] = {};
+
+// recomendation
+/* {_id:"",genes =[alphabetically ordered genes],classes=[classes with same ordering as genes],rec:<recording>,pubmed:[],risk:"",drug:""}
+ *
+ * Future:
+ * {_id: "", gene: "", class:"",rec:""}
+ *
+ */
+var tempF = {};
+var tempR = {};
+var tempG = {};
+var risk,riskKeys,secondaryKeys,secClasses,unsortG,unsortC;
+for (var i=0; i<d.length; i++ ){
+	//set new TempG
+	tempG = {};
+	tempG.gene = d[i].gene;
+	tempG.recomendations = [];
+	tempG.future = [];
+	tempG.haplotypes = [];
+
+	genes.push(tempG);
+
+	//now set future Recomendaitons;
+	for (risk in d[i].future){
+		if (d[i].future.hasOwnProperty(risk)){
+			tempF = {};
+			tempF.gene = d[i].gene;
+			tempF.class = risk;
+			tempF.rec = d[i].future[risk].rec;
+
+			future.push(tempF);
 		}
-		if (!e[c.pgx_2].hasOwnProperty(c.class_2)){
-			e[c.pgx_2][c.class_2] = {}
+	}
+	var drugs = Object.keys(d[i].recomendations);
+	for (var j = 0; j < drugs.length; j++ ) {
+		riskKeys = Object.keys(d[i].recomendations[drugs[j]]);
+		for (var k= 0; k < riskKeys.length; k++ ){
+			tempR = {};
+			//base level;
+			tempR.genes = [d[i].gene];
+			tempR.classes = [riskKeys[k]]
+			tempR.rec = d[i].recomendations[drugs[j]][riskKeys[k]].rec
+			tempR.drug = drugs[j];
+			var pubmed = d[i].recomendations[drugs[j]][riskKeys[k]].pubmed;
+			if (pubmed == undefined) pubmed = [];
+			else if (pubmed.length == 1 && pubmed[0] == "" ) pubmed = [];
+			tempR.pubmed = pubmed; 
+			tempR.risk = d[i].recomendations[drugs[j]][riskKeys[k]].risk;
+
+			recomendations.push(tempR);
+
+			//Descend into secondary;
+			secondaryKeys = Object.keys(d[i].recomendations[drugs[j]][riskKeys[k]].secondary);
+			for (var l = 0; l < secondaryKeys.length; l++ ){
+				secClasses = Object.keys(d[i].recomendations[drugs[j]][riskKeys[k]].secondary[secondaryKeys[l]]);
+				for (var m = 0; m < secClasses.length; m ++ ){
+					unsortG = undefined;
+					unsortC = undefined;
+					tempR = {};
+					unsortG = [d[i].gene,secondaryKeys[l]];
+					unsortC = [riskKeys[k],secClasses[m]];
+					sortWithIndeces(unsortG);
+					tempR.genes = unsortG.splice(0,unsortG.length);
+					tempR.classes = [];
+					for (var ind = 0; ind < unsortC.length; ind++){
+						tempR.classes.push(unsortC[unsortG.sortIndices[ind]]);
+					}
+					tempR.rec = d[i].recomendations[drugs[j]][riskKeys[k]].secondary[secondaryKeys[l]][secClasses[m]].rec;
+					tempR.drug = drugs[j];
+					var pubmed = d[i].recomendations[drugs[j]][riskKeys[k]].secondary[secondaryKeys[l]][secClasses[m]].pubmed;
+					if (pubmed == undefined) pubmed = [];
+					else if (pubmed.length == 1 && pubmed[0] == "" ) pubmed = [];
+					tempR.pubmed = d[i].recomendations[drugs[j]][riskKeys[k]].secondary[secondaryKeys[l]][secClasses[m]].pubmed;
+					tempR.risk = d[i].recomendations[drugs[j]][riskKeys[k]].secondary[secondaryKeys[l]][secClasses[m]].risk
+					
+
+					recomendations.push(tempR);
+				}
+			}
 		}
-
-		e[c.pgx_2][c.class_2].rec = c.rec;
-		e[c.pgx_2][c.class_2].risk = c.risk;
-		e[c.pgx_2][c.class_2].pubmed = c.pubmed.split('|');
-
-		temp.pgx_1 = c.pgx_2;
-		temp.pgx_2 = c.pgx_1;
-		temp.rec = c.rec;
-		temp.pubmed = c.pubmed;
-		temp.risk = c.risk
-		temp.class_2 = c.class_1;
-		temp.class_1 = c.class_2;
-		temp.drug = c.drug;
-		repeat.push(temp);
-
-	} else {
-		e = out[c.pgx_1].recomendations[c.drug][c.class_1]
-		e.risk = c.risk;
-		e.rec = c.rec;
-		e.pubmed = c.pubmed.split('|');
 	}
 }
 
-console.log(repeat.length);
-for (var i = 0; i < repeat.length; i++ ){
-	c = repeat[i];
-	if (!out.hasOwnProperty(c.pgx_1)){
-		out[c.pgx_1] = {
-			gene:c.pgx_1,
-			recomendations:{},
-			haplotypes:{}
-		};
-		console.log(c.pgx_1 + ' created')
-	}
-	if (!out[c.pgx_1].recomendations.hasOwnProperty(c.drug)){
-		out[c.pgx_1].recomendations[c.drug] = {};
-	}
 
-	if (!out[c.pgx_1].recomendations[c.drug].hasOwnProperty(c.class_1)){
-		out[c.pgx_1].recomendations[c.drug][c.class_1] = {};
-	}
-
-	if (!out[c.pgx_1].recomendations[c.drug][c.class_1].hasOwnProperty('secondary')){
-			out[c.pgx_1].recomendations[c.drug][c.class_1].secondary = {};	
-	}
-
-	if (c.pgx_2){
-		e = out[c.pgx_1].recomendations[c.drug][c.class_1].secondary;
-		if (!e.hasOwnProperty(c.pgx_2)){
-			e[c.pgx_2] = {};
-		}
-		if (!e[c.pgx_2].hasOwnProperty(c.class_2)){
-			e[c.pgx_2][c.class_2] = {}
-		}
-
-		e[c.pgx_2][c.class_2].rec = c.rec;
-		e[c.pgx_2][c.class_2].risk = c.risk;
-		e[c.pgx_2][c.class_2].pubmed = c.pubmed.split('|');
-
-	} else {
-		e = out[c.pgx_1].recomendations[c.drug][c.class_1]
-		e.risk = c.risk;
-		e.rec = c.rec;
-		e.pubmed = c.pubmed.split('|');
-	}
-}
-
-var finalout = [];
-var keys = Object.keys(out);
-for (var i=0; i < keys.length; i ++ ){
-	finalout.push(out[keys[i]]);
-}
-
-fs.writeFileSync('new_dosing_guidelines.json',JSON.stringify(finalout,0,4));
+fs.writeFileSync('dosing_guidelines.json',JSON.stringify(recomendations,0,4));
+fs.writeFileSync('future_guidelines.json',JSON.stringify(future,0,4));

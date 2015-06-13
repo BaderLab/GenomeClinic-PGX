@@ -3,12 +3,18 @@
  * recomendations.
  *@author Patrick Magee */
 
-var $ = require("jquery"),
-	templates = require('./templates'),
-	utility = require('./utility');
+var utility = require('./utility');
 
-module.exports = function(){
+(function(){
 	//add new methods to adbide validation
+	var pageOptions = {
+		location:undefined,
+		gene:undefined,
+		use:undefined,
+		classes:undefined,
+		counter:0
+	};
+
 	var abideOptions = {
 		abide: {
 			validators:{
@@ -22,6 +28,16 @@ module.exports = function(){
 					} else {
 						return true;
 					}
+				},
+				uniqueGene:function(el,required,parent){
+					var from = document.getElementsByClassName('gene-name');
+					var val = el.value;
+					var count = 0;
+					for (var i=0; i < from.length; i++ ){
+						if (val == from[i].value) count++
+					}
+					if (count > 1) return false;
+					else return true;
 				}
 			}
 		}
@@ -45,11 +61,7 @@ module.exports = function(){
 	};
 
 	/* global container to hold various page options */
-	var pageOptions = {
-		location:undefined,
-		gene:undefined,
-		use:undefined
-	};
+	
 
 	/* Serialzie a field and return the document that results. This is for new fields only and not updated fields.
 	 * The type can be one of Interaction, future, or haplotype, corresponding to the three types of information on
@@ -58,7 +70,6 @@ module.exports = function(){
 	var serializeNewField = function(context,type){
 		var doc = {};
 		var fields = $(context).serializeArray();
-		doc.pgx_1 = pageOptions.gene;
 		//Remove empty fields
 		for (var i = 0; i < fields.length; i++ ){
 			if (fields[i].value !== "" && fields[i] != "None" ){
@@ -66,67 +77,54 @@ module.exports = function(){
 			}
 		}
 		if ( type == 'interaction' ){
-			var linksArr = $(context).find('.pubmed-link');
+			doc.genes = [pageOptions.gene];
+			doc.classes = [$(context).find("#class-name-original").val()]
+			var addGenes = $(context).find('.additional-gene-row');
+			for (var i = 0; i< addGenes.length; i++ ){
+				doc.genes.push($(addGenes[i]).find(".gene-name").val())
+				doc.classes.push($(addGenes[i]).find(".class-name").val())
+			}
+			var linksArr = $(context).find('.pubmed-link-combo');
 			var links = [];
 			for (var i = 0; i < linksArr.length; i++ ){
 				if (!$(linksArr[i]).hasClass('temp-remove')){
-					links.push($(linksArr[i]).data('link'));
+					links.push($(linksArr[i]).data('id'));
 				}
 			}
 			doc.pubmed = links;
 		} else if ( type == 'future' ){
-			doc.future = {};
-			doc.future[doc.Therapeutic_Class] = {
-				rec:doc.rec
-			};
-
+			doc.gene = pageOptions.gene;
 		} else if ( type == 'haplotype' ){
-			doc.haplotypes = {}
-			doc.haplotypes[doc.Therapeutic_Class] = [doc.allele_1,doc.allele_2];
-			doc.class = doc.Therapeutic_Class;
+			doc.gene = pageOptions.gene;
+			doc.haplotypes = [doc.allele_1,doc.allele_2];
+			delete doc.allele_1;
+			delete doc.allele_2;
 		}
 		return doc;
 	}
-	/* Serialize an existing field and return the updated document. This has to be differnt from the serializeNewField
-	 * because there are several fixed inputs once a field has been rendered that cannot be changed, but must be added
+	/* Serialize an existing field and return the mutable fields.
 	 */
 	var serializeField = function(context,type){
 		var doc = {};
 		var fields = $(context).serializeArray();
-		doc.pgx_1 = pageOptions.gene;
 		for (var i = 0; i < fields.length; i++ ){
 			if (fields[i].value !== "" && fields[i] != "None"){
 				doc[fields[i].name] = fields[i].value;
 			}
 		}
-		
+		//Add additional fields.
 		if (type == 'interaction'){
-			//add the links taht are present
-			doc.class_1 = $(context).find('.p-class-name').text();
-			var linksArr = $(context).find('.pubmed-link');
+			//additionally add the pubmedID's
+			var linksArr = $(context).find('.pubmed-link-combo');
 			var links = [];
 			for (var i = 0; i < linksArr.length; i++ ){
-				if (!$(linksArr[i]).closest('span').hasClass('temp-hide')){
-					links.push($(linksArr[i]).data('link'));
+				if (!$(linksArr[i]).hasClass('temp-hide')){
+					links.push($(linksArr[i]).data('id'));
 				}
 			}
 			doc.pubmed = links;
-			var class_2 = $(context).find('.s-class-name').text();
-			var pgx_2 = $(context).find('.s-gene-name').text();
-			if ( pgx_2 ){
-				doc.pgx_2 = pgx_2;
-				doc.class_2  = class_2;
-			}
-			doc.drug = $(context).closest('.drug-cont').data('drug');
-		} else if ( type == 'future' ){
-			doc.future = {};
-			doc.future[$(context).find('.p-class-name').text()] = {rec:doc.rec};
-			doc.Therapeutic_Class = $(context).find('.p-class-name').text();
 		} else if ( type == 'haplotype' ){
-			doc.haplotypes = {}
-			doc.haplotypes[$(context).find('.p-class-name').text()] = [doc.allele_1,doc.allele_2];
-			doc.Therapeutic_Class = $(context).find('.p-class-name').text();
-			doc.class = doc.Therapeutic_Class;
+			doc.haplotypes = [doc.allele_1,doc.allele_2];
 		}
 
 		return doc;
@@ -156,6 +154,8 @@ module.exports = function(){
 		return promise;
 	};
 
+	
+
 
 	/* all page handlers for working with dosing tables and drug recomendations */
 	var staticHanlders = {
@@ -174,21 +174,13 @@ module.exports = function(){
 			$('#search-box').on('keyup',function(){
 				var currentRows = $('.dose-row');
 				for (var i=0; i < currentRows.length; i++ ){
-					if (!utility.matchSearch($(currentRows[i]).data('name')))
+					if (!utility.matchSearch($(currentRows[i]).data('gene')))
 						$(currentRows[i]).hide();
 					else 
 						$(currentRows[i]).show();
 				}
 			});
-			//when you click on a dose row, navigate to the current dosing information 
-			$('.dose-row').on('click',function(e){
-				e.preventDefault();
-				var name = $(this).data('name').replace('/','%2F');
-				var location = '/dosing/current/' + name;
-				window.location.replace(location);
-			});
-
-
+			
 			/* Handler to show the form to add a new gene */
 			$('#add-new-gene').on('click',function(e){
 				e.preventDefault();
@@ -201,7 +193,6 @@ module.exports = function(){
 			 * navigate to the new gene's drug recomendation page */
 			$('#submit-new-gene-form').on('valid.fndtn.abide',function(e){
 				var val = $('#new-gene-name').val().replace('/');
-				console.log(val);
 
 				Promise.resolve($.ajax({
 					url:'/dosing/new/' + val,
@@ -318,10 +309,26 @@ module.exports = function(){
 				$('#new-interaction-cancel-trigger').on('click',function(e){
 					e.preventDefault();
 					$(this).closest("#new-interaction-triggers").hide().siblings('#new-interaction').show();
+					$('#additional-genes').empty();
 					document.getElementById('new-interaction-form').reset();//.trigger('click');
 					$('#new-interaction-form').find('.pubmed-links').empty();
 					$('#new-interaction-form').slideUp();
 				});
+
+				$('#add-additional-gene').on('click',function(e){
+					e.preventDefault();
+					var opts = {
+						num : pageOptions.counter,
+						classes : pageOptions.classes
+					}
+					templates.drugs.gene(opts).then(function(renderedHtml){
+						$('#additional-genes').append(renderedHtml);
+					}).then(function(){
+						_this.removeRow('#remove-additional-gene-' + pageOptions.counter);
+						utility.refresh(abideOptions,'#additional-gene-row-' + pageOptions.counter);
+						pageOptions.counter++
+					});
+				})
 
 				/* When the form is considered valid, trigger this event handler
 				 * submitting the serialized data to the server for entry. The
@@ -331,49 +338,43 @@ module.exports = function(){
 				 * to that already exists */
 				$('#new-interaction-form').on('valid.fndtn.abide', function (){
 					var doc = serializeNewField(this,'interaction');
+					var context;
 					Promise.resolve($.ajax({
-						url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=interaction&newdoc=true',
+						url:'/database/dosing/genes/' + pageOptions.gene + '/new?type=interaction',
 						type:"POST",
 				 		contentType:"application/json",
 				 		dataType:"json",
 						data:JSON.stringify(doc)
 					})).then(function(result){
 						if (result.statusCode == 200 ){
-							var currentDrugCont = $('.drug-cont');
-							var currentDrugs=[];
-							var num = $('#main_content').find('form').length;
-							doc.num = num;
-							//GET NAMES OF CURRENT DRUGS
-							for (var i=0; i < currentDrugCont.length; i++ ){
-								currentDrugs.push($(currentDrugCont[i]).data('drug'));
-							}
-							//If this is a new drug, add a new drug table
-							if (currentDrugs.indexOf(doc.drug) !== -1 ){
-								promise = templates.drugs.new(doc).then(function(renderedHtml){
-									$('.drug-cont[data-drug=' + doc.drug).find('.interactions').append(renderedHtml);
+							return utility.pubMedParser(result.pubmed).then(function(citations){
+								result.citations = citations;
+								var currentDrugCont = $('.drug-cont');
+								var currentDrugs=[];
+								var num = $('#main_content').find('form').length;
+								result.num = num;
+								//GET NAMES OF CURRENT DRUGS
+								for (var i=0; i < currentDrugCont.length; i++ ){
+									currentDrugs.push($(currentDrugCont[i]).data('drug'));
+								}
+								//If this is a new drug, add a new drug table
+								if (currentDrugs.indexOf(result.drug) === -1 ){
+									result.new = true;
+								}
+								promise = templates.drugs.new(result).then(function(renderedHtml){
+									if (result.new){
+										return $('#main_content').append(renderedHtml)
+									} else {
+										return $('.drug-cont[data-drug=' + result.drugs + ']').find('.interactions').append(renderedHtml);
+									}
 								}).then(function(){
-									var context = $('#form-' + num.toString()).closest('tr');
+									if (result.new) context = $('.drug-cont[data-drug=' + result.drug + ']');
+									else context = $('.drug-cont[data-drug=' + result.drug + ']').last('tr').find('form');
 									context.foundation(abideOptions);
 									_this.interactions(context);
 									_this.generic(context);
 									setSelects(context);
 								});
-							//This is not a new drug, append the html to a previous table
-							} else {
-								doc.newDrug = true;
-								promise = templates.drugs.new(doc).then(function(renderedHtml){
-									return $('#main_content').append(renderedHtml);
-								}).then(function(){
-									var context = $('.drug-cont[data-drug=' + doc.drug+ ']')
-									utility.refresh(abideOptions,context);
-									_this.generic(context);
-									_this.interactions(context);
-									setSelects(context);
-								});
-							}
-							
-							return promise.then(function(){
-								$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();
 							});
 						} else {
 							$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();
@@ -420,14 +421,14 @@ module.exports = function(){
 				$("#new-recomendation-form").on('valid.fndtn.abide',function(){
 					var o = serializeNewField(this,'future');
 					Promise.resolve($.ajax({
-						url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=recomendation&newdoc=true',
+						url:'/database/dosing/genes/' + pageOptions.gene + '/new?type=recomendation',
 						type:"POST",
 						contentType:'application/json',
 						dataType:'json',
 						data:JSON.stringify(o)
 					})).then(function(result){
 						if (result.statusCode == 200){
-							templates.drugs.future(o).then(function(renderedHtml){
+							templates.drugs.future({future:[result]}).then(function(renderedHtml){
 								return $('#future-recomendations').find('tbody').append(renderedHtml);
 							}).then(function(){
 								var context = $('#future-recomendations').find('tbody').last('tr')
@@ -478,14 +479,14 @@ module.exports = function(){
 				$('#new-haplotype-form').on('valid.fndtn.abide',function(){
 					var o = serializeNewField(this,'haplotype');
 					Promise.resolve($.ajax({
-						url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=haplotype&newdoc=true',
+						url:'/database/dosing/genes/' + pageOptions.gene + '/new?type=haplotype',
 						type:'POST',
 						contentType:'application/json',
 						dataType:'json',
 						data:JSON.stringify(o)
 					})).then(function(result){
 						if (result.statusCode == 200 ){
-							templates.drugs.haplo(o).then(function(renderedHtml){
+							templates.drugs.haplo({ haplotypes : [result] }).then(function(renderedHtml){
 								return $("#haplotypes").find('tbody').append(renderedHtml)
 							}).then(function(){
 								var context = $('#haplotypes').find('tbody').last('tr');
@@ -508,11 +509,12 @@ module.exports = function(){
 				 * after the deletion is confirmed by revealing a modal */
 				$('#delete-all').on('click',function(e){
 					e.preventDefault();
+					var id = $(this).data('id');
 					confirmAction("Are you sure you want to delete all dosing recomendations for " + pageOptions.gene,"This will permanately delete all entries and they will no longer be available for report generation")
 					.then(function(result){
 						if (result){
 							Promise.resolve($.ajax({
-								url:'/database/dosing/genes/' + pageOptions.gene + '/delete?type=all', 
+								url:'/database/dosing/genes/' + pageOptions.gene + '/delete?type=all&id=' + id, 
 								type:'POST',
 								contentType:'application/json',
 								dataType:'json'
@@ -529,6 +531,13 @@ module.exports = function(){
 					});
 				});
 
+			},
+			removeRow:function(el){
+				$(el).on('click',function(e){
+					e.preventDefault();
+					var num = $(this).data('num');
+					$('#additional-gene-row-' + num).remove();
+				});
 			},
 			//Functions and hanlders that are used by all types of interacitons
 			generic:function(el){
@@ -577,17 +586,21 @@ module.exports = function(){
 
 				// add a new pubmed link
 				context.find('.add-new-pubmed-button').on('click', function(e){
+					var __this = this;
 					e.preventDefault();
 					var val = $(this).closest('.row').find(".add-new-pubmed-input").val();
 					if (val !== ""){
-						var html = '<span class="pubmed-link-combo temp-remove">'
-						html += '<a href="http://www.ncbi.nlm.nih.gov/pubmed/' + val + '" class="pubmed-link" target="_blank" style="margin-left:10px;" data-link="' + val + '">' + val + '</a>'
-						html += '<a href="#" class="edit pubmed-remove-link" style="display:inline;">&nbsp<i class="fi-x"></i></a></span>'
-						var context = $(this).closest('form').find('.pubmed-links');
-						context.append(html);
-						utility.refresh(context);
-						_this.generic(context);
-					}
+						utility.pubMedParser(val).then(function(citations){
+							if (citations[val]){
+								var html= "<li class='pubmed-link-combo' data-id=" + val + ">" + citations[val] +"\
+								&nbsp&nbsp <a href='#' class='edit pubmed-remove-link ' data-link=" + val + "><i class='fi-x'></i></a></li>"
+								var context = $(__this).closest('.citations').find('.pubmed-links');
+								context.append(html);
+								utility.refresh(context);
+								_this.generic(context);
+							}
+						})
+					};
 					$(this).closest('.row').find(".add-new-pubmed-input").val('');
 				});
 
@@ -606,9 +619,10 @@ module.exports = function(){
 				 * Additionally, display a message when the update is complete. */
 				context.find("form").on("valid.fndtn.abide",function(){
 					var _this =this;
+					var id = $(this).data('id');
 					var o = serializeField(this,'future');
 					Promise.resolve($.ajax({
-						url:"/database/dosing/genes/" + pageOptions.gene + "/update?type=recomendation",
+						url:"/database/dosing/genes/" + pageOptions.gene + "/update?type=recomendation&id=" + id,
 						type:"POST",
 						contentType:"application/json",
 						dataType:'json',
@@ -624,7 +638,7 @@ module.exports = function(){
 						}
 					}).catch(function(err){
 						$(_this).find('.alert-message').text(err.message).closest('.alert-box').slideDown();
-					}); 
+					});
 				});
 				
 
@@ -632,17 +646,15 @@ module.exports = function(){
 				 * if the request is successful, remove the entry and its HTML entirely from the apge */
 				context.find(".delete-table").on('click',function(e){
 					e.preventDefault();
-					var o = serializeField($(this).closest('form'),'future');
 					var row = $(this).closest('tr');
+					var id = $(this).closest('form').data('id');
 					confirmAction("Are you sure you want to delete the selected recomendation table?","Once deleted it will no longer show up on any subsequent reports")
 					.then(function(result){
 						if (result){
 							Promise.resolve($.ajax({
-								url:"/database/dosing/genes/" + pageOptions.gene + "/delete?type=recomendation",
+								url:"/database/dosing/genes/" + pageOptions.gene + "/delete?type=recomendation&id=" + id,
 								type:"POST",
-								dataType:'json',
-								contentType:'application/json',
-								data:JSON.stringify(o)
+								dataType:'json'
 							})).then(function(result){
 								if (result.statusCode == 200 ){
 									row.remove();
@@ -675,18 +687,19 @@ module.exports = function(){
 				 * returns with a success resoonse then set the data-originalvalue for each field to
 				 * the new values, diable all inout fields and hide the edit buttons. */
 				context.find('form').on('valid.fndtn.abide',function(e){
+					var id = $(this).data('id');
 					var o = serializeField(this,'haplotype');
 					var _this = this;
 					Promise.resolve($.ajax({
-						url:'/database/dosing/genes/'+ pageOptions.gene + '/update?type=haplotype',
+						url:'/database/dosing/genes/'+ pageOptions.gene + '/update?type=haplotype&id=' + id,
 						type:'POST',
 						contentType:'application/json',
 						dataType:'json',
 						data:JSON.stringify(o)
 					})).then(function(result){
 						if (result.statusCode == 200 ){
-							$(_this).find('input[name=allele_1]').data('originalvalue',o.allele_1);
-							$(_this).find('input[name=allele_2]').data('originalvalue',o.allele_2);
+							$(_this).find('input[name=allele_1]').data('originalvalue',result.haplotypes[0]);
+							$(_this).find('input[name=allele_2]').data('originalvalue',result.haplotypes[1]);
 							$(_this).find('.cancel-changes').trigger('click');
 							$(_this).find('.alert-message').text(result.message).closest('.alert-box').slideDown();
 						} else {
@@ -699,17 +712,15 @@ module.exports = function(){
 				 * If successful entirely remove all html for the entry */
 				context.find('.delete-table').on('click',function(){
 					var form = $(this).closest('form');
-					var o = serializeField(form,'haplotype');
 					var row = $(this).closest('tr');
+					var id = form.data('id');
 					confirmAction("Are you sure you want to delete the selected haplotype association?","Once deleted it will no longer show up on any subsequent reports")
 					.then(function(result){
 						if (result){
 							Promise.resolve($.ajax({
-								url:"/database/dosing/genes/" + pageOptions.gene + "/delete?type=haplotype",
+								url:"/database/dosing/genes/" + pageOptions.gene + "/delete?type=haplotype&id=" + id,
 								type:"POST",
-								dataType:'json',
-								contentType:'application/json',
-								data:JSON.stringify(o)
+								dataType:'json'
 							})).then(function(result){
 								if (result.statusCode == 200 ){
 									row.remove();
@@ -757,8 +768,9 @@ module.exports = function(){
 				context.find('form').on('valid.fndtn.abide',function(e){
 					var _this = $(this);
 					var doc = serializeField(this,'interaction');
+					var id = $(this).data('id');
 					Promise.resolve($.ajax({
-						url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=interaction',
+						url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=interaction&id=' + id,
 						type:"POST",
 						contentType:'application/json',
 						dataType:'json',
@@ -783,16 +795,14 @@ module.exports = function(){
 				//delet the specified dose table after confirming its removal
 				context.find(".delete-table").on('click',function(e){
 					var form = $(this).closest('form');
-					var o = serializeField(form,'interaction');
+					var id = form.data('id');
 					confirmAction("Are you sure you want to delete the selected dosing table?","Once deleted it will no longer show up on any subsequent reports")
 					.then(function(result){
 						if (result){
 							Promise.resolve($.ajax({
-								url:"/database/dosing/genes/" + pageOptions.gene +"/delete?type=interaction",
+								url:"/database/dosing/genes/" + pageOptions.gene +"/delete?type=interaction&id="+ id,
 								type:"POST",
-								contentType:"application/json",
-								dataType:'json',
-								data:JSON.stringify(o)
+								dataType:'json'
 							})).then(function(result){
 								if (result.statusCode == 200){	
 									$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();
@@ -815,7 +825,29 @@ module.exports = function(){
 			}
 		}
 	}
-		
+	
+	//arrangeRecomendations by drug		
+	var arrangeRecs = function(input){
+		var out = {};
+		var sortedOut = [];
+		if (input.recomendations){
+			for (var i = 0; i < input.recomendations.length; i++ ){
+				if (!out.hasOwnProperty(input.recomendations[i].drug)){
+					out[input.recomendations[i].drug] = [];
+				}
+
+				out[input.recomendations[i].drug].push(input.recomendations[i])
+			}
+			var keys = Object.keys(out).sort();
+			for (i = 0; i < keys.length; i++ ){
+				sortedOut.push({drug:keys[i],recs:out[keys[i]]});
+			}
+
+			input.recomendations = sortedOut;
+		}
+
+		return input;
+	}	
 
 	/* Render The appropriate html depending on what the url is. Additionally
 	 * get the content and add all event listeners */
@@ -860,7 +892,7 @@ module.exports = function(){
 					dataType:'json'
 				}));
 			}).then(function(result){
-				resultObj = result;
+				resultObj = arrangeRecs(result);
 				return Promise.resolve($.ajax({
 					url:'/database/dosing/classes',
 					type:'GET',
@@ -868,6 +900,19 @@ module.exports = function(){
 				}));
 			}).then(function(result){
 				resultObj.classes = result[0].classes;
+				pageOptions.classes = result[0].classes;
+				var pubmedIds = [];
+				for (var i=0; i < resultObj.recomendations.length; i++ ){
+					for (var j = 0; j <resultObj.recomendations[i].recs.length; j++){
+						pubmedIds = pubmedIds.concat(resultObj.recomendations[i].recs[j].pubmed);
+					}
+					
+				}
+				return utility.pubMedParser(pubmedIds).then(function(citations){
+					resultObj.citations = citations;
+
+				})
+			}).then(function(){
 				return templates.drugs.current(resultObj);
 			}).then(function(renderedHtml){
 				return $('#main').html(renderedHtml);
@@ -894,10 +939,14 @@ module.exports = function(){
 
 			}).then(function(){
 				$('#toggle-all').trigger('click');
-			});
+			})/*.catch(function(err){
+				console.log(err);
+			})*/;
 		}
 
 		return promise;
 	};
-	return main();	
-};
+	$(document).ready(function(){
+		return main();
+	});
+})();

@@ -3,12 +3,10 @@
  *
  * @Patrick Magee
  */
-var $ = require("jquery"),
-	templates = require('./templates'),
-	utility = require('./utility'),
+var utility = require('./utility'),
 	pgxConstants = require('../../server/conf/constants.json').dbConstants.PGX;
 
-module.exports = function(){
+(function(){
 
 
 	//confirm whether or not the user would like to delete the selected marker
@@ -256,6 +254,7 @@ module.exports = function(){
 				contentType:'application/json'
 			}));
 		}).then(function(result){
+			console.log(result);
 			return  templates.markers.row({markers:result})
 		}).then(function(renderedHtml){
 			return $('#markers').append(renderedHtml);
@@ -269,5 +268,7 @@ module.exports = function(){
 		});
 	}
 
-	main();
-};
+	$(document).ready(function(){
+		main();
+	})
+})();

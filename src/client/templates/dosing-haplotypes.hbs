@@ -1,7 +1,7 @@
 {{#each haplotypes}}
 <tr>
 	<td>
-		<form data-abide="ajax" class="thereapeutic-class">
+		<form data-abide="ajax" id="{{_id}}" class="thereapeutic-class" data-id="{{_id}}">
 			<div class="row">
 		  		<div class="small-12 columns">
 			    	<div data-alert class="alert-box radius secondary" style="display:none">
@@ -19,10 +19,10 @@
 			</div>
 			<div class="row">
 				<div class="large-3 small-4 medium-3 columns">
-						<h5><b>Therapeutic Class:</b></h5>
+						<h5><b>Metabolic Status:</b></h5>
 				</div>
 				<div class="large-8 small-6 medium-8 columns">
-					<h5 class="p-class-name"><i>{{@key}}</i></h5>
+					<h5><i>{{class}}</i></h5>
 				</div>
 				<div class="large-1 small-2 medium-1 columns">
 					<a href="#" class="edit-table right button tiny secondary radius"><i class="fi-pencil size-16" style="color:#A2A2A2"></i></a>
@@ -35,7 +35,7 @@
 							<span class="prefix">First Haplotype</span>
 						</div>
 						<div class="large-8 small-8 medium-8 columns">
-							<input name="allele_1" type="text" placeholder="ex *1" value="{{this.[0]}}" data-originalValue="{{this.[0]}}" disabled="disabled" required>
+							<input name="allele_1" type="text" placeholder="ex *1" value="{{haplotypes.[0]}}" data-originalValue="{{haplotypes.[0]}}" disabled="disabled" required>
 							<small class="error">Required</small>
 						</div>
 					</div>
@@ -46,7 +46,7 @@
 							<span class="prefix">Second Haplotype</span>
 						</div>
 						<div class="large-8 small-8 medium-8 columns">
-							<input name="allele_2" type="text" placeholder="ex *2" value="{{this.[1]}}" data-originalValue="{{this.[1]}}" disabled="disabled" required>
+							<input name="allele_2" type="text" placeholder="ex *2" value="{{haplotypes.[1]}}" data-originalValue="{{haplotypes.[1]}}" disabled="disabled" required>
 							<small class="error">Required</small>
 						</div>
 					</div

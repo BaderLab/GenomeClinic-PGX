@@ -3,13 +3,11 @@
  * @author Ron Ammar
  */
 
-var $ = require('jquery'),
-	templates = require('./templates'),
-	utility = require('./utility'),
+var utility = require('./utility'),
 	pgx = require('./pgx'),
 	dosing = require('./dosing-recomendations');
 
-module.exports = function() {
+(function() {
 	/* AJAX call to application server to retrieve patients.
 	 * This is based on the local MongoDB collections, not GA4GH. */
 		/* match funcion for the searchbar */
@@ -80,8 +78,10 @@ module.exports = function() {
 			dosing.render();
 		}
 	}
-	return main();
-};
+	$(document).ready(function(){
+		return main();
+	})
+})()
 
 
 

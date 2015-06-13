@@ -2,13 +2,11 @@
  * haplotype information
  *@patrick magee */
 
-var $  = require('jquery'),
-	templates = require('./templates'),
-	utility = require('./utility');
+var utility = require('./utility');
 
 var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 
-module.exports = function(){
+(function(){
 	/* Serialize the page, putting the data into a form that 
 	 * can then be sent to the server to update the current
 	 * db entry. iterates over each haploytpe to generate the
@@ -446,5 +444,7 @@ module.exports = function(){
 		}
 		
 	};
-	return main();
-};
+	$(document).ready(function(){
+		return main();
+	});
+})();

@@ -17,18 +17,28 @@ module.exports = function(app,logger,opts){
 	//This is done in order to properly format the printed output report
 
 	//browse all patients and serve patient page
-	var renderRoutes = [
+	var patientRenderRoutes = [
 		'/browsepatients',
-		'/browsepatients/id/:patientID',
+		'/browsepatients/id/:patientID'
+	];
+	var haplotypeRenderRoutes = [
 		'/haplotypes',
 		'/haplotypes/new',
-		'/haplotypes/current/:hapid',
-		'/markers'
+		'/haplotypes/current/:hapid'
+		
 	];
 
 	//send the bare template for all the routes
-	app.get(renderRoutes,utils.isLoggedIn,function(req,res){
-		utils.render(req,res);
+	app.get(patientRenderRoutes,utils.isLoggedIn,function(req,res){
+		utils.render(req,res,{scripts:'patients.js'});
+	});
+
+	app.get(haplotypeRenderRoutes,utils.isLoggedIn,function(req,res){
+		utils.render(req,res,{scripts:'phase-page.js'});
+	});
+
+	app.get('/markers',utils.isLoggedIn,function(req,res){
+		utils.render(req,res,{scripts:'markers-page.js'});
 	});
 
 

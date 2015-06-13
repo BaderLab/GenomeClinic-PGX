@@ -1,0 +1,267 @@
+[
+    {
+        "gene": "HLA-B*57:01",
+        "class": "High Risk",
+        "rec": "Patient should avoid use of abacavir due to significantly increased risk of abacavir hypersensitivity reactions."
+    },
+    {
+        "gene": "HLA-B*57:01",
+        "class": "Normal Risk (*57:01 absent)",
+        "rec": "Patient has normal population risk for abacavir hypersensitivity reactions."
+    },
+    {
+        "gene": "CYP2C9",
+        "class": "Normal Metabolizer",
+        "rec": "Patient will metabolize CYP2C9 substrate drugs (e.g. celecoxib, phenytoin) as expected."
+    },
+    {
+        "gene": "CYP2C9",
+        "class": "Intermediate Metabolizer",
+        "rec": "Patient has reduced metabolism of CYP2C9 substrate drugs, leading to an increased risk of adverse drug reactions (e.g.  phenytoin), dose adjustments of phenytoin maintenance therapy may be necessary."
+    },
+    {
+        "gene": "CYP2C9",
+        "class": "Poor Metabolizer",
+        "rec": "Patient has reduced to no ability to metabolize CYP2C9 subtrate drugs (e.g. celecoxib, phenytoin), leading to an increased risk of adverse drug reactions.  Dose adjustments may be necessary."
+    },
+    {
+        "gene": "VKORC1",
+        "class": "Normal Metabolizer",
+        "rec": "Patient has expected conversion of vitamin K. This can have implications for warfarin dosing."
+    },
+    {
+        "gene": "VKORC1",
+        "class": "Intermediate Metabolizer",
+        "rec": "Patient has lower than normal conversion of vitamin K. This can have implications for warfarin dosing."
+    },
+    {
+        "gene": "VKORC1",
+        "class": "Poor Metabolizer",
+        "rec": "Patient has lower than normal conversion of vitamin K. This can have implications for warfarin dosing."
+    },
+    {
+        "gene": "CYP2D6",
+        "class": "Poor Metabolizer",
+        "rec": "Patient has reduced or no metabolism of CYP2D6 substrate drugs, leading to an increased risk of adverse drug reactions (e.g. atomoxetine, ondansetron, propafenone, tamoxifen, tricyclic antidepressants) OR lack of drug effectiveness from failure to produce the active form of the drug (e.g. codeine, hydrocodone, oxycodone, tramadol). Be aware of significant need for dose adjustments and/or avoid these medications whenever possible."
+    },
+    {
+        "gene": "CYP2D6",
+        "class": "Intermediate Metabolizer",
+        "rec": "Patient has reduced metabolism of CYP2D6 substrate drugs, leading to an increased risk of adverse drug reactions (e.g. atomoxetine, ondansetron, propafenone, tamoxifen, tricyclic antidepressants) OR lack of drug effectiveness from failure to produce sufficient amount of the active form of the drug (e.g. codeine, hydrocodone, oxycodone, tramadol). Be aware of potential need for dose adjustments."
+    },
+    {
+        "gene": "CYP2D6",
+        "class": "Normal Metabolizer",
+        "rec": "Patient will metabolize CYP2D6 substrate drugs as expected (e.g. atomoxetine, ondansetron, opioids, propafenone, tamoxifen, tricyclic antidepressants)."
+    },
+    {
+        "gene": "CYP2D6",
+        "class": "Ultrarapid Metabolizer",
+        "rec": "Patient has higher than average CYP2D6 substrate drug metabolism, leading to reduced drug effectiveness (e.g. atomoxetine, ondansetron, propafenone, tamoxifen, tricyclic antidepressants) OR increased risk of adverse drug reactions due to increased exposure to active drug metabolites (codeine, hydrocodone, oxycodone, tramadol). Be aware of significant need for dose adjustments and/or avoid these medications whenever possible."
+    },
+    {
+        "gene": "CYP2C19",
+        "class": "Poor Metabolizer",
+        "rec": "Patient has reduced or no metabolism of CYP2C19 substrate drugs, leading to an increased risk of adverse drug reactions (e.g. tricyclic antidepressants) OR lack of drug effectiveness from failure to produce the active form of the drug (e.g. clopidogrel). Be aware of significant need for dose adjustments and/or avoid these medications whenever possible."
+    },
+    {
+        "gene": "CYP2C19",
+        "class": "Intermediate Metabolizer",
+        "rec": "Patient has reduced metabolism of CYP2C19 substrate drugs, leading to an increased risk of adverse drug reactions (e.g. tricyclic antidepressants) OR lack of drug effectiveness from failure to produce sufficien amount of the active form of the drug (e.g. clopidogrel). Be aware of potential need for dose adjustments and/or avoid these medications whenever possible."
+    },
+    {
+        "gene": "CYP2C19",
+        "class": "Normal Metabolizer",
+        "rec": "Patient will metabolize CYP2C19 substrate drugs as expected (e.g. citalopram, clopidogrel, tricyclic antidepressants)."
+    },
+    {
+        "gene": "CYP2C19",
+        "class": "Ultrarapid Metabolizer",
+        "rec": "Patient has higher than average CYP2C19 substrate drug metabolism, leading to reduced drug efficacy (e.g.  Citalopram, escitalopram, proton pump inhibitors, tricyclic antidepressants). Be aware of significant need for dose adjustments and/or avoid these medications whenever possible."
+    },
+    {
+        "gene": "ANKK1",
+        "class": "High Risk",
+        "rec": "Patient may have an increased risk for tardive dyskinesia while on treatment with second generation antipsychotics."
+    },
+    {
+        "gene": "ANKK1",
+        "class": "Normal Risk",
+        "rec": "Patient has a lower risk for tardive dyskinesia while on treatment with second generation antipsychotics compared to the normal population risk."
+    },
+    {
+        "gene": "TPMT",
+        "class": "Normal Metabolizer",
+        "rec": "Patient will metabolize thiopurines (e.g. azathioprine, 6-mercaptopurine, thioguanine) as expected."
+    },
+    {
+        "gene": "TPMT",
+        "class": "Intermediate Metabolizer",
+        "rec": "Patient has reduced ability to metabolize thiopurines (e.g. azathioprine, 6-mercaptopurine, thioguanine) due to decreased TPMT activity and is at an increased an risk of myelosuppression. Dose reduction is indicated."
+    },
+    {
+        "gene": "TPMT",
+        "class": "Poor Metabolizer",
+        "rec": "Patient has reduced to no ability to metabolize thiopurines (e.g. azathioprine, 6-mercaptopurine, thioguanine) due to decreased to no TPMT activity and is at an increased an risk of myelosuppression. Significant dose reduction is indicated."
+    },
+    {
+        "gene": "IFNL3",
+        "class": "Favorable Response",
+        "rec": "Patient may have increased eligibility for shortened treatment with peginterferon alfa 2a/2b, ribavirin, and protease inhibitor treatment."
+    },
+    {
+        "gene": "IFNL3",
+        "class": "Unfavorable Response",
+        "rec": "Patient may have reduced eligibility for shortened treatment with peginterferon alfa 2a/2b, ribavirin, and protease inhibitor treatment."
+    },
+    {
+        "gene": "DPYD",
+        "class": "Normal Metabolizer",
+        "rec": "Patient will  metabolize DPYD subtrate drugs (e.g. capecitabine, fluorouracil, tegafur) as expected."
+    },
+    {
+        "gene": "DPYD",
+        "class": "Intermediate Metabolizer",
+        "rec": "Patient will have reduced ability to metabolize DPYD substrate drugs (e.g. capecitabine, fluorouracil, tegafur) and may be at increased risk for fluoropyrimidine toxicity.  Dose adjustements are indicated."
+    },
+    {
+        "gene": "DPYD",
+        "class": "Poor Metabolizer",
+        "rec": "Patient will have reduced to no ability to metabolize DPYD substrate drugs (e.g. capecitabine, fluorouracil, tegafur) and are at increased risk for severe or even fatal fluoropyrimidine toxicity. Dose adjustements are indicated."
+    },
+    {
+        "gene": "HLA-B*15:02",
+        "class": "High Risk",
+        "rec": "Patient should avoid use of carbamazepine and phenytoin due to increased risk for severe cutaneous hypersensitivity reactions. Consider the possibility of cross-reactivity with structurally simiar antiepileptic drugs (e.g. oxcarbazepine, lamotrigine, phenytoin, phenobarbital, primidone)."
+    },
+    {
+        "gene": "HLA-B*15:02",
+        "class": "Normal Risk (*15:02 absent)",
+        "rec": "Patient has normal population risk for carbamazepine and phenytoin associated severe cutaneous hypersensitivity reactions."
+    },
+    {
+        "gene": "HLA-A*31:01",
+        "class": "High Risk",
+        "rec": "Patient should avoid use of carbamazepine due to increased risk for carbamazepine associated hypersensitivity syndromes and severe cutaneous reactions."
+    },
+    {
+        "gene": "HLA-A*31:01",
+        "class": "Normal Risk (*31:01 absent)",
+        "rec": "Patient has normal population risk for carbamazepine associated hypersensitivity syndromes and severe cutaneous reactions."
+    },
+    {
+        "gene": "SLCO1B1",
+        "class": "High Risk",
+        "rec": "Patient has an increased risk for simvastatin-related rhabdomyolysis, use of other statins (e.g. atorvastatin, pitavastatin, pravastatin, rosuvastatin) is recommended when possible."
+    },
+    {
+        "gene": "SLCO1B1",
+        "class": "Intermediate Risk",
+        "rec": "Patient has an increased risk for simvastatin-related rhabdomyolysis, use of other statins (e.g. atorvastatin, pitavastatin, pravastatin, rosuvastatin) is recommended when possible."
+    },
+    {
+        "gene": "SLCO1B1",
+        "class": "Normal Risk",
+        "rec": "Patient has normal population risk for simvastatin-related rhabdomyolysis."
+    },
+    {
+        "gene": "TMEM43/XPC",
+        "class": "Normal Metabolizer",
+        "rec": "Patient has normal population risk for ototoxicity and neutropenia in response to cisplatin therapy."
+    },
+    {
+        "gene": "TMEM43/XPC",
+        "class": "Poor Metabolizer",
+        "rec": "Patient has an increased risk for ototoxicity and neutropenia in response to cisplatin therapy."
+    },
+    {
+        "gene": "MTHFR",
+        "class": "Normal Metabolizer",
+        "rec": "Patient will metabolize MTHFR substrate drugs (e.g. methotrexate) as expected and has a normal population risk for adverse drug reactions."
+    },
+    {
+        "gene": "MTHFR",
+        "class": "Poor Metabolizer",
+        "rec": "Patient may have a reduced ability to metabolize MTHFR substrate drugs (e.g. methotrexate) and is at an increased risk of adverse drug reactions."
+    },
+    {
+        "gene": "SLC19A1",
+        "class": "Normal Metabolizer",
+        "rec": "Patient has a normal population risk for developing toxic liver disease and other adverse drug reactions when treated with leucovorin, mercaptopurine and methotrexate."
+    },
+    {
+        "gene": "SLC19A1",
+        "class": "Poor Metabolizer",
+        "rec": "Patient has an increased risk for developing toxic liver disease and other adverse drug reactions when treated with leucovorin, mercaptopurine and methotrexate."
+    },
+    {
+        "gene": "CYP3A5",
+        "class": "Normal Metabolizer",
+        "rec": "Patient will metabolize CYP3A5 substrate drugs (e.g. tacrolimus) as expected."
+    },
+    {
+        "gene": "CYP3A5",
+        "class": "Poor Metabolizer",
+        "rec": "Patient may have a reduced ability to metabolize CYP3A5 substrate drugs (e.g. tacrolimus) and may require dose adjustments."
+    },
+    {
+        "gene": "CYP4F2",
+        "class": "Normal Metabolizer",
+        "rec": "Patient will inactivate vitamin K as expected. This has implications for warfarin dosing."
+    },
+    {
+        "gene": "CYP4F2",
+        "class": "Intermediate Metabolizer",
+        "rec": "Patient has reduced ability to inactivate vitamin K. This has implications for warfarin dosing."
+    },
+    {
+        "gene": "CYP4F2",
+        "class": "Poor Metabolizer",
+        "rec": "Patient has reduced ability to inactivate vitamin K. This has implications for warfarin dosing."
+    },
+    {
+        "gene": "COMT",
+        "class": "Normal Metabolizer",
+        "rec": "Patient will metabolize COMT substrate drugs (e.g. antispsychotics, cisplatin, opioids) as expected."
+    },
+    {
+        "gene": "COMT",
+        "class": "Intermediate Metabolizer",
+        "rec": "Patient has reduced ability to metabolize COMT subtrate drugs (e.g. antispsychotics, cisplatin, opioids), leading to an increased risk of adverse drug reactions.  Dose adjustments may be necessary."
+    },
+    {
+        "gene": "COMT",
+        "class": "Poor Metabolizer",
+        "rec": "Patient has reduced to no ability to metabolize COMT subtrate drugs (e.g. antispsychotics, cisplatin, opioids), leading to an increased risk of adverse drug reactions.  Dose adjustments may be necessary."
+    },
+    {
+        "gene": "ABCG2",
+        "class": "Favorable Response",
+        "rec": "Patient will have expected exposure and pharmacodynamics of ABCG2 substrate drugs (e.g. methotrexate, statins)."
+    },
+    {
+        "gene": "ABCG2",
+        "class": "Unfavorable Response",
+        "rec": "Patient may have increased systemic exposure and altered pharmacodynamics of ABCG2 substrate drugs (e.g. methotrexate, statins)."
+    },
+    {
+        "gene": "ABCB1",
+        "class": "Favorable Response",
+        "rec": "Patient will have expected exposure and pharmacodynamics of ABCB1 substrate drugs (e.g. digoxin, morphine, tacrolimus)."
+    },
+    {
+        "gene": "ABCB1",
+        "class": "Unfavorable Response",
+        "rec": "Patient may have increased systemic exposure and altered pharmacodynamics of ABCB1 substrate drugs (e.g. digoxin, morphine, tacrolimus)."
+    },
+    {
+        "gene": "GRIK4",
+        "class": "Favorable Response",
+        "rec": "Patient may respond favorably to citalopram therapy when used for treatment of depression."
+    },
+    {
+        "gene": "GRIK4",
+        "class": "Unfavorable Response",
+        "rec": "Patient may respond less favorably to citalopram therapy when used for treatment of depression."
+    }
+]
