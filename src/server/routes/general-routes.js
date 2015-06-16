@@ -62,7 +62,7 @@ module.exports = function(app,logger,opts){
 						if ( result )
 							utils.render(req,res,'notfound');
 						else
-							utils.render(req,res);
+							utils.render(req,res,{scripts:'config.js'});
 					});
 				} else {
 					utils.render(req,res,'notfound');

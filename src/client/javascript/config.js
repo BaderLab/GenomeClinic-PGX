@@ -127,7 +127,8 @@ var aux = require('../conf/config.json'),
 		var options = {
 			'annotations':Object.keys(aux.ANNOVAR_ANNOTATIONS)
 		};
-		return template.config(options).then(function(renderedHtml){
+		console.log(templates);
+		return templates.config(options).then(function(renderedHtml){
 			$('#main').html(renderedHtml);
 		}).then(function(){
 			utility.refresh();
