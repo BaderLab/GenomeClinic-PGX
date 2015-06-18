@@ -4,29 +4,65 @@ var dbFunctions = require(constants.nodeConstants.SERVER_DIR + "/models/mongodb_
 /* utility functions available for all routes
  * @author Patrick Magee */
 module.exports = {
+	/* when give the request check to ensure that the user is serialized to an active session
+	 * or not. If they are move to the next function, else redirect them to /login
+	  */
 	isLoggedIn:function(req,res,next){
 		if (req.isAuthenticated())
 			return next();
 		res.redirect('/login');
 	},
+
+	/* Render the main template page. This page does not contain any specific content in the body except
+	 * in the special casses of a 404 not found error, and a construction page. The html page is rendereded
+	 * from the handlebars template layout.hbs in the views folder. There are three parameters that can be
+	 * passed to render:
+	 * req - original request. required
+	 * res - original response. required
+	 * _o - { // Optional options parameter
+	 * 	scripts: Array or string of scripts to add to the template page, this will be added within the <head>
+	 *  css: Array or string of CSS elements to add to the page layout (ONLY IF CHANGES) **TODO**
+	 * 	meta: [
+	 *		Object of Meta information
+	 *		{
+	 *			name: Name String,
+	 *			content: Content string			
+	 *		}
+	 *	],
+	 *	code: { 
+	 *		code:string containing code snippet,
+	 *		type:type of code ie. text/javascript
+	 *	},
+	 *	type: the type of page that is to be loaded. this can be construction or notfound,
+	 *  title : app title,
+	 *  cache : should the template be chached
+	 * }
+	 * all other parameters are set internally wihtin the function. The Function renders the Html and sends the 
+	 * response to the client.*/
 	render:function(req,res,_o){
 		var template;
 		template = 'layout.hbs';
-		if (!_o){
+		if (!_o){ // initialize _o if not set
 			_o = {};
 		}
-		if (!_o.scripts)
+		if (!_o.scripts) //initialize _o.scripts if not passed
 			_o.scripts = [];
+		//scripts can be an array or a string, however for the template an array is required.
+		// Convert the string to an array
 		else if (Object.prototype.toString.call(_o.scripts) == '[object String]')
 			_o.scripts = [_o.scripts];
-
+		//For each entry in _o.scripts add the static path to the content 
 		for (var i = 0; i < _o.scripts.length; i++){
 			_o.scripts[i] = '/static/js/' + _o.scripts[i];
 		}
 
-		_o.title = 'PGX webapp';
-		_o.cache = true;
 
+		if (!_o.title)
+			_o.title = 'PGX webapp';
+		if(!_o.cache)
+			_o.cache = true;
+
+		//if a type is given this indicates taht the
 		if (_o.type == "construction")
 			_o.construction = true;
 		else if (_o.type == 'notfound') {
@@ -42,109 +78,20 @@ module.exports = {
 				'admin-email':1,
 				'_id':0
 			};
+			//Retrieve the admin email content
 			dbFunctions.getAdminEmail(constants.dbConstants.DB.ADMIN_COLLECTION,{},options).then(function(result){
+				//is this user the admin?
 				_o.admin = result === _o.user;
+
 				res.render(template,_o);	
 			});
 			
 		} else {
+			//the user is not Authenticated, render the page without any nav links or access to additional content.
 			res.render(template,_o);
 		}
 	},
-	/* given the the ObjectString and a refObj attempt to creatae a new nested object.
-	 * if this is successful, create the object and return the context that it amy be added in.
-	 * If the del flag is added, then only the context has to be returned */
-	createNestedObject : function(objString, refObj, doc, del){
-		var split = objString.split('.');
-		var cont = true;
-		var newDoc = {};
-		var point = newDoc;
-		var depthString = [];
-		var isNew = false;
-		var action;
-		var origRefObj = refObj;
-		for (var i = 0; i < split.length; i++ ){
-			if (refObj.hasOwnProperty(split[i]) && cont){
-				refObj = refObj[split[i]];
-				depthString.push(split[i]);
-			} else {
-				cont = false;
-				point[split[i]] = {};
-				point = point[split[i]];
-			}
-		}
-		if (refObj.hasOwnProperty('secondary')){
-			point.secondary = refObj.secondary;
-		}
-
-		if (!del) {
-			point.rec = doc.rec;
-			point.risk = doc.risk;
-			point.pubmed = doc.pubmed;
-			var headKey = Object.keys(newDoc);
-			if (headKey.length == 1){
-				depthString.push(headKey[0]);
-				newDoc = newDoc[headKey[0]];
-				isNew = true;
-			}
-			return {cont:newDoc,depth:depthString.join('.'),isNew:isNew,action:action};
-		} else {
-			var o = this.editEndNode(origRefObj,depthString.join('.'))
-			this.removeEmpty(o);
-			return o;
-		}
-		
-	},
-
-	/* Recursively edit a node, setting the final node at the end of string to empty */
-	editEndNode : function(refObj,string){
-		if (string === ''){
-			if (refObj.hasOwnProperty('secondary')){
-				var secondary =  refObj.secondary
-				refObj = {};
-				refObj.secondary = secondary;
-				return refObj;
-			} else {
-				return {};
-			}
-		} else {
-			string = string.split('.');
-			var first = string[0];
-			string.shift();	
-			refObj[first] = this.editEndNode(refObj[first],string.join('.'))
-			return refObj;
-		}
-	},
-
-	/* recursively remove all empty objects from the parent object */
-	removeEmpty : function(object) {
-		var _this = this;
-	    if (!_.isObject(object)) {
-	        return;
-	    }
-	    _.keys(object).forEach(function(key) {
-	        var localObj = object[key];
-	        
-	        if (_.isObject(localObj)) {
-	            
-	            if (_.isEmpty(localObj)) {
-	                
-	                delete object[key];
-	                return;
-	            }
-	 
-	            // Is object, recursive call
-	            _this.removeEmpty(localObj);
-	                           
-	            if (_.isEmpty(localObj)) {
-	 
-	                delete object[key];
-	                return;
-	            }
-	        }
-	    })
-	},
-	/* Sort two lists based on the first list, return an object containinf the first
+	/* Sort two lists based on the first list, return an object containing the first
 	 * and the seocnd sorted lists */
 	sortWithIndeces:function(toSort, toSort2) {
 	  var output = [];
