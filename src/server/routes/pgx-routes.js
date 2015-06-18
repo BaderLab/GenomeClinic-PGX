@@ -28,7 +28,7 @@ module.exports = function(app,logger,opts){
 		
 	];
 
-	//send the bare template for all the routes
+	//send the bare template for all the routes and add the appropriate js to each template
 	app.get(patientRenderRoutes,utils.isLoggedIn,function(req,res){
 		utils.render(req,res,{scripts:'patients.js'});
 	});
@@ -42,7 +42,7 @@ module.exports = function(app,logger,opts){
 	});
 
 
-	//Parameter Handlers
+	//Parameter Handlers. When these parameters are within the URL, use the callback they defined
 	app.param('patientID',function(req,res,next,patientID){
 		dbFunctions.checkInDatabase(constants.dbConstants.PATIENTS.COLLECTION,constants.dbConstants.PATIENTS.ID_FIELD,patientID)
 		.then(function(result){
@@ -64,7 +64,9 @@ module.exports = function(app,logger,opts){
 		});
 	});
 
-	//Get the pgxVariant information for a specific patient
+
+	/* For the given patient, retieve all the PGx Variants from the server that relate
+	 * to that patient */
 	app.get("/database/pgx/:patientID", utils.isLoggedIn, function(req,res){
 		dbFunctions.getPGXVariants(req.params.patientID,req.user.username)
 		.then(function(result){
@@ -72,7 +74,8 @@ module.exports = function(app,logger,opts){
 		});
 	});
 	
-	//Accept information to generate the report for a speciifc patient
+	/* Generate a pdf report of the PGx Analaysis for a specific patient. The req body contains all the information from the
+	 * PGx analysis that was conducted on the server side */
 	app.post("/browsepatients/id/:patientID/report", utils.isLoggedIn, function(req,res){
 		var options = {
 			top:'1cm',
@@ -83,7 +86,11 @@ module.exports = function(app,logger,opts){
 		genReport(req,res,req.params.patientID,constants.dbConstants.PGX.REPORT.DEFAULT,options)
 	});
 
-	//Send the report to the user, delete the report after it was sent.
+
+	/* Once the report has been generated with the previous path, the user is sent a link that they can use to
+	 * download the report that was just genereated. This Route serves that report and then subsequently deletes the temp
+	 * report afterwards
+	 */
 	app.get('/browsepatients/id/:patientID/download/:id',utils.isLoggedIn,function(req,res){
 		var file = req.params.id;
 		var path = constants.nodeConstants.TMP_UPLOAD_DIR + '/' + file;
@@ -105,7 +112,9 @@ module.exports = function(app,logger,opts){
 		});
 	});
 
-	//Update the current haplotype
+	/* using the hapID update a single Haplotype entry within the pgxGene database. this
+	 * will update the specific entry with the contents of the req.body
+	 */
 	app.post('/haplotypes/current/:hapid',utils.isLoggedIn,function(req,res){
 		dbFunctions.updatePGXGene(req.params.hapid,req.body,req.user.username)
 		.then(function(result){
@@ -119,7 +128,7 @@ module.exports = function(app,logger,opts){
 	});
 
 
-	//delete the current haplotype
+	/* Delete the specifie haplotype within the :hapid parameterd */
 	app.delete('/haplotypes/current/:hapid',utils.isLoggedIn,function(req,res){
 		var id = req.params.hapid;
 		dbFunctions.removePGXGene(id,req.user.username)
@@ -136,7 +145,9 @@ module.exports = function(app,logger,opts){
 	});
 
 
-	//Add a new haplotype
+	/*Add a new haplotype. The body is already formatted in the correct manner and the entry is simply
+	* inserted into the db.
+	*/
 	app.post('/haplotypes/new',utils.isLoggedIn,function(req,res){
 		dbFunctions.insert(constants.dbConstants.PGX.GENES.COLLECTION,req.body,req.user.username)
 		.then(function(result){

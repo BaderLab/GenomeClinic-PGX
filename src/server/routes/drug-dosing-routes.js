@@ -332,7 +332,11 @@ module.exports = function(app,logger,opts){
 			res.send(output);
 		});
 	});
+	
 
+	/* When a drugRecommendation report is generated, the  server will remember all of the haplotype / therapeutic class
+	 * combination pairs. It will automatically associate those pairst with the gene, and remove the current association 
+	 * for that haplotype if there is one */
 	app.post('/database/recommendations/haplotypes/set',utils.isLoggedIn, function(req,res){
 		var doc = req.body;
 		var user = req.user.username
@@ -442,7 +446,8 @@ module.exports = function(app,logger,opts){
 			res.send(finalRecomendations);
 		});
 	});
-
+	
+	/* Get all of the future recommendations */
 	app.post('/database/recommendations/future/get',utils.isLoggedIn,function(req,res){
 		var toGet = req.body;
 		var user = req.user.username;

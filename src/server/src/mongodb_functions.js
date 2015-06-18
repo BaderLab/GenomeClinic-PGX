@@ -1449,8 +1449,16 @@ var dbFunctions = function(){
 			});
 		},
 
-		//Remove a recomendation from the databse. Removes a sinlge recomendation based on a Therapeutic Class
-		//This will remo
+		/* Remove a specific entry. This function will remove an entry based on the objectID and the type of entry that. It will
+		 * accept four different 'Types':
+		 * all - removes All the recommendations and associations linked to a specific gene. it also removes the dosing document itself
+		 *		 and removes the recommendations from other genes that are depending upon the current gene being removed.
+		 * recomendation - removes a specific recommmendation. IT is first removed from all the genes that link to it, then the document
+		 * 	 	 is entirely removed from the drugRecommendation collection
+		 * future - removes a specific future recommendation first from the future array within a gene, then subsequently removes the entry
+		 *		  from its collections entirely.
+		 * haplotype -removes the haplotype association from a gene and removes the document entry from the haplotype collection.
+		 */
 		removeEntry : function(oID,type,user){
 			assert.notStrictEqual(db,undefined);
 			var collection, query, ids;
@@ -1492,42 +1500,36 @@ var dbFunctions = function(){
 
 
 			/* Remove a specific interaciton, and remove interaction from all genes */
-			} else if (type == 'recomendation') {
-				return self.findOne(dbConstants.DRUGS.FUTURE.COLLECTION,{'_id':oID},user).then(function(result){
-					var gene = result[dbConstants.DRUGS.FUTURE.ID_FIELD];
-					var query = {}, update = {$pull:{}};
-					query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
-					update.$pull[dbConstants.DRUGS.ALL.FUTURE] = oID;
-					return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,undefined,user);
-				}).then(function(){
-					return removeDocument(dbConstants.DRUGS.FUTURE.COLLECTION,{_id:oID},user);
-				});
+			} else {
+				var cons, option, query={},updateField,update = {$pull:{}},options = undefined;
+				if (type == 'recomendation') {
+					cons = dbConstants.DRUGS.FUTURE;
+					updateField = dbConstants.DRUGS.ALL.FUTURE;
+				} else if (type == 'interaction'){
+					cons = dbConstants.DRUGS.DOSING;
+					options = {multi:true};
+					updateField = dbConstants.DRUGS.ALL.RECOMENDATIONS;
+				} else if (type == 'haplotype'){
+					cons = dbConstants.DRUGS.HAPLO;
+					updateField = dbConstants.DRUGS.ALL.HAPLO;
 
+				}
 
-			} else if (type == 'interaction') {
-				return self.findOne(dbConstants.DRUGS.DOSING.COLLECTION,{'_id':oID},user).then(function(result){
-					var genes = result.genes;
-					var update = {$pull:{}};
-					var query = {};
-					query[dbConstants.DRUGS.ALL.ID_FIELD] = {$in:genes};
-					update.$pull[dbConstants.DRUGS.ALL.RECOMENDATIONS] = oID;
-					return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,{multi:true},user);
+				return self.findOne(cons.COLLECTION,{'_id':oID},user).then(function(result){
+					var gene = result[cons.ID_FIELD || cons.GENES];
+					if (Object.prototype.toString.call(gene) == '[object Array]')
+						query[dbConstants.DRUGS.ALL.ID_FIELD] = {$in:gene};
+					else
+						query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
+					update.$pull[updateField] = oID;
+					return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,options,user);
 				}).then(function(){
-					return removeDocument(dbConstants.DRUGS.DOSING.COLLECTION,{'_id':oID},user);
-				});
-			} else if (type ==  'haplotype')  {
-				return self.findOne(dbConstants.DRUGS.HAPLO.COLLECTION,{'_id':oID},user).then(function(result){
-					var gene = result[dbConstants.DRUGS.HAPLO.ID_FIELD];
-					var query = {}, update = {$pull:{}};
-					query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
-					update.$pull[dbConstants.DRUGS.ALL.HAPLO] = oID;
-					return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,undefined,user);
-				}).then(function(){
-					return removeDocument(dbConstants.DRUGS.HAPLO.COLLECTION,{_id:oID},user);
-				});
+					return removeDocument(cons.COLLECTION,{_id:oID},user);
+				})
 			}
 		},
-
+		/* Create an empty dosing document based on the gene name. If the Gene already exists
+		 * reject the process and return an error */
 		createNewDoc : function(gene,user){
 		var promise = new Promise(function(resolve,reject){
 			var newDoc = {};

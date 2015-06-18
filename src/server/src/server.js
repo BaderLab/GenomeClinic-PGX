@@ -146,16 +146,18 @@ for (var i=0; i < prerequisiteDirectories.length; i++ ){
 
 //configure morgan to add the user to the logged file info:
 morgan.token('user',function getUser(req){
-		if (req.user)
-			return req.user[dbConstants.USERS.ID_FIELD];
-		else
-			return "";
-	});
+	if (req.user)
+		return req.user[dbConstants.USERS.ID_FIELD];
+	else
+		return "";
+});
 //=======================================================================
 //Open write stream for log files
 //=======================================================================
 var comLog = fs.createWriteStream(nodeConstants.LOG_DIR + "/" + nodeConstants.COM_LOG_PATH);
 var app = express();
+
+//With morgan, store entries in JSON format
 app.use(morgan('{"ip"\:":remote-addr","user"\:":user","timestamp"\:":date[clf]","method"\:":method","baseurl"\:":url","http_version"\:":http-version","status"\:":status","res"\:":res[content-length]","referrer"\:":referrer","agent"\:":user-agent"}', {stream:comLog}));
 logger('info','Logging HTTP traffic to: ' + nodeConstants.LOG_DIR + "/" + nodeConstants.COM_LOG_PATH);
 

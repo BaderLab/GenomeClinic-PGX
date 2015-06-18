@@ -48,6 +48,7 @@ module.exports = function(app,logger,opts){
 	});
 
 	//Upload page routes
+	//Scripts to append to upload page
 	var scripts = [
 		'vendor/upload.vendor.min.js',
 		'uploader.js'
