@@ -232,7 +232,7 @@ The Dosing recommendation collection consists of entries corresponding to a sing
 |_id | ObjectId | Unique document Id | yes |
 | gene | String | Unique Gene name | yes |
 | haplotypes | Array| Array of OBjectID's pointing to a document in the haplotypes collection| no |
-| recomendations | Array | Array of ObjectId's pointing to documents in the drugRecomendation collection | no |
+| recommendations | Array | Array of ObjectId's pointing to documents in the drugRecommendation collection | no |
 | future | Array | Array of ObjectId's pointing to documents in the future collection | no |
 
 
@@ -243,7 +243,7 @@ The Dosing recommendation collection consists of entries corresponding to a sing
 	"haplotypes" : [
 		ObjectId()
 	],
-	"recomendations" : [
+	"recommendations" : [
 		ObjectId()
 	],
 	"future" : [
@@ -253,9 +253,9 @@ The Dosing recommendation collection consists of entries corresponding to a sing
 ```
 
 ### Drug Recommendations
-The drugReceomendation collection consists of all of a series of documents. Each document contains ONE recommendation and is linked to by the from the dosing collection by their ObjectID's. Other then the ID column there are no unique fields, or indexed fields in the drugRecomendation Collection. 
+The drugReceomendation collection consists of all of a series of documents. Each document contains ONE recommendation and is linked to by the from the dosing collection by their ObjectID's. Other then the ID column there are no unique fields, or indexed fields in the drugRecommendation Collection. 
 
-**default collection name:** drugRecomendations
+**default collection name:** drugRecommendations
 
 | **Field**  | **Type** | **Definition** | **Indexed** |
 |:------------|:-----:|:------------|:------:|
