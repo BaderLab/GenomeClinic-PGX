@@ -36,8 +36,9 @@ module.exports = {
 		var temp;
 		var rows = $('.gene-row');
 		for (var i = 0; i < rows.length; i++ ){
+			
 			if (geneOnly){
-				output.push($(rows[i]).find('.gene-name').text())
+				output.push($(rows[i]).find('.gene-name').text());
 			} else {
 				temp = {};
 				temp.gene = $(rows[i]).find('.gene-name').text();
@@ -152,7 +153,6 @@ module.exports = {
 		}
 
 		//If there are no recommendations do not return an empty doc, instead return undefined
-		console.log(output.drugs);
 		output.drugs = output.drugs.length > 0 ? output.drugs : undefined;
 		return output;
 	},
@@ -195,7 +195,6 @@ module.exports = {
 
 			output.drugsOfInterest = output.drugsOfInterest.join(', ');
 		}
-		console.log(output);
 		return output;
 	},
 
@@ -292,7 +291,9 @@ module.exports = {
 			 	return templates.drugs.rec.future({future:result}).then(function(renderedHtml){
 					$('#future-recommendations').html(renderedHtml);
 				}).then(function(){
-					return _this.recomendationHandlers("#future-recommendations");
+					return _this.recommendationHandlers("#future-recommendations");
+				}).catch(function(err){
+					console.log(err);
 				});
 			}
 		});
@@ -315,7 +316,7 @@ module.exports = {
 			data:JSON.stringify(tableValues)
 		})).then(function(result){
 			var pubMedIDs = [];
-			for (var i=0; i < result.length; i++ ){
+			for (var i=0; i < result.length; i++ ){	
 				pubMedIDs = pubMedIDs.concat(result[i].pubmed);
 			}
 			if ( result.length === 0 ){
@@ -323,11 +324,13 @@ module.exports = {
 
 			} else {
 				return utility.pubMedParser(pubMedIDs).then(function(citations){
-					return templates.drugs.rec.recs({recomendation:result,citations:citations})
+					return templates.drugs.rec.recs({recommendation:result,citations:citations})
 				}).then(function(renderedHtml){
 					$('#drug-recommendations').html(renderedHtml);
 				}).then(function(){
-					_this.recomendationHandlers('#drug-recommendations');
+					_this.recommendationHandlers('#drug-recommendations');
+				}).catch(function(err){
+					console.log(err);
 				})
 			}
 		});
@@ -351,7 +354,7 @@ module.exports = {
 		/* anytime the user changes any of therapeutic classes in the PGX analyisis table, check to see if
 		 * there are any new recommendations and re-render the contents */
 		$('.therapeutic-class').on('change',function(){
-			_this.getRecomendations();
+			_this.getRecommendations();
 			_this.getFutureRecommendations();
 		});
 
@@ -429,9 +432,10 @@ module.exports = {
 
 	recommendationHandlers:function(context){
 		$(context).find('a.button').on('click',function(e){
+			var _this = this;
 			e.preventDefault();
 			$(this).closest('fieldset').slideUp(function(){
-				$(this).remove()
+				$(_this).remove()
 			})
 		});	
 	},
@@ -488,6 +492,8 @@ module.exports = {
 		}).then(function(){
 			//add hanlders
 			_this.staticHandlers();
+		}).catch(function(err){
+			console.log(err);
 		});
 	}
 };

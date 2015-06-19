@@ -138,13 +138,14 @@ module.exports = {
 		var httpReq = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id="
 		if (Object.prototype.toString.call(ids) == '[object Array]') ids = ids.join(',');
 		httpReq += ids;
-		httpReq += '&retmode=json'
+		httpReq += '&retmode=json';
 		if (!ids) return Promise.resolve({});
 		return Promise.resolve($.ajax({
 			url:httpReq,
 			type:"GET",
 			dataType:'json',
-			cache:false
+			cache:false,
+			timeout:3000
 		})).then(function(result){
 			var citations = {}; //citations per id;
 			var citation,authorString;
@@ -179,6 +180,10 @@ module.exports = {
 				}
 			}
 			return citations;
+		}).catch(function(err){
+			console.log('Could not retrieve citations')
+			console.log(err)
+			return undefined;
 		});
 
 	}
