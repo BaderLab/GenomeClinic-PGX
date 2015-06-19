@@ -8,8 +8,8 @@ var dbFunctions = require("../models/mongodb_functions");
 var dbConstants = constants.dbConstants;
 
 
-/* Collection of routes associated with drug dosing recomendations
- * the report generation, and the ui modification of the recomendations
+/* Collection of routes associated with drug dosing recommendations
+ * the report generation, and the ui modification of the recommendations
  *
  *@author Patrick Magee*/
 module.exports = function(app,logger,opts){
@@ -43,7 +43,7 @@ module.exports = function(app,logger,opts){
 	app.param('uniqID',function(req,res,next,uniqID){
 		var oID = new ObjectID(uniqID);
 		var type = req.query.type;
-		if (type === 'interaction'){
+		if (type === 'recommendation'){
 			dbFunctions.checkInDatabase(constants.dbConstants.DRUGS.DOSING.COLLECTION,"_id",oID)
 			.then(function(result){
 				if (result) {
@@ -55,7 +55,7 @@ module.exports = function(app,logger,opts){
 					res.redirect('/failure');
 				}
 			});
-		} else if (type == 'recomendation'){
+		} else if (type == 'future'){
 			dbFunctions.checkInDatabase(constants.dbConstants.DRUGS.FUTURE.COLLECTION,"_id",oID)
 			.then(function(result){
 				if (result) {
@@ -83,23 +83,23 @@ module.exports = function(app,logger,opts){
 	//==========================================================
 	//Dosing main page routes 
 	//==========================================================
-	/* Get the gene dosing recomendations for the specified gene */
+	/* Get the gene dosing recommendations for the specified gene */
 	app.get('/database/dosing/genes/:geneID',utils.isLoggedIn, function(req,res){
 		dbFunctions.drugs.getGeneDosing(req.params.geneID,req.user.username).then(function(result){
 			res.send(result);
 		});
 	});
 
-	/* get all of the current genes that have dosing recomendations */
+	/* get all of the current genes that have dosing recommendations */
 	app.get('/database/dosing/genes', utils.isLoggedIn, function(req,res){
 		dbFunctions.drugs.getGenes(req.user.username).then(function(result){	
 			res.send(result);
 		});
 	});
 
-	/* Get the recomendations based on the therapeutic classes of the genes within the 
+	/* Get the recomnendations based on the therapeutic classes of the genes within the 
 	 * request body. The output is then arranged by drug. the drugs should then only have 
-	 * a single recomendation */
+	 * a single recommendation */
 	app.post('/database/dosing/genes',utils.isLoggedIn,function(req,res){
 		var genes = req.body.genes;
 		dbFunctions.drugs.getGeneDosing(genes,req.user.username).then(function(result){
@@ -117,7 +117,7 @@ module.exports = function(app,logger,opts){
 
 
 	/* Update an entry based on the document's ObjectID. depending on the typ, it will either update the 
-	 * interaction(recomendation) the future recomendation, or the haplotype association. The update function
+	 * interaction(recommendation) the future recommendation, or the haplotype association. The update function
 	 * handles the sorting of the input array in order to allow for easier matching. 
 	 */
 	app.post('/database/dosing/genes/:geneID/update',utils.isLoggedIn,function(req,res){
@@ -127,9 +127,9 @@ module.exports = function(app,logger,opts){
 		var id = ObjectID(req.query.id);
 		var user = req.user.username;
 
-		if (type == 'interaction') {
+		if (type == 'recommendation') {
 			collection = dbConstants.DRUGS.DOSING.COLLECTION;
-		} else if (type == 'recomendation'){ 
+		} else if (type == 'future'){ 
 			collection = dbConstants.DRUGS.FUTURE.COLLECTION;
 		} else if (type == 'haplotype') {
 			if (doc.haplotypes) doc.haplotypes = doc.haplotypes.sort();
@@ -152,7 +152,7 @@ module.exports = function(app,logger,opts){
 	});
 	
 
-	/* Enter a new entry for a interaction, a future recomendation or a haplotype association on a gene wise basis.
+	/* Enter a new entry for a interaction, a future recommendation or a haplotype association on a gene wise basis.
 	 * The route will first ensure that the entry being inputted is a unique entry to begin with, If an entry with 
 	 * the same fields is found, the route returns a failure with a failure message. If no similar entry is found,
 	 * a single entry is inserted into the corresponding collection, the Object ID is then pushed to the appropriate
@@ -165,16 +165,16 @@ module.exports = function(app,logger,opts){
 		var type = req.query.type;
 		var user = req.user.username;
 		
-		if (type == 'interaction') {
+		if (type == 'recommendation') {
 			collection = dbConstants.DRUGS.DOSING.COLLECTION;
-			field = dbConstants.DRUGS.ALL.RECOMENDATIONS;
+			field = dbConstants.DRUGS.ALL.RECOMMENDATIONS;
 			var sortedOutput = utils.sortWithIndeces(gene,doc.classes);
 			gene = sortedOutput.first;
 			doc.classes = sortedOutput.second;
 			query[dbConstants.DRUGS.DOSING.GENES] = gene;
 			query[dbConstants.DRUGS.DOSING.CLASSES] = doc.classes;
 			query[dbConstants.DRUGS.DOSING.DRUG] = doc.drug;
-		} else if (type == 'recomendation') {
+		} else if (type == 'future') {
 			collection = dbConstants.DRUGS.FUTURE.COLLECTION;
 			field = dbConstants.DRUGS.ALL.FUTURE;
 			query[dbConstants.DRUGS.FUTURE.ID_FIELD] = gene;
@@ -229,8 +229,8 @@ module.exports = function(app,logger,opts){
 	/* Delete the entry corresponding to the type specified in the url. There are 4 defined 'Types'.
 	 * All - removes the entire entry for the gene
 	 * Haplotype - remove a single entry for a haplotype.
-	 * Future - remove a future dosing recomendation
-	 * Interaction - removing a current dosing guideline.
+	 * Future - remove a future dosing recommendation
+	 * recommendation - removing a current dosing guideline.
 	 * Since
 	 */
 	app.post('/database/dosing/genes/:geneID/delete',utils.isLoggedIn,function(req,res){
@@ -254,7 +254,7 @@ module.exports = function(app,logger,opts){
 	})
 	
 
-	/* Initialize a new drug recomendation document. first checks to ensure there already is not
+	/* Initialize a new drug recommendation document. first checks to ensure there already is not
 	 * A gene the same as newGene. if this returns false a new document is inserted with the value
 	 * unitialized set to true. */
 	app.post('/dosing/new/:newGene',utils.isLoggedIn,function(req,res){
@@ -389,15 +389,15 @@ module.exports = function(app,logger,opts){
 	})
 
 	
-	/* Generate the possible recomendations for a patient based on the haplotype profile of that patient 
-	 * As well as the Metabolic status for the patient. return  all recomendations in a drug wise manner.
-	 * Ideally, return only a single recomendation per drug. */
+	/* Generate the possible recommendations for a patient based on the haplotype profile of that patient 
+	 * As well as the Metabolic status for the patient. return  all recommendations in a drug wise manner.
+	 * Ideally, return only a single recommendation per drug. */
 	app.post('/database/recommendations/recommendations/get',utils.isLoggedIn, function(req,res){
 		var toGet = req.body; //(should be gene / clas object);
 		var recIDS = [];
 		var geneComb={};
 		var recByDrug = {};
-		var finalRecomendations = [];
+		var finalRecommendations = [];
 		var user = req.user.username;
 
 		for (var i = 0; i < toGet.length; i++ ){
@@ -409,17 +409,17 @@ module.exports = function(app,logger,opts){
 			return dbFunctions.findOne(constants.dbConstants.DRUGS.ALL.COLLECTION,query,user)
 			.then(function(result){
 				if (result){
-					recIDS = recIDS.concat(result[constants.dbConstants.DRUGS.ALL.RECOMENDATIONS])
+					recIDS = recIDS.concat(result[constants.dbConstants.DRUGS.ALL.RECOMMENDATIONS])
 				}
 			})
 		}).then(function(){
-			//get all recomendation documents for the current gene sets//
+			//get all recommendation documents for the current gene sets//
 			var query = {'_id':{$in:recIDS}};
 			return dbFunctions.find(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,undefined,undefined,user);
 		}).then(function(result){
 			var set;
 			//Cycle through the results and genereate a list of prospective candidates. always take the potential 
-			//Recomendation that is reliant on more genes.
+			//Recommendation that is reliant on more genes.
 			for (var i = 0; i < result.length; i++ ){
 				set = true;
 				for (var j = 0; j < result[i][constants.dbConstants.DRUGS.DOSING.GENES].length; j++ ){
@@ -440,10 +440,10 @@ module.exports = function(app,logger,opts){
 			}
 			var keys = Object.keys(recByDrug);
 			for ( i = 0; i < keys.length; i++ ){
-				finalRecomendations.push(recByDrug[keys[i]]);
+				finalRecommendations.push(recByDrug[keys[i]]);
 			}
 		}).then(function(){
-			res.send(finalRecomendations);
+			res.send(finalRecommendations);
 		});
 	});
 	
@@ -475,7 +475,7 @@ module.exports = function(app,logger,opts){
 		});
 	})
 	
-	/* Generate the dosing recomendation report */
+	/* Generate the dosing recommendation report */
 	app.post('/browsepatients/dosing/:patientID/report', utils.isLoggedIn,function(req,res){
 		var options = {
 			top:'1cm',
@@ -483,11 +483,11 @@ module.exports = function(app,logger,opts){
 			left:'20px',
 			rigth:'20px'
 		};
-		//Get future recomendations
+		//Get future recommendations
 		return genReport(req,res,req.params.patientID,constants.dbConstants.DRUGS.REPORT.DEFAULT,options)
 	});
 
-	/* Download the dosing recomendation report */
+	/* Download the dosing recommendation report */
 	app.get('/browsepatients/dosing/:patientID/download/:id',utils.isLoggedIn,function(req,res){
 		var file = req.params.id;
 		var path = constants.nodeConstants.TMP_UPLOAD_DIR + '/' + file;

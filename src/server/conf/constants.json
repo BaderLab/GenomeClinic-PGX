@@ -96,7 +96,7 @@
 			"ALL":{
 				"COLLECTION":"dosing",
 				"ID_FIELD":"gene",
-				"RECOMENDATIONS":"recomendations",
+				"RECOMMENDATIONS":"recommendations",
 				"FUTURE":"future",
 				"HAPLO":"haplotypes"
 			},
@@ -111,11 +111,11 @@
 			},
 			"DOSING":{
 				"DEFAULT":"{{DIR}}/lib/conf/dosing_guidelines.json",
-				"COLLECTION":"drugRecomendations",
+				"COLLECTION":"drugRecommendations",
 				"GENES":"genes",
 				"DRUG":"drug",
 				"CLASSES":"classes",
-				"RECOMENDATIONS":"rec",
+				"RECOMMENDATIONS":"rec",
 				"PMID":"pubmed",
 				"RISK":"risk"
 			},
@@ -124,7 +124,7 @@
 				"COLLECTION":"future",
 				"ID_FIELD":"gene",
 				"CLASS" : "class",
-				"RECOMENDATIONS":"rec"
+				"RECOMMENDATIONS":"rec"
 			},
 			"CLASSES":{
 				"DEFAULT":"{{DIR}}/lib/conf/therapeutic_classes.json",

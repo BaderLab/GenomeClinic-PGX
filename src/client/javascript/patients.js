@@ -5,7 +5,7 @@
 
 var utility = require('./utility'),
 	pgx = require('./pgx'),
-	dosing = require('./dosing-recomendations');
+	dosing = require('./dosing-recommendations');
 
 (function() {
 	/* AJAX call to application server to retrieve patients.

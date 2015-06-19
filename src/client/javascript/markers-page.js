@@ -254,7 +254,6 @@ var utility = require('./utility'),
 				contentType:'application/json'
 			}));
 		}).then(function(result){
-			console.log(result);
 			return  templates.markers.row({markers:result})
 		}).then(function(renderedHtml){
 			return $('#markers').append(renderedHtml);

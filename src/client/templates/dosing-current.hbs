@@ -1,3 +1,11 @@
+<!-- 
+All information for a specifc gene that relates to the recommendation report. This page
+Allows the user to easily modify the Database entries for a specific gene, as it visually
+displays the Drug Recommendations, the future considerations as well as all haplotypes
+associated with the current gene. Additionally, it enables the user to add new entries 
+-->
+
+<!-- Start Top Banner -->
 <div class="row" style="padding-top: 30px;">  
 	<div class="large-12 small-12 medium-12 columns">
 		<a href="/dosing" class="button radius"><i class="fa fa-arrow-left"></i>&nbspBack</a>
@@ -12,7 +20,9 @@
 		
 	</div>
 </div>
+<!-- end top banner -->
 <div id="confirm-delete" class="reveal-modal large" data-reveal>
+	<!-- Foundation reveal modal used to confirm an action ie. to delete or not to delete a section -->
 	<h4></h4>
 	<h6 class="subheader"></h6>
 	<div class="row">
@@ -24,6 +34,10 @@
 		</div>
 	</div>
 </div>
+<!-- 
+Page alert box displays errors that situated form performing an action on the whole gene, ie adding
+a new recommendation, future, haplotype. Deleting the page etc
+-->
 <div class="row">
   	<div class="small-12 columns">
     	<div data-alert class="alert-box radius secondary" id="error-display-box"  style="display:none">
@@ -39,15 +53,16 @@
 		</div>
 	</div>
 </div>
+<!--Start Recommendation Section -->
 <div class="row">
 	<div class="large-12 small-12 medium-12 columns">
 		<div class="row">
 			<div class="large-8 small-8 medium-8 columns" style="margin-top:60px">
-				<h2 id="recomendation-header">Dosing Recomendations</h2>
+				<h2 id="recommendation-header">Dosing Recommendations</h2>
 			</div>
 			<div class="large-4 small-4 medium-4 columns">
 				<fieldset>
-					<p style="margin:0px"><a class="scroll-to-future">Go to Future Recomendations</a></p>
+					<p style="margin:0px"><a class="scroll-to-future">Go to Future Recommendations</a></p>
 					<p style="margin:0px"><a class="scroll-to-haplo">Go To Haplotypes</a></p>
 				</fieldset>
 			</div>
@@ -55,14 +70,16 @@
 		</div>
 		<div class="row">
 			<div class="large-4 small-12 medium-6 columns">
-				<a href="#" id="new-interaction" class="button radius alert large-12 small-12 medium-12">New Recomendation</a>
-				<ul class="button-group even-2 radius" id="new-interaction-triggers" style="display:none">
-					<li><a href="#" class="button success" id="new-interaction-trigger-submit">Submit</a></li>
-					<li><a href="#" class="button" id="new-interaction-cancel-trigger">Cancel</a></li>
+				<!-- Buttons for adding new recommednations -->
+				<a href="#" id="new-recommendation" class="button radius alert large-12 small-12 medium-12">New Recommendation</a>
+				<ul class="button-group even-2 radius" id="new-recommendation-triggers" style="display:none">
+					<li><a href="#" class="button success" id="new-recommendation-trigger-submit">Submit</a></li>
+					<li><a href="#" class="button" id="new-recommendation-cancel-trigger">Cancel</a></li>
 				</ul> 
 			</div>
+			<!-- Start new recommendation html -->
 			<div class="large-12 small-12 medium-12 columns">
-				<form data-abide='ajax' id="new-interaction-form"  style="display:none">
+				<form data-abide='ajax' id="new-recommendation-form"  style="display:none">
 					<fieldset>
 						<section id="original-gene">
 							<div class="row">
@@ -100,6 +117,7 @@
 								<label><h6><b>Additional Genes</b></h6></label>
 							</div>
 							<div class="large-4 small-12 medium-4 columns">
+								<!-- Link triggers dosing-additional-gene to be rendered and appened to #additional-genes -->
 								<a class="right" href="#" id="add-additional-gene">Add additional gene</a>
 							</div>
 						</div>
@@ -125,7 +143,7 @@
 						</div>
 						<div class="row">
 							<div class="large-12 small-12 medium-12 columns">
-								<label><h6><b>Recomendation</b></h6></label>
+								<label><h6><b>Recommendation</b></h6></label>
 								<textarea name="rec" rows=4 required id="new_rec"></textarea>
 								<small class="error">Required</small>
 							</div>
@@ -153,6 +171,7 @@
 						</div>
 					</fieldset>
 				</form>
+				<!-- End new recommendation -->
 			</div>
 		</div>
 		<div class="row">
@@ -162,6 +181,7 @@
 		</div>
 	</div>
 </div>
+<!-- Search box to search through drug names -->
 <div class="row">
 	<div class="large-12 small-12 medium-12 columns">
 		<div class="row collapse prefix-radius">
@@ -174,9 +194,14 @@
 		</div>
 	</div>
 </div>
+<!-- Start Drug Recommendation section, organised by drug name -->
 <div class="row">
 	<div class="large-12 small-12 medium-12 columns" id="main_content">
-	{{#each recomendations}}
+	{{!-- 
+		The recommendations were previously arranged to be clustered by drug. Each new drug is given its own 
+		collapsable table, with the rows being a different recommendation.
+	--}}
+	{{#each recommendations}}
 		<table class="drug-cont large-12 small-12 medium-12" data-drug="{{drug}}">
 			<thead>
 				<tr class="drug-cont-header" data-state="open">
@@ -193,7 +218,8 @@
 					</th>
 				</tr>
 			</thead>
-			<tbody class="interactions">
+			<tbody class="recommendations">
+			{{!-- Cycle over eacah individual recommendation for each table and add it as a row --}}
 			{{#each recs}}
 				<tr>
 					<td>
@@ -222,6 +248,7 @@
 										<label><h6><b>Dependant Genes</b></h6></label>
 									</div>
 								</div>
+								{{!-- There could be multiple dependant genes, cycle over them and add each new gene as a div row --}}
 								{{#each genes}}
 								<div class="row">
 									<div class="small-4 large-2 medium-3 columns">
@@ -258,11 +285,12 @@
 								</div>
 								<div class="row">
 									<div class="large-12 small-12 medium-12 columns">
-										<label><h6><b>Recomendation</b></h6></label>
+										<label><h6><b>Recommendation</b></h6></label>
 										<textarea name="rec" rows=4 data-originalvalue="{{rec}}" disabled="disabled" required>{{rec}}</textarea>
 										<small class="error">Required</small>
 									</div>
 								</div>
+								{{!-- Citations start as pubmedID's. Using NCBI e-utils information is retrieved in order to form a proper citaiton --}}
 								<div class="row citations">
 									<div class="large-12 small-12 medium-12 columns">
 										<label><h6><b>Citations</b></h6></label>
@@ -277,6 +305,7 @@
 													</div>
 												</div>
 											</div>
+											<!-- Citations generated with NCBI e-utils -->
 											<div class=" small-12 medium-12 large-12 columns left size-16" style="margin-top:13px">
 												<ol class="pubmed-links" stlye="font-size:1em">
 												{{#each pubmed}}
@@ -306,15 +335,17 @@
 		{{/each}}
 	</div>
 </div>
+<!-- END Recommednation section -->
+<!-- Start Future Consideration Section -->
 <div class="row">
 	<div class="large-12 small-12 medium-12 columns">
 		<div class="row">
 			<div class="large-8 small-8 medium-8 columns" style="margin-top:60px">
-				<h2 id="future-recomendations-header">Future Considerations</h2>
+				<h2 id="future-recommendations-header">Future Considerations</h2>
 			</div>
 			<div class="large-4 small-4 medium-4 columns">
 				<fieldset>
-					<p style="margin:0px"><a class="scroll-to-top">Go to Dosing Recomendations</a></p>
+					<p style="margin:0px"><a class="scroll-to-top">Go to Dosing Recommendations</a></p>
 					<p style="margin:0px"><a class="scroll-to-haplo">Go To Haplotypes</a></p>
 				</fieldset>
 			</div>
@@ -322,14 +353,16 @@
 		</div>
 		<div class="row">
 			<div class="large-4 small-12 medium-6 columns">
-				<a href="#" id="new-recomendation" class="button radius alert large-12 small-12 medium-12">New Recomendation</a>
-				<ul class="button-group even-2 radius" id="new-recomendation-triggers" style="display:none">
-					<li><a href="#" class="button success" id="new-recomendation-trigger-submit">Submit</a></li>
-					<li><a href="#" class="button" id="new-recomendation-cancel-trigger">Cancel</a></li>
+				<!-- buttons to add new future consideration -->
+				<a href="#" id="new-future" class="button radius alert large-12 small-12 medium-12">New Recommendation</a>
+				<ul class="button-group even-2 radius" id="new-future-triggers" style="display:none">
+					<li><a href="#" class="button success" id="new-future-trigger-submit">Submit</a></li>
+					<li><a href="#" class="button" id="new-future-cancel-trigger">Cancel</a></li>
 				</ul> 
 			</div>
 			<div class="large-12 small-12 medium-12 columns">
-				<form data-abide="ajax" id="new-recomendation-form" style="display:none">
+				<!-- Start new consideration -->
+				<form data-abide="ajax" id="new-future-form" style="display:none">
 					<fieldset>
 					<div class="large-6 small-12 medium-6 columns">
 						<div class="row collapse prefix-radius">
@@ -347,14 +380,16 @@
 						</div>
 					</div>
 					<div class="large-12 small-12 medium-12 columns">
-						<label>Recomendation</label>
+						<label>Recommendation</label>
 						<textarea name="rec" rows=3 required></textarea>
 						<small class="error">Required</small>
 					</div>
 					</fieldset>
 				</form>
+				<!-- end new Consideration -->
 			</div>
 		</div>
+		<!-- Start Considerations -->
 		<div class="row">
 		  	<div class="small-12 columns">
 		    	<div data-alert class="alert-box radius secondary" id="error-display-box-2"  style="display:none">
@@ -372,7 +407,8 @@
 		</div>
 		<div class="row">
 			<div class="large-12 small-12 medium-12 columns">
-				<table class="large-12 small-12 medium-12" id="future-recomendations" style="display:none"> 
+				<table class="large-12 small-12 medium-12" id="future-recommendations" style="display:none">
+					{{!-- Html is separately renderd From dosing-future --}}
 					<tbody>
 					</tbody>
 				</table>
@@ -380,6 +416,8 @@
 		</div>
 	</div>
 </div>
+<!-- End Consideration -->
+<!-- Start Haplotype section -->
 <div class="row">
 	<div class="large-12 small-12 medium-12 columns">
 		<div class="row">
@@ -388,8 +426,8 @@
 			</div>
 			<div class="large-4 small-4 medium-4 columns">
 				<fieldset>
-					<p style="margin:0px"><a class="scroll-to-top">Go to Dosing Recomendations</a></p>
-					<p style="margin:0px"><a class="scroll-to-future">Go To Future Recomendations</a></p>
+					<p style="margin:0px"><a class="scroll-to-top">Go to Dosing Recommendations</a></p>
+					<p style="margin:0px"><a class="scroll-to-future">Go To Future Recommendations</a></p>
 				</fieldset>
 			</div>
 			<hr>
@@ -475,4 +513,5 @@
 		</div>
 	</div>
 </div>
+<!-- End Haploytype Section -->
 

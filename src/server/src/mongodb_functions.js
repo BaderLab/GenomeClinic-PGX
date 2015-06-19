@@ -176,7 +176,7 @@ var dbFunctions = function(){
 										var query = {};
 										query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
 										var update = {$addToSet:{}}
-										update.$addToSet[dbConstants.DRUGS.ALL.RECOMENDATIONS] = result._id;
+										update.$addToSet[dbConstants.DRUGS.ALL.RECOMMENDATIONS] = result._id;
 										return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update)
 									})
 								});
@@ -1401,7 +1401,7 @@ var dbFunctions = function(){
 			assert.notStrictEqual(db,undefined);
 			var options = {$project:{}};
 			options.$project[dbConstants.DRUGS.ALL.ID_FIELD] = 1;
-			options.$project.numRecs = {$size:'$' + dbConstants.DRUGS.ALL.RECOMENDATIONS}
+			options.$project.numRecs = {$size:'$' + dbConstants.DRUGS.ALL.RECOMMENDATIONS}
 			options.$project.numFuture = {$size:'$' + dbConstants.DRUGS.ALL.FUTURE}
 			options.$project.numHaplo = {$size:'$' + dbConstants.DRUGS.ALL.HAPLO}
 			var sort = {$sort:{}};
@@ -1422,13 +1422,13 @@ var dbFunctions = function(){
 				query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
 			}
 			return 	find(dbConstants.DRUGS.ALL.COLLECTION,query,undefined,undefined,user).each(function(record){
-				var recIDs = record[dbConstants.DRUGS.ALL.RECOMENDATIONS] || [];
+				var recIDs = record[dbConstants.DRUGS.ALL.RECOMMENDATIONS] || [];
 				var haploIDs = record[dbConstants.DRUGS.ALL.HAPLO] || [];
 				var futureIDs = record[dbConstants.DRUGS.ALL.FUTURE] || [];
 				
-				//Find all recomendations
-				return find(dbConstants.DRUGS.DOSING.COLLECTION,{_id:{$in:recIDs}},undefined,undefined,user).then(function(recomendations){
-					if (recomendations.length > 0) record[dbConstants.DRUGS.ALL.RECOMENDATIONS] = recomendations;
+				//Find all recommendations
+				return find(dbConstants.DRUGS.DOSING.COLLECTION,{_id:{$in:recIDs}},undefined,undefined,user).then(function(recommendations){
+					if (recommendations.length > 0) record[dbConstants.DRUGS.ALL.RECOMMENDATIONS] = recommendations;
 					
 				}).then(function(){
 					return find(dbConstants.DRUGS.FUTURE.COLLECTION,{_id:{$in:futureIDs}},undefined,undefined,user);
@@ -1453,7 +1453,7 @@ var dbFunctions = function(){
 		 * accept four different 'Types':
 		 * all - removes All the recommendations and associations linked to a specific gene. it also removes the dosing document itself
 		 *		 and removes the recommendations from other genes that are depending upon the current gene being removed.
-		 * recomendation - removes a specific recommmendation. IT is first removed from all the genes that link to it, then the document
+		 * recommendation - removes a specific recommmendation. IT is first removed from all the genes that link to it, then the document
 		 * 	 	 is entirely removed from the drugRecommendation collection
 		 * future - removes a specific future recommendation first from the future array within a gene, then subsequently removes the entry
 		 *		  from its collections entirely.
@@ -1468,18 +1468,18 @@ var dbFunctions = function(){
 			if (type == 'all'){
 				var recIDs,futureIDs,haploIDs;
 				return self.findOne(dbConstants.DRUGS.ALL.COLLECTION,{'_id':oID},user).then(function(result){
-					recIDs = result[dbConstants.DRUGS.ALL.RECOMENDATIONS];
+					recIDs = result[dbConstants.DRUGS.ALL.RECOMMENDATIONS];
 					futureIDs = result[dbConstants.DRUGS.ALL.FUTURE];
 					haploIDs = result[dbConstants.DRUGS.ALL.HAPLO];
 					/* for each reomendation, fid the associated genes, remove the oID from the genes, then delete the
-					 * recomendation entry itself */
+					 * recommendation entry itself */
 					return Promise.resolve(recIDs).each(function(id){
 						return self.findOne(dbConstants.DRUGS.DOSING.COLLECTION,{_id:id},user).then(function(result){
 							var genes = result.genes;
 							var update = {$pull:{}};
 							var query = {};
 							query[dbConstants.DRUGS.ALL.ID_FIELD] = {$in:genes};
-							update.$pull[dbConstants.DRUGS.ALL.RECOMENDATIONS] = id;
+							update.$pull[dbConstants.DRUGS.ALL.RECOMMENDATIONS] = id;
 							return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,{multi:true},user);
 						}).then(function(){
 							return removeDocument(dbConstants.DRUGS.DOSING.COLLECTION,{'_id':id},user);
@@ -1501,14 +1501,14 @@ var dbFunctions = function(){
 
 			/* Remove a specific interaciton, and remove interaction from all genes */
 			} else {
-				var cons, option, query={},updateField,update = {$pull:{}},options = undefined;
-				if (type == 'recomendation') {
+				var cons, option, query={},updateField,update = {$pull:{}},options;
+				if (type == 'future') {
 					cons = dbConstants.DRUGS.FUTURE;
 					updateField = dbConstants.DRUGS.ALL.FUTURE;
-				} else if (type == 'interaction'){
+				} else if (type == 'recommendation'){
 					cons = dbConstants.DRUGS.DOSING;
 					options = {multi:true};
-					updateField = dbConstants.DRUGS.ALL.RECOMENDATIONS;
+					updateField = dbConstants.DRUGS.ALL.RECOMMENDATIONS;
 				} else if (type == 'haplotype'){
 					cons = dbConstants.DRUGS.HAPLO;
 					updateField = dbConstants.DRUGS.ALL.HAPLO;
@@ -1534,7 +1534,7 @@ var dbFunctions = function(){
 		var promise = new Promise(function(resolve,reject){
 			var newDoc = {};
 			newDoc[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
-			newDoc[dbConstants.DRUGS.ALL.RECOMENDATIONS] = [];
+			newDoc[dbConstants.DRUGS.ALL.RECOMMENDATIONS] = [];
 			newDoc[dbConstants.DRUGS.ALL.HAPLO] = [];
 			newDoc[dbConstants.DRUGS.ALL.FUTURE] = [];
 			return self.insert(dbConstants.DRUGS.ALL.COLLECTION,newDoc,user)

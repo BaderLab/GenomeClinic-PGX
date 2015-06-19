@@ -29,8 +29,8 @@ var index = require('../templates/index.hbs'),
 	dosing_current = require('../templates/dosing-current.hbs'),
 	dosing_new = require('../templates/dosing-new.hbs'),
 	dosing_future = require('../templates/dosing-future.hbs'),
-	dosing_rec_page = require('../templates/dosing-recomendation-page.hbs'),
-	dosing_rec_rec = require('../templates/dosing-recomendation-recs.hbs'),
+	dosing_rec_page = require('../templates/dosing-recommendation-page.hbs'),
+	dosing_rec_rec = require('../templates/dosing-recommendation-recs.hbs'),
 	dosing_rec_future = require('../templates/dosing-recommendations-future.hbs'),
 	dosing_haplo = require('../templates/dosing-haplotypes.hbs'),
 	dosing_add = require('../templates/dosing-additional-gene.hbs'),
@@ -46,8 +46,8 @@ var _t = function(t){
 };
 
 
-//Return object with All the templates\
 (function(){
+	//bind the templates object to the global window 
 	window.templates = {
 	//module.exports = {
 		index:_t(index),
