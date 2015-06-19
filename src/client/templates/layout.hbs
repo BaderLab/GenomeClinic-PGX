@@ -6,20 +6,33 @@
     <title>{{title}}</title>
     <link rel="stylesheet" href="/static/css/bundle.min.css" />
 
-    <!-- Foundation vector graphic icon fonts -->
-    <link rel="stylesheet" href="/static/icons/foundation-icons/foundation-icons.css" />
-
-    <!-- Font awesome vector graphic icons -->
+    <!-- Icons -->
+    <link rel="stylesheet" href="/static/icons/foundation-icons.css" />
     <link rel="stylesheet" href="/static/icons/font-awesome-4.2.0/css/font-awesome.min.css" />
 
-    <script type="text/javascript" src="/static/js/vendor/modernizr.js"></script>
-
-    <link rel="icon" href="/static/img/icon2.jpg" />
+    <!-- Js --> 
+    <script type="text/javascript" src="/static/js/vendor/vendor.bundle.min.js"></script>
+    <script type="text/javascript" src="/static/js/templates.js"></script>
+    
+    {{#each scripts}}
+    <script type="text/javascript" src="{{this}}"></script>
+    {{/each}}
+    {{#if code}}
+    <script type="{{code.type}}">
+      {{{code.code}}}
+    </script>
+    {{/if}}
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $(document).foundation()
+      });
+    </script>
+    <link rel="icon" href="/static/img/pharmacogenomics.jpg" />
     <link rel="author" href="/static/humans.txt" />
   </head>
   <body>
     <!-- Nav bar -->
-    <div class="sticky contain-to-grid">
+    <div class="sticky contain-to-grid show-for-medium-up">
       <nav class="top-bar" data-topbar role="navigation">
         <ul class="title-area">
           <li class="name"><h1><a href="/">{{title}}</a></h1></li>
@@ -27,14 +40,15 @@
         {{#if authenticated}}
           <section class="top-bar-section">
             <!-- Right Nav Section -->
-            <ul class="right show-for-medium-up">
+            <ul class="right">
               <li class="has-dropdown">
                 <a href="#" class="button radius alert" id="webapp-plus-icon"><i class="fi-plus size-16"></i></a>
                 <ul class="dropdown">
                   <li><a href="/upload" id="webapp-add-new-patient"><i class="fi-torso size-24"></i>&nbsp&nbsp&nbsp Add Patient</a></li>
                   <li><a href="/projects" id="webapp-add-new-project"><i class="fi-page-multiple size-24"></i>&nbsp&nbsp&nbsp My Projects</a></li>
-                  <li><a href="/haplotypes" id="webapp-haplotypes"><i class="fa fa-asterisk fa-2x"></i>&nbsp&nbsp Manage Haplotypes</a></li>
-                   <li><a href="/markers" id="webapp-markers"><b class="icon-text size-16">rS</b>&nbsp&nbsp&nbsp Manage Markers</a></li>
+                  <li><a href="/haplotypes" id="webapp-haplotypes"><i class="fa fa-asterisk fa-2x"></i>&nbsp Manage Haplotypes</a></li>
+                  <li><a href="/markers" id="webapp-markers"><b class="icon-text size-16">rS</b>&nbsp&nbsp&nbsp Manage Markers</a></li>
+                  <li><a href="/dosing" id="webapp-dosing"><i class="fa fa-medkit fa-2x"></i>&nbsp Manage Dosing Recomendations</a></li>
                 </ul>
               </li>
               <li class="has-form">
@@ -58,36 +72,48 @@
                 </ul> 
               </li>
             </ul>
-            <ul class="left show-for-small-only">
-              <li class="has-dropdown">
-                <a href="#" class="button radius alert"><i class="fi-list size-16"></i></a>
-                <ul class="dropdown">
-                  <li><label>Navigation</label></li>
-                  <li><a href="/upload" id="webapp-add-new-patient">Add Patient</a></li>
-                  <li><a href="/projects" id="webapp-add-new-project">My Projects</a></li>
-                  <li><a href="/panel" id="webapp-add-new-panel">Gene Panel</a></li>
-                  <li><a href="/browsepatients" id="webapp-browse-button">Browse</a></li>
-                  <li class="divider"></li>
-                  <li><label>Account Actions</li>
-                  <li><label>{{user}}</li>
-                  <li><a href="/setpassword">Change Password</a></li>
-                  <li><a href="/logout">Log Out</a></li>
-                </ul>
-              </li>
-            </ul>
           </section>
         {{/if}}
       </nav>
     </div>
+    <div class="show-for-small-only">
+        <nav class="top-bar" role="navigation" data-topbar>
+          <ul class="title-area">
+            <li class="name">
+                <h1><a href="/">{{title}}</a></h1>
+            </li>
+            <li class="toggle-topbar menu-icon"><a href="#"><span></span></a></li>
+          </ul>
+          <section class="top-bar-section">
+            <ul class="right">
+              <li><label>Navigation</li>
+              <li><a href="/upload" id="webapp-add-new-patient">Add Patient</a></li>
+              <li><a href="/projects" id="webapp-add-new-project">My Projects</a></li>
+              <li><a href="/browsepatients" id="webapp-browse-button">Browse</a></li>
+              <li><a href="/haplotypes" id="webapp-haplotypes">Manage Haplotypes</a></li>
+              <li><a href="/markers" id="webapp-markers">Manage Markers</a></li>
+              <li><a href="/dosing" id="webapp-dosing">Manage Dosing Tables</a></li>
+              <li><label>Account Actions</li>
+              <li><label>{{user}}</li>
+              <li><a href="/setpassword">Change Password</a></li>
+              <li><a href="/logout">Log Out</a></li>
+              {{#if admin}}
+              <li><label>Admin actions</labels></li>
+              <li><a href="/config">Configure Admin Settings</a></li>
+              {{/if}}
+            </ul>
+          </section>
+        </nav>
+    </div>
     <div id="main" style="min-height:100%">
       {{#if notfound}}
         <div class="row" style="padding-top: 200px;">
-          <div class="large-6 large-centered columns">
+          <div class="large-6 small-12 medium-6 large-centered small-centererd medium-centered columns">
             <div class="row">
-              <div class="large-4 columns">
+              <div class="large-4 small-6 medium-4 columns">
                 <i class="fa fa-gears" style="font-size: 6em;"></i>
               </div>
-              <div class="large-8 columns">
+              <div class="large-8 small-6 medium-8 columns">
                 <h2><em>404 Not Found!</em></h2>
                 <h4 class="subheader">There's nothing here!</h4>
               </div>
@@ -97,12 +123,12 @@
       {{/if}}
       {{#if construction}}
         <div class="row" style="padding-top: 200px;">
-          <div class="large-6 large-centered columns">
+          <div class="large-6 small-12 medium-6 large-centered small-centererd medium-centered columns">
             <div class="row">
-              <div class="large-4 columns">
+              <div class="large-4 small-6 medium-4 columns">
                 <i class="fa fa-wrench" style="font-size: 6em;"></i>
               </div>
-              <div class="large-8 columns">
+              <div class="large-8 small-8 medium-4 columns">
                 <h2><em>In development</em></h2>
                 <h4 class="subheader">Come back soon!</h4>
               </div>
@@ -114,7 +140,7 @@
     <!-- Footer - modified from the Foundation website -->
     <div class="zurb-footer-bottom">
       <div class="row">
-         <div class="large-12 columns">
+         <div class="large-12 small-12 medium-12 columns">
             <ul class="zurb-links">
               <li><a href="http://www.baderlab.org" target="_blank">About</a></li>
               <li><a href="http://www.baderlab.org" target="_blank">Contact</a></li>
@@ -123,12 +149,5 @@
         </div>
       </div>
     </div>
-    <script type="text/javascript" src="/static/js/vendor/vendor.bundle.min.js"></script>
-    {{#each src}}
-    <script type="text/javascript" src="{{this}}"></script>
-    {{/each}}
-    <script type="text/javascript">
-      $(document).foundation();
-    </script>
   </body>
 </html>

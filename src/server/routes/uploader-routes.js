@@ -5,20 +5,13 @@ var utils = require('../lib/utils');
 var uploader = require("jquery-file-upload-middleware");
 var Promise = require('bluebird');
 var constants = require('../lib/conf/constants.json');
-
+var dbFunctions = require('../models/mongodb_functions');
 var dbConstants = constants.dbConstants,
 	nodeConstants = constants.nodeConstants;
 
-
-module.exports = function(app,dbFunctions,queue){
-	//load dependencies
-	if (!dbFunctions)
-		dbFunctions = require('../models/mongodb_functions');
-	if (!queue){
-		var logger = require('../lib/logger')('node');
-		var Queue = require('../lib/queue');
-		queue = new Queue(logger,dbFunctions);
-	}
+var Queue = require('../lib/queue');
+var queue = new Queue();
+module.exports = function(app,logger,opts){
 	//==================================================================
 	//UPLOADER
 	//==================================================================
@@ -33,8 +26,8 @@ module.exports = function(app,dbFunctions,queue){
 
 	//Configure the uploader to tell it what directories to use
 	uploader.configure({
-		tmpDir:nodeConstants.SERVER_DIR + '/' + nodeConstants.TMP_UPLOAD_DIR,
-		uploadDir:nodeConstants.SERVER_DIR + '/' + nodeConstants.VCF_UPLOAD_DIR,
+		tmpDir:nodeConstants.TMP_UPLOAD_DIR,
+		uploadDir:nodeConstants.VCF_UPLOAD_DIR,
 		uploadUrl:'/upload/vcf'
 	});
 	/* Event Handler that is triggered upon successful completion of the file upload
@@ -42,16 +35,26 @@ module.exports = function(app,dbFunctions,queue){
 	 * of the vcf file into the local database
 	*/
 	uploader.on('end',function(fileInfo,req,res){
-		queue.addToQueue(fileInfo,req.fields,req.user[dbConstants.USERS.ID_FIELD])
+		fileInfo.user = req.user.username;
+		fileInfo.action = "uploader";
+		logger('info','Upload file recieved and added to queue',fileInfo)
+		queue.addToQueue(fileInfo,req)
 		.then(function(){
 			if (!queue.isRunning)
 				return queue.run();
-		}).catch(function(err){console.log(err.toString());});
+		}).catch(function(err){
+			logger('error',err,{action:'addToQueue',user:req.user.username});
+		});
 	});
 
 	//Upload page routes
+	//Scripts to append to upload page
+	var scripts = [
+		'vendor/upload.vendor.min.js',
+		'uploader.js'
+	];
 	app.get('/upload',utils.isLoggedIn, function(req,res){
-		utils.render(req,res);
+		utils.render(req,res,{scripts:scripts});
 	});
 
 	app.use("/upload/vcf", utils.isLoggedIn, uploader.fileHandler());

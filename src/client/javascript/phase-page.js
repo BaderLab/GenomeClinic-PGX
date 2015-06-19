@@ -2,13 +2,11 @@
  * haplotype information
  *@patrick magee */
 
-var $  = require('jquery'),
-	templates = require('./templates'),
-	utility = require('./utility');
+var utility = require('./utility');
 
 var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 
-module.exports = function(){
+(function(){
 	/* Serialize the page, putting the data into a form that 
 	 * can then be sent to the server to update the current
 	 * db entry. iterates over each haploytpe to generate the
@@ -21,7 +19,7 @@ module.exports = function(){
 			var haplotypes = $('fieldset');
 			//check if this is an input (in case of new entry)
 			var geneName = $('#gene-name').is('input') ? $('#gene-name').val() : $('#gene-name').text().substring(1);
-			geneName = geneName.toLowerCase();
+			geneName = geneName.toUpperCase();
 			if (geneName === ""){
 				$('#gene-name').addClass('error').siblings('small').text("Required").show();
 				err = true;
@@ -36,7 +34,7 @@ module.exports = function(){
 				outObj[currHap] = [];
 				var ids = $(haplotypes[i]).find("tbody").find(".marker-id");
 				for (var j = 0; j < ids.length; j++){
-					outObj[currHap].push($(ids[j]).text().toLowerCase());
+					outObj[currHap].push($(ids[j]).text().toUpperCase());
 				}
 			}
 			//If any errors were added, reject the submissions and do not continue
@@ -63,9 +61,9 @@ module.exports = function(){
 					if (form[i].name == 'pos')
 						doc[form[i].name] = parseInt(form[i].value);
 					else if(form[i].name == 'alt')
-						doc[form[i].name] = form[i].value.toLowerCase().split(/[\,\s]/g);
+						doc[form[i].name] = form[i].value.toUpperCase().split(/[\,\s]/g);
 					else
-						doc[form[i].name] = form[i].value.toLowerCase();
+						doc[form[i].name] = form[i].value.toUpperCase();
 				}
 
 			 	Promise.resolve($.ajax({
@@ -193,7 +191,7 @@ module.exports = function(){
 			e.preventDefault();
 			var curValues = [];
 			var _this = this;
-			var value = $(this).closest('.collapse').find('.haplo-add-new-context').val().toString().toLowerCase();
+			var value = $(this).closest('.collapse').find('.haplo-add-new-context').val().toString().toUpperCase();
 			var curIds = $(this).closest('fieldset').find('.marker-id');
 			for (var i=0; i< curIds.length; i++ ){
 				curValues.push($(curIds[i]).text());
@@ -391,6 +389,7 @@ module.exports = function(){
 				type:'GET',
 				contentType:'application/json'
 			})).then(function(result){
+				console.log(result);
 				var gene,hap,obj,i;
 				//a bit of massagig the data into the proper format
 				for (gene in result){
@@ -445,5 +444,7 @@ module.exports = function(){
 		}
 		
 	};
-	return main();
-};
+	$(document).ready(function(){
+		return main();
+	});
+})();

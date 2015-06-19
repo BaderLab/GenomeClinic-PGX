@@ -10,48 +10,56 @@ var Promise = require('bluebird');
 var constants= require("./conf/constants.json");
 var annotateFile = require('./annotateAndAddVariants');
 var fs = Promise.promisifyAll(require('fs'));
+var dbFunctions = require('../models/mongodb_functions');
+var logger = require('./logger');
 
 var dbConstants = constants.dbConstants,
 	nodeConstants = constants.nodeConstants;
 
-
-
-function queue(logger,dbFunctions){
-	this.logger = (logger || require('./logger')('node'));
-	this.dbFunctions = (dbFunctions || require('../models/mongodb_functions'));
+function queue(){
+	this.isRunning = false;
+	this.queue = [];
 }
 
 //=======================================================================================
 //variables
-queue.prototype.isRunning = false;
-queue.prototype.queue = [];
 
 /* Add the incoming file with patientInformation to the queue
  * to await processing additionally, when it adds a file to the queue.
  * it also adds the patient name to the patient table ensuring no
  * duplicate entries occur
  */
-queue.prototype.addToQueue = function(fileParams,patientFields,user){
+queue.prototype.addToQueue = function(fileParams,req){
 	var self = this;
+	var patientFields = req.fields;
 	var promise = new Promise(function(resolve,reject){
 		var inputObj = {
 			fileInfo: fileParams,
+			req:req
 		};
 		var tempArr =[];
 		self.splitInputFields(patientFields)
 		.each(function(patient){
-			self.logger.info(fileParams.name + "added to queue");
+			logger('info',fileParams.name + "added to queue");
 			var options = patient;
 			var now = new Date();
 			options[dbConstants.PATIENTS.FILE_FIELD] = fileParams.name;
 			options[dbConstants.PATIENTS.DATE_ADDED] = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 			options[dbConstants.PATIENTS.READY_FOR_USE] = false;
 			options[dbConstants.PATIENTS.ANNO_COMPLETE] = undefined;
-			options[dbConstants.DB.OWNER_ID] = user;
+			options[dbConstants.DB.OWNER_ID] = req.user[dbConstants.USERS.ID_FIELD];
 			tempArr.push(options);
 		}).then(function(){
-			inputObj.fields = tempArr;
+			return Promise.each(tempArr,function(item){
+				return dbFunctions.addPatient(item,req.user[dbConstants.USERS.ID_FIELD]).catch(function(err){
+					logger('error',err,{action:'addPatient',user:req.user.username});
+					dbFunctions.removePatient(item[dbConstants.PATIENTS.ID_FIELD],req.user[dbConstants.USERS.ID_FIELD]);
+				});
+			});
+		}).then(function(result){
+			inputObj.fields = result;
 			self.queue.push(inputObj);
+			logger('info','file added to annotation job queue',{action:'addToQueue',user:req.user.username,file:fileParams.name})
 		}).then(function(){
 			resolve(self.queue);
 		});
@@ -65,6 +73,7 @@ queue.prototype.addToQueue = function(fileParams,patientFields,user){
 queue.prototype.removeFirst = function(){
 	var self = this;
 	var promise = new Promise(function(resolve,reject){
+		logger('info','removed entry from annoation job queue',{action:'removeFirst',user:self.queue[0].req.user.username,file:self.queue[0].fileInfo.name});
 		self.queue.shift();
 		resolve(self.queue);
 	});
@@ -121,6 +130,7 @@ queue.prototype.run = function(){
 	var self = this;
 	var fileInfo;
 	var fields;
+	var req;
 	//var promise = new Promise(function(resolve,reject){
 	if (!self.isRunning)
 		self.isRunning = true;
@@ -128,23 +138,18 @@ queue.prototype.run = function(){
 	self.first().then(function(params){
 		fileInfo = params.fileInfo;
 		fields = params.fields;
+		req = params.req;
 	}).then(function(){
 		self.removeFirst();
 	}).then(function(){
-		return fields;
-	}).each(function(options){
-		return self.dbFunctions.addPatient(options);
-	}).then(function(result){
 		var options = {
 			input:'upload/vcf/' + fileInfo.name,
-			patients:result
+			patients:fields,
+			req:req
 		};
-		self.logger.info('running annotations on ' + options.input);
 		return annotateFile(options);
-	}).then(function(){
-		self.logger.info('annotations complete');
 	}).catch(function(err){
-		self.logger.error(err);
+		logger('error',err,{user:req.user.username,target:fileInfo.name,action:'run'});
 	}).done(function(){
 		if (self.queue.length > 0){
 			return self.run();
@@ -152,7 +157,6 @@ queue.prototype.run = function(){
 			self.isRunning = false;
 		}
 	});
-		// do somehting here;
 };
 
 

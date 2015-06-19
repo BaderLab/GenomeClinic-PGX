@@ -1,0 +1,79 @@
+<div class="row" style="padding-top: 30px;">  
+	<div class="large-12 small-12 medium-12 columns">
+		<h2><i class="fa fa-medkit"></i>&nbspManage Dosing Recommendations</h2>
+		<h5 class="subheader">Displaying dosing information for all available genes</h5>
+		<p>Select any of the available genes below to modify the dosing information for that specific gene. You can change, add or remove any drug interactions to each gene</p>
+		<div class="row">
+        	<div class="large-4 medium-6 small-12 columns">
+          		<a href="#" class="small-12 medium-12 large-12 button alert radius left" id="add-new-gene">Add New Gene</a>
+          		<ul class="button-group even-2 radius" id="button-group" style="display:none">
+          			<li><a href="#" class="button success" id="submit-new-gene" >Submit</a></li>
+          			<li><a href="#" class="button" id="cancel-new-gene">Cancel</a></li>
+          		</ul>
+        	</div>
+        </div>
+        <div class="row">
+        	<form data-abide="ajax" id="submit-new-gene-form" style="display:none"">
+	        	<div class="large-12 medium-12 small-12 columns">
+	        		<div class="row collapse prefix-radius">
+	        			<div class="large-3 small-4 medium-3 columns">
+	        				<span class="prefix">Gene Name</span>
+	        			</div>
+	        			<div class="large-9 small-8 medium-9 columns">
+	        				<input id="new-gene-name" type="text" required pattern="^[a-zA-Z.'*+-_:\/]+">
+	        				<small class="error">Valid gene name required.</small>
+	        			</div>
+	        		</div>
+	        	</div>
+        		<button type="submit" style="display:none"></button>
+        	</form>
+      	</div>
+      	<div class="row">
+		  	<div class="small-12 columns">
+		    	<div data-alert class="alert-box radius secondary" id="error-display-box"  style="display:none">
+		    	<!-- Alert message goes here -->
+			  		<div class="row">
+			    		<div class="small-11 columns">
+			      			<p id="error-display-message"></p>
+			    		</div>
+			  			<div class="small-1 columns">
+			    			<a href="#" class='close-box'><i class="fi-x size-16" style="color:#606060"></i></a>
+			  			</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="small-12 large-12 medium-12 columns">
+		<div class="row collapse prefix-radius">
+			<div class="large-2 medium-3 small-4 columns">
+				<span class="prefix">Search</span>
+			</div>
+			<div class="large-4 medium-7 small-8 left columns">
+				<input type="text" id="search-box">
+			</div>
+		</div>
+		<table class="large-12 medium-12 small-12 id="gene-dosage">
+			<thead>
+				<tr>
+					<th>Gene</th>
+					<th class="text-center">Number of Recommendations</th>
+					<th class="text-center">Number of Future Considerations</th>
+					<th class="text-center">Number of Associated Haplotypes</th>
+				</tr>
+			</thead>
+			<tbody>
+				{{#each genes}}
+				<tr class="dose-row" onclick="document.location='/dosing/current/{{gene}}'" data-gene="{{gene}}">
+					<td>{{gene}}</td>
+					<td class="text-center">{{numRecs}}</td>
+					<td class="text-center">{{numFuture}}</td>
+					<td class="text-center">{{numHaplo}}</td>
+				</tr>
+				{{/each}}
+			</tbody>
+		</table>
+	</div>
+</div>

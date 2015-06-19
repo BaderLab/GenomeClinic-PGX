@@ -3,12 +3,11 @@
  * @author Ron Ammar
  */
 
-var $ = require('jquery'),
-	templates = require('./templates'),
-	utility = require('./utility');
-pgx = require('./pgx');
+var utility = require('./utility'),
+	pgx = require('./pgx'),
+	dosing = require('./dosing-recommendations');
 
-module.exports = function() {
+(function() {
 	/* AJAX call to application server to retrieve patients.
 	 * This is based on the local MongoDB collections, not GA4GH. */
 		/* match funcion for the searchbar */
@@ -75,10 +74,14 @@ module.exports = function() {
 		} else if (location.match(/^\/browsepatients\/id\/.*/) !== null){
 			pgx.loadPGx();
 
+		} else if (location.match(/^\/browsepatients\/dosing\/.*/) !== null){
+			dosing.render();
 		}
 	}
-	return main();
-};
+	$(document).ready(function(){
+		return main();
+	})
+})()
 
 
 

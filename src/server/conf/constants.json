@@ -78,23 +78,67 @@
 			"PROJECT_ARRAY_FIELD":"tags"
 		},
 		"PGX":{
+			"REPORT":{
+				"DEFAULT":"{{DIR}}/views/default-pgx-report.hbs"
+			},
 			"COORDS":{
-				"DEFAULT":"lib/conf/pgx_coordinates.json",
+				"DEFAULT":"{{DIR}}/lib/conf/pgx_coordinates.json",
 				"COLLECTION":"pgxCoordinates",
 				"ID_FIELD":"id"
 				},
 			"GENES":{
-				"DEFAULT":"lib/conf/pgx_genes.json",
+				"DEFAULT":"{{DIR}}/lib/conf/pgx_genes.json",
 				"COLLECTION":"pgxGenes",
 				"ID_FIELD":"gene"
+			}
+		},
+		"DRUGS":{
+			"ALL":{
+				"COLLECTION":"dosing",
+				"ID_FIELD":"gene",
+				"RECOMMENDATIONS":"recommendations",
+				"FUTURE":"future",
+				"HAPLO":"haplotypes"
+			},
+			"REPORT":{
+				"DEFAULT":"{{DIR}}/views/default-dosing-report.hbs"
+			},
+			"HAPLO":{
+				"COLLECTION":"haplotypes",
+				"ID_FIELD":"gene",
+				"CLASS":"class",
+				"HAPLOTYPES":"haplotypes"
+			},
+			"DOSING":{
+				"DEFAULT":"{{DIR}}/lib/conf/dosing_guidelines.json",
+				"COLLECTION":"drugRecommendations",
+				"GENES":"genes",
+				"DRUG":"drug",
+				"CLASSES":"classes",
+				"RECOMMENDATIONS":"rec",
+				"PMID":"pubmed",
+				"RISK":"risk"
+			},
+			"FUTURE":{
+				"DEFAULT":"{{DIR}}/lib/conf/future_guidelines.json",
+				"COLLECTION":"future",
+				"ID_FIELD":"gene",
+				"CLASS" : "class",
+				"RECOMMENDATIONS":"rec"
+			},
+			"CLASSES":{
+				"DEFAULT":"{{DIR}}/lib/conf/therapeutic_classes.json",
+				"COLLECTION":"therapeuticClasses",
+				"ID_FIELD":"Therapeutic_Class"	
 			}
 		}
 	},
 	"nodeConstants":{
 		"SERVER_DIR":"{{DIR}}",
-		"VCF_UPLOAD_DIR":"upload/vcf",
-		"TMP_UPLOAD_DIR":"tmp",
-		"LOG_DIR":"logs",
+		"VCF_UPLOAD_DIR":"{{DIR}}/upload/vcf",
+		"UPLOAD_DIR":"{{DIR}}/upload",
+		"TMP_UPLOAD_DIR":"{{DIR}}/tmp",
+		"LOG_DIR":"{{DIR}}/logs",
 		"COM_LOG_PATH":"https.log",
 		"ERR_LOG_PATH":"error.log",
 		"INFO_LOG_PATH":"info.log",

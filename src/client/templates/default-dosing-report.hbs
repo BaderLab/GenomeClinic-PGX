@@ -1,0 +1,303 @@
+{{!--Default report for dosing recommendations --}}
+<html class="no-js" lang="en">
+  	<head>
+    	<meta charset="utf-8"/>
+    	<link rel="stylesheet" type="text/css" href="../public/css/pgx-report.css" />
+  	</head>
+  	<body>
+	  	<div class="row" style="margin-top:0px;margin-bottom:0px;">
+	  		<div class="col-12 columns green-back">
+	  			<h4 style="padding-left:5px;margin-bottom:0px;">Dosing Guidelines Report</h4>
+	  		</div>
+	  	</div>
+	  	<hr color="#B0B0B0" style="height:2px;margin-top:0px">
+	  	<!-- Start Patient and Physician Information -->
+	  	<section>
+		  	<div class="row">
+		  		<div class="col-4 columns grey-border">
+		  			<div class="row bspacer-2">
+		  				<div class="col-12 columns" style="background-color:#71a971">
+		  					<p class="size-10 lspacer-2">Information</p>
+		  				</div>
+		  			</div>
+			  		<div class="row separator">
+			  			<div class="col-4 columns">
+			  				<p class="lspacer-2 size-8 left thin"><b>REPORT DATE</b></p>
+			  			</div>
+			  			<div class="col-6 right columns">
+			  				<p class="rspacer-2 size-8 left thin">{{date}}</p>
+			  			</div>
+			  		</div>
+			  		<div class="row separator">
+			  			<div class="col-4 columns">
+			  				<p class="lspacer-2 size-8 left thin"><b>Report Number</b> </p>
+			  			</div>
+			  			<div class="col-6 right columns">
+			  				<p class="rspacer-2 size-8 left thin">{{reportNum}}</p>
+			  			</div>
+			  		</div>
+			  		<div class="row bspacer-2">
+			  			<div class="col-4 columns">
+			  				<p class="lspacer-2 size-8 left thin"><b>Specimen Type</b> </p>
+			  			</div>
+			  			<div class="col-6 right columns">
+			  				<p class="rspacer-2 size-8 left thin">{{patient.sampletype}}</p>
+			  			</div>
+			  		</div>
+			  		<div class="row">
+		  				<div class="col-12 columns" style="background-color:#71a971">
+		  					<p class="size-10 lspacer-2">Referring Physician</patient>
+		  				</div>
+		  			</div>
+		  			<div class="row">
+			  			<div class="col-12 columns">
+			  				<p class="lspacer-2 size-8 left">{{dr.name.last}} {{dr.name.first}} M.D.</p>
+			  				<p class="lspacer-2 size-8 left">{{dr.address}}</p>
+			  				<p class="lspacer-2 size-8 left">{{dr.city}}, {{dr.region}}</p>
+			  				<p class="lspacer-2 size-8 left">{{dr.postal}}</p>
+			  			</div>
+			  		</div>
+			  	</div>
+		  		<div class="col-8 right columns">
+		  			<div class="row">
+		  				<div class="col-12 columns grey-border" style="background-color:#71a971">
+		  					<p class="size-10 lspacer-2">Patient Information</p>
+		  				</div>
+		  			</div>
+		  			<div class="row lspacer-2">
+						<div class="col-6 columns">
+							<div class="row">
+					  			<div class="col-3 columns">
+					  				<p class="size-8 left"><b>NAME</b></p>
+					  			</div>
+					  			<div class="col-9 columns">
+					  				<p class="size-8 left">{{patient.name.last}}, {{patient.name.first}}</p>
+					  			</div>
+					  		</div>
+				  			<div class="row">
+				  				<div class="col-3 columns">
+				  					<p class="size-8 left"><b>PATIENT ID</b></p>
+				  				</div>
+				  				<div class="col-9 columns">
+				  					<p class="size-8 left">{{patient.mrn}}</p>
+				  				</div>
+				  			</div>
+				  			<div class="row">
+				  				<div class="col-3 columns">
+				  					<p class="size-8 left"><b>SEX</b></p>
+				  				</div>
+				  				<div class="col-9 columns">
+				  					<p class="size-8 left">{{patient.sex}}</p>
+				  				</div>
+				  			</div>
+					  	</div>
+					  	<div class="col-6 columns">
+				  			<div class="row">
+				  				<div class="col-6 columns">
+				  					<p class="size-8 left"><b>DOB</b></p>
+				  				</div>
+				  				<div class="col-6 columns">
+				  					<p class="size-8 left">{{patient.dob.date}}/{{patient.dob.month}}/{{patient.dob.year}}</p>
+				  				</div>
+				  			</div>
+				  			<div class="row">
+				  				<div class="col-6 columns">
+				  					<p class="size-8 left"><b>WEIGHT</b></p>
+				  				</div>
+				  				<div class="col-6 columns">
+				  					<p class="size-8 left">{{patient.weight}}</p>
+				  				</div>
+				  			</div>
+				  			<div class="row">
+				  				<div class="col-6 columns">
+				  					<p class="size-8 left"><b>HEIGHT</b></p>
+				  				</div>
+				  				<div class="col-6 columns">
+				  					<p class="size-8 left">{{patient.height}}</p>
+				  				</div>
+				  			</div>
+				  			<div class="row">
+				  				<div class="col-6 columns">
+				  					<p class="size-8 left"><b>AGE</b></p>
+				  				</div>
+				  				<div class="col-6 columns">
+				  					<p class="size-8 left">{{patient.age}}</p>
+				  				</div>
+				  			</div> 
+				  		</div>
+				  	</div>
+				  	<div class="row lspacer-2">
+					  	<div class="col-12 columns">
+				  			<div class="row">
+						  		<div class="col-3 columns">
+						  			<p class="size-8 left"><b>MEDIACATIONS</b></p>
+						  		</div>
+						  		<div class="col-9 columns">
+						  			<p class="size-8 left">{{patient.medications}}</p>
+						  		</div>
+						  	</div>
+					  	</div>
+					</div>
+					<div class="row lspacer-2">
+						<div class="col-12 columns">
+							<label class="size-8"><b>REASON</b></label>
+							<p  class="size-8 left">{{patient.reason}}</p>
+						</div>
+					</div>
+			  	</div>
+		  	</div>
+	  	</section>
+	  	<!-- End Patrient and Physician information -->
+	  	<br>
+	  	<!-- Start PGx Analsyis tables and information on observed haplotypes / observd class -->
+	  	<section>
+			<h5 class="thin lspacer-1">PGx Analysis and Results</h5>
+			<hr color="#B0B0B0" style="height:1px">
+			{{!-- only add this table if there are genes found, otherwise show an alert box--}}
+			{{#if genes}}
+			<table class="rec no-space col-12">
+		  		<thead class="rec">
+					<tr class="rec">
+						<th class="size-10 col-2 rec" style="padding:1%">Gene</th>
+						<th class="size-10 col-3 rec" style="padding:1%">First Haplotype</th>
+						<th class="size-10 col-3 rec" style="padding:1%">Second Haplotype</th>
+						<th class="size-10 col-4 rec" style="padding:1%">Therapeutic Class</th>
+					</tr>
+				</thead>
+				<tbody>
+				{{!-- cycle over each gene, adding a new row each time --}}
+				{{#each genes}}
+					<tr class="rec">
+						<td class="size-8" style="padding:1%">{{gene}}</td>
+						<td class="size-8" style="padding:1%">{{haplotypes.[0]}}</td>
+						<td class="size-8" style="padding:1%">{{haplotypes.[1]}}</td>
+						<td class="size-8" style="padding:1%">{{class}}</td>
+					</tr>
+				{{/each}}
+				</tbody>
+			</table>
+			{{else}}
+			<div class="col-12 columns grey-border" style="background-color:#E8F2FF;">
+				<p class="size-10" style="padding:2%">There were no genes found in the PGx analsysis</p>
+			</div>
+			{{/if}}
+	  	</section>
+	  	<!-- End PGx Anaylsis tables and information -->
+	  	<!-- Start Future Considerations section containing recommendations for future -->
+	  	<section style="page-break-before: always;">
+			<h5 class="thin lspacer-1">Genes of Interest for Future Care</h5>
+			<hr color="#B0B0B0" style="height:1px">
+			<div class="row">
+				<div class="col-12 columns">
+					{{!-- only add the table if there are future considerations present--}}
+					{{#if future}}
+					<table class="rec no-space col-12">
+						<thead class="rec">
+							<tr class="rec">
+								<th class="size-10 col-2 rec" style="padding:1%">Gene</th>
+								<th class="size-10 col-4 rec" style="padding:1%">Patient Therapeutic status</th>
+								<th class="size-10 col-6 rec" style="padding:1%">Implications of Genetic Profile</th>
+							</tr>
+						</thead>
+						<tbody>
+						{{!-- cycle over each consideration, adding a row each time --}}
+						{{#each future}}
+							<tr class="rec">
+								<td class="size-8" style="padding:1%">{{gene}}</td>
+								<td class="size-8" style="padding:1%">{{class}}</td>
+								<td class="size-8" style="padding:1%">{{rec}}</td>
+							</tr>
+						{{/each}}
+						</tbody>
+					</table>
+					{{else}}
+					<div class="col-12 columns grey-border" style="background-color:#E8F2FF;">
+						<p class="size-10" style="padding:2%">There were no future recommendations found corresponding to the patient's genetic profile</p>
+					</div>
+					{{/if}}
+				</div>
+			</div>
+		</section>
+		<!-- End future Considerations -->
+		<br />
+		<!-- Start Drug recommendations for current Drugs -->
+		<section>
+		  	<h5 class="thin lspacer-1">Dosaging Recommendations</h5>
+		  	<hr color="#B0B0B0" style="height:1px">
+		  	{{!-- Only add table if there are recommendations to actually add}}
+		  	{{#if  recommendations}}
+			  	<table class="rec no-space col-12">
+			  		<thead class="rec">
+						<tr class="rec">
+							<th class="size-10  col-2 rec" style="padding:1%">Drug</th>
+							<th class="size-10  col-1 rec" style="padding:1%">Risk</th>
+							<th class="size-10  col-6 rec" style="padding:1%">Comments</th>
+						</tr>
+					</thead>
+					<tbody>
+					{{!-- cycle over each recommendation}}
+			  		{{#each recommendations}}
+			  			<tr class="rec">
+							<td class="size-8" style="padding:1%">{{drug}}</td>
+							<td><div class="circle risk-{{risk}}"></div></td>
+							<td class="size-8" style="padding:1%">{{rec}}<sup>{{pubmedString}}</i></sup></td>
+						</tr>
+					{{/each}}
+					</tbody>
+				</table>
+				<!-- table legend for recommendation risk -->
+		  		<div class="row grey-border tspacer-2" style="padding-top:5px;padding-bottom:5px;">
+		  			<div class="col-2 columns lspacer-1">
+		  				<p class="size-8"><b>LEGEND</b></p>
+		  			</div>
+		  			<div class="col-1 columns">
+		  				<div class="risk-Low circle"></div>
+		  			</div>
+		  			<div class="col-2 columns">
+		  				<p class="size-8 left">Low risk</p>
+		  			</div>
+		  			<div class="col-1 columns">
+		  				<div class="risk-Medium circle"></div>
+		  			</div>
+		  			<div class="col-2 columns">
+		  				<p class="size-8 left">Medium risk</p>
+		  			</div>
+		  			<div class="col-1 columns">
+		  				<div class="risk-High circle"></div>
+		  			</div>
+		  			<div class="col-2 columns">
+		  				<p class="size-8 left">High risk</p>
+		  			</div>
+		  		</div>
+
+		  	{{else}}
+		  	<div class="row">
+			  	<div class="col-12 columns grey-border" style="background-color:#E8F2FF;">
+					<p class="size-10" style="padding:2%">There were no perscribing recommendations found corresponding to the patient's genetic profile</p>
+				</div>
+			</div>
+			{{/if}}
+		</section>
+		<!-- End recommednatiion Section -->
+		<!-- Start final Summary section and citations -->
+		<section style="page-break-before:always">
+		  	<h5 class="thin">Summary</h5>
+		  	<hr color="#B0B0B0" style="height:1px">
+		  	<div class="row">
+		  		<div class="col-12 columns">
+		  			<textara class="size-8">{{summary}}</textarea>
+		  		</div>
+	  		</div>
+		</section>
+		<br>
+		<br>
+		<section>
+			{{#each citations}}
+			<p clas="size-8">{{index}}. {{citation}}</p>
+			{{/each}}	
+		</section>
+		<!-- END BODY -->
+
+	</body>
+</html> 
+

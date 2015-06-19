@@ -12,16 +12,15 @@
  * https://github.com/blueimp/jQuery-File-Upload
  * @author Patrick Magee
 */
-var $ = require('jquery'),
-    templates = require('./templates'),
-    utility = require('./utility');
+var utility = require('./utility');
+
 
 //add the appropriate handlers to the window for handling the transport
-require("./lib/vendor/jquery.ui.widget");
+/*require("./lib/vendor/jquery.ui.widget");
 require("./lib/jquery.iframe-transport");
-require("./lib/jquery.fileupload");
+require("./lib/jquery.fileupload");*/
 
-module.exports = function(){
+(function(){
   //======================================================================================================
   // HELPER FUNCTIONS
   //======================================================================================================
@@ -105,32 +104,12 @@ module.exports = function(){
    * included
    */ 
   var dynamicHandlers = function(){
-
-    //Sex switch hanlder convers between male and female and NA Dynamically changing the
-    //Hidden input value
-    $('.sex-switch').find('a').on('click',function(event){
-      event.preventDefault();
-      $(this).closest('.sex-switch').find('a').addClass('secondary');
-      $(this).removeClass('secondary');
-      var newSex = $(this).text();
-      if (newSex === "N/A")
-        newSex = "";
-      $(this).closest('div').find('input').val(newSex);
-    });
-
-    //listen for keyup events on age input fields. When an event happens ensure taht there is
-    //A valid number in the field. if not, convert it to ""
-    $('.age').on('keyup',function(){
-      if (isNaN($(this).val())){
-        $(this).val("");
-      } 
-    });
-
     //Sometimes the parsing of the names may not be correct, this will modify the input in accordance with that
     $('.remove-patient').on('click',function(event){
       event.preventDefault();
       $(this).closest('.new-patients').parent().remove();
     });
+
 
     /* The Patient_id tag must be unique both within the form and within the currently existing 
      * base. This handler listens for keyup events. It first will remove any invalid characters from the patient
@@ -216,10 +195,10 @@ module.exports = function(){
             reject(new Error("Patient Id is Required"));
           //only include non-null values
           } else if (dataArray[j].value !== "") {
-            if (dataArray[j].name == 'age'){
+            /*if (dataArray[j].name == 'age'){
               //parse age to an int
               dataArray[j].value = parseInt(dataArray[j].value);
-            }
+            } */
             //because the way the server parses the objects passed to it, you cannot have a 
             //recrusive array with multiple depths. Therefore each property is prepended by
             //an index for later parsing so that a flat object is created
@@ -449,10 +428,12 @@ module.exports = function(){
   };
 
   //render main page html
-  return templates.uploadpage.index()
-  .then(function(renderedHtml){
-    $('#main').html(renderedHtml);
-  }).then(function(){
-    addAllEventListeners();
+ $(document).ready(function(){
+    return templates.uploadpage.index()
+    .then(function(renderedHtml){
+      $('#main').html(renderedHtml);
+    }).then(function(){
+      addAllEventListeners();
+    });
   });
-};
+})();

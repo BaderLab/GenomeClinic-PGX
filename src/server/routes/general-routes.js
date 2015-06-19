@@ -7,14 +7,13 @@
 var Promise = require('bluebird');
 var constants = require('../lib/conf/constants.json');
 var utils = require('../lib/utils');
+var dbFunctions = require("../models/mongodb_functions");
 
 var dbConstants = constants.dbConstants,
 	nodeConstants = constants.nodeConstants;
 
-module.exports = function(app,dbFunctions){
+module.exports = function(app,logger,opts){
 	var configured;
-	if (!dbFunctions)
-		dbFunctions = require("../models/mongodb_functions");
 	//==================================================================
 	//Route to the home page, or the config page if it is not set
 	//==================================================================
@@ -34,7 +33,13 @@ module.exports = function(app,dbFunctions){
 				if (!configured) {
 					configured= resolved_config;
 				}
-				utils.render(req,res);
+				var options = {
+					code:{
+						code: "$(document).ready(function(){templates.index({title:'PGX Webapp'}).then(function(renderedHtml){$('#main').html(renderedHtml);});});",
+						type:"text/javascript"
+					}
+				}
+				utils.render(req,res,options);
 			} else {
 				res.redirect('/config');
 			}
@@ -49,16 +54,15 @@ module.exports = function(app,dbFunctions){
 		dbFunctions.getAdminEmail()
 		.then(function(result){
 			if (result === req.user.username)
-				utils.render(req,res);	
+				utils.render(req,res,{scripts:'config.js'});	
 			else {
 				if (configured === undefined){
 					dbFunctions.isConfigured()
 					.then(function(result){
-						console.log(result);
 						if ( result )
 							utils.render(req,res,'notfound');
 						else
-							utils.render(req,res);
+							utils.render(req,res,{scripts:'config.js'});
 					});
 				} else {
 					utils.render(req,res,'notfound');
@@ -69,7 +73,7 @@ module.exports = function(app,dbFunctions){
 
 	app.post("/config", utils.isLoggedIn, function(req,res){
 		var configSettings= req.body;
-		dbFunctions.update(dbConstants.DB.ADMIN_COLLECTION, {}, {$set: configSettings})
+		dbFunctions.update(dbConstants.DB.ADMIN_COLLECTION, {}, {$set: configSettings},undefined,req.user.username)
 		.then(function(result){
 			dbFunctions.isConfigured(true);
 		}).then(function(result){
@@ -81,15 +85,63 @@ module.exports = function(app,dbFunctions){
 	//Generic page routers
 	//==================================================================
 
-	//new projects
 	app.get(['/statuspage'], utils.isLoggedIn, function(req,res){
-		utils.render(req,res);
+		utils.render(req,res,{scripts:'status-page.js'});
 	});
 
 
-	/*app.get('/panels',utils.isLoggedIn,function(req,res){
-		utils.render(req,res,'construction');
-	});*/
+	//==================================================================
+	//Generic DB  / utility routes
+	//==================================================================
+	app.get("/database/patients/completed", utils.isLoggedIn, function(req,res){
+		var username = req.user[dbConstants.USERS.ID_FIELD];
+		dbFunctions.findAllPatients(username,true,{sort: {"completed": -1}})
+		.then(function(result){
+			res.send(result);
+		});
+
+	});
+
+	/* Find ALL patients including those in the queue and failure db */
+	app.use('/database/patients/all',utils.isLoggedIn, function(req,res){
+		var username = req.user[dbConstants.USERS.ID_FIELD];
+		dbFunctions.findAllPatients(username, false, {sort:{'added':-1}})
+		.then(function(result){
+			res.send(result);
+		});
+	});
+
+	app.post('/database/owner',utils.isLoggedIn,function(req,res){
+		var user = req.user[dbConstants.USERS.ID_FIELD];
+		var collection = req.body.collection;
+		var query = req.body.query;
+		dbFunctions.getOwner(collection,query)
+		.then(function(result){
+			if (result);
+				var _o = {
+					owner:result,
+					isOwner:(user==result),
+					user:user
+				};
+				res.send(_o);
+		}).catch(function(err){
+			console.log(err);
+		});
+	});
+
+	/* checkt to see whether the content within the body is within the database
+	 *  returns true/false */
+	app.post('/database/checkInDatabase',utils.isLoggedIn,function(req,res){
+		var options = req.body;
+		dbFunctions.checkInDatabase(options.collection,options.field,options.value)
+		.then(function(result){
+			res.send(result);
+		});
+	});
+
+
+
+
 	//==================================================================
 	//Handle 404 routes
 	//==================================================================

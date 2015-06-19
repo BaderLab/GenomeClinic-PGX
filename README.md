@@ -7,22 +7,40 @@ Web application for clinical pharmacogenomic interpretation.
 1. [Node.js](http://nodejs.org/)
 2. [MongoDB](http://mongodb.org/downloads)
 3. [Annovar](http://www.openbioinformatics.org/annovar/annovar_download_form.php)
+4. [PhantomJS](http://phantomjs.org/) 2.0.0 or later
 
 The web server is built as an [express](http://expressjs.com/) app and utilizes a mongo database for back end storage of variant information as well as general server information. Additionally the current annotation pipeline utilizes Annovar for variant annotation. Annovar is a third party application which requires a licesnce agreement and can be used for free so long as it is not for commercial purposes.
 
+PhantomJS must be installed and accessible through the path environment variable
+
 ## Annovar Installation
 
-Simply follow the instrcutions on the annovar website to install. Additionally there are several annotation libraries that the webserver expects to be installed. To install these simply run the following commands:
+Simply follow the instrcutions on the annovar website to install. Additionally there are several annotation libraries that the webserver expects to be installed. We have included a convienient script that will download the required libraries for you, assuming that annovar has already been installed. To do so run the script in a terminal with one argument directing the script to the annovar folder.
 
 ```shell
-perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar knowngene humandb/
-perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar ljb26_all humandb/
-perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar cg69 humandb/
-perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar esp6500_all humandb/
-perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar 1000g2014sep_all humandb/
-perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar clinvar_20140929 humandb/
-perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar snp138 humandb/
+./download_annovar_modules.sh /path/to/annovar
 ```
+
+You will need approximaetly 35gb of hard disk space to accomodate all of the databases once they are downloaded and unpacked. 
+
+Optionally, if you did not want to downalod all of the annotations, simply pick the annotations you want to download from the list below of currently supported annotations
+
+1. knowngene
+2. ljb26_all
+3. cg69
+4. esp6500_all
+5. 1000g2014sep_all
+6. clinvar_20140929
+7. snp138
+
+Use the following command to download each database individually
+
+
+```shell
+/path/to/annovar/annotate_variation.pl -buildver hg19 -downdb -webfrom annovar [database] humandb/
+```
+
+Then once you start the server for the first time, check off the databses that were installed from the configuration page to let the server know which annotations to inlcude.
 
 ## MongoDB setup
 
@@ -90,7 +108,7 @@ If you possess an https certificate and would like to use only https routes, the
 
 The server by default operates on ports 80 and 443 (for https traffic). You can modify this with the `--httpsport` and `--httpport` commands followed by the desired port number. We do not recommend you to use non standard ports, unless you must. For a complete list of options run
 
-`node server.js -h`
+`node webapp.js -h`
 
 ## Killing the Server
 
@@ -98,7 +116,7 @@ The server can be terminated by typing "CTRL-C" in a Unix terminal.
 
 If you are going to run the server in the background, like this
 
-`node server.js &`
+`node webapp.js &`
 
 we advise that you terminate the server using a SIGINT, allowing the server to exit gracefully:
 

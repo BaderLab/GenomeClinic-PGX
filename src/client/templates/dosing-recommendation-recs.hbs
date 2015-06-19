@@ -1,0 +1,48 @@
+{{#each recommendation}}
+	<fieldset class="recommendation-field" data-id="{{_id}}">
+		<legend class="drug-name">{{drug}}</legend>
+		<div class="row">
+			<div class="large-11 small-11 medium-11 columns">
+				<label><h6><b>Dependant Genes</b></h6></label>
+			</div>
+			<div class="large-1 small-1 medium-1 columns">
+				<a href="#" class="button tiny radius right"><i class="fi-x"></i></a>
+			</div>
+		</div>
+		{{#each genes}}
+		<div class="row">
+			<div class="small-4 large-2 medium-3 columns">
+				<label><b>Gene:</b></label>
+			</div>
+			<div class="small-8 large-3 medium-3 columns">
+				<p class='left gene-name'><i>{{this}}</i></p>
+			</div>
+			<div class="small-4 large-3 medium-3 columns">
+				<label><b>Metabolic Status:</b></label>
+			</div>
+			<div class="small-8 large-4 medium-3 columns">
+				<hp class='left class-name'><i>{{lookup ../classes @index}}</i></p>
+			</div>
+		</div>
+		{{/each}}
+		<label><h6><b>Perceived Risk</b></h6><label>
+		<p class="risk">{{risk}}</p>
+		<div class="row">
+			<div class="large-12 small-12 medium-12 columns">
+				<label><h6><b>Dosing Recommendation</b></h6></label>
+				<textarea class="rec" rows=5 required>{{rec}}</textarea>
+				<small class="error">Required</small>
+			</div>
+		</div>
+		<div class="row">
+			<div class="large-12 small-12 medium-12 columns">
+				<label><h6><b>Citations</b></h6></label>
+				<ol style="font-size:1em">
+				{{#each pubmed}}
+					<li><span class="pubmed">{{{lookup ../../citations this}}}</span></li>
+				{{/each}}
+				</ol>
+			</div>
+		</div>
+	</fieldset>
+{{/each}}

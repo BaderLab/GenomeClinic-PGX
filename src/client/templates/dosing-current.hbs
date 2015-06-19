@@ -1,0 +1,517 @@
+<!-- 
+All information for a specifc gene that relates to the recommendation report. This page
+Allows the user to easily modify the Database entries for a specific gene, as it visually
+displays the Drug Recommendations, the future considerations as well as all haplotypes
+associated with the current gene. Additionally, it enables the user to add new entries 
+-->
+
+<!-- Start Top Banner -->
+<div class="row" style="padding-top: 30px;">  
+	<div class="large-12 small-12 medium-12 columns">
+		<a href="/dosing" class="button radius"><i class="fa fa-arrow-left"></i>&nbspBack</a>
+		<div class="row">
+			<div class="large-10 small-12 medium-8 columns">
+				<h1><i class="fa fa-medkit"></i>&nbsp{{gene}}</h1>
+			</div>
+			<div class="large-2 small-12 medium-4 columns">
+				<a href="#" class="button radius large-12 small-12 medium-12" id="delete-all" data-id="{{_id}}">Delete</a>
+			</div>
+		</div>
+		
+	</div>
+</div>
+<!-- end top banner -->
+<div id="confirm-delete" class="reveal-modal large" data-reveal>
+	<!-- Foundation reveal modal used to confirm an action ie. to delete or not to delete a section -->
+	<h4></h4>
+	<h6 class="subheader"></h6>
+	<div class="row">
+		<div class="large-6 small-12 medium-6 columns">
+			<a href="#" class="large-12 small-12 medium-12 success button radius">Confirm</a>
+		</div>
+		<div class="large-6 small-12 medium-6 columns">
+			<a href="#" class="large-12 small-12 medium-12 alert button radius cancel">Cancel</a>
+		</div>
+	</div>
+</div>
+<!-- 
+Page alert box displays errors that situated form performing an action on the whole gene, ie adding
+a new recommendation, future, haplotype. Deleting the page etc
+-->
+<div class="row">
+  	<div class="small-12 columns">
+    	<div data-alert class="alert-box radius secondary" id="error-display-box"  style="display:none">
+    	<!-- Alert message goes here -->
+	  		<div class="row">
+	    		<div class="small-11 columns">
+	      			<p id="error-display-message"></p>
+	    		</div>
+	  			<div class="small-1 columns">
+	    			<a href="#" class='close-box'><i class="fi-x size-16" style="color:#606060"></i></a>
+	  			</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!--Start Recommendation Section -->
+<div class="row">
+	<div class="large-12 small-12 medium-12 columns">
+		<div class="row">
+			<div class="large-8 small-8 medium-8 columns" style="margin-top:60px">
+				<h2 id="recommendation-header">Dosing Recommendations</h2>
+			</div>
+			<div class="large-4 small-4 medium-4 columns">
+				<fieldset>
+					<p style="margin:0px"><a class="scroll-to-future">Go to Future Recommendations</a></p>
+					<p style="margin:0px"><a class="scroll-to-haplo">Go To Haplotypes</a></p>
+				</fieldset>
+			</div>
+			<hr>
+		</div>
+		<div class="row">
+			<div class="large-4 small-12 medium-6 columns">
+				<!-- Buttons for adding new recommednations -->
+				<a href="#" id="new-recommendation" class="button radius alert large-12 small-12 medium-12">New Recommendation</a>
+				<ul class="button-group even-2 radius" id="new-recommendation-triggers" style="display:none">
+					<li><a href="#" class="button success" id="new-recommendation-trigger-submit">Submit</a></li>
+					<li><a href="#" class="button" id="new-recommendation-cancel-trigger">Cancel</a></li>
+				</ul> 
+			</div>
+			<!-- Start new recommendation html -->
+			<div class="large-12 small-12 medium-12 columns">
+				<form data-abide='ajax' id="new-recommendation-form"  style="display:none">
+					<fieldset>
+						<section id="original-gene">
+							<div class="row">
+								<div class="large-6 small-12 medium-6 columns">
+									<div class="row collapse prefix-radius">
+										<div class="large-4 small-4 medium-4 columns">
+											<span class="prefix">Drug Name</span>
+										</div>
+										<div class="large-8 small-8 medium-8 columns">
+											<input type="text" name="drug" required>
+											<small class="error">Required</small>
+										</div>
+									</div>
+								</div>
+								<div class="large-6 medium-12 small-12 columns">
+									<div class="row collapse prefix-radius">
+										<div class="large-4 small-4 medium-4 columns">
+											<span class="prefix">Therapeutic Class</span>
+										</div>
+										<div class="large-8 small-8 medium-8 columns">
+											<select id="class-name-original" required>
+												{{#each classes}}
+												<option>{{this}}</option>
+												{{/each}}
+											</select>
+											<small class="error">Required</small>
+										</div>
+									</div>
+								</div>
+							</div>
+						</section>
+						<br>
+						<div class="row">
+							<div class="large-8 small-12 medium-8 columns">
+								<label><h6><b>Additional Genes</b></h6></label>
+							</div>
+							<div class="large-4 small-12 medium-4 columns">
+								<!-- Link triggers dosing-additional-gene to be rendered and appened to #additional-genes -->
+								<a class="right" href="#" id="add-additional-gene">Add additional gene</a>
+							</div>
+						</div>
+						<section id="additional-genes">
+						</section>
+						<br>
+						<div class="row">
+							<div class="large-6 small-12 medium-6 columns">
+								<div class="row collapse prefix-radius">
+									<div class="large-4 small-4 medium-4 columns">
+										<span class="prefix">Risk</span>
+									</div>
+									<div class="large-8 small-8 medium-8 columns left">
+										<select name="risk" required id="new_risk">
+											<option>Low</option>
+											<option>Medium</option>
+											<option>High</option>
+										</select>
+										<small class="error">Required</small>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="large-12 small-12 medium-12 columns">
+								<label><h6><b>Recommendation</b></h6></label>
+								<textarea name="rec" rows=4 required id="new_rec"></textarea>
+								<small class="error">Required</small>
+							</div>
+						</div>
+						<div class="row citations">
+							<div class="large-12 small-12 medium-12 columns">
+								<label><h6><b>Citations</b></h6></label>
+								<div class="row">
+									<div class="small-12 medium-4 large-4 columns add-new-pubmed">
+										<div class="row collapse postfix-radius">
+											<div class="large-10 medium-10 small-10 columns">
+												<input class="add-new-pubmed-input" type="text" placeholder="Pubmed ID">
+											</div>
+											<div class="large-2 medium-2 small-2 columns">
+												<a href="#" class="postfix add-new-pubmed-button button secondary tiny" style="margin-bottom:0"><i class="fi-plus"></i></a>
+											</div>
+										</div>
+									</div>
+									<div class="small-12 medium-12 large-12 columns left size-12" style="margin-top:13px">
+										<ol class="pubmed-links" style="font-size:1em">
+										</ol>
+									</div>
+								</div>
+							</div>
+						</div>
+					</fieldset>
+				</form>
+				<!-- End new recommendation -->
+			</div>
+		</div>
+		<div class="row">
+			<div class="large-12 small-12 medium-12 columns">
+				<a href="#" data-state="less" id='toggle-all'>Show less</a>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- Search box to search through drug names -->
+<div class="row">
+	<div class="large-12 small-12 medium-12 columns">
+		<div class="row collapse prefix-radius">
+			<div class="large-2 medium-3 small-4 columns">
+				<span class="prefix">Search Drugs</span>
+			</div>
+			<div class="large-4 medium-7 small-8 left columns">
+				<input type="text" id="search-box">
+			</div>
+		</div>
+	</div>
+</div>
+<!-- Start Drug Recommendation section, organised by drug name -->
+<div class="row">
+	<div class="large-12 small-12 medium-12 columns" id="main_content">
+	{{!-- 
+		The recommendations were previously arranged to be clustered by drug. Each new drug is given its own 
+		collapsable table, with the rows being a different recommendation.
+	--}}
+	{{#each recommendations}}
+		<table class="drug-cont large-12 small-12 medium-12" data-drug="{{drug}}">
+			<thead>
+				<tr class="drug-cont-header" data-state="open">
+					<th>
+						<div class="row">
+							<div class="large-11 small-10 medium-11 columns">
+								<h3><strong>{{drug}}</strong></h3>
+							</div>
+							<div class="large-1 small-2 medium-1 columns">
+								<i class="minimize fa fa-chevron-up fa-2x" style="color:black"></i>
+								<i class="expand fa fa-chevron-down fa-2x" style="color:black;display:none;"></i>
+							</div>
+						</div>
+					</th>
+				</tr>
+			</thead>
+			<tbody class="recommendations">
+			{{!-- Cycle over eacah individual recommendation for each table and add it as a row --}}
+			{{#each recs}}
+				<tr>
+					<td>
+						<div class="large-12 small-12 medium-12 columns">
+							<form data-abide="ajax" data-id="{{_id}}">
+								<div class="row">
+							  		<div class="small-12 columns">
+								    	<div data-alert class="alert-box radius secondary" style="display:none">
+								    	<!-- Alert message goes here -->
+									      	<div class="row">
+									        	<div class="small-11 columns">
+									        	  	<p></p>
+									        	</div>
+									      		<div class="small-1 columns">
+									        		<a href="#" class='close-box'><i class="fi-x size-16" style="color:#606060"></i></a>
+									      		</div>
+									    	</div>
+									    </div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="small-2 large-2 medium-2 right columns">
+										<a href="#" class="edit-table right button tiny secondary radius"><i class="fi-pencil size-16" style="color:#A2A2A2"></i></a>
+									</div>
+									<div class="small-10 large-10 medium-10 columns left">
+										<label><h6><b>Dependant Genes</b></h6></label>
+									</div>
+								</div>
+								{{!-- There could be multiple dependant genes, cycle over them and add each new gene as a div row --}}
+								{{#each genes}}
+								<div class="row">
+									<div class="small-4 large-2 medium-3 columns">
+										<h6>Gene:</h6>
+									</div>
+									<div class="small-8 large-3 medium-3 columns">
+										<h6 class='left'><i>{{this}}</i></h6>
+									</div>
+									<div class="small-4 large-3 medium-3 columns">
+										<h6>Metabolic Status:</h6>
+									</div>
+									<div class="small-8 large-4 medium-3 columns">
+										<h6 class='left class-name'><i>{{lookup ../classes @index}}</i></h6>
+									</div>
+								</div>
+								{{/each}}
+								<br>
+								<div class="row">
+									<div class="large-6 small-12 medium-6 columns">
+										<div class="row collapse prefix-radius">
+											<div class="large-4 small-4 medium-4 columns">
+												<span class="prefix">Risk</span>
+											</div>
+											<div class="large-8 small-8 medium-8 columns left">
+												<select name="risk" disabled="disabled" data-originalvalue="{{risk}}" value="{{risk}}" required>
+													<option>Low</option>
+													<option>Medium</option>
+													<option>High</option>
+												</select>
+												<small class="error">Required</small>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="large-12 small-12 medium-12 columns">
+										<label><h6><b>Recommendation</b></h6></label>
+										<textarea name="rec" rows=4 data-originalvalue="{{rec}}" disabled="disabled" required>{{rec}}</textarea>
+										<small class="error">Required</small>
+									</div>
+								</div>
+								{{!-- Citations start as pubmedID's. Using NCBI e-utils information is retrieved in order to form a proper citaiton --}}
+								<div class="row citations">
+									<div class="large-12 small-12 medium-12 columns">
+										<label><h6><b>Citations</b></h6></label>
+										<div class="row">
+											<div class="small-12 medium-4 large-4 columns add-new-pubmed edit hide">
+												<div class="row collapse postfix-radius">
+													<div class="large-10 medium-10 small-10 columns">
+														<input class="add-new-pubmed-input" type="text" placeholder="Pubmed ID">
+													</div>
+													<div class="large-2 medium-2 small-2 columns">
+														<a href="#" class="postfix add-new-pubmed-button button secondary tiny" style="margin-bottom:0"><i class="fi-plus"></i></a>
+													</div>
+												</div>
+											</div>
+											<!-- Citations generated with NCBI e-utils -->
+											<div class=" small-12 medium-12 large-12 columns left size-16" style="margin-top:13px">
+												<ol class="pubmed-links" stlye="font-size:1em">
+												{{#each pubmed}}
+													<li class="pubmed-link-combo" data-id={{this}}>{{#if ../citations}}{{{lookup ../citations this}}}{{else}}{{this}}{{/if}}&nbsp&nbsp <a href="#" class="edit pubmed-remove-link hide" data-link="{{this}}"><i class="fi-x"></i></a></li>
+												{{/each}}
+												</ol>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row">	
+									<div class="large-4 small-12 medium-6 columns right">
+										<ul class="button-group even-3 form-triggers" style="display:none">
+											<li><button type="submit" class="button success tiny submit-changes">Submit</button></li>
+											<li><a href="#" class="button tiny cancel-changes">Cancel</a></li>
+											<li><a href="#" class="button tiny alert delete-table">Delete</a></li>
+										</ul>
+									</div>
+								</div>
+							</form>
+						</div>
+					</td>
+				</tr>
+			{{/each}}
+			</tbody>
+		</table>
+		{{/each}}
+	</div>
+</div>
+<!-- END Recommednation section -->
+<!-- Start Future Consideration Section -->
+<div class="row">
+	<div class="large-12 small-12 medium-12 columns">
+		<div class="row">
+			<div class="large-8 small-8 medium-8 columns" style="margin-top:60px">
+				<h2 id="future-recommendations-header">Future Considerations</h2>
+			</div>
+			<div class="large-4 small-4 medium-4 columns">
+				<fieldset>
+					<p style="margin:0px"><a class="scroll-to-top">Go to Dosing Recommendations</a></p>
+					<p style="margin:0px"><a class="scroll-to-haplo">Go To Haplotypes</a></p>
+				</fieldset>
+			</div>
+			<hr>
+		</div>
+		<div class="row">
+			<div class="large-4 small-12 medium-6 columns">
+				<!-- buttons to add new future consideration -->
+				<a href="#" id="new-future" class="button radius alert large-12 small-12 medium-12">New Recommendation</a>
+				<ul class="button-group even-2 radius" id="new-future-triggers" style="display:none">
+					<li><a href="#" class="button success" id="new-future-trigger-submit">Submit</a></li>
+					<li><a href="#" class="button" id="new-future-cancel-trigger">Cancel</a></li>
+				</ul> 
+			</div>
+			<div class="large-12 small-12 medium-12 columns">
+				<!-- Start new consideration -->
+				<form data-abide="ajax" id="new-future-form" style="display:none">
+					<fieldset>
+					<div class="large-6 small-12 medium-6 columns">
+						<div class="row collapse prefix-radius">
+							<div class="large-4 small-4 medium-4 columns">
+								<span class="prefix">Therapeutic Class</span>
+							</div>
+							<div class="large-8 small-8 medium-8 columns">
+								<select name="class" required>
+									{{#each classes}}
+									<option>{{this}}</option>
+									{{/each}}
+								</select>
+								<small class="error">Required</small>
+							</div>
+						</div>
+					</div>
+					<div class="large-12 small-12 medium-12 columns">
+						<label>Recommendation</label>
+						<textarea name="rec" rows=3 required></textarea>
+						<small class="error">Required</small>
+					</div>
+					</fieldset>
+				</form>
+				<!-- end new Consideration -->
+			</div>
+		</div>
+		<!-- Start Considerations -->
+		<div class="row">
+		  	<div class="small-12 columns">
+		    	<div data-alert class="alert-box radius secondary" id="error-display-box-2"  style="display:none">
+		    	<!-- Alert message goes here -->
+			  		<div class="row">
+			    		<div class="small-11 columns">
+			      			<p id="error-display-message-2"></p>
+			    		</div>
+			  			<div class="small-1 columns">
+			    			<a href="#" class='close-box'><i class="fi-x size-16" style="color:#606060"></i></a>
+			  			</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="large-12 small-12 medium-12 columns">
+				<table class="large-12 small-12 medium-12" id="future-recommendations" style="display:none">
+					{{!-- Html is separately renderd From dosing-future --}}
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- End Consideration -->
+<!-- Start Haplotype section -->
+<div class="row">
+	<div class="large-12 small-12 medium-12 columns">
+		<div class="row">
+			<div class="large-8 small-8 medium-8 columns" style="margin-top:60px">
+				<h2 id="haplotypes-header">Associated Haplotypes</h2>
+			</div>
+			<div class="large-4 small-4 medium-4 columns">
+				<fieldset>
+					<p style="margin:0px"><a class="scroll-to-top">Go to Dosing Recommendations</a></p>
+					<p style="margin:0px"><a class="scroll-to-future">Go To Future Recommendations</a></p>
+				</fieldset>
+			</div>
+			<hr>
+		</div>
+		<div class="row">
+			<div class="large-4 small-12 medium-6 columns">
+				<a href="#" id="new-haplotype" class="button radius alert large-12 small-12 medium-12">New Haplotype</a>
+				<ul class="button-group even-2 radius" id="new-haplotype-triggers" style="display:none">
+					<li><a href="#" class="button success" id="new-haplotype-trigger-submit">Submit</a></li>
+					<li><a href="#" class="button" id="new-haplotype-cancel-trigger">Cancel</a></li>
+				</ul> 
+			</div>
+			<div class="large-12 small-12 medium-12 columns">
+				<form data-abide="ajax" id="new-haplotype-form" style="display:none">
+					<fieldset>
+						<div class='row'>
+							<div class="large-6 small-12 medium-6 columns">
+								<div class="row collapse prefix-radius">
+									<div class="large-4 small-4 medium-4 columns">
+										<span class="prefix">Therapeutic Class</span>
+									</div>
+									<div class="large-8 small-8 medium-8 columns">
+										<select name="class" required>
+											{{#each classes}}
+											<option>{{this}}</option>
+											{{/each}}
+										</select>
+										<small class="error">Required</small>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="large-6 small-12 medium-6 columns">
+								<div class="row collapse prefix-radius">
+									<div class="large-4 small-4 medium-4 columns">
+										<span class="prefix">First Haplotype</span>
+									</div>
+									<div class="large-8 small-8 medium-8 columns">
+										<input type="text" placeholder='ex *1' name="allele_1" required>
+										<small class="error">Required</small>
+									</div>
+								</div>
+							</div>
+							<div class="large-6 small-12 medium-6 columns">
+								<div class="row collapse prefix-radius">
+									<div class="large-4 small-4 medium-4 columns">
+										<span class="prefix">Second Haplotype</span>
+									</div>
+									<div class="large-8 small-8 medium-8 columns">
+										<input type="text" placeholder='ex *3' name="allele_2" required>
+										<small class="error">Required</small>
+									</div>
+								</div>
+							</div>
+						</div>
+					</fieldset>
+				</form>
+			</div>
+		</div>
+		<div class="row">
+		  	<div class="small-12 columns">
+		    	<div data-alert class="alert-box radius secondary" id="error-display-box-3"  style="display:none">
+		    	<!-- Alert message goes here -->
+			  		<div class="row">
+			    		<div class="small-11 columns">
+			      			<p id="error-display-message-3"></p>
+			    		</div>
+			  			<div class="small-1 columns">
+			    			<a href="#" class='close-box'><i class="fi-x size-16" style="color:#606060"></i></a>
+			  			</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="large-12 small-12 medium-12 columns">
+				<table class="large-12 small-12 medium-12" id="haplotypes" style="display:none"> 
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- End Haploytype Section -->
+

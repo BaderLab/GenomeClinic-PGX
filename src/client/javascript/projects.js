@@ -5,15 +5,13 @@
  * patients from a specific module
  * @author Patrick Magee
  */
-var $ = require('jquery'),
-	templates = require('./templates'),
-	utility = require('./utility'),
+var utility = require('./utility'),
 	patientConstants = require('../../server/conf/constants.json').dbConstants.PATIENTS,
 	projectConstants = require('../../server/conf/constants.json').dbConstants.PROJECTS,
 	userConstants = require('../../server/conf/constants.json').dbConstants.USERS;
 
 
-module.exports = function(){
+(function(){
 	var patientInformation, projectInfo, owner,user,LOCATION,PROJECTID;
 	var selected = [];
 
@@ -380,7 +378,7 @@ module.exports = function(){
 				e.preventDefault();
 				$(ele).find('.cancel').trigger('click');
 			});
-			$('.edit').show(0).find('#fixed-details').hide(0);
+			$('.edit').show(0).parents().find('#fixed-details').hide(0);
 			var _default = {
 				keywords:$('#keywords').val(),
 				description:$('#description').val()
@@ -625,7 +623,7 @@ module.exports = function(){
 			}
 		});
 	};
-
-	return main();
-
-};
+	$(document).ready(function(){
+		return main();
+	});
+})();

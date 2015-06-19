@@ -1,93 +1,238 @@
+/* Grid */
 .row {
 	width:100%;
-	margin-right:0;
-	margin-left:0;
+	margin-right:0px;
+	margin-left:0px;
+	display:table;
+
+}
+.columns {
+	padding-left:0px;
+	padding-right:0px;
+	display:inline-block;
+	vertical-align:top;
+}
+.col-1 { width: 8.333333333333334%; }
+.col-2 { width: 16.666666666666668%; }
+.col-3 { width: 25%; }
+.col-4 { width: 33.333333333333336%; }
+.col-5 { width: 41.66666666666667%; }
+.col-6 { width: 50%; }
+.col-7 { width: 58.333333333333336%; }
+.col-8 { width: 66.66666666666667%; }
+.col-9 { width: 75%; }
+.col-10 { width: 83.33333333333334%; }
+.col-11 { width: 91.66666666666667%; }
+.col-12 { width: 100%; }
+.no-space {
+	margin:0px;
+	padding:0px;
+}
+.thin {
+	margin-top:0px;
+	margin-bottom:0px;
+}
+
+/* Spacers */
+.lspacer-1 { margin-left:5px; }
+.lspacer-2 { margin-left:10px;}
+.lspacer-3 { margin-left:15px;}
+.lspacer-4 { margin-left:20px;}
+.rspacer-1 { margin-right:5px; }
+.rspacer-2 { margin-right:10px;}
+.rspacer-3 { margin-right:15px;}
+.rspacer-4 { margin-right:20px;}
+.tspacer-1 { margin-top:5px; }
+.tspacer-2 { margin-top:10px;}
+.tspacer-3 { margin-top:15px;}
+.tspacer-4 { margin-top:20px;}
+.bspacer-1 { margin-bottom:5px; }
+.bspacer-2 { margin-bottom:10px; }
+.bspacer-3 { margin-bottom:15px; }
+.bspacer-4 { margin-bottom:20px;}
+
+.size-8 { font-size: 8px; }
+.size-10 { font-size: 10px; }
+.size-12 { font-size: 12px; }
+.size-14 { font-size: 14px; }
+.size-16 { font-size: 16px; }
+.size-18 { font-size: 18px; }
+.size-20 { font-size: 20px; }
+.size-22 { font-size: 22px; }
+.size-21 { font-size: 21px; }
+.size-24 { font-size: 24px; }
+
+.separator {
+	border-bottom: 1px dotted #B0B0B0;
+}
+
+.grey-border {
+	outline: 1px solid #E6E6E6;
+	
 }	
 
-.columns {
-	padding-left:0;
-	padding-right:0;
-	display:inline-block;
-}
-.large-1 {
-	width: 8%;
-}
-.large-2 {
-	width: 15.5%;
-}
-.large-3 {
-	width: 24%;
-}
-.large-4 {
-	width: 32.5%;
-}
-.large-5 {
-	width: 40.5%;
-}
-.large-6 {
-	width: 49%;
-}
-.large-7 {
-	width: 58%;
-}
-.large-8 {
-	width: 66%;
-}
-.large-9 {
-	width: 74%;
-}
-.large-10 {
-	width: 82.5%;
-}
-.large-11 {
-	width: 91%;
-}
-.large-12 {
-	width: 100%;
+.green-back {
+	background-color: #006600;
+	color:#FFFFFF;
 }
 
-p {
-	font-size:8px;
-	font-family: Verdana;
-}
-.center {
-	text-align:center;
-}
-
-table {
-	font-size: 8px;
-	text-align: center;
-}
-
-table, tr {
-	border: 1px solid black;
-	border-collapse: collapse;
-}
-
-th {
-	background-color:#dbdbdb;
-}
-
-.variant-alt {
-	color: red;
-	font-style: italic; 
-}
-
-.patient {
-	background-color: #c2edff;
+.lightgreen {	
+	color:#71A971;
 }
 
 .spacer {
 	margin-bottom: 20px;
 }
 
-hr {
-	border:0px;
-	color:black;
-	background-color: black;
-	height: 1px;
+div {
+	overflow:visible;
 }
 
-div {
+/* Standard sickkids color class */
+
+
+
+p {	
+	margin-top: 5px;
+	margin-bottom: 5px;
+	font-size:8px;
+	font-family: Verdana;
+}
+
+/* alignment css */
+.center { text-align:center; }
+p.right hr.right td.right tr.right table.right textarea.right {text-align:right;}
+p.left hr.left td.left tr.left table.left textarea.left{text-align: left;}
+div.left {float:left;}
+div.right {float:right; }
+
+/* table css */
+/* generic */
+body {
 	font-family: Tahoma, Geneva, sans-serif;
+}
+
+
+tr {
+	page-break-inside:avoid;
+	page-break-after:auto;
+}
+
+table {
+	page-break-inside:auto;
+}
+
+
+/* table CSS for default pgx report */
+
+table.pgx {
+	text-align: left;
+	border-collapse: collapse;
+}
+
+
+
+
+table.pgx thead tr {
+	background-color:#dbdbdb;
+	font-weight: bold;
+	font-size: 10px;
+}
+
+table.pgx th, table.pgx td {
+	padding:4px;
+	border-left: 1px solid #ffffff;
+	border-right: 1px solid #ffffff;
+}
+
+
+table.pgx th.haplo-head {
+	font-weight: bold;
+	font-style: italic;
+}
+
+table.pgx td.haplo {
+	background-color: #F9E3C6;
+	border-bottom: 1px solid #ffffff;
+}
+
+table.pgx tbody tr  	{
+	font-size:10px;
+}
+
+
+.variant {
+	text-align: center;
+}
+
+.alt {
+	color: red;
+	font-style: italic; 
+}
+
+table.pgx tr.patient {
+	border-bottom: 1px solid #ffffff;
+	background-color: #c2edff;
+}
+
+/* table CSS for default recomendations */
+th.rec {
+	background-color: #71A971;
+}
+
+table.rec {
+	text-align:left;
+	border: 0
+}
+
+thead.rec {
+	background-color: #71A971;
+}
+
+thead tr.rec {
+	color: #FFFFFF;
+	border-top:0px;
+	border-left:0px;
+	border-right:0px;
+	border-collapse: collapse;
+	border-bottom: 1px solid #B0B0B0;
+	background-color: #71A971;
+}
+
+tbody tr.rec {
+	border:0px;
+}
+
+tr:nth-child(odd) {
+	background-color: #F5F5F5;
+}
+
+tr:nth-child(even) {
+	background-color: #FFFFFF;
+}
+
+
+/* risk and shape CSS */
+
+.risk-Low {
+	background-color: #91bfdb;
+
+}
+.risk-Medium {
+	background-color: #ffffbf;
+
+}
+
+.risk-High {
+	background-color: #fc8d59;
+}
+
+.circle {
+	margin-left: 1%;
+	border-radius: 50%;
+	/*margin-right: auto;
+	margin-left: auto; */
+	border: 1px solid black;
+	width: 15px;
+	height: 15px;
 }

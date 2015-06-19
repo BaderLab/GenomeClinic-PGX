@@ -2,37 +2,37 @@
 {{#each haplotypes}}
 	<fieldset>
 		<div class="row">
-			<div class="large-2 columns right">
+			<div class="large-2 small-2 medium-2 columns right">
 				<a href="#" class="button secondary right radius tiny edit remove-haplotype" style="display:none;"><i class="fi-x size-12"></i></a>
 			</div>
 		</div>
 		<div class="row collapse prefix-radius">
-			<div class="large-3 columns">
+			<div class="large-3 small-4 medium-3 columns">
 				<span class="prefix">Haplotype</span>
 			</div>
-			<div class="large-9 columns">
+			<div class="large-9 small-8 medium-9 columns">
 				<input type="text" id="haplo-name-{{@index}}" value="{{@key}}" class="edit" disabled="disabled">
 				<small class="error haplo-error" style="display:none">Required or Value already on page</small>
 			</div>
 		</div>
 		<div class="row collapse prefix-radius postfix-radius edit" style="display:none;">
-			<div class="large-3 columns">
+			<div class="large-3 small-4 medium-3 columns">
 				<span class="prefix">Add Additional Markers</span>
 			</div>
-			<div class="large-7 columns">
+			<div class="large-7 medium-7 small-6 columns">
 				<input type="text" class="haplo-add-new-context">
 				<small class="error" style="display:none">Marker already added</small>
 			</div>
-			<div class="large-2 columns">
+			<div class="large-2 small-2 medium-2 columns">
 				<a href="#" class="postfix button secondary haplo-add-new"><i class="fi-plus"></i></a>
 			</div>
 		</div>
 		<div class="row collapse prefix-radius">
-			<div class="large-3 columns">
+			<div class="large-3 small-3 medium-3 columns show-for-medium-up">
 				<span class="prefix">Markers</span>
 			</div>
-			<div class="large-9 columns">
-				<table class="large-12">
+			<div class="large-9 small-12 medium-9 columns">
+				<table class="small-12">
 					<thead>
 						<tr>
 							<th>Marker</th>
@@ -63,37 +63,37 @@
 {{else}}
 <fieldset style="display:none">
 	<div class="row">
-		<div class="large-2 columns right">
+		<div class="large-2 small-12 medium-2 columns right">
 			<a href="#" class="button secondary right radius tiny edit remove-haplotype"><i class="fi-x size-12"></i></a>
 		</div>
 	</div>
 	<div class="row collapse prefix-radius">
-		<div class="large-3 columns">
+		<div class="large-3 medium-3 small-4 columns">
 			<span class="prefix">Haplotype</span>
 		</div>
-		<div class="large-9 columns">
+		<div class="large-9 medium-9 small-8 columns">
 			<input type="text" id="haplo-name-{{index}}" class="edit">
 			<small class="error haplo-error" style="display:none">Required or Value already on page</small>
 		</div>
 	</div>
 	<div class="row collapse prefix-radius postfix-radius edit">
-		<div class="large-3 columns">
+		<div class="large-3 medium-3 small-4 columns">
 			<span class="prefix">Add Additional Markers</span>
 		</div>
-		<div class="large-7 columns">
+		<div class="large-7 medium-7 small-6 columns">
 			<input type="text" class="haplo-add-new-context">
 			<small class="error" style="display:none">Marker already added</small>
 		</div>
-		<div class="large-2 columns">
+		<div class="large-2 medium-2 small-2 columns">
 			<a href="#" class="postfix button secondary haplo-add-new"><i class="fi-plus"></i></a>
 		</div>
 	</div>
 	<div class="row collapse prefix-radius">
-		<div class="large-3 columns">
+		<div class="large-3 medium-3 columns show-for-medium-up">
 			<span class="prefix">Markers</span>
 		</div>
-		<div class="large-9 columns">
-			<table class="large-12">
+		<div class="large-9 medium-9 small-12 columns">
+			<table class="large-12 medium-12 small-12">
 				<thead>
 					<tr>
 						<th>Marker</th>

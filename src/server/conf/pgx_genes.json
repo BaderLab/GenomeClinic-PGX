@@ -1,55 +1,55 @@
 [
     {
-        "gene": "abcb1",
+        "gene": "ABCB1",
         "haplotypes": {
             "*1": [
                 "rs1128503",
                 "rs2032582",
                 "rs1045642"
             ],
-            "*2 (pmid: 11503014);*13 (pmid: 12893986)": [],
-            "*2 (pmid: 12893986)": [
+            "*2 (PMID: 11503014);*13 (PMID: 12893986)": [],
+            "*2 (PMID: 12893986)": [
                 "rs1128503",
                 "rs2032582"
             ]
         }
     },
     {
-        "gene": "abcg2",
+        "gene": "ABCG2",
         "haplotypes": {
-            "abcg2 34 g>a": [
+            "ABCG2 34 G>A": [
                 "rs2231137"
             ],
-            "abcg2 421 c>a": [
+            "ABCG2 421 C>A": [
                 "rs2231142"
             ],
-            "reference": []
+            "REFERENCE": []
         }
     },
     {
-        "gene": "ankk1",
+        "gene": "ANKK1",
         "haplotypes": {
-            "drd2 taq1a": [
+            "DRD2 TAQ1A": [
                 "rs1800497"
             ],
-            "reference": []
+            "REFERENCE": []
         }
     },
     {
-        "gene": "comt",
+        "gene": "COMT",
         "haplotypes": {
-            "haplotype high activity": [
+            "HAPLOTYPE HIGH ACTIVITY": [
                 "rs4818"
             ],
-            "haplotype intermediate activity": [
+            "HAPLOTYPE INTERMEDIATE ACTIVITY": [
                 "rs4633",
                 "rs4680"
             ],
-            "haplotype low activity": []
+            "HAPLOTYPE LOW ACTIVITY": []
         }
     },
     {
-        "gene": "cyp2c19",
+        "gene": "CYP2C19",
         "haplotypes": {
             "*1": [],
             "*17": [
@@ -73,7 +73,7 @@
         }
     },
     {
-        "gene": "cyp2c9",
+        "gene": "CYP2C9",
         "haplotypes": {
             "*1": [],
             "*2": [
@@ -91,7 +91,7 @@
         }
     },
     {
-        "gene": "cyp2d6",
+        "gene": "CYP2D6",
         "haplotypes": {
             "*1": [
                 "rs16947",
@@ -136,16 +136,16 @@
         }
     },
     {
-        "gene": "cyp3a5",
+        "gene": "CYP3A5",
         "haplotypes": {
-            "cyp3a5*3": [
+            "CYP3A5*3": [
                 "rs776746"
             ],
-            "reference": []
+            "REFERENCE": []
         }
     },
     {
-        "gene": "cyp4f2",
+        "gene": "CYP4F2",
         "haplotypes": {
             "*1": [],
             "*3": [
@@ -154,85 +154,85 @@
         }
     },
     {
-        "gene": "dpyd",
+        "gene": "DPYD",
         "haplotypes": {
             "*1": [],
-            "*2a": [
+            "*2A": [
                 "rs3918290"
             ],
-            "rs67376798": [
+            "RS67376798": [
                 "rs67376798"
             ]
         }
     },
     {
-        "gene": "grik4",
+        "gene": "GRIK4",
         "haplotypes": {
-            "reference": [],
-            "rs1954787": [
+            "REFERENCE": [],
+            "RS1954787": [
                 "rs1954787"
             ]
         }
     },
     {
-        "gene": "hla-a",
+        "gene": "HLA-A",
         "haplotypes": {
-            "hla-a*31:01": [
+            "HLA-A*31:01": [
                 "rs1061235"
             ],
-            "reference": []
+            "REFERENCE": []
         }
     },
     {
-        "gene": "hla-b",
+        "gene": "HLA-B",
         "haplotypes": {
-            "hla-b*15:02 a": [
+            "HLA-B*15:02 A": [
                 "rs3909184"
             ],
-            "hla-b*15:02 b": [
+            "HLA-B*15:02 B": [
                 "rs2844682"
             ],
-            "hla-b*57:01": [
+            "HLA-B*57:01": [
                 "rs2395029"
             ],
-            "reference": []
+            "REFERENCE": []
         }
     },
     {
-        "gene": "ifnl3",
+        "gene": "IFNL3",
         "haplotypes": {
-            "reference": [],
-            "rs12979860": [
+            "REFERENCE": [],
+            "RS12979860": [
                 "rs12979860"
             ]
         }
     },
     {
-        "gene": "mthfr",
+        "gene": "MTHFR",
         "haplotypes": {
-            "1298c": [
+            "1298C": [
                 "rs1801131"
             ],
-            "677t": [
+            "677T": [
                 "rs1801133"
             ],
-            "reference": []
+            "REFERENCE": []
         }
     },
     {
-        "gene": "slc19a1",
+        "gene": "SLC19A1",
         "haplotypes": {
-            "reference": [],
-            "rs1051266": [
+            "REFERENCE": [],
+            "RS1051266": [
                 "rs1051266"
             ]
         }
     },
     {
-        "gene": "slco1b1",
+        "gene": "SLCO1B1",
         "haplotypes": {
             "*1": [],
-            "*1b": [
+            "*1B": [
                 "rs2306283"
             ],
             "*5": [
@@ -241,29 +241,29 @@
         }
     },
     {
-        "gene": "tmem",
+        "gene": "TMEM",
         "haplotypes": {
-            "reference": [],
-            "xpc lys939gln": [
+            "REFERENCE": [],
+            "XPC LYS939GLN": [
                 "rs2228001"
             ]
         }
     },
     {
-        "gene": "tpmt",
+        "gene": "TPMT",
         "haplotypes": {
             "*1": [],
             "*2": [
                 "rs1800462"
             ],
-            "*3a": [
+            "*3A": [
                 "rs1142345",
                 "rs1800460"
             ],
-            "*3b": [
+            "*3B": [
                 "rs1800460"
             ],
-            "*3c": [
+            "*3C": [
                 "rs1142345"
             ],
             "*4": [
@@ -272,7 +272,7 @@
         }
     },
     {
-        "gene": "vkorc1",
+        "gene": "VKORC1",
         "haplotypes": {
             "*1": [],
             "*2": [

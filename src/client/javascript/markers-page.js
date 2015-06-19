@@ -3,12 +3,10 @@
  *
  * @Patrick Magee
  */
-var $ = require("jquery"),
-	templates = require('./templates'),
-	utility = require('./utility'),
+var utility = require('./utility'),
 	pgxConstants = require('../../server/conf/constants.json').dbConstants.PGX;
 
-module.exports = function(){
+(function(){
 
 
 	//confirm whether or not the user would like to delete the selected marker
@@ -121,11 +119,11 @@ module.exports = function(){
 			var input = {};
 			array.map(function(item){
 				if (item.name == 'alt')
-					input[item.name] = item.value.toLowerCase().split(/[\,\s]/g);
+					input[item.name] = item.value.toUpperCase().split(/[\,\s]/g);
 				else if (item.name == 'pos')
 					input[item.name] = parseInt(item.value);
 				else
-					input[item.name] = item.value.toLowerCase();
+					input[item.name] = item.value.toUpperCase();
 			});
 			return input;
 		}	
@@ -269,5 +267,7 @@ module.exports = function(){
 		});
 	}
 
-	main();
-};
+	$(document).ready(function(){
+		main();
+	})
+})();
