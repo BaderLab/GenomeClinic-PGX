@@ -1,11 +1,25 @@
+/* Query dbSNP database based on the speicified rsID's and 
+ * retrieve information for each rsID. Submitts an http request
+ * to the NCBI eutils url.
+ * @author Patrick Magee */
 var http = require('http');
 var parseString = require('xml2js').parseString;
 var fs = require('fs');
 var Promise = require('bluebird');
 
 
+/* submit an http request to the NCBI's e-utils server and retrieve information 
+ * for a set of rsID's in xml format. The Data is parsed and then put into an object
+ * that is ready to be inserted into the database.
+ * The returned object contains thre constant returned fields:
+ * ids : an array containing all the initial ids
+ * dbSnp : an array of objects with all of the returned objects from dbSnp
+ * missing : Array of missing ids from the returned dbSNp object
+ */
 function getRsIds(ids){
 
+
+	// object for opposites
 	var opposite = {
 		"A":"T",
 		"T":"A",
@@ -32,30 +46,45 @@ function getRsIds(ids){
 	}
 	
 
+	//Perform the call in a promise so the function knows when to return the appropriate data
 	var promise = new Promise(function(resolve,reject){
 		var output = {};
+
+		//No ids were provide
 		if (ids.length === 0) {
 			reject('function requires an array of rsId\'s')
 			return
 		}
 
+		//if an array was provided; join them
 		if (Object.prototype.toString.call(ids) == '[object Array]'){
 			ids = ids.join(',');
 		}
 
+		//replace all non nummeric characters
 		ids = ids.replace(/[A-Za-z]+/ig,"").split(',');
+
+		//options to be passed to the httprequest
 		var options =  {
 			host:'eutils.ncbi.nlm.nih.gov',
 			path:'/entrez/eutils/efetch.fcgi?db=snp&id=' + ids.join(',') + '&retmode=xml'
-		}	
+		}
+
+		// call back function to be executed when the httprequest receices data
 		var cb = function(response){
 			var xml = '';
 
+
+			//when data comes in add each chunk to the xml object
 			response.on('data',function(chunk){
 				xml += chunk;
 			});
 
+
+			// execute on the end
 			response.on('end',function(){
+
+				//Parse the xml into a js objct
 				parseString(xml,function(err,result){
 					var o,strand,point,alleles,allele,maxLength,i,j,m,ind,ind2,temp;
 					var seen = [],out=[];
@@ -67,9 +96,8 @@ function getRsIds(ids){
 						output.dbSnp = [];
 						output.missing = ids;
 					} else {
-					//console.log(rs[31])//.Assembly[0].Component[0].MapLoc)//.FxnSet[j].$.allele)
+						//cycle over each rsID
 						for ( i = 0; i < rs.length; i ++ ){
-						//	console.log(i);
 							temp = {};
 							o = rs[i];
 							temp._id = 'rs' + o.$.rsId;
@@ -79,11 +107,12 @@ function getRsIds(ids){
 							temp.assembly = o.Assembly[0].$.genomeBuild;
 							temp.assemblyLabel = o.Assembly[0].$.groupLabel;
 
-
-
-		
 							point =  o.Assembly[0].Component
 							maxLength = 0;
+
+							//retrieve the appropriate reference material from the xml object
+							//there are occassionally multiple fields within the assembly, if this is the case
+							//take the most completely annotataed one.
 							for ( m = 0; m < point.length; m++ ){
 								if (Object.keys(point[m].$).length > maxLength){
 									maxLength = Object.keys(point[m].$).length;
