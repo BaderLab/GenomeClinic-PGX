@@ -84,7 +84,7 @@
 			"COORDS":{
 				"DEFAULT":"{{DIR}}/lib/conf/pgx_coordinates.json",
 				"COLLECTION":"pgxCoordinates",
-				"ID_FIELD":"id"
+				"ID_FIELD":"_id"
 				},
 			"GENES":{
 				"DEFAULT":"{{DIR}}/lib/conf/pgx_genes.json",

@@ -103,41 +103,45 @@ function getRsIds(ids){
 							temp._id = 'rs' + o.$.rsId;
 							seen.push(o.$.rsId);
 							temp.variants = o.Sequence[0].Observed[0].split('/');
-							temp.build = o.Assembly[0].$.dbSnpBuild;
-							temp.assembly = o.Assembly[0].$.genomeBuild;
-							temp.assemblyLabel = o.Assembly[0].$.groupLabel;
+							// not enough information on the assemblhy of the dbSnp entry
+							// cannot automatically parse this information, it must be manually entered
+							if (o.Assembly){
+								temp.build = o.Assembly[0].$.dbSnpBuild;
+								temp.assembly = o.Assembly[0].$.genomeBuild;
+								temp.assemblyLabel = o.Assembly[0].$.groupLabel;
 
-							point =  o.Assembly[0].Component
-							maxLength = 0;
+								point =  o.Assembly[0].Component
+								maxLength = 0;
 
-							//retrieve the appropriate reference material from the xml object
-							//there are occassionally multiple fields within the assembly, if this is the case
-							//take the most completely annotataed one.
-							for ( m = 0; m < point.length; m++ ){
-								if (Object.keys(point[m].$).length > maxLength){
-									maxLength = Object.keys(point[m].$).length;
-									temp.ref = point[m].MapLoc[0].$.refAllele;
-									temp.orient = point[m].MapLoc[0].$.orient;
-									temp.chr = point[m].$.chromosome;
-									temp.pos = parseInt(point[m].MapLoc[0].$.physMapInt) + 1;
-									alleles =  [];
-									if (temp.orient == 'reverse'){
-										for ( ind = 0; ind < temp.variants.length; ind++ ){
-											allele="";
-											for (ind2 = 0; ind2 < temp.variants[ind].length; ind2++){
-												allele+=opposite[temp.variants[ind][ind2]];
+								//retrieve the appropriate reference material from the xml object
+								//there are occassionally multiple fields within the assembly, if this is the case
+								//take the most completely annotataed one.
+								for ( m = 0; m < point.length; m++ ){
+									if (Object.keys(point[m].$).length > maxLength){
+										maxLength = Object.keys(point[m].$).length;
+										temp.ref = point[m].MapLoc[0].$.refAllele;
+										temp.orient = point[m].MapLoc[0].$.orient;
+										temp.chr = point[m].$.chromosome;
+										temp.pos = parseInt(point[m].MapLoc[0].$.physMapInt) + 1;
+										alleles =  [];
+										if (temp.orient == 'reverse'){
+											for ( ind = 0; ind < temp.variants.length; ind++ ){
+												allele="";
+												for (ind2 = 0; ind2 < temp.variants[ind].length; ind2++){
+													allele+=opposite[temp.variants[ind][ind2]];
+												}
+
+												alleles.push(allele)
 											}
-
-											alleles.push(allele)
+										} else {
+											alleles = temp.variants.slice(0);
 										}
-									} else {
-										alleles = temp.variants.slice(0);
+										alleles.splice(alleles.indexOf(temp.ref),1)
+										temp.alt = alleles;
 									}
-									alleles.splice(alleles.indexOf(temp.ref),1)
-									temp.alt = alleles;
 								}
+								out.push(temp);
 							}
-							out.push(temp);
 						}
 
 						if (out.length !== ids.length ){

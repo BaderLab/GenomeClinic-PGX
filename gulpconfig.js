@@ -95,7 +95,8 @@ module.exports = {
 				'src/server/src/parseVCF.js',
 				'src/server/src/queue.js',
 				'src/server/src/utils.js',
-				'src/server/src/genReport.js'
+				'src/server/src/genReport.js',
+				'src/server/src/getDbSnp.js'
 			],
 			dest:'build/lib'
 		},

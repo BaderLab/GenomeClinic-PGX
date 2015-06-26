@@ -13,6 +13,7 @@ var bcrypt = require("bcrypt-nodejs");
 var randomstring = require("just.randomstring");
 var fs = Promise.promisifyAll(require('fs'));
 var logger = require('../lib/logger');
+var getRS = require('../lib/getDbSnp');
 
 var dbFunctions = function(){
 //=======================================================================================
@@ -64,136 +65,93 @@ var dbFunctions = function(){
 			// Create a patient collection and index by unique identifiers.
 			// Do the same for panel collections.
 			self.insert(dbConstants.DB.ADMIN_COLLECTION, currentDocument)
-				.then(function(result) {
-					// Patient IDs are unique.
-					currentDocument= {};
-					currentDocument[dbConstants.PATIENTS.ID_FIELD]= 1;  // index in ascending order
-					return self.createIndex(dbConstants.PATIENTS.COLLECTION, currentDocument, {unique: true});
-				})
-				.then(function(result){
-					// Patient Collection IDs are also unique
-					currentDocument= {};
-					currentDocument[dbConstants.PATIENTS.COLLECTION_ID]= -1;  // index in descending order
-					return self.createIndex(dbConstants.PATIENTS.COLLECTION, currentDocument, {unique: true});
-				})
-				.then(function(result){
-					var currentDocument = {};
-					currentDocument[dbConstants.USERS.ID_FIELD]=-1;
-					return self.createIndex(dbConstants.USERS.COLLECTION,currentDocument,{unique:true});
-				})
-				.then(function(result) {
-					// Panel IDs are unique.
-					currentDocument= {};
-					currentDocument[dbConstants.PANELS.ID_FIELD]= 1;  // index in ascending order
-					return self.createIndex(dbConstants.PANELS.COLLECTION, currentDocument, {unique: true});
-				})
-				.then(function(result){
-					// Panel Collection IDs are also unique
-					currentDocument= {};
-					currentDocument[dbConstants.PANELS.COLLECTION_ID]= -1;  // index in descending order
-					return self.createIndex(dbConstants.PANELS.COLLECTION, currentDocument, {unique: true});
-				})
-				.then(function(result){
-					//project_id field should be unique
-					currentDocument = {};
-					currentDocument[dbConstants.PROJECTS.ID_FIELD] = 1; // index in ascending order
-					return self.createIndex(dbConstants.PROJECTS.COLLECTION, currentDocument,{unique:true}); 
-				})
-				//Add the default pgx data to the collection if its not there already and only if it exists.
+			.then(function(result) {
+				// Patient IDs are unique.
+				currentDocument= {};
+				currentDocument[dbConstants.PATIENTS.ID_FIELD]= 1;  // index in ascending order
+				return self.createIndex(dbConstants.PATIENTS.COLLECTION, currentDocument, {unique: true});
+			})
+			.then(function(result){
+				// Patient Collection IDs are also unique
+				currentDocument= {};
+				currentDocument[dbConstants.PATIENTS.COLLECTION_ID]= -1;  // index in descending order
+				return self.createIndex(dbConstants.PATIENTS.COLLECTION, currentDocument, {unique: true});
+			})
+			.then(function(result){
+				var currentDocument = {};
+				currentDocument[dbConstants.USERS.ID_FIELD]=-1;
+				return self.createIndex(dbConstants.USERS.COLLECTION,currentDocument,{unique:true});
+			})
+			.then(function(result) {
+				// Panel IDs are unique.
+				currentDocument= {};
+				currentDocument[dbConstants.PANELS.ID_FIELD]= 1;  // index in ascending order
+				return self.createIndex(dbConstants.PANELS.COLLECTION, currentDocument, {unique: true});
+			})
+			.then(function(result){
+				// Panel Collection IDs are also unique
+				currentDocument= {};
+				currentDocument[dbConstants.PANELS.COLLECTION_ID]= -1;  // index in descending order
+				return self.createIndex(dbConstants.PANELS.COLLECTION, currentDocument, {unique: true});
+			})
+			.then(function(result){
+				//project_id field should be unique
+				currentDocument = {};
+				currentDocument[dbConstants.PROJECTS.ID_FIELD] = 1; // index in ascending order
+				return self.createIndex(dbConstants.PROJECTS.COLLECTION, currentDocument,{unique:true}); 
+			})
+			//Add the default pgx data to the collection if its not there already and only if it exists.
+			.then(function(){
+				
+				//Create Collections for haplotypes.
+				currentDocument = {};
+				currentDocument[dbConstants.PGX.GENES.ID_FIELD] = 1;
+				return self.createIndex(dbConstants.PGX.GENES.COLLECTION,currentDocument,{unique:true});
+			}).then(function(){
+				fs.statAsync(dbConstants.PGX.GENES.DEFAULT)
 				.then(function(){
-					
-					fs.statAsync(dbConstants.PGX.COORDS.DEFAULT)
-					.then(function(){
-						// Make sure both the Genes and the Coords are available.
-						return fs.statAsync(dbConstants.PGX.GENES.DEFAULT);
-					}).catch(function(err){
-						logger('info','No Default PGx informaton detected, skipping step',{action:'createInitCollections'});
-					}).then(function(result){
-						var pgxCoords = require(dbConstants.PGX.COORDS.DEFAULT);
-						var pgxGenes = require(dbConstants.PGX.GENES.DEFAULT);
-						var o,rsIds;
-						var coordIds = [];
-						//Get a list of all the coordinate ids
-						for (var i=0; i < pgxCoords.length;i++ ){
-							coordIds.push(pgxCoords[i].id);
+					var pgxGenes = require(dbConstants.PGX.GENES.DEFAULT);
+					var markers = [],keys;
+					for (var i = 0; i < pgxGenes.length; i++ ){
+						for (phase in pgxGenes[i].haplotypes){
+							if (pgxGenes[i].haplotypes.hasOwnProperty(phase)) markers = markers.concat(pgxGenes[i].haplotypes[phase]);
 						}
-						//Check to ensure the default information is complete.
-						for (i = 0; i < pgxGenes.length; i++ ){
-							rsIds = [];
-							var keys = Object.keys(pgxGenes[i].haplotypes);
-							for (var j = 0; j < keys.length; j++ ){
-								rsIds = rsIds.concat(pgxGenes[i].haplotypes[keys[j]]);
-							}
-							for ( j = 0; j < rsIds.length; j++){
-								if (coordIds.indexOf(rsIds[j]) === -1)
-									throw new Error("PGX coordinate information incompletee. Missing Id's in PGX coordinates that were found in haplotpyes");
-							}
+					}
+					return getRS(markers).then(function(result){
+						if (result.missing.length > 0 ){
+							logger('info','could not retrieve information from NCBI dbSNP for several markers', {action:'getRS',missing:result.missing.length});
 						}
-
-						o = {
-							documents : pgxCoords,
-							collectionName : dbConstants.PGX.COORDS.COLLECTION
+						var options = {
+							collectionName : dbConstants.PGX.COORDS.COLLECTION,
+							documents: result.dbSnp
 						};
-						return self.insertMany(o)
-						.then(function(result){
-							currentDocument = {};
-							currentDocument[dbConstants.PGX.COORDS.ID_FIELD] = 1;
-							return self.createIndex(dbConstants.PGX.COORDS.COLLECTION,currentDocument,{unique:true});
-						}).then(function(){
-							o.documents = pgxGenes;
-							o.collectionName = dbConstants.PGX.GENES.COLLECTION;
-							return self.insertMany(o);
-						}).then(function(result){
-							currentDocument = {};
-							currentDocument[dbConstants.PGX.GENES.ID_FIELD] = 1;
-							return self.createIndex(dbConstants.PGX.GENES.COLLECTION,currentDocument,{unique:true})
-						}).catch(function(err){
-							logger('error',err,{action:'createInitCollections'});
-						});
+						return self.insertMany(options);
+					}).then(function(){
+						o.documents = pgxGenes;
+						o.collectionName = dbConstants.PGX.GENES.COLLECTION;
+						return self.insertMany(o);
+
 					}).catch(function(err){
 						logger('error',err,{action:'createInitCollections'});
 					});
-				}).then(function(){
-					//create non unique indexes based on pgx_1
-					currentDocument = {};
-					currentDocument[dbConstants.DRUGS.ALL.ID_FIELD] = 1;
-					return self.createIndex(dbConstants.DRUGS.ALL.COLLECTION,currentDocument);
-				}).then(function(){
-					return fs.statAsync(dbConstants.DRUGS.DOSING.DEFAULT)
-					.then(function(result){
 
-						var dosing = require(dbConstants.DRUGS.DOSING.DEFAULT);
-						return Promise.resolve(dosing).each(function(item){
-							return self.insert(dbConstants.DRUGS.DOSING.COLLECTION,item).then(function(result){
-								return Promise.resolve(result.genes).each(function(gene){
-									// check to see if it exists already
-									return self.checkInDatabase(dbConstants.DRUGS.ALL.COLLECTION,dbConstants.DRUGS.ALL.ID_FIELD,gene)
-									.then(function(exists){
-										if (!exists){
-											return self.drugs.createNewDoc(gene)
-										}
-									}).then(function(){
-										var query = {};
-										query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
-										var update = {$addToSet:{}}
-										update.$addToSet[dbConstants.DRUGS.ALL.RECOMMENDATIONS] = result._id;
-										return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update)
-									})
-								});
-							});
-						});
-					}).catch(function(err){
-						logger("error",err,{action:'createInitCollections'});
-					});
-				}).then(function(){
-					return fs.statAsync(dbConstants.DRUGS.FUTURE.DEFAULT)
-					.then(function(result){
+				}).catch(function(err){
+					logger('info','No Defualt PGx Data detected, skipping step',{action:'createInitCollections'});
+				});
+			}).then(function(){
+				//create non unique indexes based on pgx_1
+				currentDocument = {};
+				currentDocument[dbConstants.DRUGS.ALL.ID_FIELD] = 1;
+				return self.createIndex(dbConstants.DRUGS.ALL.COLLECTION,currentDocument);
+			}).then(function(){
+				return fs.statAsync(dbConstants.DRUGS.DOSING.DEFAULT)
+				.then(function(result){
 
-						var future = require(dbConstants.DRUGS.FUTURE.DEFAULT);
-						return Promise.resolve(future).each(function(item){
-							return self.insert(dbConstants.DRUGS.FUTURE.COLLECTION,item).then(function(result){
-								var gene = result[dbConstants.DRUGS.FUTURE.ID_FIELD]
-									// check to see if it exists already
+					var dosing = require(dbConstants.DRUGS.DOSING.DEFAULT);
+					return Promise.resolve(dosing).each(function(item){
+						return self.insert(dbConstants.DRUGS.DOSING.COLLECTION,item).then(function(result){
+							return Promise.resolve(result.genes).each(function(gene){
+								// check to see if it exists already
 								return self.checkInDatabase(dbConstants.DRUGS.ALL.COLLECTION,dbConstants.DRUGS.ALL.ID_FIELD,gene)
 								.then(function(exists){
 									if (!exists){
@@ -201,39 +159,66 @@ var dbFunctions = function(){
 									}
 								}).then(function(){
 									var query = {};
-									query[dbConstants.DRUGS.ALL.ID_FIELD] = gene
+									query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
 									var update = {$addToSet:{}}
-									update.$addToSet[dbConstants.DRUGS.ALL.FUTURE] = result._id;
+									update.$addToSet[dbConstants.DRUGS.ALL.RECOMMENDATIONS] = result._id;
 									return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update)
-								});
+								})
 							});
 						});
-					}).catch(function(err){
-						logger("error",err,{action:'createInitCollections'});
 					});
-				}).then(function(){
-					currentDocument = {};
-					currentDocument[dbConstants.DRUGS.CLASSES.ID_FIELD] = 1;
-					return self.createIndex(dbConstants.DRUGS.CLASSES.COLLECTION,currentDocument,{unique:true});
-				}).then(function(){
-					return fs.statAsync(dbConstants.DRUGS.CLASSES.DEFAULT)
-					.then(function(result){
-						var dosing = require(dbConstants.DRUGS.CLASSES.DEFAULT);
-						var o = {
-							documents: dosing,
-							collectionName: dbConstants.DRUGS.CLASSES.COLLECTION
-						};
-						return self.insertMany(o);
-					}).then(function(){
-					}).catch(function(err){
-						logger("info",dbConstants.DRUGS.CLASSES.DEFAULT + " was not found and could not be added to the databse",{action:'createInitCollections'});
-					});
-				}).then(function(result) {
-					resolve();
-				}).catch(function(err) {
-					logger('error',err);
-					reject(err);
+				}).catch(function(err){
+					logger("error",err,{action:'createInitCollections'});
 				});
+			}).then(function(){
+				return fs.statAsync(dbConstants.DRUGS.FUTURE.DEFAULT)
+				.then(function(result){
+
+					var future = require(dbConstants.DRUGS.FUTURE.DEFAULT);
+					return Promise.resolve(future).each(function(item){
+						return self.insert(dbConstants.DRUGS.FUTURE.COLLECTION,item).then(function(result){
+							var gene = result[dbConstants.DRUGS.FUTURE.ID_FIELD]
+								// check to see if it exists already
+							return self.checkInDatabase(dbConstants.DRUGS.ALL.COLLECTION,dbConstants.DRUGS.ALL.ID_FIELD,gene)
+							.then(function(exists){
+								if (!exists){
+									return self.drugs.createNewDoc(gene)
+								}
+							}).then(function(){
+								var query = {};
+								query[dbConstants.DRUGS.ALL.ID_FIELD] = gene
+								var update = {$addToSet:{}}
+								update.$addToSet[dbConstants.DRUGS.ALL.FUTURE] = result._id;
+								return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update)
+							});
+						});
+					});
+				}).catch(function(err){
+					logger("error",err,{action:'createInitCollections'});
+				});
+			}).then(function(){
+				currentDocument = {};
+				currentDocument[dbConstants.DRUGS.CLASSES.ID_FIELD] = 1;
+				return self.createIndex(dbConstants.DRUGS.CLASSES.COLLECTION,currentDocument,{unique:true});
+			}).then(function(){
+				return fs.statAsync(dbConstants.DRUGS.CLASSES.DEFAULT)
+				.then(function(result){
+					var dosing = require(dbConstants.DRUGS.CLASSES.DEFAULT);
+					var o = {
+						documents: dosing,
+						collectionName: dbConstants.DRUGS.CLASSES.COLLECTION
+					};
+					return self.insertMany(o);
+				}).then(function(){
+				}).catch(function(err){
+					logger("info",dbConstants.DRUGS.CLASSES.DEFAULT + " was not found and could not be added to the databse",{action:'createInitCollections'});
+				});
+			}).then(function(result) {
+				resolve();
+			}).catch(function(err) {
+				logger('error',err);
+				reject(err);
+			}); 
 		});
 		return promise;
 	};
@@ -423,8 +408,6 @@ var dbFunctions = function(){
 			 					reject(err);
 			 				});
 				 	} 
-				 }).then(function(){
-				 	return _this.checkDefaultMarkers();
 				 }).then(function(){
 				 	return _this.checkDefaultGenes();
 				 }).then(function(){
