@@ -14,6 +14,7 @@ var randomstring = require("just.randomstring");
 var fs = Promise.promisifyAll(require('fs'));
 var logger = require('../lib/logger');
 var getRS = require('../lib/getDbSnp');
+var _ = require('underscore');
 
 var dbFunctions = function(){
 //=======================================================================================
@@ -116,21 +117,29 @@ var dbFunctions = function(){
 						for (phase in pgxGenes[i].haplotypes){
 							if (pgxGenes[i].haplotypes.hasOwnProperty(phase)) markers = markers.concat(pgxGenes[i].haplotypes[phase]);
 						}
+						
 					}
-					return getRS(markers).then(function(result){
+
+					var uniqueMarkers = [];
+					for (i = 0; i < markers.length; i++ ){
+						if (uniqueMarkers.indexOf(markers[i]) == -1) uniqueMarkers.push(markers[i]);
+					}
+					return getRS(uniqueMarkers).then(function(result){
 						if (result.missing.length > 0 ){
 							logger('info','could not retrieve information from NCBI dbSNP for several markers', {action:'getRS',missing:result.missing.length});
 						}
-						var options = {
-							collectionName : dbConstants.PGX.COORDS.COLLECTION,
-							documents: result.dbSnp
-						};
-						return self.insertMany(options);
+						if (result.dbSnp.length > 0 ){
+							var options = {
+								collectionName : dbConstants.PGX.COORDS.COLLECTION,
+								documents: result.dbSnp
+							};
+							return self.insertMany(options);
+						}
 					}).then(function(){
+						var o = {};
 						o.documents = pgxGenes;
 						o.collectionName = dbConstants.PGX.GENES.COLLECTION;
 						return self.insertMany(o);
-
 					}).catch(function(err){
 						logger('error',err,{action:'createInitCollections'});
 					});
@@ -1101,26 +1110,68 @@ var dbFunctions = function(){
 	};
 
 
-	this.getPGXCoords = function(rsID,username) {
+	this.getPGXCoords = function(rsID,username,type) {
 		assert.notStrictEqual(db,undefined);
 		var query = {};
 		if (Object.prototype.toString.call(rsID) == "[object Array]")
 			query[dbConstants.PGX.COORDS.ID_FIELD] = {$in:rsID};
 		else if (rsID)
 			query[dbConstants.PGX.COORDS.ID_FIELD] = rsID;
-
+		if (type)
+			query.type = type;
 		return find(dbConstants.PGX.COORDS.COLLECTION,query,undefined,null,username)
 		.then(function(result){
 			var out = {};
 			for (var i = 0; i < result.length; i++ ){
-				out[result[i].id] = {};
+				out[result[i]._id] = {};
 				for (var key in result[i]){
-					if (result[i].hasOwnProperty(key) && key != "id"){
-						out[result[i].id][key] = result[i][key];
+					if (result[i].hasOwnProperty(key)){
+						out[result[i]._id][key] = result[i][key];
 					}
 				}
 			}
 			return out;	
+		});
+	};
+
+	/* Update all the pgxCoordinates */
+	this.updateAllPGXCoords = function(){
+		var record, update, changed = [], notFound = [], notchanged = [], toChange = [];
+		assert.notStrictEqual(db,undefined);
+		return self.getPGXCoords(null,null,'dbsnp').then(function(markers){
+			var markerNames = Object.keys(markers);
+			return getRS(markerNames).then(function(result){
+				foundMarkers = [];
+				//Check to see if any of the genes have changed.
+				for (var i = 0; i < result.dbSnp.length; i++ ){
+					//check version
+					record = result.dbSnp[i];
+					update = false;
+					foundMarkers.push(record._id);
+					if (markers[record._id].build < record.build) update = true;
+					if (markers[record._id].assembly < record.assembly ) update = true;
+					if (markers[record._id].ref != record.ref ) update = true;
+					if (!_.isEqual(markers[record._id].alt,record.alt) ) update = true;
+					if (update) toChange.push(record);	
+					else notchanged.push(record._id);
+				}
+
+				for (i = 0; i < markers.length; i++ ){
+					if (foundMarkers.indexOf(markers[i]) == -1 ) notFound.push(markers[i]);
+				}
+				return toChange;
+			}).each(function(record){
+				return self.update(dbConstants.PGX.COORDS.COLLECTION,{_id:record._id},record).then(function(){
+					changed.push(record._id);
+				});
+			}).then(function(){
+				output = {
+					changed:changed,
+					missing:notFound,
+					notchanged:notchanged
+				};
+				return output;
+			});
 		});
 	};
 

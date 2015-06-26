@@ -221,7 +221,12 @@ module.exports = function(app,logger,opts){
 
 
 
-
+	/*app.get('/TEST',function(req,res){
+		dbFunctions.updateAllPGXCoords().then(function(result){
+			console.log(result);
+		});
+	})
+*/
 
 
 	//Update the current marker

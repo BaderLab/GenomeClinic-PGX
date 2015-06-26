@@ -150,7 +150,7 @@ module.exports = function(app,logger,opts){
 	 * Essentially its sayin, anything coming in will be sent to 404notfound
 	 */
 	app.get(/^\/(.+)/, function(req,res){
-		utils.render(req,res,'notfound');
+		utils.render(req,res,{type:'notfound'});
 	});
 };
 
