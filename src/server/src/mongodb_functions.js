@@ -1134,7 +1134,10 @@ var dbFunctions = function(){
 		});
 	};
 
-	/* Update all the pgxCoordinates */
+	/* Update all the pgxCoordinates
+	 * Query the NCBI's dbsnp to find all minformation on all the markers included in
+	 * our database (can take a minute). THen if there are any changes update the databse
+	 */
 	this.updateAllPGXCoords = function(){
 		var record, update, changed = [], notFound = [], notchanged = [], toChange = [];
 		assert.notStrictEqual(db,undefined);
