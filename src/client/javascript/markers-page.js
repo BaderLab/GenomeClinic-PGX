@@ -49,6 +49,16 @@ var utility = require('./utility'),
 			});
 		};
 
+
+		//Cancel changes with escape key
+		$(document).keyup(function(e){
+			
+			if (e.keyCode == 27) {
+				$('.marker-row').find('.cancel').trigger('click.button');
+				
+			}
+		});
+
 		var sel;
 		//if context is passed add hanlders for that specific context
 		if (context)
@@ -82,8 +92,6 @@ var utility = require('./utility'),
 				refreshClick($(this).closest('.marker-row'));
 			});
 		});
-
-
 		//Form is submitted and listening for a valid even from the foundation event 
 		//Trigger
 		sel.on('valid.fndtn.abide',function(){
