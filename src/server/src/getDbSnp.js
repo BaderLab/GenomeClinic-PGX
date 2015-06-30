@@ -139,6 +139,7 @@ function getRsIds(ids){
 										alleles.splice(alleles.indexOf(temp.ref),1)
 										temp.alt = alleles;
 										temp.type = 'dbsnp';
+										temp.date = new Date().toDateString();
 									}
 								}
 								out.push(temp);

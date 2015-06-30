@@ -1,48 +1,71 @@
 {{#each markers}}
-<div class="row">
-	<div class="large-12 medium-12 small-12 columns">
-		<form data-abide='ajax' class="marker-row" data-name="{{@key}}" data-id="{{_id}}">
-			<fieldset style="margin-top:8px;margin-bottom:8px;">
-				<div class="large-3 medium-3 small-12 columns">
-					<p style="margin-bottom:0px" class="marker-name show-for-medium-up">{{@key}}</p>
-					<label class="show-for-small-only text-center"><b>Marker ID</b></label>
-					<p style="margin-bottom:0px" class="show-for-small-only text-center">{{@key}}</p>
-				</div> 
-				<div class="large-2 medium-2 small-12 columns">
-					<label class="show-for-small-only text-center"><b>Chromosome</b></label>
-					<p class="static-marker-field chr" style="margin-bottom:0px">{{chr}}</p>
-					<input class="edit" name="chr" type='text' style="margin-bottom:0px;display:none;" value="{{chr}}" pattern="chromosomes" required>
-					<small class="error" style="display:none">Valid Chromosome Required</small>
+	<tr class="marker-row">
+		<td>
+			<div class="loading-spinner" style='position:absolute;margin-left:45%;margin-top:80px;display:none;'>
+				<i class="fa fa-spinner fa-spin fa-4x"></i>
+			</div>
+			<form data-abide="ajax" id="{{_id}}" class="marker-form" data-type="{{type}}" data-chr="{{chr}}" data-pos="{{pos}}" data-ref="{{ref}}" data-alt="{{alt}}">
+				<div class="row">
+					<div class="small-12 large-12 medium-12 columns">
+			    		<div data-alert class="alert-box radius secondary" style="display:none">
+			    		<!-- Alert message goes here -->
+				      		<div class="row">
+				        		<div class="medium-11 large-11 small-11 columns">
+				        	  		<p class="alert-message"></p>
+				        		</div>
+				      			<div class="small-1 large-1 medium-1 columns">
+				        			<a href="#" class='right close-box'><i class="fi-x size-16" style="color:#606060"></i></a>
+				      			</div>
+				    		</div>
+				    	</div>
+					</div>
 				</div>
-				<div class="large-2 medium-2 small-12 columns">
-					<label class="show-for-small-only text-center"><b>Position</b></label>
-					<p class="static-marker-field pos" style="margin-bottom:0px">{{pos}}</p>
-					<input class="edit" name="pos" type='number' style="margin-bottom:0px;display:none;" value="{{pos}}" required>
-					<small class="error">Valid Position required</small>
+				<div class="row">
+					<div class="large-4 small-4 medium-4 columns">
+						<p><b>Marker Id:</b>&nbsp&nbsp&nbsp<i>{{_id}}</i></p>
+					</div>
+					<div class="large-3 small-3 medium-3 columns">
+						<h6 class="update-status right" style="display:none"></h6>
+					</div>
 				</div>
-				<div class="large-2 medium-2 small-12 columns">
-					<label class="show-for-small-only text-center"><b>Reference</b></label>
-					<p class="static-marker-field ref" style="margin-bottom:0px">{{ref}}</p>
-					<input class="edit" name="ref" type='text' pattern="ref" style="margin-bottom:0px;display:none;" value="{{ref}}" required>
-					<small class="error">Only one valid reference allele can be provided</small>
+				<div class="row">
+					<div class="large-3 small-3 medium-3 columns">
+						<p><b>Chromosome:</b>&nbsp&nbsp&nbsp{{chr}}</p>
+					</div>
+					<div class="large-3 small-3 medium-3 columns">
+						<p><b>Position:</b>&nbsp&nbsp&nbsp{{pos}}</p>
+					</div>
+					<div class="large-3 small-3 medium-3 columns">
+						<p><b>Reference:</b>&nbsp&nbsp&nbsp{{ref}}</p>
+					</div>
+					<div class="large-3 small-3 medium-3 columns left">
+						<p><b>Alternate:</b>&nbsp&nbsp&nbsp{{alt}}</p>
+					</div>
 				</div>
-				<div class="large-3 medium-3 small-12 columns">
-					<label class="show-for-small-only text-center"><b>Alternate</b></label>
-					<p class="static-marker-field alt" style="margin-bottom:0px">{{alt}}</p>
-					<input class="edit" name=alt type='text' pattern="alleles" style="margin-bottom:0px;display:none;" value="{{alt}}" required>
-					<small class="error">Valid Allele required</small>
+
+				<div class="row">
+					<div class="large-3 small-3 medium-3 columns">
+					{{#if build}}
+						<p style="font-size:.75em;margin-bottom:3px">dbSNP Build:&nbsp&nbsp&nbsp{{build}}</p>
+					{{/if}}
+					{{#if assemblyLabel}}
+						<p style="font-size:.75em">Assembly:&nbsp&nbsp&nbsp{{assemblyLabel}}</p>
+					{{/if}}
+					</div>
+					<div class="large-3 small-3 medium-3 columns right">
+						<p style="font-size:.75em">Last updated:&nbsp&nbsp&nbsp{{date}}</p>
+					</div>
 				</div>
 				<div class="row">
 					<div class="large-4 medium-6 small-12 columns right edit"  style="margin-top:15px;display:none">
               			<ul class="button-group radius even-3" >									
-              				<li><button type="submit" class="success tiny radius button" style="margin-bottom:0px;">submit</a></li>
-							<li><a href="#" class="tiny radius button cancel" style="margin-bottom:0px;">cancel</a></li>
-							<li><a href="#" class="tiny alert button delete" style="margin-bottom:0px;">delete</a></li>
+              				<li><a href="#" class="success tiny radius button" style="margin-bottom:0px;">Update</a></li>
+							<li><a href="#" class="tiny radius button cancel" style="margin-bottom:0px;">Cancel</a></li>
+							<li><a href="#" class="tiny alert button delete" style="margin-bottom:0px;">Delete</a></li>
 						</ul>
 					</div>
 				</div>
-			</fieldset>
-		</form>
-	</div>
-</div>
+			</form>
+		</td>
+	</tr>
 {{/each}}

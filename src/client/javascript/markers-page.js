@@ -10,30 +10,75 @@ var utility = require('./utility'),
 
 
 	//confirm whether or not the user would like to delete the selected marker
-	var confirmDeleteHanlder = function(){
-		$('#confirm-delete').find('.cancel').on('click',function(e){
-			e.preventDefault();
-			$(this).closest('#confirm-delete').data('value','').foundation('reveal','close');
-		});
+	var confirmDeleteHanlder = function(markerName){
+		var promise = new Promise(function(resolve, reject){
+			$('#confirm-delete').find('h4').text('Are you sure you want to delete the marker ' + markerName + "?")
+			.closest('#confirm-delete').foundation('reveal','open');
 
-		$('#confirm-delete').find('.success').on('click',function(e){
-			e.preventDefault();
-			var name = $(this).closest('#confirm-delete').data('value');
-			Promise.resolve($.ajax({
-				url:"/markers/current/" + name + "/delete",
-				type:"POST",
-				contentType:"application/json",
-				dataType:'json'
-			})).then(function(result){
-				if (result['status'] == 'ok'){
-					$('.marker-row[data-name=' + name +']').closest('.row').remove();
-					$('#confirm-delete').foundation('reveal','close');
-				} else {
-					console.log(result);
-				}
+			$('#confirm-delete').find('.cancel').on('click',function(e){
+				e.preventDefault();
+				$('#confirm-delete').foundation('reveal','close');
+				resolve(false);
+			});
+
+			$('#confirm-delete').find('.success').on('click',function(e){
+				e.preventDefault();
+				$('#confirm-delete').foundation('reveal','close');
+				resolve(true);
 			});
 		});
+		return promise;
 	};
+
+	var confirmUpdate = function(marker, chr, pos, ref, alt){
+		var context = $('#update-modal');
+		var promise = new Promise(function(resolve,reject){
+			context.find('h4').text('Make updates to ' + marker + '?');
+			context.find('input[name=chr]').val(chr);
+			context.find('input[name=pos]').val(pos);
+			context.find('input[name=ref]').val(ref);
+			context.find('input[name=alt]').val(alt);
+
+			context.find('.success').on('click',function(e){
+				e.preventDefault();
+				var arr = context.find('form').serializeArray();
+				var form = serializeNewMarker(arr);
+				for (var item in form) {
+					if (form.hasOwnProperty(item)){
+						if (form[item] === ''){
+							context.find('input[name=' + item + ']').addClass('error').siblings('small').text("Required").show();
+						} else {
+							if (context.find('input[name=' + item + ']').hasClass('error')){
+								context.find('input[name=' + item + ']').removeClass('error').siblings('small').text("").hide();
+							}
+							if (item == 'chr' && utility.chrRegex.exec(form[item]) === null )
+								context.find('input[name=' + item + ']').addClass('error').siblings('small').text("Valid Chromosome Required").show();
+							if ((item == 'ref' || item == 'alt') && utility.allelesRegex.exec(form[item]) === null)
+								context.find('input[name=' + item + ']').addClass('error').siblings('small').text("Valid Allele Required").show();
+							if (item=='pos' && /^[0-9]+/.exec(form[item]) === null)
+								context.find('input[name=' + item + ']').addClass('error').siblings('small').text("A valid number is required").show();
+						}
+					}
+				}
+
+				form.date = new Date().toDateString();
+				if (!context.find('input').hasClass('error')){
+					context.foundation('reveal','close');
+					resolve(form);
+				}	
+			});
+			
+			context.find('.cancel').on('click',function(e){
+				e.preventDefault();
+				context.foundation('reveal','close');
+				resolve();
+			});
+
+			context.foundation('reveal','open');
+		});
+		
+		return promise;
+	}
 
 	/* handlers for each marker row, loaded individually
 	 * or all at once. */
@@ -44,10 +89,13 @@ var utility = require('./utility'),
 		var refreshClick  = function(context){
 			$(context).on('click',function(){
 				$(this).off('click');
-				if ($(this).find('.edit:visible').length === 0)
-					$(this).find('.edit').show().closest(this).find('.static-marker-field').hide();
+				$(this).find('.edit').show().closest(this).find('.static-marker-field').hide();
 			});
 		};
+
+		var updated = "Updated&nbsp&nbsp<i class='fa fa-exclamation-circle' style='color:orange'></i>";
+		var missing = "Marker no longer found in dbSNP&nbsp&nbsp&nbsp&nbsp<i class='fa fa-x' style=color:red'></i>";
+		var unchanged = "Up to date&nbsp&nbsp&nbsp&nbsp<i class='fa fa-check' style='color:green'></i>";
 
 
 		//Cancel changes with escape key
@@ -62,9 +110,84 @@ var utility = require('./utility'),
 		var sel;
 		//if context is passed add hanlders for that specific context
 		if (context)
-			sel = $(context).find('.marker-row');
+			sel = $(context);
 		else
 			sel = $('.marker-row');
+
+		var customFields = sel.find('form[data-type=custom]');
+		var dbFields = sel.find('form[data-type=dbsnp]');
+
+		if (customFields.length > 0 ){
+			customFields.find('.success').on('click',function(e){
+				var form = $(this).closest('form');
+				var marker = form.attr('id');
+				var pos = form.data('pos');
+				var chr = form.data('chr');
+				var ref = form.data('ref');
+				var alt = form.data('alt');
+				e.preventDefault();
+				confirmUpdate(marker,chr,pos,ref,alt).then(function(result){
+					if (result){
+						Promise.resolve($.ajax({
+							url:'/database/markers/update?id=' + marker + '&type=custom',
+							type:'POST',
+							contentType:'application/json',
+							dataType:'json',
+							data:JSON.stringify(result)
+						})).then(function(status){
+							if (status.status == 'ok'){
+								result._id = marker;
+								result.type = form.data('type');
+								return templates.markers.row({markers:[result]}).then(function(renderedHtml){
+									return form.closest('tr').replaceWith(renderedHtml);
+								}).then(function(){
+									markerRowHandler($('#' + marker).closest('tr'));
+									$('#' + marker).find('.alert-message').text('Marker successfully updated').closest('.alert-box').slideDown();
+								});
+							} else {
+								$('#' + marker).find('.alert-message').text('Marker did not update successfully').closest('.alert-box').slideDown();
+							}
+						})
+					}
+				});
+			});
+		} 
+
+		if (dbFields.length > 0){
+			dbFields.find('.success').on('click',function(e){
+				e.preventDefault();
+				var form = $(this).closest('form');
+				var marker = form.attr('id');
+				form.css('opacity','0.5');
+				form.closest('tr').find('.loading-spinner').show();
+				var _this = this;
+				Promise.resolve($.ajax({
+					url:'/database/markers/update?id=' + marker + '&type=dbsnp',
+					type:'POST',
+					contentType:'application/json',
+					dataType:'json',
+				})).then(function(result){
+					form.closest('tr').find('.loading-spinner').hide();
+					form.css('opacity','1');
+					if (result.changed.length > 0){
+						var record = result.changed[0];
+						templates.markers.row({markers:[record]}).then(function(renderedHtml){
+							return $(form).closest('tr').replaceWith(renderedHtml)
+						}).then(function(){
+							markerRowHandler($("#" + marker).closest('tr'));
+							$('#' + marker).find('.update-status').html(updated).show()
+						});
+
+					} else if (result.missing.length > 0){
+						form.find('.update-status').html(missing).show()
+
+					} else {
+						form.find('.update-status').html(unchanged).show()
+
+					}
+				});
+			});
+		}
 
 		//Marker for row click
 		sel.on('click.row',function(){
@@ -73,22 +196,37 @@ var utility = require('./utility'),
 				$(this).find('.edit').show().closest(this).find('.static-marker-field').hide();
 		});
 
-		sel.find(".delete").on('click',function(e){
+		sel.find('.close-box').on('click',function(e){
 			e.preventDefault();
-			$('#confirm-delete').data('value', $(this).closest(sel).find('.marker-name').text())
-			.find('h4').text('Are you sure you want to delete the marker ' + $(this).closest(sel).find('.marker-name').text() + "?")
-			.closest('#confirm-delete').foundation('reveal','open');
-			//
+			$(this).closest('.alert-box').slideUp();
+		});
+
+		sel.find(".delete").on('click',function(e){
+			e.preventDefault()
+			var name = $(this).closest('form').attr('id');
+			confirmDeleteHanlder(name).then(function(result){
+				if (result == true){
+					Promise.resolve($.ajax({
+						url:"/database/markers/delete?id=" + name,
+						type:"POST",
+						contentType:"application/json",
+						dataType:'json'
+					})).then(function(result){
+						if (result.status == 'ok'){
+							$('#' + name).closest('tr').remove();
+						} else {
+							console.log(result);
+						}
+					});
+				}
+			}); 
 		});
 		//Cancel the current modifications, reset the values of the input to the previous values
 		//and close the edit fields
 		sel.find('.cancel').on('click.button',function(e){
 			var fields = ['chr','pos','alt','ref'];
 			e.preventDefault();
-			for (var i = 0; i < fields.length; i++){
-				$(this).closest('.marker-row').find('input[name=' + fields[i] + ']').val($(this).closest('form').find('input[name=' + fields[i] + ']').siblings('p').text());
-			}
-			$(this).closest('.marker-row').find('.edit').hide().closest('.marker-row').find('.static-marker-field').show('fast',function(){
+			$(this).closest('.marker-row').find('.edit').hide('slow',function(){//.find('.static-marker-field').show('fast',function(){
 				refreshClick($(this).closest('.marker-row'));
 			});
 		});
@@ -130,6 +268,8 @@ var utility = require('./utility'),
 					input[item.name] = item.value.toUpperCase().split(/[\,\s]/g);
 				else if (item.name == 'pos')
 					input[item.name] = parseInt(item.value);
+				else if (item.name == 'dbsnp-id')
+					input[item.name] = item.value;
 				else
 					input[item.name] = item.value.toUpperCase();
 			});
@@ -149,6 +289,11 @@ var utility = require('./utility'),
 
 	//Static page handlers
 	var statichandlers = function(){
+
+		$('.close-box').on('click',function(e){
+			e.preventDefault();
+			$(this).closest('.alert-box').slideUp();
+		});
 
 		$('#search-box').on('keyup',function(){
 			var items = $('.marker-row');
@@ -176,53 +321,91 @@ var utility = require('./utility'),
 			});
 		});
 
+		$('#update-all-markers').on('click',function(e){
+			e.preventDefault();
+			$('.marker-row').find('form[data-type=dbsnp]').find('.success').trigger('click');
+		});
+
 		//Send an ajax request and submit it to the new marker
 		$('#submit-new-marker').on('click',function(e){
 			e.preventDefault();
+			var doc;
+			var type;
+			var rsReg = /rs[0-9]+$/i;
 			var form = serializeNewMarker($("#new-marker-form").serializeArray());
 			//check input.
-			for (item in form) {
-				if (form.hasOwnProperty(item)){
-					if (form[item] == ''){
-						$('#new-marker-form').find('input[name=' + item + ']').addClass('error').siblings('small').text("Required").show();
-					} else {
-						if ($('#new-marker-form').find('input[name=' + item + ']').hasClass('error')){
-							$('#new-marker-form').find('input[name=' + item + ']').removeClass('error').siblings('small').text("").hide();
+			if (form['dbsnp-id'] !== ''){
+				if ( rsReg.exec(form['dbsnp-id']) === null ){
+					$('#new-marker-form').find('input[name=dbsnp-id]').addClass('error').siblings('small').show();
+				} else {
+					doc = {
+						_id:form['dbsnp-id']
+					};
+					type = 'dbsnp';
+				}
+			} else {
+				type = 'custom';
+				delete form['dbsnp-id'];
+				for (var item in form) {
+					if (form.hasOwnProperty(item)){
+						if (form[item] === ''){
+							$('#new-marker-form').find('input[name=' + item + ']').addClass('error').siblings('small').text("Required").show();
+						} else {
+							if ($('#new-marker-form').find('input[name=' + item + ']').hasClass('error')){
+								$('#new-marker-form').find('input[name=' + item + ']').removeClass('error').siblings('small').text("").hide();
+							}
+							if (item == 'chr' && utility.chrRegex.exec(form[item]) === null )
+								$('#new-marker-form').find('input[name=' + item + ']').addClass('error').siblings('small').text("Valid Chromosome Required").show();
+							if ((item == 'ref' || item == 'alt') && utility.allelesRegex.exec(form[item]) === null)
+								$('#new-marker-form').find('input[name=' + item + ']').addClass('error').siblings('small').text("Valid Allele Required").show();
+							if (item=='pos' && /^[0-9]+/.exec(form[item]) === null)
+								$('#new-marker-form').find('input[name=' + item + ']').addClass('error').siblings('small').text("A valid number is required").show();
+							if (item == 'id')
+								$('#new-marker-form').find('input[name=id]').trigger('keyup');
 						}
-						if (item == 'chr' && utility.chrRegex.exec(form[item]) === null )
-							$('#new-marker-form').find('input[name=' + item + ']').addClass('error').siblings('small').text("Valid Chromosome Required").show();
-						if ((item == 'ref' || item == 'alt') && utility.allelesRegex.exec(form[item]) === null)
-							$('#new-marker-form').find('input[name=' + item + ']').addClass('error').siblings('small').text("Valid Allele Required").show();
-						if (item=='pos' && /^[0-9]+/.exec(form[item]) === null)
-							$('#new-marker-form').find('input[name=' + item + ']').addClass('error').siblings('small').text("A valid number is required").show();
-						if (item == 'id')
-							$('#new-marker-form').find('input[name=id]').trigger('keyup');
 					}
 				}
+				var date = new Date()
+				doc = {
+					_id : form['new-marker'],
+					type : type,
+					chr : form.chr,
+					pos : form.pos,
+					alt : form.alt.sort(),
+					ref : form.ref,
+					date : new Date().toDateString()
+				}
 			}
-
 			if (!$('#new-marker-form').find('input').hasClass('error')){
 				Promise.resolve($.ajax({
-					url:'/markers/new',
+					url:'/markers/new?type='+type,
 					type:'POST',
 					contentType:'application/json',
 					dataType:"json",
-					data:JSON.stringify(form)
+					data:JSON.stringify(doc)
 				})).then(function(result){
-					var doc = {}
-					doc[form.id] = {};
-					doc[form.id].chr = form.chr;
-					doc[form.id].pos = form.pos;
-					doc[form.id].alt = form.alt;
-					doc[form.id].ref = form.ref;
-					return templates.markers.row({markers:doc});
+					if (result.status == 'failed')
+						throw new Error(result.message)
+					return templates.markers.row({markers:[result]})
 				}).then(function(renderedHtml){
-					return $('#markers').prepend(renderedHtml);
+					if (type == 'dbsnp')
+						return $('#markers').prepend(renderedHtml);
+					else
+						return $('#custom-markers').prepend(renderedHtml);
 				}).then(function(){
-					markerRowHandler($("#markers").filter(':first'));
+					var marker = '#' + doc._id;
+					markerRowHandler($(marker).closest('tr'));
+					var background = $(marker).closest('tr').css('background-color');
+					$(marker).closest('tr').css('background-color',"#C2FFC2");
+					$('body').animate({
+        				scrollTop: $(marker).offset().top - 50},
+        				'slow');
+					setTimeout(function(){
+						$(marker).closest('tr').css('background-color',background)
+					},3000);
 					$('#cancel-new-marker').trigger('click');
 				}).catch(function(err){
-					console.log(err)
+					$('#new-marker-form').find('.alert-message').text(err.message).closest('.alert-box').slideDown();
 				})
 			}
 		});
@@ -251,6 +434,7 @@ var utility = require('./utility'),
 	//Render html
 	var main = function(){
 		//render the html
+		var dbMarkers = {}, customMarkers = {};
 		return templates.markers.index()
 		.then(function(renderedHtml){
 			return $('#main').html(renderedHtml);
@@ -262,14 +446,27 @@ var utility = require('./utility'),
 				contentType:'application/json'
 			}));
 		}).then(function(result){
-			return  templates.markers.row({markers:result})
+			for (marker in result){
+				if (result.hasOwnProperty(marker)){
+					if (result[marker].type == 'dbsnp') dbMarkers[marker] = result[marker];
+					else customMarkers[marker] = result[marker];
+				}	
+			}
+			return  templates.markers.row({markers:dbMarkers})
 		}).then(function(renderedHtml){
 			return $('#markers').append(renderedHtml);
+		}).then(function(){
+			return templates.markers.row({markers:customMarkers});
+		}).then(function(renderedHtml){
+			return $('#custom-markers').append(renderedHtml);
+		}).then(function(){
+			if ($('#custom-markers').find('tr').length > 0){
+				$('#custom-markers').closest('table').show();
+			}
 		}).then(function(){
 			utility.bioAbide();
 			statichandlers();
 			markerRowHandler();
-			confirmDeleteHanlder();
 		}).then(function(){
 			utility.refresh();
 		});

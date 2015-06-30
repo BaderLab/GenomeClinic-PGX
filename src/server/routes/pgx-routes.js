@@ -7,6 +7,8 @@ var fs = require('fs');
 var constants = require("../lib/conf/constants.json");
 var genReport  = require('../lib/genReport');
 var dbFunctions = require('../models/mongodb_functions');
+var getRS = require('../lib/getDbSnp');
+
 
 
 module.exports = function(app,logger,opts){
@@ -230,27 +232,35 @@ module.exports = function(app,logger,opts){
 
 
 	//Update the current marker
-	app.post('/markers/current/:marker',utils.isLoggedIn,function(req,res){
-		var marker = req.params.marker;
+	app.post('/database/markers/update',utils.isLoggedIn,function(req,res){
+		var marker = req.query.id;
+		var type = req.query.type
 		var info = req.body;
 		var query = {};
-		query[constants.dbConstants.PGX.COORDS.ID_FIELD] = marker;
-		dbFunctions.updatePGXCoord(marker,info,req.user.username)
-		.then(function(result){
-			if (result){
+		if (type == 'dbsnp'){
+			dbFunctions.updatedbSnpPGXCoords(marker).then(function(result){
+				res.send(result);
+			});
+		} else if (type == 'custom'){
 
-				res.redirect('/success');
-			} else {
+			query[constants.dbConstants.PGX.COORDS.ID_FIELD] = marker;
+			dbFunctions.updatePGXCoord(marker,{$set:info},req.user.username)
+			.then(function(result){
+				if (result){
+
+					res.redirect('/success');
+				} else {
+					res.redirect('/failure');
+				}
+			}).catch(function(err){
 				res.redirect('/failure');
-			}
-		}).catch(function(err){
-			res.redirect('/failure');
-		});
+			});
+		}
 	});
 
 	//Delete the seleceted marker
-	app.post('/markers/current/:marker/delete',utils.isLoggedIn,function(req,res){
-		var marker = req.params.marker;
+	app.post('/database/markers/delete',utils.isLoggedIn,function(req,res){
+		var marker = req.query.id;
 		dbFunctions.removePGXCoords(marker,req.user.username)
 		.then(function(result){
 			if (result){
@@ -262,19 +272,49 @@ module.exports = function(app,logger,opts){
 
 	//add a new marker
 	app.post('/markers/new',utils.isLoggedIn,function(req,res){
-		dbFunctions.insert(constants.dbConstants.PGX.COORDS.COLLECTION,req.body,req.user.username)
-		.then(function(result){
-			if (result){
-				res.redirect('/success');
+		var type = req.query.type;
+		dbFunctions.checkInDatabase(constants.dbConstants.PGX.COORDS.COLLECTION,'_id',req.body._id)
+		.then(function(inDB){
+			if (inDB){
+				req.flash('error','duplicate entry');
+				req.flash('message','Marker: ' + req._id + " already exists, either update the current marker are define a new name");
+				res.redirect('/failure');	
 			} else {
-				res.redirect('/failure');
+				if(type == 'custom'){
+					dbFunctions.insert(constants.dbConstants.PGX.COORDS.COLLECTION,req.body,req.user.username)
+					.then(function(result){
+						if (result){
+							result.statusCode = 200;
+							result.message = "Successfully entered new Marker"
+							res.send(result);
+						} else {
+							res.redirect('/failure');
+						}
+					}).catch(function(err){
+						res.redirect('/failure');
+					});
+				} else if (type == 'dbsnp'){
+					getRS(req.body._id).then(function(result){
+						if (result.dbSnp.length === 0 ){
+							logger('info','could not retrieve information from NCBI dbSNP for several markers', {action:'getRS',missing:result.missing.length});
+							req.flash('message','could not retrieve information from NCBI dbSNP for marker: ' + req.body._id);
+							res.redirect('/failure');
+						} else {
+							return dbFunctions.insert(constants.dbConstants.PGX.COORDS.COLLECTION,result.dbSnp[0],req.username)
+							.then(function(insertedDoc){
+								result.statusCode = 200;
+								result.message = "Successfully entered new marker"
+								res.send(insertedDoc);
+							}).catch(function(err){
+								logger('error',err,{action:'insert',target:constants.dbConstants.PGX.COORDS.COLLECTION,arguments:result.dbSnp[0]})
+								res.redirect('/failure');
+							});
+						}
+					});
+				}
 			}
-		}).catch(function(err){
-			res.redirect('/failure');
-		});
+		})
 	});
-
-
 
 	//==================================================================
 	

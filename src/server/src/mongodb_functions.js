@@ -1138,10 +1138,10 @@ var dbFunctions = function(){
 	 * Query the NCBI's dbsnp to find all minformation on all the markers included in
 	 * our database (can take a minute). THen if there are any changes update the databse
 	 */
-	this.updateAllPGXCoords = function(){
+	this.updatedbSnpPGXCoords = function(snp){
 		var record, update, changed = [], notFound = [], notchanged = [], toChange = [];
 		assert.notStrictEqual(db,undefined);
-		return self.getPGXCoords(null,null,'dbsnp').then(function(markers){
+		return self.getPGXCoords(snp ,null,'dbsnp').then(function(markers){
 			var markerNames = Object.keys(markers);
 			return getRS(markerNames).then(function(result){
 				foundMarkers = [];
@@ -1165,7 +1165,7 @@ var dbFunctions = function(){
 				return toChange;
 			}).each(function(record){
 				return self.update(dbConstants.PGX.COORDS.COLLECTION,{_id:record._id},record).then(function(){
-					changed.push(record._id);
+					changed.push(record);
 				});
 			}).then(function(){
 				output = {

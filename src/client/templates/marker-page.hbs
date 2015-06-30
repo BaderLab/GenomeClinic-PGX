@@ -15,28 +15,53 @@
 			  			</div>
 			  		</div>
 			  		<div class="row">
+						<div class="small-12 columns">
+				    		<div data-alert class="alert-box radius secondary" style="display:none">
+				    		<!-- Alert message goes here -->
+					      		<div class="row">
+					        		<div class="small-11 columns">
+					        	  		<p class="alert-message"></p>
+					        		</div>
+					      			<div class="small-1 columns">
+					        			<a href="#" class='close-box'><i class="fi-x size-16" style="color:#606060"></i></a>
+					      			</div>
+					    		</div>
+					    	</div>
+						</div>
+					</div>
+			  		<div class="row">
 			  			<div class="large-12 small-12 medium-12 columns">
 			  				<div class="row">
 			  					<div class="large-6 small-12 medium-8 columns">
-					  				<div class="row collapse prefix-radius">
-					  					<div class="large-3 small-4 medium-4 columns left">
-					  						<span class="prefix">Marker id</span>
-					  					</div>
-					  					<div class="large-9 small-8 medium-8 columns left">
-					  						<input type="text" name="id" required data-abide-validator="existsInDb">
-					  						<small class="error" style="display:none">Required</small>
-					  					</div>
-					  				</div>
+									<label><b>Add Marker by RS Id</b></label>	
+			  						<input type="text" name="dbsnp-id" pattern="rs[0-9]+">
+			  						<small class="error" style="display:none">rs ID must be of the following form: rs123124</small>
 					  			</div>
 			  				</div>
-			  				<div class="row">			  			
+			  				<h5 style="text-align:center"><i>or</i></h5>
+			  				<label><b>Add Custom Marker</b></label>
+
+			  				<div class="row">
+			  					<div class="large-6 small-12 medium-8 columns">
+			  						<div class="row collapse prefix-radius">
+			  							<div class="large-3 small-4 medium-4 columns">
+			  								<span class="prefix">New Marker Id</span>
+			  							</div>
+			  							<div class="large-9 small-8 medium-8 columns">
+			  								<input type="text" name="new-marker">
+			  								<small class="error" style="display:none">Required</small>
+			  							</div>
+			  						</div>
+			  					</div>
+			  				</div>
+			  				<div class="row">
 					  			<div class="large-6 small-12 medium-8 columns">
 					  				<div class="row collapse prefix-radius">
 					  					<div class="large-3 small-4 medium-4 columns">
 					  						<span class="prefix">Chromosome</span>
 					  					</div>
 					  					<div class="large-9 small-8 medium-8 columns">
-					  						<input type="text" name="chr" required>
+					  						<input type="text" name="chr">
 					  						<small class="error" style="display:none">Required</small>
 					  					</div>
 					  				</div>
@@ -45,7 +70,7 @@
 					  						<span class="prefix">Position</span>
 					  					</div>
 					  					<div class="large-9 small-8 medium-8 columns">
-					  						<input type="text" name="pos" required>
+					  						<input type="text" name="pos">
 					  						<small class="error" style="display:none">Required</small>
 					  					</div>
 					  				</div>
@@ -56,7 +81,7 @@
 					  						<span class="prefix">Reference Allele</span>
 					  					</div>
 					  					<div class="large-9 small-8 medium-8 columns">
-					  						<input type="text" name="ref" required>
+					  						<input type="text" name="ref">
 					  						<small class="error" style="display:none">Required</small>
 					  					</div>
 					  				</div>
@@ -65,7 +90,7 @@
 					  						<span class="prefix">Alternate Allele</span>
 					  					</div>
 					  					<div class="large-9 medium-8 small-8 columns">
-					  						<input type="text" name="alt" required>
+					  						<input type="text" name="alt">
 					  						<small class="error" style="display:none">Required</small>
 					  					</div>
 					  				</div>
@@ -79,6 +104,9 @@
         	<div class="large-3 medium-4 small-12 columns left" id="add-new-maker">
           		<a href="#" id="marker-new" class="small-12 button alert radius left" id="add-new-haplotype">Add New Marker</a>
         	</div>
+        	<div class="large-3 small-12 medium-6 right columns">
+  				<a href="#" class="button radius large-12 small-12 medium-12 alert" id="update-all-markers">Update Markers</a>
+  			</div>		
       	</div> 
 	</div>
 </div>
@@ -94,6 +122,73 @@
 		</div>
 	</div>
 </div>
+<div id="update-modal" class="reveal-modal large" data-reveal>
+	<form id="update-marker">
+		<h4></h4>
+		<div class="row">
+			<div class="large-12 small-12 medium-12 columns">
+				<div class="row collapse prefix-radius">
+					<div class="large-3 small-4 medium-4 columns">
+						<span class="prefix">Chromosome</span>
+					</div>
+					<div class="large-9 small-8 medium-8 columns">
+						<input type="text" name="chr">
+						<small class="error" style="display:none">Required</small>
+					</div>
+				</div>
+				<div class="row collapse prefix-radius">
+					<div class="large-3 small-4 medium-4 columns">
+						<span class="prefix">Position</span>
+					</div>
+					<div class="large-9 small-8 medium-8 columns">
+						<input type="text" name="pos">
+						<small class="error" style="display:none">Required</small>
+					</div>
+				</div>
+			</div>
+			<div class="large-12 small-12 medium-12 columns">
+				<div class="row collapse prefix-radius">
+					<div class="large-3 small-4 medium-4 columns">
+						<span class="prefix">Reference Allele</span>
+					</div>
+					<div class="large-9 small-8 medium-8 columns">
+						<input type="text" name="ref">
+						<small class="error" style="display:none">Required</small>
+					</div>
+				</div>
+				<div class="row collapse prefix-radius">
+					<div class="large-3 small-4 medium-4 columns">
+						<span class="prefix">Alternate Allele</span>
+					</div>
+					<div class="large-9 medium-8 small-8 columns">
+						<input type="text" name="alt">
+						<small class="error" style="display:none">Required</small>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="large-6 medium-6 small-12 columns">
+				<a href="#" class="large-12 medium-12 small-12 success button radius">Confirm</a>
+			</div>
+			<div class="large-6 medium-6 small-12 columns">
+				<a href="#" class="large-12 medium-12 small-12 alert button radius cancel">Cancel</a>
+			</div>
+		</div>
+	</form>
+</div>
+
+<div class="row">
+	<div class="large-9 small-12 medium-8 columns">
+		<h4>DB SNP Markers</h4>
+	</div>
+	<div class="large-3 small-12 medium-4 columns">
+		<fieldset style="margin:0px;padding-left:15px;padding-top:5px;padding-bottom:5px;">
+		<a href="#" id="jump-to-custom">Jump to custom markers</a>
+		</fieldset>
+	</div>
+	<hr>
+</div>
 <div class="row">
 	<div class="large-12 medium-12 small-12 columns">
 		<div class="row collapse prefix-radius">
@@ -107,19 +202,44 @@
 	</div>
 </div>
 <div class="row">
-	<div class="large-12 medium-12 columns show-for-medium-up">
-		<table class="large-12 medium-12">
-			<thead>
+	<div class="large-12 medium-12 small-12 columns">
+		<table class="large-12 medium-12 small-12">
+			<!--<thead>
 				<tr>
-					<th class="large-3 medium-3">Marker Id</th>
-					<th class="text-center large-2 medium-2">Chromosome</th>
-					<th class="text-center large-2 medium-2">Position</th>
-					<th class="text-center large-2 medium-2">Reference</th>
-					<th class="text-center large-3 medium-3">Alternate</th>
+					<th>Marker Id</th>
+					<th>dbSNP Build</th>
+					<th>Genome Assembly</th>
+					<th>Last Updated</th>
+					<th class="text-center">Chromosome</th>
+					<th class="text-center">Position</th>
+					<th class="text-center">Reference</th>
+					<th class="text-center">Alternate</th>
+					<th class="text-center" style="display:none">Status</th>
 				</tr>
-			</thead>
+			</thead>-->
+			<tbody id="markers">
+			</tbody>
 		</table>
 	</div>
-	<div class="large-12 medium-12 small-12 columns" id="markers">
+	<!--<div class="large-12 medium-12 small-12 columns" id="markers">
+	</div>-->
+</div>
+<div class="row">
+	<div class="large-9 small-12 medium-8 columns">
+		<h4>Custom Markers</h4>
+	</div>
+	<div class="large-3 small-12 medium-4 columns">
+		<fieldset style="margin:0px;padding-left:15px;padding-top:5px;padding-bottom:5px;">
+		<a href="#" id="jump-to-db">Jump to db snp markers</a>
+		</fieldset>
+	</div>
+	<hr>
+</div>
+<div class="row">
+	<div class="large-12 medium-12 small-12 columns">
+		<table class="large-12 medium-12 small-12" style="display:none">
+			<tbody id="custom-markers">
+			</tbody>
+		</table>
 	</div>
 </div>
