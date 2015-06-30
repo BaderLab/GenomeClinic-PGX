@@ -49,7 +49,7 @@ module.exports = function(app,logger,opts){
 			if (result)
 				next();
 			else
-				utils.render(req,res,'notfound');
+				utils.render(req,res,{type:'notfound'});
 		});
 	});
 
@@ -60,7 +60,7 @@ module.exports = function(app,logger,opts){
 			if (result)
 				next();
 			else
-				utils.render(req,res,'notfound');
+				utils.render(req,res,{type:'notfound'});
 		});
 	});
 
