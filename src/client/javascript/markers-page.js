@@ -306,6 +306,22 @@ var utility = require('./utility'),
 				}
 			}
 		});
+
+		//Jump handlers
+		$('#jump-to-custom').on('click',function(e){
+			e.preventDefault();
+			$('body').animate({
+				scrollTop:$('#custom-marker-section').offset().top
+			},'slow');
+		});
+
+		$('#jump-to-db').on('click',function(e){
+			e.preventDefault();
+			$('body').animate({
+				scrollTop:0
+			},'slow');
+
+		})
 		
 		//handlers for adding new field
 		$('#marker-new').on('click',function(e){
