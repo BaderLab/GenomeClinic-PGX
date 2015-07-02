@@ -240,6 +240,10 @@ module.exports = function(app,logger,opts){
 		if (type == 'dbsnp'){
 			dbFunctions.updatedbSnpPGXCoords(marker).then(function(result){
 				res.send(result);
+			}).catch(function(err){
+				req.flash('error',err);
+				req.flash('message',err.message);
+				res.redirect('/falire');
 			});
 		} else if (type == 'custom'){
 

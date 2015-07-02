@@ -93,9 +93,10 @@ var utility = require('./utility'),
 			});
 		};
 
-		var updated = "Updated&nbsp&nbsp<i class='fa fa-exclamation-circle' style='color:orange'></i>";
+		var updated = "Updated&nbsp&nbsp<i class='fa fa-exclamation' style='color:blue'></i>";
 		var missing = "Marker no longer found in dbSNP&nbsp&nbsp&nbsp&nbsp<i class='fa fa-x' style=color:red'></i>";
 		var unchanged = "Up to date&nbsp&nbsp&nbsp&nbsp<i class='fa fa-check' style='color:green'></i>";
+		var warning = "Error encountered&nbsp&nbsp&nbsp<i class='fa fa-warning' style='color:orange'></i>"
 
 
 		//Cancel changes with escape key
@@ -167,9 +168,11 @@ var utility = require('./utility'),
 					contentType:'application/json',
 					dataType:'json',
 				})).then(function(result){
-					console.log(result);
 					form.closest('tr').find('.loading-spinner').hide();
 					form.css('opacity','1');
+					if (result.status = 'failed'){
+						form.find('.update-status').html(warning).show();
+					}
 					if (result.changed.length > 0){
 						var record = result.changed[0];
 						templates.markers.row({markers:[record]}).then(function(renderedHtml){
@@ -471,7 +474,8 @@ var utility = require('./utility'),
 			}
 			return  templates.markers.row({markers:dbMarkers})
 		}).then(function(renderedHtml){
-			return $('#markers').append(renderedHtml);
+			if (renderedHtml)
+				return $('#markers').append(renderedHtml).parent('table').show();
 		}).then(function(){
 			return templates.markers.row({markers:customMarkers});
 		}).then(function(renderedHtml){
