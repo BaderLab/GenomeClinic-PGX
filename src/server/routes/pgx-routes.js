@@ -310,6 +310,11 @@ module.exports = function(app,logger,opts){
 								res.redirect('/failure');
 							});
 						}
+					}).catch(function(err){
+						logger('error',err,{action:'getRS',target:'NCBI dbSNP'});
+						req.flash('error',err);
+						req.flash('message',err.message);
+						res.redirect('/failure');
 					});
 				}
 			}

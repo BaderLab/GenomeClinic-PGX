@@ -80,6 +80,10 @@ function getRsIds(ids){
 				xml += chunk;
 			});
 
+			//Error Occured, Reject the infromation.
+			response.on('error',function(err){
+				reject(err);
+			});
 
 			// execute on the end
 			response.on('end',function(){
