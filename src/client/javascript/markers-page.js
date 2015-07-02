@@ -167,6 +167,7 @@ var utility = require('./utility'),
 					contentType:'application/json',
 					dataType:'json',
 				})).then(function(result){
+					console.log(result);
 					form.closest('tr').find('.loading-spinner').hide();
 					form.css('opacity','1');
 					if (result.changed.length > 0){
@@ -389,9 +390,9 @@ var utility = require('./utility'),
 					return templates.markers.row({markers:[result]})
 				}).then(function(renderedHtml){
 					if (type == 'dbsnp')
-						return $('#markers').prepend(renderedHtml);
+						return $('#markers').prepend(renderedHtml).parent('table').show();
 					else
-						return $('#custom-markers').prepend(renderedHtml);
+						return $('#custom-markers').prepend(renderedHtml).parent('table').show();
 				}).then(function(){
 					var marker = '#' + doc._id;
 					markerRowHandler($(marker).closest('tr'));
