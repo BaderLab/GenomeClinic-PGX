@@ -81,6 +81,12 @@ module.exports = function(app,logger,opts){
 		});
 	});
 
+	app.get('/config/current', utils.isLoggedIn, function(req,res){
+		dbFunctions.findOne(dbConstants.DB.ADMIN_COLLECTION,{},req.user.username).then(function(result){
+			res.send(result);
+		})
+	})
+
 	//==================================================================
 	//Generic page routers
 	//==================================================================

@@ -49,11 +49,12 @@ module.exports = function(app,logger,opts){
 
 	//Upload page routes
 	//Scripts to append to upload page
-	var scripts = [
-		'vendor/upload.vendor.min.js',
-		'uploader.js'
-	];
+	
 	app.get('/upload',utils.isLoggedIn, function(req,res){
+		var scripts = [
+			'vendor/upload.vendor.min.js',
+			'uploader.js'
+		];
 		utils.render(req,res,{scripts:scripts});
 	});
 
