@@ -8,10 +8,12 @@
  */
 var Promise = require('bluebird');
 var constants= require("./conf/constants.json");
-var annotateFile = require('./annotateAndAddVariants');
+//var annotateFile = require('./annotateAndAddVariants');
 var fs = Promise.promisifyAll(require('fs'));
 var dbFunctions = require('../models/mongodb_functions');
 var logger = require('./logger');
+var child_process=Promise.promisifyAll(require('child_process'));
+var parser = require('./parseVCF');
 
 var dbConstants = constants.dbConstants,
 	nodeConstants = constants.nodeConstants;
@@ -131,6 +133,8 @@ queue.prototype.run = function(){
 	var fileInfo;
 	var fields;
 	var req;
+	var user;
+
 	//var promise = new Promise(function(resolve,reject){
 	if (!self.isRunning)
 		self.isRunning = true;
@@ -139,15 +143,17 @@ queue.prototype.run = function(){
 		fileInfo = params.fileInfo;
 		fields = params.fields;
 		req = params.req;
+		user = req.user.username;
 	}).then(function(){
 		self.removeFirst();
 	}).then(function(){
-		var options = {
-			input:'upload/vcf/' + fileInfo.name,
-			patients:fields,
-			req:req
-		};
-		return annotateFile(options);
+		return fields
+	}).each(function(patient){
+		//logger('info','creating patient collection',{user:user,target:patient[dbConstants.PATIENTS.ID_FIELD],action:'createCollection'});
+		//var collectionName = patient[dbConstants.PATIENTS.COLLECTION_ID];
+		//return dbFunctions.createCollection(collectionName,user);
+	}).then(function(){
+		return parser(nodeConstants.VCF_UPLOAD_DIR +'/' + fileInfo.name, fields, user);
 	}).catch(function(err){
 		logger('error',err,{user:req.user.username,target:fileInfo.name,action:'run'});
 	}).done(function(){

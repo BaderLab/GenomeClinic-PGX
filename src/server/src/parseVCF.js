@@ -5,7 +5,7 @@
  *
  * THe parseVCF object taktes two parameters when initiated: file and patients.
  * with severa; optional parameteres following. Some vcf files can be extemeely
- * larege, therefore to facilitate file reading in an async manner, the parser
+ * large, therefore to facilitate file reading in an async manner, the parser
  * splits the file into chunks inserts them into a buffer, and then maps the 
  * parsed output to the header fields. Additionally, If multiple patients are 
  * provided, the parser automatically bulds the documents for each patient.
@@ -45,6 +45,23 @@ var parseVCF = function(file,options,bufferSize,mask){
 	this.useDbSnpID = false;
 	this.vcf = undefined;
 };
+
+
+/* Each patient is given a separate colleciton to store the genetic information in. Each collection
+ * was already given a name when the patients were first inserted. This function will create the collection
+ * for each patient, returning a promise when this has been accomplished/
+ */
+parseVCF.prototype.setupCollections = function(){
+	var _this = this;
+	return Promise.resolve(this.patients).each(function(patient){
+		var logOpts = {user:+this.user,target:patient[dbConstants.PATIENTS.ID_FIELD],action:'createCollection'};
+		logger('info','creating patient collection',logOpts);
+
+		var collectionName = patient[dbConstants.PATIENTS.COLLECTION_ID];
+
+		return dbFunctions.createCollection(collectionName,_this.user);
+	});
+}
 //==============================================================================================================
 /* Create a read stream to read data from, and add event handlers to 
  * specific events. The read stream will pass chunks of a specific size
@@ -102,8 +119,8 @@ parseVCF.prototype.read = function(){
 						igArray.push(self.patientObj[patient].ignored + self.numHeader);
 					}
 				}
-				logger('info','Writing Number lines skipped to file ' + self.file + ".json",{user:self.user,target:self.file +'.json',action:'writeFileAsync'});
-				return fs.writeFileAsync(self.file + ".json",JSON.stringify(igArray));
+				//logger('info','Writing Number lines skipped to file ' + self.file + ".json",{user:self.user,target:self.file +'.json',action:'writeFileAsync'});
+				//return fs.writeFileAsync(self.file + ".json",JSON.stringify(igArray));
 			}).then(function(){
 				logger('info','all jobs complete',{user:self.user,target:self.file,action:'parseVCF'});
 				resolve('done');
@@ -216,7 +233,6 @@ parseVCF.prototype.parseChunk = function(stringArray){
 											'documents':[],
 											'ignored':0,
 											'insertCache':[]};
-
 							} else if (staticLine[j].search(/info/i) !== -1){
 								self.mapper.annofield = j;
 							} else {
@@ -344,6 +360,46 @@ parseVCF.prototype.cleanup = function(patient){
 		}
 	});
 };
+
+/* When a file has finished parsing, the database must be updated to indicate that it has successfully
+ * completed. Update the database for each patient, addoing a date, showing that the file has finished
+ */
+parseVCF.prototype.setComplete = function(){
+	var patient_list = this.patients.map(function(obj){
+		return obj[dbConstants.PATIENTS.ID_FIELD];
+	});
+	var query = {};
+	query[dbConstants.PATIENTS.ID_FIELD] = {$in:patient_list};
+	var documents = {$set:{}};
+	documents.$set[dbConstants.PATIENTS.ANNO_COMPLETE] = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+	documents.$set[dbConstants.PATIENTS.READY_FOR_USE] = true;
+	var insOptions = {multi:true};
+	return dbFunctions.update(dbConstants.PATIENTS.COLLECTION, query,documents, insOptions, this.user);
+}
+
+/* When an error has been encountered we want to remoev the patient from the current database,
+ * adding them to the Fail collection. */
+parseVCF.prototype.fail = function(err){
+	var _this = this;
+	logger('error',err,{user:this.user,target:this.file,action:'parseVCF'})
+	var pat;
+	Promise.each(this.patients,function(patient){
+		pat = patient;
+		return dbFunctions.removePatient(patient[dbConstants.PATIENTS.ID_FIELD],_this.user);
+	}).catch(function(err){
+		logger('error',err,{user:_this.user,target:pat,action:'removePatient'});
+	});
+
+}
+
+/* remnove the vcf file from the server */
+parseVCF.prototype.removeFile = function(){
+	var _this = this;
+	logger('info','removing file',{user:this.user,target:this.file,action:'unlink'});
+	return fs.unlinkAsync(this.file).catch(function(err){
+		logger('error',err,{user:_this.user,action:'unlink'});
+	});		
+}
 
 //==============================================================================================================
 /* Insert up to this.docMax entries (default 999) into the connected database
@@ -523,22 +579,30 @@ var convertAlleles = function(ref,alt){
 	return {ref:tempRefAllele,alt:(finalAlts.length > 1 ? finalAlts:finalAlts[0]),posModifier:tempModifier};
 };
 
+
 //==============================================================================================================
 //==============================================================================================================
-// Run with command line arguments
+// Wrapper to run all the functions as a pipeline
 //==============================================================================================================
 //==============================================================================================================
-var output;
-var fileName = process.argv[2];
-var patients = JSON.parse(process.argv[3]);
-return dbFunctions.connectAndInitializeDB(true)
-	.then(function(){
-		var parser = new parseVCF(fileName,patients);
-		return parser.read();
+var run = function(file, patients, user){
+
+	var options = {
+		patients : patients,
+		user : user
+	}
+	
+	var parser = new parseVCF(file,options);
+	return parser.setupCollections().then(function(){
+		return parser.read()
+	}).then(function(){
+		return parser.setComplete();
 	}).catch(function(err){
-		throw err;
+		return parser.fail(err)
 	}).done(function(){
-		return dbFunctions.closeConnection();
+		return parser.removeFile();
 	});
 
-//module.exports = parseVCF;
+};
+
+module.exports = run;
