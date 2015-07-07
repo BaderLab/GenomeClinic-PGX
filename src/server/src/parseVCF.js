@@ -188,13 +188,13 @@ parseVCF.prototype.parseChunk = function(stringArray){
 				if (!self.vcf){
 					self.numHeader++;
 					version = parseFloat(stringArray[i].match(/VCFv.+/ig)[0].replace(/[a-z]+/ig,""));
-					if (version < 4.1 || version  > 4.2)
+					if (version < 4.0 || version  > 4.2)
 						throw new Error ("Invalid vcf File format");
 					else
 						self.vcf = version;
 				} else if (stringArray[i].search(/##INFO/i) !== -1 && stringArray[i].search(/annovar/i) !== -1){
 					line = stringArray[i].toLowerCase().match(/id=[^,]+/i)[0].replace('id=','').replace('.','_');
-					if (line == 'snp138'){
+					if (line.search(/^snp+/i) !== -1 ){
 						self.useDbSnpID = true;
 						self.mask.push('id');
 					}
@@ -283,7 +283,7 @@ parseVCF.prototype.parseChunk = function(stringArray){
 										}
 									});
 
-									if(annoList[j] == 'snp138'){
+									if(annoList[j].search(/^snp+/i) !== -1 ){
 										currDoc.id = (isArray(itemToInsert) ? itemToInsert[0]:itemToInsert);
 									} else if (countUndefined(itemToInsert)){
 										currDoc[annoList[j]] = (itemToInsert.length > 1 ? itemToInsert:itemToInsert[0]);
