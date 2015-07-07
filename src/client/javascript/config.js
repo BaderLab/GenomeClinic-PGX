@@ -34,6 +34,21 @@ var aux = require('../conf/config.json'),
 	    });
 	    return o;
 	};
+
+	//Make a call to the server and check to see if there is currently any information saved
+	var populateFields = function() {
+		Promise.resolve($.ajax({
+			url:'/config/current',
+			type:'GET',
+			dataType:'json'
+		})).then(function(result){
+			console.log(result);
+			$("#webapp-email").val(result['admin-email'] || "");
+			$("#webapp-institution").val(result.institution || "");
+			$("#webapp-footer").val( result['report-footer'] || aux.FOOTER );
+			$("#webapp-disclaimer").val( result.disclaimer || aux.DISCLAIMER_PREFIX + aux.INSTITUTION + aux.DISCLAIMER_SUFFIX);
+		})
+	}
 	//=======================================================================
 	// Set up a ready handler, a function to run when the DOM is ready
 	//=======================================================================
@@ -44,35 +59,17 @@ var aux = require('../conf/config.json'),
 		 */
 
 		// Customize the disclaimer for the institute, using a default first
-		updateDisclaimer();
+		//updateDisclaimer();
+		populateFields();
 		$("#webapp-institution").attr("placeholder", "e.g. " + aux.INSTITUTION);
-		$("#webapp-institution").on("change", function(event) {
-			aux.INSTITUTION= $(this).val();
-			updateDisclaimer();
-		});
-
-		// Set the maximum number of records.
+	
 		
-
-		// Attached a listener to max records slider and associated input field
-		var updateSlider= function(event) {
-			$("#webapp-max-records-slider").foundation("slider", "set_value", $(this).val());		
-		};
-		$("#webapp-max-records-slider-output")
-			.on("change", updateSlider);
-			//.on("keyup", updateSlider);
-		$("#webapp-max-records-slider").foundation("slider", "set_value", aux.MAX_RECORDS);
-		// Set default footer
-		$("#webapp-footer").val(aux.FOOTER);
-
-
 		/* Create switches for each annovar annotation. */
 		/* Receive the submitted form data (Abide validation events are handled by
 		 * foundation ). */
 		$("#webapp-config-form").on('invalid.fndtn.abide', function () {
 			// Invalid form input
 			var invalid_fields = $(this).find('[data-invalid]');
-			console.log(invalid_fields);
 		});
 		$("#webapp-config-form").on('valid.fndtn.abide', function () {
 			// Tell user we are submitting
@@ -80,33 +77,6 @@ var aux = require('../conf/config.json'),
 
 			// Valid form input
 			var formInput= serializeObject($(this));
-
-			// Iterate over the annovar annotation fields and put them into a list
-			var annovarAnnotationList= [];
-			var annovarUsageList = [];
-			var annovarIndexList = [];
-			var prefixPattern= /^webapp\-annovar\-annotation\-/;
-			for (var key in formInput) {
-				// Important check that property is not from inherited prototype prop
-				if(formInput.hasOwnProperty(key) && prefixPattern.test(key)) {
-					annovarAnnotationList.push(formInput[key]);
-					annovarUsageList.push(aux.ANNOVAR_ANNOTATIONS[formInput[key]].usage);
-					if (aux.ANNOVAR_ANNOTATIONS[formInput[key]].index )
-						annovarIndexList.push(formInput[key].toLowerCase());
-					// remove from the form input object
-					delete formInput[key];
-				} else if (formInput.hasOwnProperty(key) && key == 'default-annotation'){
-					annovarAnnotationList.unshift(formInput[key]);
-					annovarUsageList.unshift('g');
-					annovarIndexList.unshift('gene_' + formInput[key]);
-					annovarIndexList.unshift('func_' + formInput[key]);
-					delete formInput[key];
-				}
-			}
-			formInput[constants.DBS]= annovarAnnotationList;
-			formInput[constants.USAGE] = annovarUsageList;
-			formInput[constants.INDEX_FIELDS] = annovarIndexList;
-
 			var promise= Promise.resolve($.ajax({
 				url: "/config",
 				type: "POST",
@@ -124,11 +94,7 @@ var aux = require('../conf/config.json'),
 
 	};
 	var render = function(){
-		var options = {
-			'annotations':Object.keys(aux.ANNOVAR_ANNOTATIONS)
-		};
-		console.log(templates);
-		return templates.config(options).then(function(renderedHtml){
+		return templates.config().then(function(renderedHtml){
 			$('#main').html(renderedHtml);
 		}).then(function(){
 			utility.refresh();
