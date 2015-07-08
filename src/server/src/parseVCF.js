@@ -251,11 +251,13 @@ parseVCF.prototype.parseChunk = function(stringArray){
 						var currDoc = {};
 						var ref,alt;
 						var posModifier = 0;
+						var toString = true;
 						//check to make sure that patient exists
 						if (self.patientObj.hasOwnProperty(patient)){
 							//loop over all of the static fields ie. chr pos etc
 							for (var field in self.mapper.static){
 								if (self.mapper.static.hasOwnProperty(field)){
+									toString = true;
 									var itemToInsert = line[self.mapper.static[field]].split(',');
 									if (field.search('chr') === -1){ // we want to keep chr as a string so dont convert it
 										itemToInsert = itemToInsert.map(convertNum);
@@ -269,9 +271,10 @@ parseVCF.prototype.parseChunk = function(stringArray){
 
 									if (field == 'alt'){
 										alt = itemToInsert;
+										toString = false;
 									}
 									//if the lenght of the final array is > 1 then insert the array otherwise insert the item
-									currDoc[field] = (itemToInsert.length > 1 ? itemToInsert:itemToInsert[0]);
+									if (toString) currDoc[field] =(itemToInsert.length > 1 ? itemToInsert:itemToInsert[0]);
 								}
 							}
 
@@ -334,6 +337,11 @@ parseVCF.prototype.parseChunk = function(stringArray){
 							}
 						}
 						if (cont){
+							//make it so there is not an array of items for the alt call but only a single item
+							for (var p =0; p < currDoc.gt.length; p++ ){
+								currDoc['a' + p] = currDoc.gt[p] == 0 ? currDoc.ref:currDoc.alt[currDoc.gt[p] - 1];
+							} 
+
 							self.patientObj[patient].documents.push(currDoc);
 						}
 					}
