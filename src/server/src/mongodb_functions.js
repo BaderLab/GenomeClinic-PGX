@@ -1286,21 +1286,26 @@ var dbFunctions = function(){
 			return pgxCoords;
 		}).then(function(result){
 			// build search query
-			query = {'$or' : []};
+			//query = {'$or' : []};
 			
 			var tempCoords;
 			var keys = Object.keys(result);
-			for ( var i = 0; i < keys.length; i++){
+			/*for ( var i = 0; i < keys.length; i++){
 				tempCoords = {};
 				tempCoords[dbConstants.VARIANTS.CHROMOSOME] = result[keys[i]].chr;
 				tempCoords[dbConstants.VARIANTS.START] = result[keys[i]].pos;
 				query.$or.push(tempCoords);
-			}
+			}*/
+			query = {};
+			query[dbConstants.VARIANTS.IDENTIFIER] = {$in:keys};
 			return find(currentPatientCollectionID, query, {"_id": 0},undefined,user); // don't send internal _id field
 		})
 		.then(function(result) {
 			var doc= {};
-			doc.variants= result;
+			doc.variants= {};
+			for (var i = 0; i < result.length; i++ ) {
+				doc.variants[result[i][dbConstants.VARIANTS.IDENTIFIER]] = result[i];
+			}
 			doc.pgxGenes = pgxGenes;
 			doc.pgxCoordinates = pgxCoords;
 			doc.patientID = patientID;
