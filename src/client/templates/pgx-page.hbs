@@ -53,85 +53,53 @@
 				<a href="#"><i class="fa fa-plus haplotype-expand" gene="{{gene}}" expanded="yes"></i></a>
 			</div>
 		</div>
-		<div id="table{{gene}}" class="haplotype-expand-div small-12 medium-12 large-12 columns">
-			{{#if patientHaplotypes}}
-			<table class="patient-haplotype-table" style="margin-bottom:0px;border-bottom-width: 1px; border-bottom-color: #ffffff;">
-				<thead>
-					<tr>
-						<th class="haplotype-columns">Patient Haplotype 1</th>
-						{{#heads}}
-						<th class="marker-column"><a target="_blank" href={{url}} rs={{id}}">{{id}}</a></th>
-						{{/heads}}
-					</tr>
-				</thead>
-				<tbody>
-					<tr class="patient-genotype-row"><!--style="background:#E2FFC6;">class="patient-genotype-row">-->
-						<td class="haplotype-columns"><em>Observed Variants</em></td>
-						{{#patientHaplotypes.h1.variants}}
-						<td class="variant-{{class}} marker-column">{{variant}}</td>
-						{{/patientHaplotypes.h1.variants}}
-					</tr>
-				</tbody>
-			</table>
-			<table style="margin-top:0px;border-top:0px">
-				<thead>
-					<tr>
-						<th class="haplotype-columns">Possible Matches</th>
-						{{#each heads}}
-						<th class="marker-column"></th>
-						{{/each}}
-					</tr>
 
-				</thead>
-				<tbody>
-					{{#patientHaplotypes.h1.possible}}
-					<tr>
-						<td class="haplotype-columns">{{name}}</td>
-						{{#variants}}
-						<td class="variant-{{class}} marker-column">{{variant}}</td>
-						{{/variants}}
-					</tr>
-					{{/patientHaplotypes.h1.possible}}
-				</tbody>
-			</table>
-			<table class="patient-haplotype-table" style="margin-bottom:0px;border-bottom-width: 1px; border-bottom-color: #ffffff;">
-				<thead>
-					<tr>
-						<th class="haplotype-columns">Patient Haplotype 2</th>
-						{{#heads}}
-						<th><a target="_blank" href={{url}} rs={{id}}">{{id}}</a></th>
-						{{/heads}}
-					</tr>
-				</thead>
-				<tbody>
-					<tr class="patient-genotype-row">
-						<td class="haplotype-columns"><em>Observed Variants</em></td>
-						{{#patientHaplotypes.h2.variants}}
-						<td class="variant-{{class}} marker-column">{{variant}}</td>
-						{{/patientHaplotypes.h2.variants}}
-					</tr>
-				</tbody>
-			</table>
-			<table style="margin-top:0px;border-top:0px">
-				<thead>
-					<tr>
-						<th class="haplotype-columns">Possible Matches</th>
-						{{#each heads}}
-						<th class="marker-column"></th>
-						{{/each}}
-					</tr>
-				</thead>
-				<tbody>
-					{{#patientHaplotypes.h2.possible}}
-					<tr>
-						<td class="haplotype-columns">{{name}}</td>
-						{{#variants}}
-						<td class="variant-{{class}} marker-column">{{variant}}</td>
-						{{/variants}}
-					</tr>
-					{{/patientHaplotypes.h2.possible}}
-				</tbody>
-			</table>
+		<div id="table{{gene}}" class="haplotype-expand-div small-12 medium-12 large-12 columns">
+		<h6>Phased Status: {{#if phased}}<i>Phased</i>{{else}}<i>Unphased</i>{{/if}}</h6>
+			{{#if patientHaplotypes}}
+			{{#each patientHaplotypes}}
+				<table class="patient-haplotype-table" style="margin-bottom:0px;border-bottom-width: 1px; border-bottom-color: #ffffff;">
+					<thead>
+						<tr>
+							<th class="haplotype-columns">{{#if ../phased}}Phased{{else}}Possible{{/if}} Haplotype {{inc @index}}</th>
+							{{#../heads}}
+							<th class="marker-column"><a target="_blank" href={{url}} rs={{id}}">{{id}}</a></th>
+							{{/../heads}}
+						</tr>
+					</thead>
+					<tbody>
+						<tr class="patient-genotype-row"><!--style="background:#E2FFC6;">class="patient-genotype-row">-->
+							<td class="haplotype-columns"><em>Observed Variants</em></td>
+							{{#variants}}
+							<td class="variant-{{class}} marker-column">{{variant}}</td>
+							{{/variants}}
+						</tr>
+					</tbody>
+				</table>
+				{{#if possible}}
+				<table style="margin-top:0px;border-top:0px">
+					<thead>
+						<tr>
+							<th class="haplotype-columns">Possible Matches</th>
+							{{#../../heads}}
+							<th class="marker-column"></th>
+							{{/../../heads}}
+						</tr>
+
+					</thead>
+					<tbody>
+						{{#possible}}
+						<tr>
+							<td class="haplotype-columns">{{name}}</td>
+							{{#variants}}
+							<td class="variant-{{class}} marker-column">{{variant}}</td>
+							{{/variants}}
+						</tr>
+						{{/possible}}
+					</tbody>
+				</table>
+				{{/if}}
+			{{/each}}
 			{{else}}
 			<div class="row no-variants">
 		      	<div class="small-12 columns">
