@@ -35,6 +35,9 @@ var index = require('../templates/index.hbs'),
 	dosing_haplo = require('../templates/dosing-haplotypes.hbs'),
 	dosing_add = require('../templates/dosing-additional-gene.hbs'),
 	spinner = require('../templates/spinner.hbs');
+
+
+var Handlebars = require('hbsfy/runtime');
 /* return a promisfied version of the template that accepts a single parameter
  * o to render the template */
 var _t = function(t){
@@ -46,7 +49,18 @@ var _t = function(t){
 };
 
 
+function helpers(){
+	//Handlebars.registerHelper("inc", function(value,options){
+	//	return parseInt(value) + 1
+	//});
+}
+
 (function(){
+	//Bind all handlebars helpers here
+	Handlebars.registerHelper("inc", function(value,options){
+		return parseInt(value) + 1
+	});
+
 	//bind the templates object to the global window 
 	window.templates = {
 	//module.exports = {
