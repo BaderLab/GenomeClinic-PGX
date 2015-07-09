@@ -56,6 +56,7 @@ var dbFunctions = function(){
 	var createInitCollections= function() {
 		logger("info","Creating and initializing database",{action:'createInitCollections'});
 		assert.notStrictEqual(db, undefined); // ensure we're connected first
+		
 		var promise= new Promise(function(resolve, reject) {
 			var currentDocument = {};
 			currentDocument[dbConstants.PATIENTS.CURRENT_INDEX_FIELD]= 1;
@@ -109,10 +110,12 @@ var dbFunctions = function(){
 				currentDocument[dbConstants.PGX.GENES.ID_FIELD] = 1;
 				return self.createIndex(dbConstants.PGX.GENES.COLLECTION,currentDocument,{unique:true});
 			}).then(function(){
+				//Chech to ensure the default haplotypes are located within direcetoryh
 				fs.statAsync(dbConstants.PGX.GENES.DEFAULT)
 				.then(function(){
 					var pgxGenes = require(dbConstants.PGX.GENES.DEFAULT);
 					var markers = [],keys;
+					//Compile a list of all the markers within the haplotypes
 					for (var i = 0; i < pgxGenes.length; i++ ){
 						for (phase in pgxGenes[i].haplotypes){
 							if (pgxGenes[i].haplotypes.hasOwnProperty(phase)) markers = markers.concat(pgxGenes[i].haplotypes[phase]);
@@ -120,10 +123,12 @@ var dbFunctions = function(){
 						
 					}
 
+					//create unique marker list
 					var uniqueMarkers = [];
 					for (i = 0; i < markers.length; i++ ){
 						if (uniqueMarkers.indexOf(markers[i]) == -1) uniqueMarkers.push(markers[i]);
 					}
+					//Retrieve marker information from ncbi dbsnp databse and then save to the local database
 					return getRS(uniqueMarkers).then(function(result){
 						if (result.missing.length > 0 ){
 							logger('info','could not retrieve information from NCBI dbSNP for several markers', {action:'getRS',missing:result.missing.length});
@@ -135,6 +140,7 @@ var dbFunctions = function(){
 							};
 							return self.insertMany(options);
 						}
+					//Add the Haplotypes to the database
 					}).then(function(){
 						var o = {};
 						o.documents = pgxGenes;
@@ -148,79 +154,90 @@ var dbFunctions = function(){
 					logger('info','No Defualt PGx Data detected, skipping step',{action:'createInitCollections'});
 				});
 			}).then(function(){
-				//create non unique indexes based on pgx_1
+				//create non unique indexes basex on the drug name
 				currentDocument = {};
 				currentDocument[dbConstants.DRUGS.ALL.ID_FIELD] = 1;
 				return self.createIndex(dbConstants.DRUGS.ALL.COLLECTION,currentDocument);
 			}).then(function(){
-				return fs.statAsync(dbConstants.DRUGS.DOSING.DEFAULT)
+			/* Drug recommendation (both future and current recommendations) as well as associated haplotypes
+			 * are all stored in separate collections. Each Entry in the colleciton is a single recommendation.
+			 * Additionally within there is a separate collection created that contains one document
+			 * corresponding to a single gene. This collection does not contain any data persay but contains
+			 * several fields, recommendations, future, and haplotypes. Each of these are an array with object
+			 * id's that link to the specific recmmomendation. This allows for very easy association of complex 
+			 * durg relationships. Ie if a single recommendation interacts with many drugs, its object id is simply
+			 * added to the dosing document for each of those drugs. All of the information is contained in the 
+			 * main recommendaiton document.
+			 */
+			 	var data;
+				//Check to see if there are currently any default dosing recommendations
+				return fs.statAsync(dbConstants.DRUGS.DEFAULT)
+				//If there are add them to the database
 				.then(function(result){
-
-					var dosing = require(dbConstants.DRUGS.DOSING.DEFAULT);
-					return Promise.resolve(dosing).each(function(item){
+					//Save the default data in the data objec
+					data = require(dbConstants.DRUGS.DEFAULT);
+				}).then(function(){
+					//Require he recommendations
+					return Promise.resolve(data.Recommendations).each(function(item){
 						return self.insert(dbConstants.DRUGS.DOSING.COLLECTION,item).then(function(result){
 							return Promise.resolve(result.genes).each(function(gene){
-								// check to see if it exists already
+								// check to see if there is a 
 								return self.checkInDatabase(dbConstants.DRUGS.ALL.COLLECTION,dbConstants.DRUGS.ALL.ID_FIELD,gene)
 								.then(function(exists){
 									if (!exists){
-										return self.drugs.createNewDoc(gene)
+										//If this is a new gene, create a new document
+										return self.drugs.createNewDoc(gene,data.Genes[gene])
 									}
 								}).then(function(){
+								//Update the documents now to iunclude the new objectID's
 									var query = {};
 									query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
-									var update = {$addToSet:{}}
+									var update = {$addToSet:{}};
 									update.$addToSet[dbConstants.DRUGS.ALL.RECOMMENDATIONS] = result._id;
-									return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update)
+									return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update);
 								})
 							});
 						});
+					}).catch(function(err){
+						logger("error",err,{action:'createInitCollections'});
 					});
-				}).catch(function(err){
-					logger("error",err,{action:'createInitCollections'});
-				});
-			}).then(function(){
-				return fs.statAsync(dbConstants.DRUGS.FUTURE.DEFAULT)
-				.then(function(result){
-
-					var future = require(dbConstants.DRUGS.FUTURE.DEFAULT);
-					return Promise.resolve(future).each(function(item){
+				}).then(function(){
+					//Same as previously except for the future collections;
+					return Promise.resolve(data.Future).each(function(item){
 						return self.insert(dbConstants.DRUGS.FUTURE.COLLECTION,item).then(function(result){
 							var gene = result[dbConstants.DRUGS.FUTURE.ID_FIELD]
 								// check to see if it exists already
 							return self.checkInDatabase(dbConstants.DRUGS.ALL.COLLECTION,dbConstants.DRUGS.ALL.ID_FIELD,gene)
 							.then(function(exists){
 								if (!exists){
-									return self.drugs.createNewDoc(gene)
+									return self.drugs.createNewDoc(gene,data.Genes[gene]);
 								}
 							}).then(function(){
 								var query = {};
-								query[dbConstants.DRUGS.ALL.ID_FIELD] = gene
+								query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
 								var update = {$addToSet:{}}
 								update.$addToSet[dbConstants.DRUGS.ALL.FUTURE] = result._id;
-								return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update)
+								return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update);
 							});
 						});
+					}).catch(function(err){
+						logger("error",err,{action:'createInitCollections'});
 					});
-				}).catch(function(err){
-					logger("error",err,{action:'createInitCollections'});
-				});
-			}).then(function(){
-				currentDocument = {};
-				currentDocument[dbConstants.DRUGS.CLASSES.ID_FIELD] = 1;
-				return self.createIndex(dbConstants.DRUGS.CLASSES.COLLECTION,currentDocument,{unique:true});
-			}).then(function(){
-				return fs.statAsync(dbConstants.DRUGS.CLASSES.DEFAULT)
-				.then(function(result){
-					var dosing = require(dbConstants.DRUGS.CLASSES.DEFAULT);
+				
+				}).then(function(){
+					/* Assignment of the recommendation centre around the concept of attributing classes
+					 * to a diplotype for a specific gene. These classes are different depending on the "type"
+					 * of gene (ie. metabolizer or other); */
 					var o = {
-						documents: dosing,
+						documents: data.Classes,
 						collectionName: dbConstants.DRUGS.CLASSES.COLLECTION
 					};
-					return self.insertMany(o);
-				}).then(function(){
+					return self.insertMany(o)
+					.catch(function(err){
+						logger("err",err,{action:'createInitCollections'});
+					});
 				}).catch(function(err){
-					logger("info",dbConstants.DRUGS.CLASSES.DEFAULT + " was not found and could not be added to the databse",{action:'createInitCollections'});
+					logger("info",dbConstants.DRUGS.DEFAULT + " was not found and could not be added to the databse",{action:'createInitCollections'});
 				});
 			}).then(function(result) {
 				resolve();
@@ -1572,9 +1589,10 @@ var dbFunctions = function(){
 		},
 		/* Create an empty dosing document based on the gene name. If the Gene already exists
 		 * reject the process and return an error */
-		createNewDoc : function(gene,user){
+		createNewDoc : function(gene,type,user){
 		var promise = new Promise(function(resolve,reject){
 			var newDoc = {};
+			newDoc[dbConstants.DRUGS.ALL.TYPE] = type;
 			newDoc[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
 			newDoc[dbConstants.DRUGS.ALL.RECOMMENDATIONS] = [];
 			newDoc[dbConstants.DRUGS.ALL.HAPLO] = [];

@@ -18,11 +18,11 @@
 				<span class="prefix">Metabolic Status</span>
 			</div>
 			<div class="large-8 small-8 medium-8 columns">
-				<select class="class-name" data-abide-validator="requiredIf" data-requiredIf="gene-name-{{num}}" id="class-name-{{num}}">
+				<select class="class-name" data-abide-validator="requiredIf" data-requiredIf="gene-name-{{num}}" id="class-name-{{num}}" disabled="disabled">
 					<option selected="selected">None</option>
-					{{#each classes}}
+					<!--{{#each classes}}
 					<option>{{this}}</option>
-					{{/each}}
+					{{/each}}-->
 				</select>
 				<small class="error">Metabolic Status Required</small>
 			</div>
