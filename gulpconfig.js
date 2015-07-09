@@ -104,9 +104,7 @@ module.exports = {
 			src:[
 				'src/server/conf/api.js',
 				'src/server/conf/pgx*',
-				'src/server/conf/dosing_guidelines.json',
-				'src/server/conf/therapeutic_classes.json',
-				'src/server/conf/future_guidelines.json'
+				'src/server/conf/default_rec_data.json'
 			],
 			dest:'build/lib/conf'
 		},
