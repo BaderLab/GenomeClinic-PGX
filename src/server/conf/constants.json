@@ -89,7 +89,7 @@
 			"GENES":{
 				"DEFAULT":"{{DIR}}/lib/conf/pgx_genes.json",
 				"COLLECTION":"pgxGenes",
-				"ID_FIELD":"gene"
+				"ID_FIELD":"haplotype"
 			}
 		},
 		"DRUGS":{
@@ -100,7 +100,8 @@
 				"RECOMMENDATIONS":"recommendations",
 				"FUTURE":"future",
 				"HAPLO":"haplotypes",
-				"TYPE":"type"
+				"TYPE":"type",
+				"CURRENT_HAPLO":"current_haplotypes"
 			},
 			"REPORT":{
 				"DEFAULT":"{{DIR}}/views/default-dosing-report.hbs"

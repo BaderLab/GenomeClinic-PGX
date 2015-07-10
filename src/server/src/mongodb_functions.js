@@ -101,63 +101,8 @@ var dbFunctions = function(){
 				currentDocument = {};
 				currentDocument[dbConstants.PROJECTS.ID_FIELD] = 1; // index in ascending order
 				return self.createIndex(dbConstants.PROJECTS.COLLECTION, currentDocument,{unique:true}); 
-			})
 			//Add the default pgx data to the collection if its not there already and only if it exists.
-			.then(function(){
-				
-				//Create Collections for haplotypes.
-				currentDocument = {};
-				currentDocument[dbConstants.PGX.GENES.ID_FIELD] = 1;
-				return self.createIndex(dbConstants.PGX.GENES.COLLECTION,currentDocument,{unique:true});
-			}).then(function(){
-				//Chech to ensure the default haplotypes are located within direcetoryh
-				fs.statAsync(dbConstants.PGX.GENES.DEFAULT)
-				.then(function(){
-					var pgxGenes = require(dbConstants.PGX.GENES.DEFAULT);
-					var markers = [],keys;
-					//Compile a list of all the markers within the haplotypes
-					for (var i = 0; i < pgxGenes.length; i++ ){
-						for (phase in pgxGenes[i].haplotypes){
-							if (pgxGenes[i].haplotypes.hasOwnProperty(phase)) markers = markers.concat(pgxGenes[i].haplotypes[phase]);
-						}
-						
-					}
 
-					//create unique marker list
-					var uniqueMarkers = [];
-					for (i = 0; i < markers.length; i++ ){
-						if (uniqueMarkers.indexOf(markers[i]) == -1) uniqueMarkers.push(markers[i]);
-					}
-					//Retrieve marker information from ncbi dbsnp databse and then save to the local database
-					return getRS(uniqueMarkers).then(function(result){
-						if (result.missing.length > 0 ){
-							logger('info','could not retrieve information from NCBI dbSNP for several markers', {action:'getRS',missing:result.missing.length});
-						}
-						if (result.dbSnp.length > 0 ){
-							var options = {
-								collectionName : dbConstants.PGX.COORDS.COLLECTION,
-								documents: result.dbSnp
-							};
-							return self.insertMany(options);
-						}
-					//Add the Haplotypes to the database
-					}).then(function(){
-						var o = {};
-						o.documents = pgxGenes;
-						o.collectionName = dbConstants.PGX.GENES.COLLECTION;
-						return self.insertMany(o);
-					}).catch(function(err){
-						logger('error',err,{action:'createInitCollections'});
-					});
-
-				}).catch(function(err){
-					logger('info','No Defualt PGx Data detected, skipping step',{action:'createInitCollections'});
-				});
-			}).then(function(){
-				//create non unique indexes basex on the drug name
-				currentDocument = {};
-				currentDocument[dbConstants.DRUGS.ALL.ID_FIELD] = 1;
-				return self.createIndex(dbConstants.DRUGS.ALL.COLLECTION,currentDocument);
 			}).then(function(){
 			/* Drug recommendation (both future and current recommendations) as well as associated haplotypes
 			 * are all stored in separate collections. Each Entry in the colleciton is a single recommendation.
@@ -239,6 +184,73 @@ var dbFunctions = function(){
 				}).catch(function(err){
 					logger("info",dbConstants.DRUGS.DEFAULT + " was not found and could not be added to the databse",{action:'createInitCollections'});
 				});
+
+			}).then(function(){
+				//Create Collections for haplotypes.
+				currentDocument = {};
+				currentDocument[dbConstants.PGX.GENES.ID_FIELD] = 1;
+				return self.createIndex(dbConstants.PGX.GENES.COLLECTION,currentDocument);
+			}).then(function(){
+				//Chech to ensure the default haplotypes are located within direcetoryh
+				fs.statAsync(dbConstants.PGX.GENES.DEFAULT)
+				.then(function(){
+					var pgxGenes = require(dbConstants.PGX.GENES.DEFAULT);
+					var markers = [],keys;
+					//Compile a list of all the markers within the haplotypes
+					for (var i = 0; i < pgxGenes.length; i++ ){
+						for (var j = 0; j < pgxGenes[i].markers.length; j++ ){
+							if (markers.indexOf(pgxGenes[i].markers[j]) == -1 ) markers.push(pgxGenes[i].markers[j])
+						}
+					}
+
+					//Retrieve marker information from ncbi dbsnp databse and then save to the local database
+					return getRS(markers).then(function(result){
+						if (result.missing.length > 0 ){
+							logger('info','could not retrieve information from NCBI dbSNP for several markers', {action:'getRS',missing:result.missing.length});
+						}
+						if (result.dbSnp.length > 0 ){
+							var options = {
+								collectionName : dbConstants.PGX.COORDS.COLLECTION,
+								documents: result.dbSnp
+							};
+							return self.insertMany(options);
+						}
+					//Add the Haplotypes to the database
+					}).then(function(){
+						return Promise.resolve(pgxGenes).each(function(item){
+							// for some reason, pgxGenes is getting an object id?
+							delete item._id;
+							return self.insert(dbConstants.PGX.GENES.COLLECTION,item).then(function(result){
+								var gene = result.gene;
+								// check to see if it exists already
+								return self.checkInDatabase(dbConstants.DRUGS.ALL.COLLECTION,dbConstants.DRUGS.ALL.ID_FIELD,gene)
+								.then(function(exists){
+									if (!exists){
+										return self.drugs.createNewDoc(gene);
+									}
+								}).then(function(){
+									var query = {};
+									query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
+									var update = {$addToSet:{}}
+									update.$addToSet[dbConstants.DRUGS.ALL.CURRENT_HAPLO] = result._id;
+									console.log(update);
+									console.log(query);
+									return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update);
+								});
+							});
+						});
+					}).catch(function(err){
+						logger('error',err,{action:'createInitCollections'});
+					});
+
+				}).catch(function(err){
+					logger('info','No Defualt PGx Data detected, skipping step',{action:'createInitCollections'});
+				});
+			}).then(function(){
+				//create non unique indexes basex on the gene name
+				currentDocument = {};
+				currentDocument[dbConstants.DRUGS.ALL.ID_FIELD] = 1;
+				return self.createIndex(dbConstants.DRUGS.ALL.COLLECTION,currentDocument);
 			}).then(function(result) {
 				resolve();
 			}).catch(function(err) {
@@ -1214,15 +1226,25 @@ var dbFunctions = function(){
 		assert.notStrictEqual(db,undefined);
 		var query = {};
 		if (Object.prototype.toString.call(geneName) == '[object Array]')
-			query[dbConstants.PGX.GENES.ID_FIELD] = {$in:geneName};
+			query[dbConstants.DRUGS.ALL.ID_FIELD] = {$in:geneName};
 		else if (geneName)
-			query[dbConstants.PGX.GENES.ID_FIELD] = geneName;
-		return find(dbConstants.PGX.GENES.COLLECTION,query,{'_id':0},undefined,user)
-		.then(function(result){
+			query[dbConstants.DRUGS.ALL.ID_FIELD] = geneName;
+		return find(dbConstants.DRUGS.ALL.COLLECTION,query,undefined,undefined,user)
+		.each(function(geneResult){
+			var query = {_id:{$in:geneResult[dbConstants.DRUGS.ALL.CURRENT_HAPLO]}}
+			return find(dbConstants.PGX.GENES.COLLECTION,query,undefined,undefined,user).then(function(result){
+				geneResult[dbConstants.DRUGS.ALL.CURRENT_HAPLO] = result;
+			});
+		}).then(function(result){
 			var out = {};
 			for (var i=0; i< result.length; i++ ){
-
-				out[result[i].gene] = result[i].haplotypes;
+				temp = {}
+				if (result[i][dbConstants.DRUGS.ALL.CURRENT_HAPLO].length !== 0){
+					for (var j = 0; j < result[i][dbConstants.DRUGS.ALL.CURRENT_HAPLO].length; j++ ){
+						temp[result[i][dbConstants.DRUGS.ALL.CURRENT_HAPLO][j].haplotype] = result[i][dbConstants.DRUGS.ALL.CURRENT_HAPLO][j].markers
+						}
+					out[result[i].gene] = temp;
+				}
 			}
 			return out;
 		});
@@ -1230,11 +1252,21 @@ var dbFunctions = function(){
 
 	//Remove the specified Gene
 	this.removePGXGene = function(geneName,user){
+		var _this = this;
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(geneName) == "[object String]");
 		var query = {};
-		query[dbConstants.PGX.GENES.ID_FIELD] = geneName;
-		return removeDocument(dbConstants.PGX.GENES.COLLECTION,query,user);
+		query[dbConstants.DRUGS.ALL.ID_FIELD] = geneName;
+		return _this.findOne(dbConstants.DRUGS.ALL.COLLECTION,query,undefined,undefined,user).then(function(result){
+			var ids = result[dbConstants.DRUGS.ALL.CURRENT_HAPLO];
+			var update = {$set:{}}
+			update.$set[dbConstants.DRUGS.ALL.CURRENT_HAPLO] = [];
+			_this.update(dbConstants.DRUGS.ALL.COLLECTION, query,update,undefined,undefined,user)
+			.then(function(){
+				removeDocument(dbConstants.PGX.GENES.COLLECTION,{_id:{$in:ids}},user);
+			})
+
+		})
 
 	};
 
@@ -1592,11 +1624,12 @@ var dbFunctions = function(){
 		createNewDoc : function(gene,type,user){
 		var promise = new Promise(function(resolve,reject){
 			var newDoc = {};
-			newDoc[dbConstants.DRUGS.ALL.TYPE] = type;
+			newDoc[dbConstants.DRUGS.ALL.TYPE] = type || 'metabolizer'; // metabolizer is the default type
 			newDoc[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
 			newDoc[dbConstants.DRUGS.ALL.RECOMMENDATIONS] = [];
 			newDoc[dbConstants.DRUGS.ALL.HAPLO] = [];
 			newDoc[dbConstants.DRUGS.ALL.FUTURE] = [];
+			newDoc[dbConstants.DRUGS.ALL.CURRENT_HAPLO] = [];
 			return self.insert(dbConstants.DRUGS.ALL.COLLECTION,newDoc,user)
 			.then(function(result){
 				resolve(result);

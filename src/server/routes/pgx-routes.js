@@ -57,7 +57,7 @@ module.exports = function(app,logger,opts){
 
 
 	app.param('hapid',function(req,res,next,hapid){
-		dbFunctions.checkInDatabase(constants.dbConstants.PGX.GENES.COLLECTION,constants.dbConstants.PGX.GENES.ID_FIELD,hapid)
+		dbFunctions.checkInDatabase(constants.dbConstants.DRUGS.ALL.COLLECTION,constants.dbConstants.DRUGS.ALL.ID_FIELD,hapid)
 		.then(function(result){
 			if (result)
 				next();

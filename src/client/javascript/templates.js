@@ -64,9 +64,6 @@ function helpers(){
 	Handlebars.registerHelper("classIter",function(classObj,type,gene, block){
 		accum = ";"
 		var list = classObj[type];
-		console.log("OBJ: " + classObj)
-		console.log("GENE: " + gene);
-		console.log("TYPE: " + type);
 		for (var i=0; i < list.classes.length; i++ ){
 			accum+= block.fn(list.classes[i]);
 		}

@@ -1,283 +1,455 @@
 [
     {
         "gene": "ABCB1",
-        "haplotypes": {
-            "*1": [
-                "rs1128503",
-                "rs2032582",
-                "rs1045642"
-            ],
-            "*2 (PMID: 11503014);*13 (PMID: 12893986)": [],
-            "*2 (PMID: 12893986)": [
-                "rs1128503",
-                "rs2032582"
-            ]
-        }
+        "haplotype": "*1",
+        "markers": [
+            "rs1128503",
+            "rs2032582",
+            "rs1045642"
+        ]
+    },
+    {
+        "gene": "ABCB1",
+        "haplotype": "*2 (PMID: 11503014);*13 (PMID: 12893986)",
+        "markers": []
+    },
+    {
+        "gene": "ABCB1",
+        "haplotype": "*2 (PMID: 12893986)",
+        "markers": [
+            "rs1128503",
+            "rs2032582"
+        ]
     },
     {
         "gene": "ABCG2",
-        "haplotypes": {
-            "ABCG2 34 G>A": [
-                "rs2231137"
-            ],
-            "ABCG2 421 C>A": [
-                "rs2231142"
-            ],
-            "REFERENCE": []
-        }
+        "haplotype": "ABCG2 34 G>A",
+        "markers": [
+            "rs2231137"
+        ]
+    },
+    {
+        "gene": "ABCG2",
+        "haplotype": "ABCG2 421 C>A",
+        "markers": [
+            "rs2231142"
+        ]
+    },
+    {
+        "gene": "ABCG2",
+        "haplotype": "REFERENCE",
+        "markers": []
     },
     {
         "gene": "ANKK1",
-        "haplotypes": {
-            "DRD2 TAQ1A": [
-                "rs1800497"
-            ],
-            "REFERENCE": []
-        }
+        "haplotype": "DRD2 TAQ1A",
+        "markers": [
+            "rs1800497"
+        ]
+    },
+    {
+        "gene": "ANKK1",
+        "haplotype": "REFERENCE",
+        "markers": []
     },
     {
         "gene": "COMT",
-        "haplotypes": {
-            "HAPLOTYPE HIGH ACTIVITY": [
-                "rs4818"
-            ],
-            "HAPLOTYPE INTERMEDIATE ACTIVITY": [
-                "rs4633",
-                "rs4680"
-            ],
-            "HAPLOTYPE LOW ACTIVITY": []
-        }
+        "haplotype": "HAPLOTYPE HIGH ACTIVITY",
+        "markers": [
+            "rs4818"
+        ]
+    },
+    {
+        "gene": "COMT",
+        "haplotype": "HAPLOTYPE INTERMEDIATE ACTIVITY",
+        "markers": [
+            "rs4633",
+            "rs4680"
+        ]
+    },
+    {
+        "gene": "COMT",
+        "haplotype": "HAPLOTYPE LOW ACTIVITY",
+        "markers": []
     },
     {
         "gene": "CYP2C19",
-        "haplotypes": {
-            "*1": [],
-            "*17": [
-                "rs12248560"
-            ],
-            "*2": [
-                "rs4244285"
-            ],
-            "*3": [
-                "rs4986893"
-            ],
-            "*4": [
-                "rs28399504"
-            ],
-            "*8": [
-                "rs41291556"
-            ],
-            "*9": [
-                "rs17884712"
-            ]
-        }
+        "haplotype": "*1",
+        "markers": []
+    },
+    {
+        "gene": "CYP2C19",
+        "haplotype": "*17",
+        "markers": [
+            "rs12248560"
+        ]
+    },
+    {
+        "gene": "CYP2C19",
+        "haplotype": "*2",
+        "markers": [
+            "rs4244285"
+        ]
+    },
+    {
+        "gene": "CYP2C19",
+        "haplotype": "*3",
+        "markers": [
+            "rs4986893"
+        ]
+    },
+    {
+        "gene": "CYP2C19",
+        "haplotype": "*4",
+        "markers": [
+            "rs28399504"
+        ]
+    },
+    {
+        "gene": "CYP2C19",
+        "haplotype": "*8",
+        "markers": [
+            "rs41291556"
+        ]
+    },
+    {
+        "gene": "CYP2C19",
+        "haplotype": "*9",
+        "markers": [
+            "rs17884712"
+        ]
     },
     {
         "gene": "CYP2C9",
-        "haplotypes": {
-            "*1": [],
-            "*2": [
-                "rs1799853"
-            ],
-            "*3": [
-                "rs1057910"
-            ],
-            "*5": [
-                "rs28371686"
-            ],
-            "*6": [
-                "rs9332131"
-            ]
-        }
+        "haplotype": "*1",
+        "markers": []
+    },
+    {
+        "gene": "CYP2C9",
+        "haplotype": "*2",
+        "markers": [
+            "rs1799853"
+        ]
+    },
+    {
+        "gene": "CYP2C9",
+        "haplotype": "*3",
+        "markers": [
+            "rs1057910"
+        ]
+    },
+    {
+        "gene": "CYP2C9",
+        "haplotype": "*5",
+        "markers": [
+            "rs28371686"
+        ]
+    },
+    {
+        "gene": "CYP2C9",
+        "haplotype": "*6",
+        "markers": [
+            "rs9332131"
+        ]
     },
     {
         "gene": "CYP2D6",
-        "haplotypes": {
-            "*1": [
-                "rs16947",
-                "rs1135840"
-            ],
-            "*10": [
-                "rs1065852",
-                "rs16947"
-            ],
-            "*17": [
-                "rs28371706"
-            ],
-            "*2": [],
-            "*3": [
-                "rs35742686",
-                "rs16947",
-                "rs1135840"
-            ],
-            "*4": [
-                "rs1065852",
-                "rs3892097",
-                "rs16947"
-            ],
-            "*41": [
-                "rs28371725"
-            ],
-            "*5": [
-                "rs5030655",
-                "rs35742686",
-                "rs5030656"
-            ],
-            "*6": [
-                "rs5030655",
-                "rs16947",
-                "rs1135840"
-            ],
-            "*9": [
-                "rs5030656",
-                "rs16947",
-                "rs1135840"
-            ]
-        }
+        "haplotype": "*1",
+        "markers": [
+            "rs16947",
+            "rs1135840"
+        ]
+    },
+    {
+        "gene": "CYP2D6",
+        "haplotype": "*10",
+        "markers": [
+            "rs1065852",
+            "rs16947"
+        ]
+    },
+    {
+        "gene": "CYP2D6",
+        "haplotype": "*17",
+        "markers": [
+            "rs28371706"
+        ]
+    },
+    {
+        "gene": "CYP2D6",
+        "haplotype": "*2",
+        "markers": []
+    },
+    {
+        "gene": "CYP2D6",
+        "haplotype": "*3",
+        "markers": [
+            "rs35742686",
+            "rs16947",
+            "rs1135840"
+        ]
+    },
+    {
+        "gene": "CYP2D6",
+        "haplotype": "*4",
+        "markers": [
+            "rs1065852",
+            "rs3892097",
+            "rs16947"
+        ]
+    },
+    {
+        "gene": "CYP2D6",
+        "haplotype": "*41",
+        "markers": [
+            "rs28371725"
+        ]
+    },
+    {
+        "gene": "CYP2D6",
+        "haplotype": "*5",
+        "markers": [
+            "rs5030655",
+            "rs35742686",
+            "rs5030656"
+        ]
+    },
+    {
+        "gene": "CYP2D6",
+        "haplotype": "*6",
+        "markers": [
+            "rs5030655",
+            "rs16947",
+            "rs1135840"
+        ]
+    },
+    {
+        "gene": "CYP2D6",
+        "haplotype": "*9",
+        "markers": [
+            "rs5030656",
+            "rs16947",
+            "rs1135840"
+        ]
     },
     {
         "gene": "CYP3A5",
-        "haplotypes": {
-            "CYP3A5*3": [
-                "rs776746"
-            ],
-            "REFERENCE": []
-        }
+        "haplotype": "CYP3A5*3",
+        "markers": [
+            "rs776746"
+        ]
+    },
+    {
+        "gene": "CYP3A5",
+        "haplotype": "REFERENCE",
+        "markers": []
     },
     {
         "gene": "CYP4F2",
-        "haplotypes": {
-            "*1": [],
-            "*3": [
-                "rs2108622"
-            ]
-        }
+        "haplotype": "*1",
+        "markers": []
+    },
+    {
+        "gene": "CYP4F2",
+        "haplotype": "*3",
+        "markers": [
+            "rs2108622"
+        ]
     },
     {
         "gene": "DPYD",
-        "haplotypes": {
-            "*1": [],
-            "*2A": [
-                "rs3918290"
-            ],
-            "RS67376798": [
-                "rs67376798"
-            ]
-        }
+        "haplotype": "*1",
+        "markers": []
+    },
+    {
+        "gene": "DPYD",
+        "haplotype": "*2A",
+        "markers": [
+            "rs3918290"
+        ]
+    },
+    {
+        "gene": "DPYD",
+        "haplotype": "RS67376798",
+        "markers": [
+            "rs67376798"
+        ]
     },
     {
         "gene": "GRIK4",
-        "haplotypes": {
-            "REFERENCE": [],
-            "RS1954787": [
-                "rs1954787"
-            ]
-        }
+        "haplotype": "REFERENCE",
+        "markers": []
+    },
+    {
+        "gene": "GRIK4",
+        "haplotype": "RS1954787",
+        "markers": [
+            "rs1954787"
+        ]
     },
     {
         "gene": "HLA-A",
-        "haplotypes": {
-            "HLA-A*31:01": [
-                "rs1061235"
-            ],
-            "REFERENCE": []
-        }
+        "haplotype": "HLA-A*31:01",
+        "markers": [
+            "rs1061235"
+        ]
+    },
+    {
+        "gene": "HLA-A",
+        "haplotype": "REFERENCE",
+        "markers": []
     },
     {
         "gene": "HLA-B",
-        "haplotypes": {
-            "HLA-B*15:02 A": [
-                "rs3909184"
-            ],
-            "HLA-B*15:02 B": [
-                "rs2844682"
-            ],
-            "HLA-B*57:01": [
-                "rs2395029"
-            ],
-            "REFERENCE": []
-        }
+        "haplotype": "HLA-B*15:02 A",
+        "markers": [
+            "rs3909184"
+        ]
+    },
+    {
+        "gene": "HLA-B",
+        "haplotype": "HLA-B*15:02 B",
+        "markers": [
+            "rs2844682"
+        ]
+    },
+    {
+        "gene": "HLA-B",
+        "haplotype": "HLA-B*57:01",
+        "markers": [
+            "rs2395029"
+        ]
+    },
+    {
+        "gene": "HLA-B",
+        "haplotype": "REFERENCE",
+        "markers": []
     },
     {
         "gene": "IFNL3",
-        "haplotypes": {
-            "REFERENCE": [],
-            "RS12979860": [
-                "rs12979860"
-            ]
-        }
+        "haplotype": "REFERENCE",
+        "markers": []
+    },
+    {
+        "gene": "IFNL3",
+        "haplotype": "RS12979860",
+        "markers": [
+            "rs12979860"
+        ]
     },
     {
         "gene": "MTHFR",
-        "haplotypes": {
-            "1298C": [
-                "rs1801131"
-            ],
-            "677T": [
-                "rs1801133"
-            ],
-            "REFERENCE": []
-        }
+        "haplotype": "1298C",
+        "markers": [
+            "rs1801131"
+        ]
+    },
+    {
+        "gene": "MTHFR",
+        "haplotype": "677T",
+        "markers": [
+            "rs1801133"
+        ]
+    },
+    {
+        "gene": "MTHFR",
+        "haplotype": "REFERENCE",
+        "markers": []
     },
     {
         "gene": "SLC19A1",
-        "haplotypes": {
-            "REFERENCE": [],
-            "RS1051266": [
-                "rs1051266"
-            ]
-        }
+        "haplotype": "REFERENCE",
+        "markers": []
+    },
+    {
+        "gene": "SLC19A1",
+        "haplotype": "RS1051266",
+        "markers": [
+            "rs1051266"
+        ]
     },
     {
         "gene": "SLCO1B1",
-        "haplotypes": {
-            "*1": [],
-            "*1B": [
-                "rs2306283"
-            ],
-            "*5": [
-                "rs4149056"
-            ]
-        }
+        "haplotype": "*1",
+        "markers": []
+    },
+    {
+        "gene": "SLCO1B1",
+        "haplotype": "*1B",
+        "markers": [
+            "rs2306283"
+        ]
+    },
+    {
+        "gene": "SLCO1B1",
+        "haplotype": "*5",
+        "markers": [
+            "rs4149056"
+        ]
     },
     {
         "gene": "TMEM",
-        "haplotypes": {
-            "REFERENCE": [],
-            "XPC LYS939GLN": [
-                "rs2228001"
-            ]
-        }
+        "haplotype": "REFERENCE",
+        "markers": []
+    },
+    {
+        "gene": "TMEM",
+        "haplotype": "XPC LYS939GLN",
+        "markers": [
+            "rs2228001"
+        ]
     },
     {
         "gene": "TPMT",
-        "haplotypes": {
-            "*1": [],
-            "*2": [
-                "rs1800462"
-            ],
-            "*3A": [
-                "rs1142345",
-                "rs1800460"
-            ],
-            "*3B": [
-                "rs1800460"
-            ],
-            "*3C": [
-                "rs1142345"
-            ],
-            "*4": [
-                "rs1800584"
-            ]
-        }
+        "haplotype": "*1",
+        "markers": []
+    },
+    {
+        "gene": "TPMT",
+        "haplotype": "*2",
+        "markers": [
+            "rs1800462"
+        ]
+    },
+    {
+        "gene": "TPMT",
+        "haplotype": "*3A",
+        "markers": [
+            "rs1142345",
+            "rs1800460"
+        ]
+    },
+    {
+        "gene": "TPMT",
+        "haplotype": "*3B",
+        "markers": [
+            "rs1800460"
+        ]
+    },
+    {
+        "gene": "TPMT",
+        "haplotype": "*3C",
+        "markers": [
+            "rs1142345"
+        ]
+    },
+    {
+        "gene": "TPMT",
+        "haplotype": "*4",
+        "markers": [
+            "rs1800584"
+        ]
     },
     {
         "gene": "VKORC1",
-        "haplotypes": {
-            "*1": [],
-            "*2": [
-                "rs9923231"
-            ]
-        }
+        "haplotype": "*1",
+        "markers": []
+    },
+    {
+        "gene": "VKORC1",
+        "haplotype": "*2",
+        "markers": [
+            "rs9923231"
+        ]
     }
 ]
