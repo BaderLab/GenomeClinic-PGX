@@ -165,29 +165,41 @@ module.exports = function(app,logger,opts){
 
 	//Get a list of all the current haploytpes and geenes
 	app.get('/database/haplotypes/getgenes',utils.isLoggedIn,function(req,res){
-		dbFunctions.getPGXGenes(undefined,req.user.username).then(function(result){
-			if (result)
-				res.send(result);
-			else 
-				res.send(undefined);
-		}).catch(function(err){
-			logger('error',err,{user:req.user.username,action:'getPGXGenes'});
+		dbFunctions.drugs.getGenes(req.user.username).then(function(result){	
+			res.send(result);
 		});
-	});
-
+	})
+		
 	//get information for a specific gene and return it in the required format
 	app.get('/database/haplotypes/getgenes/:gene',utils.isLoggedIn,function(req,res){
 		var gene = req.params.gene;
-		dbFunctions.getPGXGenes(req.params.gene,req.user.username).then(function(result){
-			var out = {};
-			if (result){
+		var query = {}
+		var out = {};
+		query[constants.dbConstants.DRUGS.ALL.ID_FIELD] = gene
+		dbFunctions.find(constants.dbConstants.DRUGS.ALL.COLLECTION,query,undefined,undefined,req.user.username)
+		.then(function(result){
+			var ids = result[0][constants.dbConstants.DRUGS.ALL.CURRENT_HAPLO];
+			return dbFunctions.find(constants.dbConstants.PGX.GENES.COLLECTION,{_id:{$in:ids}},undefined,undefined,req.user.username)
+		}).then(function(result){
+			out.rawHap = result;
+			var query = {$or:[{asgenes:gene},{asgenes:{$size:0}}]};
+			return dbFunctions.find(constants.dbConstants.PGX.COORDS.COLLECTION,query,undefined,undefined,req.user.username)
+		}).then(function(result){
+			out.markers = {}
+			out.unMarkers = {}
+			for (var i = 0; i < result.length; i++){
+				if (result[i].asgenes.length > 0 )
+					out.markers[result[i]._id] = result[i]
+				else
+					out.unMarkers = result[i]
+			}
+			if (res){
 				out.gene = gene;
 				var uniqIDS = [];
 				var haplotypes = result[gene];
-				for (var hap in haplotypes){
-					if (haplotypes.hasOwnProperty(hap)){
-						for (var i=0; i < haplotypes[hap].length; i++){
-							if (uniqIDS.indexOf(haplotypes[hap][i]===-1));
+				for (var k = 0; k < result.length; k++){
+					for (var i=0; i < result[k].markers.length; i++){
+						if (uniqIDS.indexOf(result[k].markers[i]===-1)){
 								uniqIDS.push(haplotypes[hap][i]);
 						}
 					}
@@ -214,7 +226,7 @@ module.exports = function(app,logger,opts){
 					} else {
 						res.send(undefined);
 					}
-				});
+				}); 
 			} else {
 				res.send(undefined);
 			}

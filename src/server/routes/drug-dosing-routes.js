@@ -216,7 +216,6 @@ module.exports = function(app,logger,opts){
 		/* Ensure this is a new 'unique entry' */
 		dbFunctions.findOne(collection,query,user).then(function(result){
 			var newDoc;
-			console.log(result);
 			if (!result){
 				dbFunctions.insert(collection,doc,user).then(function(result){
 					newDoc = result;
@@ -281,9 +280,10 @@ module.exports = function(app,logger,opts){
 	/* Initialize a new drug recommendation document. first checks to ensure there already is not
 	 * A gene the same as newGene. if this returns false a new document is inserted with the value
 	 * unitialized set to true. */
-	app.post('/database/dosing/new',function(req,res){
+	app.post('/database/dosing/new',utils.isLoggedIn,function(req,res){
 		var newGene = req.query.gene;
 		var type = req.query.type;
+		var user = req.user.username
 		dbFunctions.checkInDatabase(constants.dbConstants.DRUGS.ALL.COLLECTION,constants.dbConstants.DRUGS.ALL.ID_FIELD,newGene)
 		.then(function(exists){
 			if (!exists){
@@ -295,7 +295,7 @@ module.exports = function(app,logger,opts){
 					} else {
 						var err = new Error("Unable to create new document")
 						logger('error',err,{user:user});
-						req.flash('statusCode','500');
+						req.flash('statusCode','501');
 						req.flash('error',"Unable to insert new document");
 						req.flash('message','unable to insert new gene ' + newGene );
 						res.redirect('/failure');

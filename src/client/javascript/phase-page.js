@@ -326,6 +326,52 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 	var staticHandlers = {
 		//all haplotype collections
 		index:function(){
+			$('#add-new-gene').on('click',function(e){
+				e.preventDefault();
+				$(this).hide().siblings('ul').show()
+				$("#submit-new-gene-form").show();
+			});
+
+
+			$("#submit-new-gene").on('click',function(e){
+				e.preventDefault();
+				$('#submit-new-gene-form').submit();
+			});
+
+			$('#cancel-new-gene').on('click',function(e){
+				e.preventDefault();
+				$('#submit-new-gene-form')[0].reset();
+				$('#submit-new-gene-form').hide();
+				$(this).closest('ul').hide().siblings('#add-new-gene').show();
+			})
+
+			/* Once the Gene form has been validated send the form information
+			 * to the server to be added to the databse. Upon a succesful entry
+			 * navigate to the new gene's drug recommendation page */
+			$('#submit-new-gene-form').on('valid.fndtn.abide',function(e){
+				var val = $('#new-gene-name').val().replace('/');
+				var type = $('#new-gene-type').find('option:selected').data('id');
+
+				Promise.resolve($.ajax({
+					url:'/database/dosing/new?gene=' + val+ "&type="+ type,
+					type:"POST",
+					contentType:'application/json',
+					dataType:'json'
+				})).then(function(result){
+					if (result.statusCode == 200){
+						window.location.replace('/haplotypes/current/' + val);
+					} else if ( result.statusCode == 500 ){
+						window.location.replace('/haplotypes/current/' + val);
+					} else {
+						$('#error-display-message').text(result.message);
+						$('#error-display-box').slideDown();
+					}
+				}).catch(function(err){
+					console.log(err);
+
+				});
+			});
+
 			$('.haplotype-row').on('click',function(e){
 				e.preventDefault();
 				var path = "/haplotypes/current/" + $(this).data('name').toString();
@@ -343,25 +389,6 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 			});
 		},
 		//new haplotype collection
-		new: function(){
-			addNewHaplotype('#new-haplotype');
-			haplotypeHandlers();
-			allPageHandlers();
-			submitChanges('#submit-changes',true);
-
-			$('#gene-name').on('keyup',function(){
-				var val = $(this).val().toUpperCase();
-				var _this =this;
-				utility.existsInDb(constants.GENES.COLLECTION,constants.GENES.ID_FIELD,val)
-				.then(function(result){
-					if (result){
-						$(_this).addClass('error').siblings('small').text('Gene Already Exists').show();
-					} else if ($(_this).hasClass("error")){
-						$(_this).removeClass('error').siblings('small').hide();
-					}
-				});
-			});
-		},
 		//Existing haplotype collection
 		current:function(){
 			confirmDelete('#delete',window.location.pathname);
@@ -379,68 +406,67 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 			
 		}
 	};
-	//Main function will render the page based on the specified URL
-	var main = function(){
-		var promise;
-		var location = window.location.pathname;
-		if (location === '/haplotypes'){
+
+	var renderAllHaplotypes = function(){
+		return Promise.resolve($.ajax({
+			url:'/database/dosing/classes',
+			type:'GET',
+			dataType:'json'
+		})).then(function(result){
+			classes = result;
 			return Promise.resolve($.ajax({
 				url:'/database/haplotypes/getgenes',
 				type:'GET',
 				contentType:'application/json'
-			})).then(function(result){
-				console.log(result);
-				var gene,hap,obj,i;
-				//a bit of massagig the data into the proper format
-				for (gene in result){
-					if (result.hasOwnProperty(gene) ){
-						result[gene].numHap = Object.keys(result[gene]).length;
-						obj ={};
-						for (hap in result[gene]) {
-							if (result[gene].hasOwnProperty(hap)){
-								for (i=0;i < result[gene][hap].length; i++){
-									obj[result[gene][hap][i]] = 1;
-								}
+			}));
+		}).then(function(result){
+			var gene,hap,obj,i;
+			//a bit of massagig the data into the proper format
+			return templates.haplotypes.index({haplotypes:result,classes:classes});
+		}).then(function(renderedHtml){
+			return $('#main').html(renderedHtml);
+		}).then(function(){
+			utility.refresh();
+		}).then(function(){
+			staticHandlers.index();
+			allPageHandlers();
+		});
 
-							}
-						}
-						result[gene].numMark = Object.keys(obj).length;
-					}
-				}
-
-				return templates.haplotypes.index({haplotypes:result});
-			}).then(function(renderedHtml){
-				return $('#main').html(renderedHtml);
-			}).then(function(){
-				staticHandlers.index();
-				allPageHandlers();
-			});
-		} else if (location === "/haplotypes/new"){
-			templates.haplotypes.new()
-			.then(function(renderedHtml){
-				$('#main').html(renderedHtml);
-			}).then(function(){
-				staticHandlers.new();
-			});
+	}
+	var renderCurrentHaplotype = function(location){
+		var gene = location.split('/').pop();
+		var hapInfo;
+		Promise.resolve($.ajax({
+			url:'/database/haplotypes/getgenes/' + gene,
+			contentType:'application/json',
+			type:"GET"
+		})).then(function(result){
+			hapInfo =result;
+			console.log(hapInfo);
+			return templates.haplotypes.current(result);
+		}).then(function(renderedHtml){
+			return $('#main').html(renderedHtml);
+		}).then(function(){
+			return templates.haplotypes.haplotype(hapInfo);
+		}).then(function(renderedHtml){
+			return $('#haplotypes').html(renderedHtml);
+		}).then(function(){
+			utility.refresh();
+		}).then(function(){
+			staticHandlers.current();
+		});
+	}
+	//Main function will render the page based on the specified URL
+	var main = function(){
+		var promise;
+		var location = window.location.pathname;
+		var classes;
+		if (location === '/haplotypes'){
+			renderAllHaplotypes()
+			
 		} else if (location.match(/haplotypes\/current\/.+/) !== null){
-			var gene = location.split('/').pop();
-			var hapInfo;
-			Promise.resolve($.ajax({
-				url:'/database/haplotypes/getgenes/' + gene,
-				contentType:'application/json',
-				type:"GET"
-			})).then(function(result){
-				hapInfo =result;
-				return templates.haplotypes.current(result);
-			}).then(function(renderedHtml){
-				return $('#main').html(renderedHtml);
-			}).then(function(){
-				return templates.haplotypes.haplotype(hapInfo);
-			}).then(function(renderedHtml){
-				return $('#haplotypes').html(renderedHtml);
-			}).then(function(){
-				staticHandlers.current();
-			});
+			renderCurrentHaplotype(location);
+			
 		}
 		
 	};

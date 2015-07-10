@@ -116,12 +116,19 @@ function getRsIds(ids){
 
 								point =  o.Assembly[0].Component
 								maxLength = 0;
-
 								//retrieve the appropriate reference material from the xml object
 								//there are occassionally multiple fields within the assembly, if this is the case
 								//take the most completely annotataed one.
 								for ( m = 0; m < point.length; m++ ){
 									if (Object.keys(point[m].$).length > maxLength){
+										temp.asgenes = []
+										if (point[m].MapLoc[0].FxnSet){
+											for (l = 0; l < point[m].MapLoc[0].FxnSet.length;l++){
+												if(temp.asgenes.indexOf(point[m].MapLoc[0].FxnSet[l].$.symbol) == -1)
+													temp.asgenes.push(point[m].MapLoc[0].FxnSet[l].$.symbol);
+											}
+										} else {
+										}
 										maxLength = Object.keys(point[m].$).length;
 										temp.ref = point[m].MapLoc[0].$.refAllele;
 										temp.orient = point[m].MapLoc[0].$.orient;

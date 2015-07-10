@@ -946,8 +946,6 @@ var utility = require('./utility');
 					dataType:'json'
 				}));
 			}).then(function(result){
-				console.log(resultObj.type);
-				console.log(result);
 				resultObj.classes = result[resultObj.type].classes;
 				pageOptions.classes = result;
 				var pubmedIds = [];

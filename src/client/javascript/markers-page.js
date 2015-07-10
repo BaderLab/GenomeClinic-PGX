@@ -30,12 +30,12 @@ var utility = require('./utility'),
 		return promise;
 	};
 
-	var confirmUpdate = function(marker, chr, pos, ref, alt){
+	var confirmUpdate = function(marker, chr, genes, ref, alt){
 		var context = $('#update-modal');
 		var promise = new Promise(function(resolve,reject){
 			context.find('h4').text('Make updates to ' + marker + '?');
 			context.find('input[name=chr]').val(chr);
-			context.find('input[name=pos]').val(pos);
+			context.find('input[name=asgenes]').val(genes);
 			context.find('input[name=ref]').val(ref);
 			context.find('input[name=alt]').val(alt);
 
@@ -55,7 +55,8 @@ var utility = require('./utility'),
 								context.find('input[name=' + item + ']').addClass('error').siblings('small').text("Valid Chromosome Required").show();
 							if ((item == 'ref' || item == 'alt') && utility.allelesRegex.exec(form[item]) === null)
 								context.find('input[name=' + item + ']').addClass('error').siblings('small').text("Valid Allele Required").show();
-							if (item=='pos' && /^[0-9]+/.exec(form[item]) === null)
+							if (item=='asgene')// && /^[0-9]+/.exec(form[item]) === null)
+								form[item] = form[item].toUpperCase().split(',');
 								context.find('input[name=' + item + ']').addClass('error').siblings('small').text("A valid number is required").show();
 						}
 					}
@@ -122,10 +123,11 @@ var utility = require('./utility'),
 			customFields.find('.success').on('click',function(e){
 				var form = $(this).closest('form');
 				var marker = form.attr('id');
-				var pos = form.data('pos');
+				var genes = form.data('asgenes');
 				var chr = form.data('chr');
 				var ref = form.data('ref');
 				var alt = form.data('alt');
+
 				e.preventDefault();
 				confirmUpdate(marker,chr,pos,ref,alt).then(function(result){
 					if (result){
@@ -228,7 +230,7 @@ var utility = require('./utility'),
 		//Cancel the current modifications, reset the values of the input to the previous values
 		//and close the edit fields
 		sel.find('.cancel').on('click.button',function(e){
-			var fields = ['chr','pos','alt','ref'];
+			var fields = ['chr','asgenes','alt','ref'];
 			e.preventDefault();
 			$(this).closest('.marker-row').find('.edit').hide('slow',function(){//.find('.static-marker-field').show('fast',function(){
 				refreshClick($(this).closest('.marker-row'));
@@ -236,7 +238,7 @@ var utility = require('./utility'),
 		});
 		//Form is submitted and listening for a valid even from the foundation event 
 		//Trigger
-		sel.on('valid.fndtn.abide',function(){
+		/*sel.on('valid.fndtn.abide',function(){
 			var _this = this;
 			var array = $(this).serializeArray();
 			var input = serializeNewMarker(array);
@@ -251,7 +253,7 @@ var utility = require('./utility'),
 			})).then(function(result){
 				if (result.status === 'ok'){
 					$(_this).find('.chr').text(input.chr)
-					.closest(_this).find('.pos').text(input.pos)
+					.closest(_this).find('.asgenes').text(input.asgenes)
 					.closest(_this).find('.ref').text(input.ref)
 					.closest(_this).find('.alt').text(input.alt.join())
 					.closest(_this).find('.edit').hide()
@@ -260,7 +262,7 @@ var utility = require('./utility'),
 					});
 				}
 			});
-		});
+		});*/
 
 	}
 
@@ -270,8 +272,8 @@ var utility = require('./utility'),
 			array.map(function(item){
 				if (item.name == 'alt')
 					input[item.name] = item.value.toUpperCase().split(/[\,\s]/g);
-				else if (item.name == 'pos')
-					input[item.name] = parseInt(item.value);
+				else if (item.name == 'asgenes')
+					input[item.name] = item.value.toUpperCase().split(',');
 				else if (item.name == 'dbsnp-id')
 					input[item.name] = item.value;
 				else
@@ -390,7 +392,7 @@ var utility = require('./utility'),
 					_id : form['new-marker'],
 					type : type,
 					chr : form.chr,
-					pos : form.pos,
+					asgenes : form.asgenes,
 					alt : form.alt.sort(),
 					ref : form.ref,
 					date : new Date().toDateString()

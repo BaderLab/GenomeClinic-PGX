@@ -1216,13 +1216,11 @@ var dbFunctions = function(){
 		return removeDocument(dbConstants.PGX.COORDS.COLLECTION,query,user);
 
 	};
-
-
 	/*retrieve the selected Haplotype Gene(s). Accepts an array or string, or no
 	 * arugment. If an array or string is passed it will search for all of the genes
 	 * in that are named, while if no arguments are passed it will retrieve ALL
 	 * of the genes */
-	this.getPGXGenes = function(geneName,user){
+	this.getPGXGenesForAnalysis = function(geneName,user){
 		assert.notStrictEqual(db,undefined);
 		var query = {};
 		if (Object.prototype.toString.call(geneName) == '[object Array]')
@@ -1305,7 +1303,7 @@ var dbFunctions = function(){
 		var promise= this.findOne(dbConstants.PATIENTS.COLLECTION, query, user)
 		.then(function(result) {
 			currentPatientCollectionID = result[dbConstants.PATIENTS.COLLECTION_ID];
-			return self.getPGXGenes();
+			return self.getPGXGenesForAnalysis();
 		}).then(function(result){
 			pgxGenes = result;
 			return self.getPGXCoords();
@@ -1495,6 +1493,7 @@ var dbFunctions = function(){
 			options.$project.numRecs = {$size:'$' + dbConstants.DRUGS.ALL.RECOMMENDATIONS}
 			options.$project.numFuture = {$size:'$' + dbConstants.DRUGS.ALL.FUTURE}
 			options.$project.numHaplo = {$size:'$' + dbConstants.DRUGS.ALL.HAPLO}
+			options.$project.numCurrH = {$size:'$' + dbConstants.DRUGS.ALL.CURRENT_HAPLO}
 			var sort = {$sort:{}};
 			sort.$sort[dbConstants.DRUGS.ALL.ID_FIELD] = 1;
 			var pipeline = [options,sort]
