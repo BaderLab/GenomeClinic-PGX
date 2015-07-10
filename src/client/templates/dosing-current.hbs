@@ -131,7 +131,7 @@ a new recommendation, future, haplotype. Deleting the page etc
 										<span class="prefix">Risk</span>
 									</div>
 									<div class="large-8 small-8 medium-8 columns left">
-										<select name="risk" required id="new_risk">
+										<select name="risk" id="new_risk">
 											<option>Low</option>
 											<option>Medium</option>
 											<option>High</option>
@@ -273,7 +273,8 @@ a new recommendation, future, haplotype. Deleting the page etc
 												<span class="prefix">Risk</span>
 											</div>
 											<div class="large-8 small-8 medium-8 columns left">
-												<select name="risk" disabled="disabled" data-originalvalue="{{risk}}" value="{{risk}}" required>
+												<select name="risk" disabled="disabled" data-originalvalue="{{risk}}" value="{{risk}}">
+													<option></option>
 													<option>Low</option>
 													<option>Medium</option>
 													<option>High</option>

@@ -453,18 +453,52 @@ module.exports = {
 			return pgx.convertTotemplateData(result);
 		}).then(function(result){
 			var genes = [];
+			var geneData = []
+			var ignoredGenes = []
 			//Extract infromation for each gene and the haplotypes that were predicted
-			for (var gene in result.pgxGenes){
-				if (result.pgxGenes.hasOwnProperty(gene)){
-					if (result.pgxGenes[gene].possibleHaplotypes !== undefined){
-						result.pgxGenes[gene].hap1 = result.pgxGenes[gene].possibleHaplotypes.h1.closestMatch.join(',');
-						result.pgxGenes[gene].hap2 = result.pgxGenes[gene].possibleHaplotypes.h2.closestMatch.join(',');
-						genes.push(result.pgxGenes[gene]);
-					}
+			//Select the case where there is only Two possible Haplotypes.
+			//Any other cases cannot be determined
+			//console.log(result.pgxGenes);
+			for (var i = 0; i <result.pgxGenes.length; i++ ){
+				if (result.pgxGenes[i].possibleHaplotypes !== undefined){
+						/* if there are multiple possible haplotypes beacuse the patient
+						 * data is unphased or heterozygous unphased then we cannot interpret
+						 * it appropriately, therefore we should only take genes that for 
+						 * Sure are known. */
+					 var keys = Object.keys(result.pgxGenes[i].possibleHaplotypes);
+					 if (keys.length == 2){
+					 	geneData.push(result.pgxGenes[i]);
+					 	genes.push(result.pgxGenes[i].gene);
+					 }else{
+					 	ignoredGenes.push(result.pgxGenes[i]);
+					 }
 				}
+
+					/*
+						for (hap in result.pgxGenes[gene].possibleHaplotypes){
+							if (result.pgxGenes[gene].possibleHaplotypes.hasOwnProperty(hap)){
+								result.pgxGenes[gene].possibleHaplotypes[hap].closestMatch = result.pgxGenes[gene].possibleHaplotypes[hap].closestMatch.join()
+							}
+						}
+						result.pgxGenes[gene].hap1 = result.pgxGenes[gene].possibleHaplotypes.h1.closestMatch.join(',');
+						result.pgxGenes[gene].hap2 = result.pgxGenes[gene].possibleHaplotypes.h2.closestMatch.join(','); 
+						genes.push(result.pgxGenes[gene]); */ 
+				
 			}
-			result.pgxGenes = genes;
+
+			result.ignoredGenes = ignoredGenes;
+			result.pgxGenes = geneData;
+			result.pgxGeneNames = genes
 			pgxTemplateData= result;
+			var promises = genes.map(function(gene,ind){
+				return Promise.resolve($.ajax({
+					url:"/database/dosing/genes/"+ gene + '?type=true',
+					type:"GET"
+				})).then(function(result){
+					pgxTemplateData.pgxGenes[ind].type = result
+				})	
+			})
+			return Promise.all(promises);
 		}).then(function(){
 			//Retrieve the classes from the db
 			return Promise.resolve($.ajax({
@@ -473,7 +507,8 @@ module.exports = {
 				dataType:"json"
 			}));
 		}).then(function(result){
-			pgxTemplateData.classes = result[0].classes;
+			pgxTemplateData.classes = result;
+
 			// render the main htmnl
 			return templates.drugs.rec.index(pgxTemplateData);
 		}).then(function(renderedHtml){
