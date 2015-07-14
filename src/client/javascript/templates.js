@@ -70,6 +70,15 @@ function helpers(){
 		return accum;
 	});
 
+	Handlebars.registerHelper('lookUpIdInfo',function(classObj, id, prop){
+		return classObj[id][prop];
+	})
+
+	Handlebars.registerHelper('ifIdAdded', function(classObj,id,options){
+		var fnTrue = options.fn, fnFalse = options.inverse;
+		return classObj[id].added == true ? fnTrue() : fnFalse();
+	});
+
 	//bind the templates object to the global window 
 	window.templates = {
 	//module.exports = {

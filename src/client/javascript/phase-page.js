@@ -158,12 +158,103 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 		});
 	};
 
+	var submitUpdate
+
+	var checkWidth = function(){
+		var ele = document.getElementById('haplotypes');
+		var ele2 = document.getElementById('haplotype-wrapper');
+		if (ele.offsetWidth < ele2.scrollWidth){
+			$('#haplotypes').closest('.columns').addClass('scrollit2');
+		} else {
+			$('#haplotypes').closest('.columns').removeClass('scrollit2');
+		}
+	}
 	/* add all handlers to a new haplotype field
 	 * Accepts one argument "parent". Parent 
 	 * like the name suggest is the parent fieldset. if it is not
 	 * defined, handlers are bound to ALL things that meet the find criteria
 	 * on the page*/
 	var haplotypeHandlers = function(parent){
+		$('.remove').on('click',function(e){
+			e.preventDefault();
+			$(this).closest('tr').hide();
+		});
+
+		$('.marker-status').on('click',function(e){
+			e.preventDefault();
+			var id = $(this).closest('tr').attr('id')
+			var _this = this;
+			if ($(this).hasClass('added')){
+
+				Promise.resolve().then(function(){
+					//find the index of the current column
+					var index = $('#haplotypes').find('#marker-' + id).index()
+					console.log(index);
+					$('#haplotypes').find('#marker-' + id).remove();
+					$(_this).removeClass('added').addClass('unadded').text('Add')
+					$('#haplotypes').find('tbody').find('tr').each(function(ind,item){
+						$(this).find('td:nth-child(' + (index + 1) + ')').remove();
+					});
+				 
+				}).then(function(){
+					checkWidth();
+				});
+			} else if ($(this).hasClass('unadded')){
+				$('#haplotypes').show();
+				Promise.resolve().then(function(){
+					var headers = [id];
+					$(_this).removeClass('unadded').addClass('added').text('Remove')
+					$('#haplotypes').find('th[id^=marker-rs]').each(function(ind,item){
+						headers.push($(item).text());
+					});
+					headers = headers.sort();
+					var point = headers.indexOf(id);
+					var html1 = "<th id='marker-" + id + "'><a href=#>"+id+"</a></th>";
+					var html2 = "<td class='marker use-ref text-center'>" + $('#' + id).find('.ref').text()  + "</td>";
+					$('#haplotypes').find('thead').find('th').eq(point).after(html1)
+					return $('#haplotypes').find('tbody').find('tr').each(function(ind,item){
+						$(item).find('td').eq(point).after(html2)
+					});
+				}).then(function(){
+					checkWidth();
+				});
+			}
+		})
+
+		$('.haplotype-cell').on('click',function(){
+			if (!$(this).hasClass('opened')){
+				$(this).addClass('opened');
+				$(this).find('span').hide();
+				$(this).find('.row').show();
+				$(this).find('input').attr('disabled',false);
+			}
+		});
+
+		$('.haplotype-cell').find('.postfix').on('click',function(e){
+			e.preventDefault();
+			var _this = this;
+			var val;
+			var input = $(this).closest('.row').find('input');
+			val = input.val();
+			input.attr('disabled','disabled');
+			$(this).closest('.row').hide('fast',function(){
+				$(_this).closest('td').removeClass('opened').find('span').text(val).show()
+			});
+		})
+
+		$('.marker').on('click',function(){
+			var index = $(this).index();
+			var identifer = $('#haplotypes').find('thead').find('th:nth-child(' + ( index + 1 ) + ')').text();
+			var info = $('#' + identifer);
+			if ($(this).hasClass('use-alt')){
+				$(this).removeClass('use-alt').addClass('use-ref');
+				$(this).text(info.find('.ref').text());
+			} else {
+				$(this).removeClass('use-ref').addClass('use-alt');
+				$(this).text(info.find(".alt").text());
+			}
+		})
+
 		var p;
 		if (parent)
 			p = $(parent);
@@ -395,15 +486,7 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 			addNewHaplotype('#new-haplotype');
 			haplotypeHandlers();
 			allPageHandlers();
-			submitChanges('#submit-changes');
-			$('#edit-page').on('click',function(e){
-				e.preventDefault();
-				$(this).hide();
-				$(document).find('.edit:not(input)').slideDown(300);
-				$(document).find('input.edit').attr('disabled',false);
-			});
-			utility.bioAbide();
-			
+			submitChanges('#submit-changes');			
 		}
 	};
 
@@ -441,15 +524,14 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 			contentType:'application/json',
 			type:"GET"
 		})).then(function(result){
-			hapInfo =result;
-			console.log(hapInfo);
+			result.location = location;
 			return templates.haplotypes.current(result);
 		}).then(function(renderedHtml){
 			return $('#main').html(renderedHtml);
 		}).then(function(){
-			return templates.haplotypes.haplotype(hapInfo);
+			//return templates.haplotypes.haplotype(hapInfo);
 		}).then(function(renderedHtml){
-			return $('#haplotypes').html(renderedHtml);
+			//return $('#haplotypes').html(renderedHtml);
 		}).then(function(){
 			utility.refresh();
 		}).then(function(){

@@ -181,55 +181,79 @@ module.exports = function(app,logger,opts){
 			var ids = result[0][constants.dbConstants.DRUGS.ALL.CURRENT_HAPLO];
 			return dbFunctions.find(constants.dbConstants.PGX.GENES.COLLECTION,{_id:{$in:ids}},undefined,undefined,req.user.username)
 		}).then(function(result){
-			out.rawHap = result;
+			out.haplotypes = result;
 			var query = {$or:[{asgenes:gene},{asgenes:{$size:0}}]};
 			return dbFunctions.find(constants.dbConstants.PGX.COORDS.COLLECTION,query,undefined,undefined,req.user.username)
 		}).then(function(result){
-			out.markers = {}
-			out.unMarkers = {}
+			out.amarkers = [] // all associated markers
+			out.markers = []; // unique markers
+			out.allMarkers = {}
+			out.unMarkers =  []// unassociated markers
 			for (var i = 0; i < result.length; i++){
 				if (result[i].asgenes.length > 0 )
-					out.markers[result[i]._id] = result[i]
+					out.amarkers.push(result[i]._id)
 				else
-					out.unMarkers = result[i]
+					out.unMarkers.push(result[i]._id);
+
+				out.allMarkers[result[i]._id] = result[i];
 			}
-			if (res){
-				out.gene = gene;
-				var uniqIDS = [];
-				var haplotypes = result[gene];
-				for (var k = 0; k < result.length; k++){
-					for (var i=0; i < result[k].markers.length; i++){
-						if (uniqIDS.indexOf(result[k].markers[i]===-1)){
-								uniqIDS.push(haplotypes[hap][i]);
-						}
+
+			out.gene = gene;
+			var marker;
+			var temp = [];
+			if (out.haplotypes.length > 0){
+				for (var i = 0; i < out.haplotypes.length; i++ ){
+					for (var j = 0; j < out.haplotypes[i].markers.length; j++ ){
+						marker = out.haplotypes[i].markers[j]
+						if (out.markers.indexOf(marker) == -1) out.markers.push(marker);
 					}
 				}
-				dbFunctions.getPGXCoords(uniqIDS,req.user.username).then(function(coords){
-					var o,ho = {};
-					if(coords){
-						for (var hap in haplotypes){
-							if (haplotypes.hasOwnProperty(hap)){
-								for (var i=0; i < haplotypes[hap].length; i++){
-
-									o = coords[haplotypes[hap][i]];
-									if (o !== undefined){
-										o.id = haplotypes[hap][i];
-										haplotypes[hap][i] = o;
-									}	
-									
-								}
-								ho[hap] = {'markers':haplotypes[hap]};
+				out.markers = out.markers.sort();
+				// For each haplotype add the information for markers
+				for (var i = 0; i < out.haplotypes.length; i++ ){
+					temp = [];
+					for (var j = 0; j < out.markers.length; j++ ){
+						//This marker is present in the current haplotype
+						if (out.haplotypes[i].markers.indexOf(out.markers[j]) !== -1 ){
+							//Check to see if the marker is an associated gene, or an 
+							//Unassociated gene and then add that information to it
+							if (out.allMarkers.hasOwnProperty(out.markers[j])){
+								out.allMarkers[out.markers[j]].added = true;
+								temp.push(out.allMarkers[out.markers[j]]);
+							} else {
+								out.error = {
+									message:"Non-existant Marker found, please review Database",
+									statusCode:"500"
+								};
+								res.send(out);
+								return false;
 							}
+
+						} else {
+							temp.push({
+								_id:out.markers[j],
+								dummy:true
+							});
 						}
-						out.haplotypes = ho;
-						res.send(out);
-					} else {
-						res.send(undefined);
+
 					}
-				}); 
-			} else {
-				res.send(undefined);
+					out.haplotypes[i].markers = temp;
+				}
+				
 			}
+
+
+			if (out.unMarkers.length == 0 ){
+				delete out.umMarkers
+			} else {
+			}
+
+			if (out.amarkers == 0 ){
+				delete out.amarkers
+			}
+
+			res.send(out);
+			return;
 		});
 	});
 

@@ -233,8 +233,6 @@ var dbFunctions = function(){
 									query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
 									var update = {$addToSet:{}}
 									update.$addToSet[dbConstants.DRUGS.ALL.CURRENT_HAPLO] = result._id;
-									console.log(update);
-									console.log(query);
 									return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update);
 								});
 							});

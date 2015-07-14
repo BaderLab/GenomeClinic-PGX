@@ -2,32 +2,12 @@
 	<div class="large-12 small-12 medium-12 columns">
 		<a href="/haplotypes" class="button radius"><i class="fa fa-arrow-left"></i>&nbspBack</a>
 		<div class="row">
-			<div class="large-10 small-12 medium-10 columns">
+			<div class="large-9 small-12 medium-8 columns">
 				<h2 id="gene-name"><i class="fa fa-asterisk" ></i>&nbsp{{gene}}</h2>
 			</div>
-			<div class="large-2 small-12 medium-2 right columns">
-				<h2 class="text-right"><a href="#" id="edit-page"><i class="fi-pencil" style="color:#A2A2A2;"></i></a></h2>
+			<div class="large-3 small-12 medium-4 right columns">
+				<fieldset style="margin-top:0px;padding:12.5px;"><a href="/markers">Add or Manage Markers</a></fieldset>
 			</div>
-		</div>
-	</div>
-</div>
-<div class="row">
-	<div class="large-12 small-12 medium-12 columns edit" style="display:none;margin-top:30px">
-		<div class="large-3 small-12 medium-6 columns left">
-			<a href="#" class="small-12 button radius edit" id="new-haplotype" style="display:none"><i class="fi-plus size-16"></i>&nbspAdd Haplotype</a>
-		</div>
-		<div class="large-5 small-12 medium-12 columns right">
-			<ul class="button-group radius even-3 edit" style="display:none">
-				<li>
-					<a href="#" id="submit-changes" class="button text-center success radius edit" style="display:none;">Submit</a>
-				</li>
-				<li>
-					<a href="#" id="cancel-changes" class="button radius text-center edit" style="display:none">Cancel</a>
-				</li>
-				<li>
-					<a href="#" id="delete" class="button radius alert edit text-center" style="display:none">Delete</a>
-				</li>
-			</ul>
 		</div>
 	</div>
 </div>
@@ -103,6 +83,122 @@
 	<a class="close-reveal-modal">&#215;</a>
 </div>
 <div class="row">
-	<div class="large-12 small-12 medium-12 columns" id="haplotypes">
+	<div class="large-12 small-12 medium-12 columns">
+		{{#if amarkers}}
+		<h3>Markers Associated with {{gene}}</h3>
+		<table class="large-12 medium-12 small-12">
+			<thead>
+				<tr>
+					<th class="large-3 small-3 medium-3">Identifier</th>
+					<th class="text-cente large-2 small-2 medium-2">Chromosome</th>
+					<th class="text-center large-2 small-2 medium-2">Reference</th>
+					<th class="text-center large-3 small-3 medium-3">Alt</th>
+					<th class="text-center large-2 small-2 medium-2">Add/Remove</th>
+				</tr>
+			</thead>
+			<tbody>
+				{{#each amarkers}}
+				<tr id="{{this}}">
+					<td>{{this}}</td>
+					<td class="text-center chr">{{lookUpIdInfo @root.allMarkers this 'chr'}}</td>
+					<td class="text-center ref">{{lookUpIdInfo @root.allMarkers this 'ref'}}</td>
+					<td class="text-center alt">{{lookUpIdInfo @root.allMarkers this 'alt'}}</td>
+					{{#ifIdAdded @root.allMarkers this}}
+					<td class="text-center"><a href="#" class="marker-status added button tiny radius" style="margin-bottom:0px">Remove</a></td>
+					{{else}}
+					<td class="text-center"><a href="#" class="marker-status unadded button tiny radius" style="margin-bottom:0px">Add</a></td>
+					{{/ifIdAdded}}
+				</tr>
+				{{/each}}
+			</tbody>
+		</table>
+		{{/if}}
+		{{#if unMarkers}}
+		<h3>Unassociated Markers</h3>
+		<table class="large-12 medium-12 small-12">
+			<thead>
+				<tr>
+					<th class="large-3 small-3 medium-3">Identifier</th>
+					<th class="text-center large-2 small-2 medium-2">Chromosome</th>
+					<th class="text-center large-2 small-2 medium-2">Reference</th>
+					<th class="text-center large-3 small-3 medium-3">Alt</th>
+					<th class="text-center large-2 small-2 medium-2">Status</th>
+				</tr>
+			</thead>
+			<tbody>
+				{{#each unMarkers}}
+				<tr id="{{this}}">
+					<td>{{this}}</td>
+					<td class="text-center chr">{{lookUpIdInfo @root.allMarkers this 'chr'}}</td>
+					<td class="text-center ref">{{lookUpIdInfo @root.allMarkers this 'ref'}}</td>
+					<td class="text-center alt">{{lookUpIdInfo @root.allMarkers this 'alt'}}</td>
+					{{#ifIdAdded @root.allMarkers this}}
+					<td class="text-center"><a href="#" class="marker-status added button tiny radius" style="margin-bottom:0px">Remove</a></td>
+					{{else}}
+					<td class="text-center"><a href="#" class="marker-status unadded button tiny radius" style="margin-bottom:0px">Add</a></td>
+					{{/ifIdAdded}}
+				</tr>
+				{{/each}}
+			</tbody>
+		</table>
+
+		{{/if}}
+	</div>
+</div<
+<div class="row">
+	<div class="large-12 small-12 medium-12 columns">
+		<div class="row">
+			<div class="large-8 small-12 medium-8 columns">
+				<h3>Haplotypes</h3>
+			</div>
+			<div class="large-4 small-12 medium-4 columns">
+				<ul class="button-group even-3 radius">
+					<li><a href="#" class="button success">Save</a></li>
+					<li><a href="{{location}}" class="button">Cancel</a></li>
+					<li><a id="delete" href="#" class="button alert ">Delete</a></li>
+				</ul>
+			</div>
+		</div>
+	<small>* Click each marker to cycle through using the reference or alternate Allele</small>
+	<div class="row">
+		<div id="haplotype-wrapper" class="large-12 small-12 medium-12 columns">
+			<table id="haplotypes" {{#unless haplotypes}}style="display:none"{{/unless}}>
+				<thead>
+					<tr>
+						<th>Haplotype</th>
+						{{#each @root.markers}}
+						<th id="marker-{{this}}"><a href="#">{{this}}</a></th>
+						{{/each}}
+						<th>Remove</th>
+					</tr>
+				</thead>
+				<tbody>
+				{{#each haplotypes}}
+					<tr class="haplotype-row" data-id="{{_id}}">
+						<td class="haplotype-cell" >
+							<span>{{haplotype}}</span>
+							<div class="row collapse postfix-radius" style="display:none;min-width:250px">
+								<div class="large-8 small-8 medium-8 columns">
+									<input type="text" disabled=disabled value="{{haplotype}}" >
+								</div>
+								<div class="large-4 small-4 medium-4 columns">
+									<a href="#" class="postfix">Done</a>
+								</div>
+							</div>
+						</td>
+						{{#each markers}}
+						{{#if dummy}}
+						<td class="marker use-ref text-center">{{lookUpIdInfo @root.allMarkers _id 'ref'}}</td>
+						{{else}}
+						<td class="marker use-alt text-center">{{lookUpIdInfo @root.allMarkers _id 'alt'}}</td>
+						{{/if}}
+						{{/each}}
+						<td class="text-center"><a href="#" class="remove button tiny radius" style="margin-bottom:0px;"><i class="fi-x"></i></a></td>
+					</tr>
+				{{/each}}
+				</tbody>
+			</table>
+		</div>
+	</div>
 	</div>
 </div>

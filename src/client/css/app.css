@@ -194,6 +194,11 @@ tr.patient-genotype-row {
   overflow: scroll;
   height:250px;
 }
+
+.scrollit2 {
+  overflow: auto;
+  overflow-y: hidden;
+}
 /* Formatting for haplotype expansion "+" buttons. */
 .haplotype-expand {
   color: #FFAD99;
@@ -234,4 +239,32 @@ hr {
 .marker-column {
   width: 98px;
   text-align: center;
+}
+
+.use-alt {
+  cursor: pointer;
+  background-color: #FFC2C2;
+  border-color:#FF9999;
+  transition: background-color 300ms ease-out;
+}
+.use-alt:hover {
+  background-color: #FF6666;
+}
+
+.use-ref {
+  cursor: pointer;
+  background-color:#C6E7CE;
+  transition: background-color 300ms ease-out;
+}
+
+.use-ref:hover {
+  background-color: #84CF96;
+}
+
+.haplotype-cell {
+  cursor: pointer;
+  transition: background-color 300ms ease-out;
+}
+.haplotype-cell:hover {
+  background-color: #EBFAFF;
 }

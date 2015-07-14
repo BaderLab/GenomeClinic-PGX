@@ -45,11 +45,21 @@
 					<tbody>
 						{{#markers}}
 						<tr>
+							{{#if this}}
 							<td class="marker-id">{{id}}</td>
 							<td class="text-center">{{chr}}</td>
 							<td class="text-center">{{ref}}</td>
 							<td class="text-center">{{alt}}</td>
 							<td class="text-center edit" style="display:none"><a href="#" class="remove-row"><i class="fi-x size-16"></i></a></td>
+							{{else}}
+							<td class="marker-id">LALA</td>
+							<td class="text-center">LALA</td>
+							<td class="text-center">LALA</td>
+							<td class="text-center">LALA</td>
+							<td class="text-center edit" style="display:none"><a href="#" class="remove-row"><i class="fi-x size-16"></i></a></td>
+
+							{{/if}}
+
 						</tr>
 						{{/markers}}
 					</tbody>
