@@ -150,16 +150,54 @@ module.exports = function(app,logger,opts){
 	/*Add a new haplotype. The body is already formatted in the correct manner and the entry is simply
 	* inserted into the db.
 	*/
-	app.post('/haplotypes/new',utils.isLoggedIn,function(req,res){
-		dbFunctions.insert(constants.dbConstants.PGX.GENES.COLLECTION,req.body,req.user.username)
-		.then(function(result){
-			if (result){
-				res.redirect('/success');
-			} else {
+	app.post('/database/haplotypes/new',utils.isLoggedIn,function(req,res){
+		var name = req.query.id
+		var gene = req.query.gene
+		var query = {}
+		query[constants.dbConstants.PGX.GENES.ID_FIELD] = name;
+		query[constants.dbConstants.PGX.GENES.GENE] = gene;
+		dbFunctions.findOne(constants.dbConstants.PGX.GENES.COLLECTION,query,req.user.username)
+		.then(function(exists){
+			if (exists){
+				req.flash('message','Haplotype already exists');
+				req.flash('error','haplotype already exists');
 				res.redirect('/failure');
+				return
+			} else {
+				var doc = {};
+				doc[constants.dbConstants.PGX.GENES.ID_FIELD] = name;
+				doc[constants.dbConstants.PGX.GENES.GENE] = gene;
+				doc[constants.dbConstants.PGX.GENES.MARKERS] = []
+				dbFunctions.insert(constants.dbConstants.PGX.GENES.COLLECTION,doc,req.user.username).then(function(result){
+					if (result){
+						result.status = 'ok';
+						result.statusCode ='200';
+
+						var update = {$push:{}};
+						update.$push[constants.dbConstants.DRUGS.ALL.CURRENT_HAPLO] = result._id;
+
+						var query = {};
+						query[constants.dbConstants.DRUGS.ALL.ID_FIELD] = gene;
+
+						dbFunctions.update(constants.dbConstants.DRUGS.ALL.COLLECTION,query,update,undefined,req.user.username)
+						.then(function(updated){
+							if (updated){
+								res.send(result);
+							} else {
+								req.flash('message','Something went wrong when updating haplotype array for ' + gene);
+								res.redirect('/failure');
+							}
+						});
+				} else {
+						req.flash('message','Something went wrong when adding the new haplotype');
+						res.redirect('/failure');
+					}
+				}).catch(function(err){
+					req.flash('message','Something went wrong when adding the new haplotype');
+					res.redirect('/failure');
+				})
 			}
-		}).catch(function(err){
-			res.redirect('/failure');
+		
 		});
 	});
 

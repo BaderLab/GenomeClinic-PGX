@@ -12,40 +12,65 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 	 * db entry. iterates over each haploytpe to generate the
 	 * information
 	 */
-	serializeInput = function(){
+	var serializeInput = function(){
 		var promise = new Promise(function(resolve,reject){
-			var currHap,err;
-			var outObj = {};
-			var haplotypes = $('fieldset');
-			//check if this is an input (in case of new entry)
-			var geneName = $('#gene-name').is('input') ? $('#gene-name').val() : $('#gene-name').text().substring(1);
-			geneName = geneName.toUpperCase();
-			if (geneName === ""){
-				$('#gene-name').addClass('error').siblings('small').text("Required").show();
-				err = true;
+			var out = [];
+			var temp,cell;
+			var gene = window.location.pathname.split('/').splice(-1)[0]
+			var rows = $('.haplotype-row:visible');
+			var markers = $('#haplotypes').find('th[id^=marker-rs]').map(function(ind,item){
+				return  { marker:$(item).text(), ind: ind + 1}
+			});
+			if (markers.length === 0){
+				reject('Need at least one Marker');
+				return
 			}
-			//get the values for each haplotype and marker
-			for (var i = 0; i < haplotypes.length; i++ ){
-				currHap = $(haplotypes[i]).find('[id^=haplo-name-]').val();
-				if (currHap === ''){
-					$(haplotypes[i]).find('[id^=haplo-name-]').addClass('error').siblings('small').show();
-					err = true;
+			if (rows.length === 0) {
+				//reject("Need at least one")
+			}
+			for (var i = 0; i < rows.length; i ++ ){
+				temp = {};
+				temp._id = $(rows[i]).data('id');
+				temp.gene = gene
+
+
+				//Check to ensure there is no errors
+				if ($(rows[i]).find('.haploytpe-cell').find('input').hasClass('error')){
+					reject('Error on page');
+					return
+				} else if ($(rows[i]).find('.haplotype-cell').find('input').attr('disabled') !== 'disabled'){
+					$(rows[i]).find('.haplotype-cell').find('input').addClass('error').siblings('small').text("Must Finish before submitting").show();
+					reject("Incomplete Form")
+					return
+				} else {
+					temp.haplotype = $(rows[i]).find('.haplotype-cell').find('input').val();
 				}
-				outObj[currHap] = [];
-				var ids = $(haplotypes[i]).find("tbody").find(".marker-id");
-				for (var j = 0; j < ids.length; j++){
-					outObj[currHap].push($(ids[j]).text().toUpperCase());
+				temp.markers = [];
+				for (var j = 0; j < markers.length; j ++ ){
+					cell = $(rows[i]).find('td').eq(markers[j].ind)
+					if (cell.hasClass('use-alt')){
+						temp.markers.push(markers[j].marker)
+					}
 				}
+
+				out.push(temp);
 			}
-			//If any errors were added, reject the submissions and do not continue
-			if (err){
-				reject( new Error());
-			}
-			resolve({gene:geneName,haplotypes:outObj});
+			if (out.length > 0) resolve(out)
+			else reject(out)
 		});
 		return promise;
 	};
 
+	serializeRemoved = function(){
+		var rows = $('.haplotype-row:hidden')
+		var ids = []	
+		if (rows.length > 0 ){
+			for (var i = 0; i < rows.length; i++ ){
+				ids.push($(rows).data('id'));
+			}
+		}
+		return ids;
+	}
 
 	/* Function for working with the hidden modal that will pop 
 	 * up in the event there is a marker entered that is not located
@@ -95,70 +120,21 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 
 	};
 
-	/* Add a new haplotype field. When triggered
-	 * will render a new haplotype fieldset and prepend it to
-	 * the current list of existing ones. Additionally it adds
-	 * the specific handlers to the field, so the entire page does
-	 * not have to refresh their handlers
-	 * Accepts a single argument, the name of the selector to trigger
-	 * this action when clicked */
-	var addNewHaplotype = function(context){
-		$(context).on('click',function(e){
-			e.preventDefault();
-			var opt = {index:$('fieldset').length};
-			templates.haplotypes.haplotype(opt)
-			.then(function(renderedHtml){
-				return $('#haplotypes').prepend(renderedHtml);
-			}).then(function(){
-				var context = $('#haplotypes').find('fieldset').first();
-				haplotypeHandlers(context);
-				allPageHandlers(context);
-			}).then(function(){
-				$('#haplotypes').find('fieldset').first().slideDown(400);
-			});
-		});
-	};
-
 	/* When adding a new haplotype ensure the value is not already on the page
 	 * if it is, raise an error warning. Takes three arguments,
 	 * value: the value being compared against
 	 * input: the input id prefix that is being searched
 	 * context: the exact id of the current value
 	 */
-	var valueNotOnPage = function(value,input,context){
-		var allValues = $('input[id^='+input+']:not([id=' + context + '])');
+	var existsOnPage = function(value){
+		var allValues = $('.haplotype-cell').find('input');
 		for (var i = 0; i < allValues.length; i++ ){
 			if ($(allValues[i]).val() == value){
-				$('#'+context).addClass('error').siblings('small').show();
-				return false;
+				return true;
 			}
 		}
-		$('#'+context).removeClass('error').siblings('small').hide();
-		return true;
+		return false;
 	};
-
-	/* remove an item, its html and all the handlers for good
-     * context: the element that the trigger starts from
-     * toRemove: the selector for an element to remove
-     * action: what action is being watched for
-     * child: if the selected element is a child of toRemove
-     * subset: add the handler for a specifc subset
-     */
-	var removeItem = function(context,toRemove,action,child,subset){
-		var item;
-		if (subset)
-			item = $(subset).find(context);
-		else
-			item = $(context); 
-		item.on(action,function(e){
-			e.preventDefault();
-			if (child)
-				$(this).closest(toRemove).slideUp(400,function(){$(this).remove();});
-			else $(toRemove).slideUp(400,function(){$(this).remove();});
-		});
-	};
-
-	var submitUpdate
 
 	var checkWidth = function(){
 		var ele = document.getElementById('haplotypes');
@@ -169,16 +145,116 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 			$('#haplotypes').closest('.columns').removeClass('scrollit2');
 		}
 	}
+
+
+	var generateRowHtml = function(response){
+		var html = '<tr class="haplotype-row" data-id="' + response._id + '"">'
+		html += '<td class="haplotype-cell"><span>' + response.haplotype + '</span>'
+		html += '<div class="row collapse postfix-radius" style="display:none;min-width:250px">'
+		html += '<div class="large-8 small-8 medium-8 columns">'
+		html += '<input type="text" disabled=disabled value="'+ response.haplotype +'">'
+		html += '<small class="error" style="display:none">Unique Name Required</small>'
+		html +=	'</div><div class="large-4 small-4 medium-4 columns"><a href="#" class="postfix">Done</a></div></div></td>'
+
+		var markers = $('#haplotypes').find('th[id^=marker-rs]').map(function(ind,item){ return  $(item).text();});
+		for (var i = 0; i < markers.length; i++){
+			html+='<td class="marker use-ref text-center">' + $('#' + markers[i]).find('.ref').text() + '</td>'
+		}
+		html += '<td class="text-center"><a href="#" class="remove button tiny radius" style="margin-bottom:0px;"><i class="fi-x"></i></a></td>'
+		return html;
+	}
+
 	/* add all handlers to a new haplotype field
 	 * Accepts one argument "parent". Parent 
 	 * like the name suggest is the parent fieldset. if it is not
 	 * defined, handlers are bound to ALL things that meet the find criteria
 	 * on the page*/
-	var haplotypeHandlers = function(parent){
-		$('.remove').on('click',function(e){
+
+	var markerCellHandlers = function(context){
+		//if no context then this is being applied to the whole document
+		//otherwise this is being applied to a specifc marker box
+		if (!context)
+			context = $(document).find('.marker');
+		context.on('click',function(){
+			var index = $(this).index();
+			var identifer = $('#haplotypes').find('thead').find('th:nth-child(' + ( index + 1 ) + ')').text();
+			var info = $('#' + identifer);
+			if ($(this).hasClass('use-alt')){
+				$(this).removeClass('use-alt').addClass('use-ref');
+				$(this).text(info.find('.ref').text());
+			} else {
+				$(this).removeClass('use-ref').addClass('use-alt');
+				$(this).text(info.find(".alt").text());
+			}
+		});
+	}
+
+	var haploCellHandlers=function(context){
+		if (!context)
+			context = $(document).find('.haplotype-cell');
+
+
+		context.on('click',function(){
+			if (!$(this).hasClass('opened')){
+				$(this).addClass('opened');
+				$(this).find('span').hide();
+				$(this).find('.row').show();
+				$(this).find('input').attr('disabled',false);
+			}
+		});
+
+		context.find('.postfix').on('click',function(e){
+			e.preventDefault();
+			var _this = this, val,valid = true,testVal;
+			var input = $(this).closest('.row').find('input');
+			val = input.val();
+			//perform validation now to ensure this is a unique value
+			var allOtherCells = $('.haplotype-cell').not($(this).closest('.haplotype-cell')).find('input');
+			for ( var i = 0; i < allOtherCells.length; i++){
+				testVal = $(allOtherCells[i]).val();
+				if (testVal == val ) valid  = false
+			}
+
+			if (valid){
+				input.attr('disabled','disabled');
+				$(this).closest('.row').hide('fast',function(){
+					$(_this).closest('td').removeClass('opened').find('span').text(val).show()
+				});
+
+			} else {
+				$(this).closest('.row').find('.error').show().siblings('input').addClass('error');
+			}
+		})
+
+		context.find('input').on('keyup',function(){
+			if ($(this).hasClass('error')){
+				$(this).removeClass('error');
+				$(this).siblings('small').hide();
+			}
+		});
+	}
+
+	var removeHandler = function(context){
+		if (!context)
+			context = $(document).find('.remove');
+		
+		context.on('click',function(e){
 			e.preventDefault();
 			$(this).closest('tr').hide();
 		});
+
+	}
+
+	var haploPageHanlders = function(){
+		$('.success').on('click',function(e){
+			e.preventDefault();
+			serializeInput().then(function(result){
+				console.log(result);
+			}).catch(function(err){
+				console.log(err);
+			})
+		})
+		
 
 		$('.marker-status').on('click',function(e){
 			e.preventDefault();
@@ -189,7 +265,6 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 				Promise.resolve().then(function(){
 					//find the index of the current column
 					var index = $('#haplotypes').find('#marker-' + id).index()
-					console.log(index);
 					$('#haplotypes').find('#marker-' + id).remove();
 					$(_this).removeClass('added').addClass('unadded').text('Add')
 					$('#haplotypes').find('tbody').find('tr').each(function(ind,item){
@@ -212,8 +287,10 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 					var html1 = "<th id='marker-" + id + "'><a href=#>"+id+"</a></th>";
 					var html2 = "<td class='marker use-ref text-center'>" + $('#' + id).find('.ref').text()  + "</td>";
 					$('#haplotypes').find('thead').find('th').eq(point).after(html1)
-					return $('#haplotypes').find('tbody').find('tr').each(function(ind,item){
-						$(item).find('td').eq(point).after(html2)
+					$('#haplotypes').find('tbody').find('tr').each(function(ind,item){
+						return $(item).find('td').eq(point).after(html2)
+					}).each(function(ind,item){
+						markerCellHandlers($(item).find('td').eq(point + 1));
 					});
 				}).then(function(){
 					checkWidth();
@@ -221,100 +298,46 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 			}
 		})
 
-		$('.haplotype-cell').on('click',function(){
-			if (!$(this).hasClass('opened')){
-				$(this).addClass('opened');
-				$(this).find('span').hide();
-				$(this).find('.row').show();
-				$(this).find('input').attr('disabled',false);
-			}
-		});
-
-		$('.haplotype-cell').find('.postfix').on('click',function(e){
+			
+		$('#add-new-haplotype').on('click',function(e){
 			e.preventDefault();
-			var _this = this;
-			var val;
-			var input = $(this).closest('.row').find('input');
-			val = input.val();
-			input.attr('disabled','disabled');
-			$(this).closest('.row').hide('fast',function(){
-				$(_this).closest('td').removeClass('opened').find('span').text(val).show()
-			});
-		})
-
-		$('.marker').on('click',function(){
-			var index = $(this).index();
-			var identifer = $('#haplotypes').find('thead').find('th:nth-child(' + ( index + 1 ) + ')').text();
-			var info = $('#' + identifer);
-			if ($(this).hasClass('use-alt')){
-				$(this).removeClass('use-alt').addClass('use-ref');
-				$(this).text(info.find('.ref').text());
+			var input = $('#new-haplotype');
+			var val = input.val();
+			var gene = window.location.pathname.split('/').splice(-1)[0];
+			$('#new-haplotype').trigger('keyup');
+			if (val == "" ){
+				input.addClass('error').siblings('small').text('Haplotype required').show();
+				return false;
+			} else if (existsOnPage(val)){
+				input.addClass('error').siblings('small').text('Haplotype already exists').show();
+				return false;
 			} else {
-				$(this).removeClass('use-ref').addClass('use-alt');
-				$(this).text(info.find(".alt").text());
-			}
-		})
-
-		var p;
-		if (parent)
-			p = $(parent);
-		else
-			p = $(document);
-
-		p.find('input[id^=haplo-name-]').on('keyup',function(){
-			var context = $(this).attr('id');
-			var value = $(this).val();
-			valueNotOnPage(value,'haplo-name-',context);
-		});
-
-		p.find('input[id^=haplo-name-]').on('click',function(){
-			var context =$(this).attr('id');
-			var value = $(this).val();
-			valueNotOnPage(value,'haplo-name-',context);
-		});
-
-		p.find('.haplo-add-new-context').on('click',function(e){
-			if ($(this).hasClass('error'))
-				$(this).removeClass('error').siblings('small').hide();
-		});
-
-		p.find('.haplo-add-new').on('click',function(e){
-			e.preventDefault();
-			var curValues = [];
-			var _this = this;
-			var value = $(this).closest('.collapse').find('.haplo-add-new-context').val().toString().toUpperCase();
-			var curIds = $(this).closest('fieldset').find('.marker-id');
-			for (var i=0; i< curIds.length; i++ ){
-				curValues.push($(curIds[i]).text());
-			}
-			$(this).closest('.collapse').find('.haplo-add-new-context').val("");
-
-			if (value !== "" && curValues.indexOf(value) === -1 ){
 				Promise.resolve($.ajax({
-					url:"/database/markers/getmarkers/" + value,
-					type:"GET",
-					contentType:"application/json"
-				})).then(function(result){
-					var promise;
-					if ($.isEmptyObject(result)) {
-						promise = revealMarkerModal(value);
+					url:'/database/haplotypes/new?id='+val+'&gene=' + gene,
+					type:'POST',
+					dataType:'json'
+				})).then(function(response){
+					if (response.statusCode == 200 ){
+						var html = generateRowHtml(response);
+						$("#haplotypes").find('tbody').append(html);
+						var row = $("#haplotypes").find('tbody').find('tr').last();
+						haploCellHandlers($(row).find('.haplotype-cell'));
+						$(row).find('.marker').each(function(ind,item){markerCellHandlers($(item));});
+						removeHandler($(row).find('.remove'));
 					} else {
-						var out = result[value];
-						out.id = value;
-						promise = Promise.resolve(out );
+						input.addClass('error').siblings('small').text(response.message).show();
 					}
-					return promise;
-				}).then(function(result){
-					return templates.haplotypes.row(result);
-				}).then(function(renderedHtml){
-					return $(_this).closest('fieldset').find('tbody').append(renderedHtml);
-				}).then(function(){
-					allPageHandlers();
 				});
-			} else if (curValues.indexOf(value) !== -1){
-				$(this).closest('fieldset').find('.haplo-add-new-context').addClass('error').siblings('small').show();
+
 			}
 		});
+
+		$('#new-haplotype').on('keyup',function(e){
+			if ($(this).hasClass('error'))
+				$(this).removeClass('error').siblings('small').hide()
+		});		
+
+		
 	};
 	/* When the user is about make a delete, confirm they want to
 	 * do so.
@@ -483,9 +506,10 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 		//Existing haplotype collection
 		current:function(){
 			confirmDelete('#delete',window.location.pathname);
-			addNewHaplotype('#new-haplotype');
-			haplotypeHandlers();
-			allPageHandlers();
+			haploPageHanlders();
+			removeHandler();
+			markerCellHandlers();
+			haploCellHandlers();
 			submitChanges('#submit-changes');			
 		}
 	};

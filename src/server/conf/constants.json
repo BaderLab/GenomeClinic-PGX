@@ -89,7 +89,9 @@
 			"GENES":{
 				"DEFAULT":"{{DIR}}/lib/conf/pgx_genes.json",
 				"COLLECTION":"pgxGenes",
-				"ID_FIELD":"haplotype"
+				"ID_FIELD":"haplotype",
+				"GENE":"gene",
+				"MARKERS":"markers"
 			}
 		},
 		"DRUGS":{
