@@ -573,7 +573,6 @@ var dbFunctions = function(){
 		if (options)
 			assert(Object.prototype.toString.call(options) == "[object Object]",
 			"Invalid update options");
-
 		var promise= new Promise(function(resolve, reject) {
 			db.collection(collectionName).update(query, doc, options, function(err, resultDoc) {
 				if (err) {
@@ -1265,6 +1264,20 @@ var dbFunctions = function(){
 		})
 
 	};
+
+	this.removePGXHaplotype = function(id,gene,user){
+		var _this = this;
+		assert.notStrictEqual(db,undefined);
+		var update = {$pull:{}};
+		var query = {};
+		query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
+		update.$pull[dbConstants.DRUGS.ALL.CURRENT_HAPLO] = id;
+		return this.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,undefined,user)
+		.then(function(result){
+			return removeDocument(dbConstants.PGX.GENES.COLLECTION,{_id:id},user);
+		});
+
+	}
 
 	//Update the specified gene with the requqired parameter Doc
 	this.updatePGXGene = function(id,doc,user){

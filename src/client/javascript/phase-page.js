@@ -21,8 +21,9 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 			var markers = $('#haplotypes').find('th[id^=marker-rs]').map(function(ind,item){
 				return  { marker:$(item).text(), ind: ind + 1}
 			});
+			var markerComb = [];
 			if (markers.length === 0){
-				reject('Need at least one Marker');
+				reject('You need at least one marker to save the haplotype');
 				return
 			}
 			if (rows.length === 0) {
@@ -36,11 +37,11 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 
 				//Check to ensure there is no errors
 				if ($(rows[i]).find('.haploytpe-cell').find('input').hasClass('error')){
-					reject('Error on page');
+					reject('Errors were found present on the page, please address before submitting');
 					return
 				} else if ($(rows[i]).find('.haplotype-cell').find('input').attr('disabled') !== 'disabled'){
 					$(rows[i]).find('.haplotype-cell').find('input').addClass('error').siblings('small').text("Must Finish before submitting").show();
-					reject("Incomplete Form")
+					reject("Incomplete Form, please fill out all fields prior to submitting")
 					return
 				} else {
 					temp.haplotype = $(rows[i]).find('.haplotype-cell').find('input').val();
@@ -51,6 +52,12 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 					if (cell.hasClass('use-alt')){
 						temp.markers.push(markers[j].marker)
 					}
+				}
+				if (markerComb.indexOf(temp.markers.join('')) === -1 ){
+					markerComb.push(temp.markers.join(''));
+				} else {
+					reject('Each Haplotype must have a unique Marker combination. Please make the appropriate correction before submitting')
+					return false;
 				}
 
 				out.push(temp);
@@ -246,12 +253,80 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 	}
 
 	var haploPageHanlders = function(){
+		$('.close-box').on('click',function(e){
+			e.preventDefault();
+			$(this).closest('.alert-box').hide();
+		});
+
+
+
 		$('.success').on('click',function(e){
 			e.preventDefault();
+			var toRemove = serializeRemoved();
 			serializeInput().then(function(result){
+				var promises = [];
+				$.each(result,function(ind,item){
+					var promise = Promise.resolve($.ajax({
+						url:'/database/haplotypes/update',
+						type:"POST",
+						contentType:'application/json',
+						datatype:'json',
+						data:JSON.stringify(item)
+					}));
+
+					promises.push(promise);
+				});
+				return Promise.all(promises);
+			}).then(function(result){
+				var ok = true,o;
+				for (var i = 0; i < result.length; i++ ){
+					o = JSON.parse(result[i])
+					if (o.status != 'ok')
+						ok = false;
+				}
+				if (!ok){
+					$('#error-display-message').text("A problem was encountered when trying to update the database. Please check your haplotypes or contact an administartor");
+					$('#error-display-box').addClass('warning').removeClass('secondary').show();
+				} else {
+					$('#error-display-message').text("Data has been succesfully updated");
+					$('#error-display-box').addClass('secondary').removeClass('warning').show();
+				}
+			}).then(function(){
+				if (toRemove.length > 0){
+					var promises = []
+					$.each(toRemove,function(ind,item){
+						var promise = Promise.resolve($.ajax({
+							url:'/database/haplotypes/delete?id='+item + '&type=haplotype&gene=' + window.location.pathname.split('/').splice(-1)[0],
+							type:'POST',
+							dataType:'json'
+						}))
+
+						promises.push(promise);
+					});
+
+					return Promise.all(promises);
+				}
+
+				return [];
+			}).then(function(result){
 				console.log(result);
 			}).catch(function(err){
-				console.log(err);
+				type = Object.prototype.toString.call(err);
+				if (type == '[object String]'){
+					$('#error-display-message').text(err);
+					$('#error-display-box').removeClass('secondary').addClass('warning').show();
+
+				} else if (type == '[object Array]') {
+					if (toRemove.length  === 0){
+						$('#error-display-box').addClass('secondary').removeClass('warning').show();
+						$('#error-display-message').text('There is nothing to save! Please make some changes and then submit again.')
+					}
+					
+
+				} else if (type == '[object Error]'){
+					$('#error-display-message').text(err.message);
+					$('#error-display-box').removeClass('secondary').addClass('warning').show();
+				}
 			})
 		})
 		
@@ -342,19 +417,27 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 	/* When the user is about make a delete, confirm they want to
 	 * do so.
 	 */
-	var confirmDelete = function(context, url){
+	var confirmDelete = function(context){
 		$(context).on('click',function(e){
 			e.preventDefault();
 			$('#confirm-delete').foundation('reveal','open');
 		});
 
 		$('#confirm-delete').find('.success').on('click',function(e){
+			$(this).closest('#confirm-delete').foundation('reveal','close');
 			Promise.resolve($.ajax({
-				url:url,
-				type:"DELETE",
-				contentType:'application/json'
+				url:'/database/haplotypes/delete?type=all&gene='+window.location.pathname.split('/').splice(-1)[0],
+				type:"POST",
+				contentType:'application/json',
+				dataType:'json'
 			})).then(function(result){
-				window.location.replace('/haplotypes');
+				console.log(result);
+				if (result.status == 'ok') {
+					window.location.reload();
+				} else {
+					$('#error-display-message').text(result.message);
+					$('#error-display-box').removeClass('secondary').addClass('warning').show();
+				}
 			}).catch(function(err){
 				console.log(err);
 			});
@@ -362,54 +445,6 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 
 		$('#confirm-delete').find('.cancel').on('click',function(e){
 			$(this).closest('#confirm-delete').foundation('reveal','close');
-		});
-	};
-
-	/* Submit the changes by serializing the current page
-	 * and submitting an ajax call to the server. if there are
-	 * no fieldsets on the page it will interpret this as a deltion
-	 * event and delete the current gene. Accepts two arugments:
-	 * context: name of the button that triggers this,
-	 * _new: if this is a "add new haplotype" set to true.
-	 */
-	var submitChanges = function(context,_new){
-		$(context).on('click',function(e){
-			var gene;
-			var _this = this;
-			e.preventDefault();
-			if ($('fieldset').length > 0){
-				serializeInput().then(function(result){
-					gene = result.gene;
-					if ($('.haplo-error:visible').length === 0){
-						return Promise.resolve($.ajax({
-							url:window.location.pathname,
-							type:"POST",
-							contentType:'application/json',
-							datatype:'json',
-							data:JSON.stringify(result)
-						}));
-					}
-				}).then(function(result){
-					if (_new){
-						window.location.replace('/haplotypes/current/' + gene);
-					} else {
-						$(_this).parents().find('#edit-page').show();
-						$(document).find('.edit:not(input)').toggle();
-						$(document).find('input.edit').attr('disabled',true);
-					}
-				}).catch(function(err){
-					console.log(err);
-				});
-			} else if ($('fieldset').length === 0 && !_new){
-				$('#delete').trigger('click');
-			}
-		});
-		$('#cancel-changes').on('click',function(e){
-			e.preventDefault();
-			if (_new)
-				window.location.replace('/haplotypes');
-			else 
-				window.location.reload();
 		});
 	};
 
@@ -424,14 +459,6 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 		return false;
 	};
 
-	/* handlers taht are called on every page
-	 * if there is a context provided it will call these
-	 * on the conexts specifically */
-	var allPageHandlers = function(context){
-		removeItem('.remove-row','tr','click',true,context);
-		removeItem('.remove-haplotype','fieldset','click',true,context);
-		utility.refresh();
-	};
 
 	/* handlers for all pages. These functions contain static page specific
 	 * handlers, as well as determining which handlers to dynamically call and
@@ -509,8 +536,7 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 			haploPageHanlders();
 			removeHandler();
 			markerCellHandlers();
-			haploCellHandlers();
-			submitChanges('#submit-changes');			
+			haploCellHandlers();		
 		}
 	};
 
@@ -536,7 +562,6 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 			utility.refresh();
 		}).then(function(){
 			staticHandlers.index();
-			allPageHandlers();
 		});
 
 	}

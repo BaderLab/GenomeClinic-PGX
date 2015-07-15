@@ -8,6 +8,7 @@ var constants = require("../lib/conf/constants.json");
 var genReport  = require('../lib/genReport');
 var dbFunctions = require('../models/mongodb_functions');
 var getRS = require('../lib/getDbSnp');
+var ObjectId = require('mongodb').ObjectID;
 
 
 
@@ -131,18 +132,35 @@ module.exports = function(app,logger,opts){
 
 
 	/* Delete the specifie haplotype within the :hapid parameterd */
-	app.delete('/haplotypes/current/:hapid',utils.isLoggedIn,function(req,res){
-		var id = req.params.hapid;
-		dbFunctions.removePGXGene(id,req.user.username)
-		.then(function(result){
-			if (result){
-				res.send(true);
-			} else {
-				res.send(false);
-			}
-		}).catch(function(err){
-			res.redirect(false);
-		});
+	app.post('/database/haplotypes/delete',utils.isLoggedIn,function(req,res){
+		var gene = req.query.gene;
+		var type = req.query.type;
+
+		if (type == 'all'){
+			dbFunctions.removePGXGene(gene,req.user.username)
+			.then(function(result){
+				if (result){
+					res.redirect('/success');
+				} else {
+					res.redirect('/failure');
+				}
+			}).catch(function(err){
+				res.redirect('/failure');
+			});
+		} else {
+			var id = ObjectId(req.query.id);
+			dbFunctions.removePGXHaplotype(id,gene,req.user.username)
+			.then(function(result){
+				if (result)
+					res.redirect('/success');
+				else
+					res.redirect('/failure');
+			}).catch(function(err){
+				req.flash('message',err.message);
+				req.flash('error',err.stack);
+				res.redirect('/failure');
+			});
+		}
 
 	});
 
@@ -198,6 +216,24 @@ module.exports = function(app,logger,opts){
 				})
 			}
 		
+		});
+	});
+	
+	app.post('/database/haplotypes/update',utils.isLoggedIn,function(req,res){
+		var doc = req.body;
+		var query = {_id:ObjectId(doc._id)};
+		delete doc._id;
+		dbFunctions.update(constants.dbConstants.PGX.GENES.COLLECTION,query,doc,undefined,req.user.username)
+		.then(function(result){
+			if (result){
+				res.redirect('/success')
+			} else {
+				res.redirect('/failure')
+			}
+		}).catch(function(err){
+			req.flash('message',err.message);
+			req.flash("error",err.stack);
+			res.redirect('/failure');
 		});
 	});
 
@@ -294,16 +330,6 @@ module.exports = function(app,logger,opts){
 			return;
 		});
 	});
-
-
-
-	/*app.get('/TEST',function(req,res){
-		dbFunctions.updateAllPGXCoords().then(function(result){
-			console.log(result);
-		});
-	})
-*/
-
 
 	//Update the current marker
 	app.post('/database/markers/update',utils.isLoggedIn,function(req,res){
