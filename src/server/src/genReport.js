@@ -17,7 +17,7 @@ var fs = Promise.promisifyAll(require('fs'));
  * can sometimes take a few seconds leading to noticable lag on the client side. Once the file has been rendered and 
  * saved in the temp folder, a response is sent to the client, with the reportName to retrieve from the server.
  */
-module.exports = function(req,res,reportName,template,options){
+module.exports = function(req,res,reportName,template,options,logger){
 	var name,path,top,bottom,left,right,format,orientation;
 
 	//Page size and margin parameter defaults
