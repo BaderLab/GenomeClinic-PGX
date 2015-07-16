@@ -109,7 +109,7 @@ module.exports = {
 	 * associated with it. This function serializes the recommendations (only if they are to be included) and places them in
 	 * an object. Each drug has one recomednation is is the primary key of the output object
 	 */
-	serializeRecomendations : function(){
+	serializeRecommendations : function(){
 		var output = {drugs:[],citations:[]}
 		var temp,drug,pubmed,genes,classes,index;
 		var fields = $('.recommendation-field'); 
