@@ -217,8 +217,8 @@ var dbFunctions = function(){
 						}
 					//Add the Haplotypes to the database
 					}).then(function(){
+
 						return Promise.resolve(pgxGenes).each(function(item){
-							// for some reason, pgxGenes is getting an object id?
 							delete item._id;
 							return self.insert(dbConstants.PGX.GENES.COLLECTION,item).then(function(result){
 								var gene = result.gene;
@@ -234,6 +234,8 @@ var dbFunctions = function(){
 									var update = {$addToSet:{}}
 									update.$addToSet[dbConstants.DRUGS.ALL.CURRENT_HAPLO] = result._id;
 									return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update);
+								}).then(function(){
+									return self.addMarkerToGene(result.markers,gene)
 								});
 							});
 						});
@@ -375,7 +377,7 @@ var dbFunctions = function(){
 		});
 	};
 
-	this.checkDefaultGenes = function(){
+	/*this.checkDefaultGenes = function(){
 		var genes,toAdd=[];
 		var _this = this;
 		assert.notStrictEqual(db,undefined);
@@ -402,7 +404,7 @@ var dbFunctions = function(){
 		}).catch(function(err){
 			logger('error',err,{action:'checkDefaultMarkers'});
 		});
-	};
+	};*/
 
 //=======================================================================================
 //=======================================================================================
@@ -445,7 +447,7 @@ var dbFunctions = function(){
 			 				});
 				 	} 
 				 }).then(function(){
-				 	return _this.checkDefaultGenes();
+				 	return //_this.checkDefaultGenes();
 				 }).then(function(){
 				 	resolve();
 				 }).catch(function(err) {
@@ -1204,6 +1206,54 @@ var dbFunctions = function(){
 		});
 	};
 
+
+	this.addMarkerToGene = function(markers,gene,user){
+		assert.notStrictEqual(db,undefined);
+		var _this = this;
+
+		if (Object.prototype.toString.call(markers) == '[object String]')
+			markers = [markers];
+
+		//ensure that each marker exists
+		return Promise.resolve(markers).each(function(marker){
+			return _this.findOne(dbConstants.PGX.COORDS.COLLECTION, {_id:marker},user).then(function(result){
+				if (!result) {
+					throw new Error("Could not find " + marker + ". Please add the marker and continue.");
+				} else {
+					var query = {};
+					var update = {$addToSet:{}}
+
+					query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
+					update.$addToSet[dbConstants.DRUGS.ALL.MARKERS] = marker;
+					return _this.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,undefined,undefined,user);
+				}
+			});
+		});
+	};
+
+
+	this.removeMarkerFromGene = function(markers,gene,user){
+		assert.notStrictEqual(db,undefined);
+		var _this = this;
+
+		if (Object.prototype.toString.call(markers) == '[object String]')
+			markers = [markers];
+		
+		return Promise.resolve(markers).each(function(marker){
+			return _this.findOne(dbConstants.PGX.COORDS.COLLECTION, {_id:marker},user).then(function(result){
+				if (!result) {
+					throw new Error("Could not find " + marker + ". Please add the marker and continue.");
+				} else {
+					var query = {};
+					var update = {$pull:{}}
+
+					query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
+					update.$pull[dbConstants.DRUGS.ALL.MARKERS] = marker;
+					return _this.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,undefined,undefined,user);
+				}
+			});
+		});
+	};
 	//remove the selected marker
 	this.removePGXCoords = function(rsID,user){
 		assert.notStrictEqual(db,undefined);
@@ -1254,15 +1304,14 @@ var dbFunctions = function(){
 		query[dbConstants.DRUGS.ALL.ID_FIELD] = geneName;
 		return _this.findOne(dbConstants.DRUGS.ALL.COLLECTION,query,undefined,undefined,user).then(function(result){
 			var ids = result[dbConstants.DRUGS.ALL.CURRENT_HAPLO];
-			var update = {$set:{}}
-			update.$set[dbConstants.DRUGS.ALL.CURRENT_HAPLO] = [];
-			_this.update(dbConstants.DRUGS.ALL.COLLECTION, query,update,undefined,undefined,user)
-			.then(function(){
-				removeDocument(dbConstants.PGX.GENES.COLLECTION,{_id:{$in:ids}},user);
-			})
-
-		})
-
+			return ids;
+		}).each(function(id){
+			return _this.removePGXHaplotype(id,geneName,user);
+		}).then(function(result){
+			var update = {$set:{}};
+			update.$set[dbConstants.DRUGS.ALL.MARKERS] = [];
+			return _this.update(dbConstants.DRUGS.ALL.COLLECTION, query,update,undefined,undefined,user);
+		});
 	};
 
 	this.removePGXHaplotype = function(id,gene,user){
@@ -1640,6 +1689,7 @@ var dbFunctions = function(){
 			newDoc[dbConstants.DRUGS.ALL.HAPLO] = [];
 			newDoc[dbConstants.DRUGS.ALL.FUTURE] = [];
 			newDoc[dbConstants.DRUGS.ALL.CURRENT_HAPLO] = [];
+			newDoc[dbConstants.DRUGS.ALL.MARKERS] = [];
 			return self.insert(dbConstants.DRUGS.ALL.COLLECTION,newDoc,user)
 			.then(function(result){
 				resolve(result);

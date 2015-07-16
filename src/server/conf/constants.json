@@ -103,7 +103,8 @@
 				"FUTURE":"future",
 				"HAPLO":"haplotypes",
 				"TYPE":"type",
-				"CURRENT_HAPLO":"current_haplotypes"
+				"CURRENT_HAPLO":"current_haplotypes",
+				"MARKERS":"markers"
 			},
 			"REPORT":{
 				"DEFAULT":"{{DIR}}/views/default-dosing-report.hbs"

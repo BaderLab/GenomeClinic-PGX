@@ -86,7 +86,7 @@ module.exports = function(app,logger,opts){
 			left:'20px',
 			rigth:'20px'
 		};
-		genReport(req,res,req.params.patientID,constants.dbConstants.PGX.REPORT.DEFAULT,options)
+		genReport(req,res,req.params.patientID,constants.dbConstants.PGX.REPORT.DEFAULT,options,logger)
 	});
 
 
@@ -139,12 +139,14 @@ module.exports = function(app,logger,opts){
 		if (type == 'all'){
 			dbFunctions.removePGXGene(gene,req.user.username)
 			.then(function(result){
+				console.log(result);
 				if (result){
 					res.redirect('/success');
 				} else {
 					res.redirect('/failure');
 				}
 			}).catch(function(err){
+				console.log(err.stack);
 				res.redirect('/failure');
 			});
 		} else {
@@ -156,6 +158,7 @@ module.exports = function(app,logger,opts){
 				else
 					res.redirect('/failure');
 			}).catch(function(err){
+				console.log(err);
 				req.flash('message',err.message);
 				req.flash('error',err.stack);
 				res.redirect('/failure');
@@ -219,6 +222,32 @@ module.exports = function(app,logger,opts){
 		});
 	});
 	
+	app.post('/database/haplotypes/markers',utils.isLoggedIn,function(req,res){
+		var added = req.body.added;
+		var removed = req.body.removed;
+		var gene = req.query.gene;
+
+		Promise.resolve().then(function(){
+			if (added.length > 0){
+				return dbFunctions.addMarkerToGene(added,gene,req.user.username);
+			}
+			return true;
+		}).then(function(result){
+			if (removed.length){
+				return dbFunctions.removeMarkerFromGene(removed,gene,req.user.username);
+			}
+			return true;
+		}).then(function(){
+			res.redirect('/success');
+		}).catch(function(err){
+			console.log(err.stack);
+			req.flash('message',err.message);
+			req.flash('error',err.stack);
+			res.redirect('/failure');
+		})
+
+	});
+
 	app.post('/database/haplotypes/update',utils.isLoggedIn,function(req,res){
 		var doc = req.body;
 		var query = {_id:ObjectId(doc._id)};
@@ -249,10 +278,12 @@ module.exports = function(app,logger,opts){
 		var gene = req.params.gene;
 		var query = {}
 		var out = {};
+		var incMarkers;
 		query[constants.dbConstants.DRUGS.ALL.ID_FIELD] = gene
 		dbFunctions.find(constants.dbConstants.DRUGS.ALL.COLLECTION,query,undefined,undefined,req.user.username)
 		.then(function(result){
 			var ids = result[0][constants.dbConstants.DRUGS.ALL.CURRENT_HAPLO];
+			incMarkers = result[0][constants.dbConstants.DRUGS.ALL.MARKERS];
 			return dbFunctions.find(constants.dbConstants.PGX.GENES.COLLECTION,{_id:{$in:ids}},undefined,undefined,req.user.username)
 		}).then(function(result){
 			out.haplotypes = result;
@@ -260,7 +291,7 @@ module.exports = function(app,logger,opts){
 			return dbFunctions.find(constants.dbConstants.PGX.COORDS.COLLECTION,query,undefined,undefined,req.user.username)
 		}).then(function(result){
 			out.amarkers = [] // all associated markers
-			out.markers = []; // unique markers
+			out.markers = incMarkers; // unique markers
 			out.allMarkers = {}
 			out.unMarkers =  []// unassociated markers
 			for (var i = 0; i < result.length; i++){
@@ -292,7 +323,6 @@ module.exports = function(app,logger,opts){
 							//Check to see if the marker is an associated gene, or an 
 							//Unassociated gene and then add that information to it
 							if (out.allMarkers.hasOwnProperty(out.markers[j])){
-								out.allMarkers[out.markers[j]].added = true;
 								temp.push(out.allMarkers[out.markers[j]]);
 							} else {
 								out.error = {
@@ -309,6 +339,8 @@ module.exports = function(app,logger,opts){
 								dummy:true
 							});
 						}
+
+						out.allMarkers[out.markers[j]].added = true;
 
 					}
 					out.haplotypes[i].markers = temp;

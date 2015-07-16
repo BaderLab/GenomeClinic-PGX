@@ -509,7 +509,7 @@ module.exports = function(app,logger,opts){
 			rigth:'20px'
 		};
 		//Get future recommendations
-		return genReport(req,res,req.params.patientID,constants.dbConstants.DRUGS.REPORT.DEFAULT,options)
+		return genReport(req,res,req.params.patientID,constants.dbConstants.DRUGS.REPORT.DEFAULT,options,logger)
 	});
 
 	/* Download the dosing recommendation report */

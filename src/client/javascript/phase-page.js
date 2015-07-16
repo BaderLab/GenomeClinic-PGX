@@ -62,21 +62,34 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 
 				out.push(temp);
 			}
-			if (out.length > 0) resolve(out)
-			else reject(out)
+			resolve(out)
 		});
 		return promise;
 	};
 
-	serializeRemoved = function(){
+	serializeRemovedHaplotypes = function(){
 		var rows = $('.haplotype-row:hidden')
 		var ids = []	
 		if (rows.length > 0 ){
 			for (var i = 0; i < rows.length; i++ ){
-				ids.push($(rows).data('id'));
+				ids.push($(rows[i]).data('id'));
 			}
 		}
 		return ids;
+	}
+
+	serializeMarkers = function(){
+		var out = {};
+		out.added = [];
+		out.removed = [];
+
+		$('.new-added').closest('tr').each(function(ind,item){
+			out.added.push($(item).attr('id'));
+		});
+		$('.new-removed').closest('tr').each(function(ind,item){
+			out.removed.push($(item).attr('id'));
+		});
+		return out;
 	}
 
 	/* Function for working with the hidden modal that will pop 
@@ -258,58 +271,76 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 			$(this).closest('.alert-box').hide();
 		});
 
-
-
-		$('.success').on('click',function(e){
+		$('#save').on('click',function(e){
 			e.preventDefault();
-			var toRemove = serializeRemoved();
+			var toRemove = serializeRemovedHaplotypes();
+			var markersToAdd = serializeMarkers();
+			console.log(markersToAdd);
 			serializeInput().then(function(result){
 				var promises = [];
-				$.each(result,function(ind,item){
-					var promise = Promise.resolve($.ajax({
-						url:'/database/haplotypes/update',
-						type:"POST",
-						contentType:'application/json',
-						datatype:'json',
-						data:JSON.stringify(item)
-					}));
-
-					promises.push(promise);
-				});
-				return Promise.all(promises);
-			}).then(function(result){
-				var ok = true,o;
-				for (var i = 0; i < result.length; i++ ){
-					o = JSON.parse(result[i])
-					if (o.status != 'ok')
-						ok = false;
-				}
-				if (!ok){
-					$('#error-display-message').text("A problem was encountered when trying to update the database. Please check your haplotypes or contact an administartor");
-					$('#error-display-box').addClass('warning').removeClass('secondary').show();
-				} else {
-					$('#error-display-message').text("Data has been succesfully updated");
-					$('#error-display-box').addClass('secondary').removeClass('warning').show();
-				}
-			}).then(function(){
-				if (toRemove.length > 0){
-					var promises = []
-					$.each(toRemove,function(ind,item){
+				console.log(result);
+				if (result.length > 0){
+					$.each(result,function(ind,item){
 						var promise = Promise.resolve($.ajax({
-							url:'/database/haplotypes/delete?id='+item + '&type=haplotype&gene=' + window.location.pathname.split('/').splice(-1)[0],
-							type:'POST',
-							dataType:'json'
-						}))
+							url:'/database/haplotypes/update',
+							type:"POST",
+							contentType:'application/json',
+							datatype:'json',
+							data:JSON.stringify(item)
+						}));
 
 						promises.push(promise);
 					});
 
-					return Promise.all(promises);
-				}
+					return Promise.all(promises).then(function(result){
+						var ok = true,o;
+						for (var i = 0; i < result.length; i++ ){
+							o = JSON.parse(result[i])
+							if (o.status != 'ok')
+								ok = false;
+						}
+						if (!ok){
+							$('#error-display-message').text("A problem was encountered when trying to update the database. Please check your haplotypes or contact an administartor");
+							$('#error-display-box').addClass('warning').removeClass('secondary').show();
+						} else {
+							$('#error-display-message').text("Data has been succesfully updated");
+							$('#error-display-box').addClass('secondary').removeClass('warning').show();
+						}
+					}).then(function(){
+						if (toRemove.length > 0){
+							var promises = []
+							$.each(toRemove,function(ind,item){
+								var promise = Promise.resolve($.ajax({
+									url:'/database/haplotypes/delete?id='+item + '&type=haplotype&gene=' + window.location.pathname.split('/').splice(-1)[0],
+									type:'POST',
+									dataType:'json'
+								}));
 
-				return [];
-			}).then(function(result){
-				console.log(result);
+								promises.push(promise);
+							});
+
+							return Promise.all(promises);
+						}
+						return [];
+					}).then(function(result){
+						return Promise.resolve($.ajax({
+							url:'/database/haplotypes/markers?gene=' + window.location.pathname.split('/').splice(-1)[0],
+							type:'POST',
+							contentType:'application/json',
+							dataType:'json',
+							data:JSON.stringify(markersToAdd)
+						}));
+					}).then(function(result){
+						if (result.status == 'ok'){
+							$('td:hidden').remove();
+							$('th:hidden').remove();
+						}
+					});
+				} else {
+					$('#delete').trigger('click');
+					return;
+				} 
+
 			}).catch(function(err){
 				type = Object.prototype.toString.call(err);
 				if (type == '[object String]'){
@@ -327,7 +358,7 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 					$('#error-display-message').text(err.message);
 					$('#error-display-box').removeClass('secondary').addClass('warning').show();
 				}
-			})
+			});
 		})
 		
 
@@ -335,41 +366,63 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 			e.preventDefault();
 			var id = $(this).closest('tr').attr('id')
 			var _this = this;
+			var promise;
 			if ($(this).hasClass('added')){
-
+				//Remove the marker
 				Promise.resolve().then(function(){
 					//find the index of the current column
 					var index = $('#haplotypes').find('#marker-' + id).index()
-					$('#haplotypes').find('#marker-' + id).remove();
+					$('#haplotypes').find('#marker-' + id).hide();
 					$(_this).removeClass('added').addClass('unadded').text('Add')
 					$('#haplotypes').find('tbody').find('tr').each(function(ind,item){
-						$(this).find('td:nth-child(' + (index + 1) + ')').remove();
+						$(this).find('td:nth-child(' + (index + 1) + ')').hide();
 					});
-				 
+					if ($(_this).hasClass('new-added')){
+						$(_this).removeClass('new-added')
+					} else {
+						$(_this).addClass('new-removed');
+					}
+
 				}).then(function(){
 					checkWidth();
 				});
+				
 			} else if ($(this).hasClass('unadded')){
 				$('#haplotypes').show();
-				Promise.resolve().then(function(){
-					var headers = [id];
-					$(_this).removeClass('unadded').addClass('added').text('Remove')
-					$('#haplotypes').find('th[id^=marker-rs]').each(function(ind,item){
-						headers.push($(item).text());
+				$(_this).removeClass('unadded').addClass('added').text('Remove')
+				if ($(_this).hasClass('new-removed')){
+					$(_this).removeClass('new-removed');
+				} else {
+					$(_this).addClass('new-added');
+				}
+
+				if ($('#marker-' + id).length > 0){
+					$('#marker-' + id).show();
+					var index = $('#marker-' + id).index();
+					var rows =  $('.haplotype-row');
+					for (var i = 0; i < rows.length; i++ ){
+						$(rows).find('td').eq(index).show();
+					}
+				} else {
+					Promise.resolve().then(function(){
+						var headers = [id];
+						$('#haplotypes').find('th[id^=marker-rs]').each(function(ind,item){
+							headers.push($(item).text());
+						});
+						headers = headers.sort();
+						var point = headers.indexOf(id);
+						var html1 = "<th id='marker-" + id + "'><a href=#>"+id+"</a></th>";
+						var html2 = "<td class='marker use-ref text-center'>" + $('#' + id).find('.ref').text()  + "</td>";
+						$('#haplotypes').find('thead').find('th').eq(point).after(html1)
+						$('#haplotypes').find('tbody').find('tr').each(function(ind,item){
+							return $(item).find('td').eq(point).after(html2)
+						}).each(function(ind,item){
+							markerCellHandlers($(item).find('td').eq(point + 1));
+						});
+					}).then(function(){
+						checkWidth();
 					});
-					headers = headers.sort();
-					var point = headers.indexOf(id);
-					var html1 = "<th id='marker-" + id + "'><a href=#>"+id+"</a></th>";
-					var html2 = "<td class='marker use-ref text-center'>" + $('#' + id).find('.ref').text()  + "</td>";
-					$('#haplotypes').find('thead').find('th').eq(point).after(html1)
-					$('#haplotypes').find('tbody').find('tr').each(function(ind,item){
-						return $(item).find('td').eq(point).after(html2)
-					}).each(function(ind,item){
-						markerCellHandlers($(item).find('td').eq(point + 1));
-					});
-				}).then(function(){
-					checkWidth();
-				});
+				}
 			}
 		})
 
