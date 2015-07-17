@@ -537,8 +537,5 @@ module.exports = function(app,logger,opts){
 				});
 			}
 		});
-
 	});
-	
-
 };

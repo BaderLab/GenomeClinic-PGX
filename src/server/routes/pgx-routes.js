@@ -222,6 +222,8 @@ module.exports = function(app,logger,opts){
 		});
 	});
 	
+	/* update the markers that are associated with a gene for a haplotype. Either add or 
+	 * removed the markers */
 	app.post('/database/haplotypes/markers',utils.isLoggedIn,function(req,res){
 		var added = req.body.added;
 		var removed = req.body.removed;
@@ -248,6 +250,7 @@ module.exports = function(app,logger,opts){
 
 	});
 
+	/* Update the haplotype for a specific Id */
 	app.post('/database/haplotypes/update',utils.isLoggedIn,function(req,res){
 		var doc = req.body;
 		var query = {_id:ObjectId(doc._id)};

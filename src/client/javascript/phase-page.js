@@ -1,27 +1,31 @@
-/* module for working with and modifying
- * haplotype information
- *@patrick magee */
+/* module for working with and modifying the haplotypes
+ * This script contains all of the helpers as well as the functions to
+ * render then main JS content for the page. There are two main parts
+ * of the Page, the markers that are linked with the gene are displayed at 
+ * at the tope of the page while unassociated markers are displayed below. All
+ * of the haplotypes are contained within a single table that can be modifuied and
+ * containes color coded boxes for each of the Reference and alternate alleles
+ */
 
 var utility = require('./utility');
 
-var constants = require('../../server/conf/constants.json').dbConstants.PGX;
-
 (function(){
-	/* Serialize the page, putting the data into a form that 
-	 * can then be sent to the server to update the current
-	 * db entry. iterates over each haploytpe to generate the
-	 * information
-	 */
+	/* Serialize the information to add to the server or information that has changed.
+	 * Only Serialize information that has been updated or added to the the page since
+	 * the last update.	 */
 	var serializeInput = function(){
 		var promise = new Promise(function(resolve,reject){
 			var out = [];
 			var temp,cell;
 			var gene = window.location.pathname.split('/').splice(-1)[0]
 			var rows = $('.haplotype-row:visible');
+
+			//Retrieve the marker names from the table header
 			var markers = $('#haplotypes').find('th[id^=marker-rs]').map(function(ind,item){
 				return  { marker:$(item).text(), ind: ind + 1}
 			});
 			var markerComb = [];
+			//If the marker is of length 0 reject the page.
 			if (markers.length === 0){
 				reject('You need at least one marker to save the haplotype');
 				return
@@ -33,9 +37,7 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 				temp = {};
 				temp._id = $(rows[i]).data('id');
 				temp.gene = gene
-
-
-				//Check to ensure there is no errors
+				//Check to ensure there is no errors on the form 
 				if ($(rows[i]).find('.haploytpe-cell').find('input').hasClass('error')){
 					reject('Errors were found present on the page, please address before submitting');
 					return
@@ -67,6 +69,10 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 		return promise;
 	};
 
+	/* When A haplotype is remvoed the row is temporarily hidden
+	 * This function will search through the table to find any hidden rows
+	 * and retrieve the mongo object Id for the haplotype. An array of all
+	 * Id's to be removed will be returned */
 	serializeRemovedHaplotypes = function(){
 		var rows = $('.haplotype-row:hidden')
 		var ids = []	
@@ -78,6 +84,10 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 		return ids;
 	}
 
+
+	/* Markers can be added or removed from being associated with gene. search through
+	 * the markers and check their current status of being added or removed from the gene
+	 * and return an object containing the information */
 	serializeMarkers = function(){
 		var out = {};
 		out.added = [];
@@ -156,6 +166,9 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 		return false;
 	};
 
+	/* when you update the haplotypes it is possible that the table will be larger
+	 * then the page width, add a scroll bar if the table is larger now. Otherwise 
+	 * remove a scrollbar */
 	var checkWidth = function(){
 		var ele = document.getElementById('haplotypes');
 		var ele2 = document.getElementById('haplotype-wrapper');
@@ -167,6 +180,8 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 	}
 
 
+	/* Instead of utilizing a template for addng a row, take the server response and render
+	 * a new haplotype row. THis will return the HTML  */
 	var generateRowHtml = function(response){
 		var html = '<tr class="haplotype-row" data-id="' + response._id + '"">'
 		html += '<td class="haplotype-cell"><span>' + response.haplotype + '</span>'
@@ -209,11 +224,15 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 		});
 	}
 
+
+	/* The Haplotype cell enables the user to update the current name of the haplotype
+	 * this function will apply the handlers to all of the haplotype cells, or a
+	 * specific haplotype cell if the context is passed */
 	var haploCellHandlers=function(context){
 		if (!context)
 			context = $(document).find('.haplotype-cell');
 
-
+		//WHenj the haplotype cell is clicked show the Input
 		context.on('click',function(){
 			if (!$(this).hasClass('opened')){
 				$(this).addClass('opened');
@@ -223,6 +242,9 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 			}
 		});
 
+
+		// When the user is done updating th haplotype, check to ensure its valid, and then submit
+		// the text
 		context.find('.postfix').on('click',function(e){
 			e.preventDefault();
 			var _this = this, val,valid = true,testVal;
@@ -246,6 +268,7 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 			}
 		})
 
+		//Remove the error class when data is entered
 		context.find('input').on('keyup',function(){
 			if ($(this).hasClass('error')){
 				$(this).removeClass('error');
@@ -254,6 +277,10 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 		});
 	}
 
+
+	/* Handler form removing a haplotype row. when the context is added 
+	 * the handler will only be applied to a singele button.
+	 * Context must be a remove button */
 	var removeHandler = function(context){
 		if (!context)
 			context = $(document).find('.remove');
@@ -265,21 +292,35 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 
 	}
 
+
+	/* All the handlers for the Haplo page that do not deal specifically with
+	 * the cell or the haplotype row. 
+	 */
 	var haploPageHanlders = function(){
+
+		//Close the alert box
 		$('.close-box').on('click',function(e){
 			e.preventDefault();
 			$(this).closest('.alert-box').hide();
 		});
 
+
+		/* Update the information
+		 * This function will serialize the new inputs first and send them to the server
+		 * if an error is encountered the alert box will be filled and the process will be stopped
+		 * If the update is successful, the page will then update the removed haplotypes.
+		 * Subsequently the page will update the added markers, ifthey have changed */
 		$('#save').on('click',function(e){
 			e.preventDefault();
 			var toRemove = serializeRemovedHaplotypes();
 			var markersToAdd = serializeMarkers();
-			console.log(markersToAdd);
+
+			//Update the inputs
 			serializeInput().then(function(result){
 				var promises = [];
-				console.log(result);
 				if (result.length > 0){
+					//Loop over each of the items in the array and update them 
+					//on the server
 					$.each(result,function(ind,item){
 						var promise = Promise.resolve($.ajax({
 							url:'/database/haplotypes/update',
@@ -288,10 +329,11 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 							datatype:'json',
 							data:JSON.stringify(item)
 						}));
-
+						//Add the promises to a promise array
 						promises.push(promise);
 					});
 
+					//Once all of the promises have been fulfilled continue on
 					return Promise.all(promises).then(function(result){
 						var ok = true,o;
 						for (var i = 0; i < result.length; i++ ){
@@ -300,13 +342,14 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 								ok = false;
 						}
 						if (!ok){
-							$('#error-display-message').text("A problem was encountered when trying to update the database. Please check your haplotypes or contact an administartor");
-							$('#error-display-box').addClass('warning').removeClass('secondary').show();
+							throw new Error("A problem was encountered when trying to update the database. Please check your haplotypes or contact an administartor");
 						} else {
 							$('#error-display-message').text("Data has been succesfully updated");
-							$('#error-display-box').addClass('secondary').removeClass('warning').show();
+							$('#error-display-box').addClass('secondary').removeClass('warning').show()
 						}
+						//If the promise returned successfull continue onto the removal process
 					}).then(function(){
+						//if there are genes to remove, remove them
 						if (toRemove.length > 0){
 							var promises = []
 							$.each(toRemove,function(ind,item){
@@ -323,6 +366,7 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 						}
 						return [];
 					}).then(function(result){
+						//If there are markers to remove / add, update the db
 						return Promise.resolve($.ajax({
 							url:'/database/haplotypes/markers?gene=' + window.location.pathname.split('/').splice(-1)[0],
 							type:'POST',
@@ -360,8 +404,9 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 				}
 			});
 		})
-		
-
+			
+		/* When the marker status is clicked update the page depending on the current status of the 
+		 * marker */
 		$('.marker-status').on('click',function(e){
 			e.preventDefault();
 			var id = $(this).closest('tr').attr('id')
@@ -426,7 +471,7 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 			}
 		})
 
-			
+		//Add a new haplotype
 		$('#add-new-haplotype').on('click',function(e){
 			e.preventDefault();
 			var input = $('#new-haplotype');
@@ -484,7 +529,6 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 				contentType:'application/json',
 				dataType:'json'
 			})).then(function(result){
-				console.log(result);
 				if (result.status == 'ok') {
 					window.location.reload();
 				} else {
@@ -593,6 +637,7 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 		}
 	};
 
+	/*Render the haplotypes */
 	var renderAllHaplotypes = function(){
 		return Promise.resolve($.ajax({
 			url:'/database/dosing/classes',
@@ -630,10 +675,6 @@ var constants = require('../../server/conf/constants.json').dbConstants.PGX;
 			return templates.haplotypes.current(result);
 		}).then(function(renderedHtml){
 			return $('#main').html(renderedHtml);
-		}).then(function(){
-			//return templates.haplotypes.haplotype(hapInfo);
-		}).then(function(renderedHtml){
-			//return $('#haplotypes').html(renderedHtml);
 		}).then(function(){
 			utility.refresh();
 		}).then(function(){

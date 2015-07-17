@@ -458,7 +458,6 @@ module.exports = {
 			//Extract infromation for each gene and the haplotypes that were predicted
 			//Select the case where there is only Two possible Haplotypes.
 			//Any other cases cannot be determined
-			//console.log(result.pgxGenes);
 			for (var i = 0; i <result.pgxGenes.length; i++ ){
 				if (result.pgxGenes[i].possibleHaplotypes !== undefined){
 						/* if there are multiple possible haplotypes beacuse the patient
@@ -473,16 +472,6 @@ module.exports = {
 					 	ignoredGenes.push(result.pgxGenes[i]);
 					 }
 				}
-
-					/*
-						for (hap in result.pgxGenes[gene].possibleHaplotypes){
-							if (result.pgxGenes[gene].possibleHaplotypes.hasOwnProperty(hap)){
-								result.pgxGenes[gene].possibleHaplotypes[hap].closestMatch = result.pgxGenes[gene].possibleHaplotypes[hap].closestMatch.join()
-							}
-						}
-						result.pgxGenes[gene].hap1 = result.pgxGenes[gene].possibleHaplotypes.h1.closestMatch.join(',');
-						result.pgxGenes[gene].hap2 = result.pgxGenes[gene].possibleHaplotypes.h2.closestMatch.join(','); 
-						genes.push(result.pgxGenes[gene]); */ 
 				
 			}
 
