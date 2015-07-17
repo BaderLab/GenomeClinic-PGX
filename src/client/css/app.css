@@ -268,3 +268,37 @@ hr {
 .haplotype-cell:hover {
   background-color: #EBFAFF;
 }
+
+
+/*Index page */
+.icon-container {
+  text-align:center;
+  white-space:nowrap;
+}
+
+.icon-inner:before {
+  content: '';
+  display: inline-block;
+  height: 100%;
+  vertical-align: middle;
+  margin-right: -0.25em;
+}
+
+.icon-inner {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.icon-link {
+  vertical-align: middle;
+}
+.icon-button {
+  border-radius: 15px;
+  border: solid 1px #838383;
+  background-color: #929292;
+  transition: background-color 300ms ease-out;
+}
+
+.icon-button:hover {
+  background-color: #D1D1D1;
+};

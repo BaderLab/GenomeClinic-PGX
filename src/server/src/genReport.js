@@ -102,6 +102,7 @@ module.exports = function(req,res,reportName,template,options,logger){
 		res.send(JSON.stringify(o));
 
 	}).catch(function(err){
+		console.log(err);
 		logger('error',err,{user:req.user[constants.dbConstants.USERS.ID_FIELD],'action':'genReport','target':name});
 		throw new Error(err);
 	});

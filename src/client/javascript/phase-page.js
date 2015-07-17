@@ -679,6 +679,7 @@ var utility = require('./utility');
 			utility.refresh();
 		}).then(function(){
 			staticHandlers.current();
+			checkWidth();
 		});
 	}
 	//Main function will render the page based on the specified URL
