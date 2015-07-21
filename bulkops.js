@@ -6,6 +6,7 @@
  * import or export, followed by the specofoc functions for that seuqence */
 
 var MongoClient = require('mongodb').MongoClient;
+var ObjectId = require('mongodb').ObjectID;
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs'));
 var path = require('path');
@@ -17,7 +18,7 @@ var getRS = require("./build/lib/getDbSnp");
 //var constants = require('./lib/conf/constants.json');
 
 var ops = {
-	operation : ['import','export','update'],
+	operation : ['import','export'],
 	import : {
 		options : ['future','recommendation','haplotype','genes','custommarkers','dbsnp'],
 		usage : '\nbulkop.js import [collection]\n',
@@ -42,32 +43,35 @@ var ops = {
 
 	},
 	export : {
-		options : ['future','recommendation','haplotype','genes','descriptors','patients','patient'],
+		options : ['future','recommendation','haplotype','genes','patients','patient','custommarkers','dbsnp'],
 		usage:'\nbulkop.js export [collection] [file]',
 		future : {
-			args :['infile','outfile']
+			args :['outfile']
 		},
 		recommendation :{
-			args :['infile','outfile']
+			args :['outfile']
 		},
 		haplotype : {
-			args :['infile','outfile']
+			args :['outfile']
 		},
 		genes :{
-			args :['infile','outfile']
+			args :['outfile']
 		},
 		descriptors :{
-			args :['infile','outfile']
+			args :['outfile']
 		},
-		patient : {
-			args :['infile','outfile']
+		patients : {
+			args :['outfile'],
+			opts : ['patient']
 		},
-		patients :{
-			args :['infile','outfile']
-		}
+		markers : {
+			args : ['outfile'],
+			opts : ['type']
+		},
+
 	},
 	update : {
-		options : ['future','recommendation','haplotype'],
+		options : ['future','recommendation','haplotype','custommarkers'],
 		usage : '\nbulkop.js update [collection]\n',
 		future : {
 			args : ['file']
@@ -77,7 +81,10 @@ var ops = {
 		},
 		haplotype : {
 			args : ['file']
-		}
+		},
+		custommarkers : {
+			args : ['file'] 
+		},
 	},
 	collections : {
 		custommarkers : {
@@ -104,10 +111,12 @@ var ops = {
 					field:'alt',
 					type:'[object Array]'
 				}
-			]
+			],
+			useId:true
 		},
 		dbsnp : {//No fields, simply takes an array
-			collection : constants.dbConstants.PGX.COORDS.COLLECTION
+			collection : constants.dbConstants.PGX.COORDS.COLLECTION,
+			useId:true
 		},
 		future : {
 			collection : constants.dbConstants.DRUGS.FUTURE.COLLECTION,
@@ -127,7 +136,8 @@ var ops = {
 					field:'rec',
 					type : '[object String]'
 				}
-			]
+			],
+			useId:false
 
 		},
 		recommendation : {
@@ -157,7 +167,8 @@ var ops = {
 					field : 'rec',
 					type : '[object String]'
 				}
-			]
+			],
+			useId:false
 		},
 		haplotype : {
 			collection : constants.dbConstants.PGX.GENES.COLLECTION,
@@ -179,6 +190,7 @@ var ops = {
 					type : '[object Array]'
 				}
 			],
+			useId:false
 		},
 		genes :{
 			collection : constants.dbConstants.DRUGS.ALL.COLLECTION,
@@ -192,16 +204,20 @@ var ops = {
 					field : 'type',
 					type : '[object String]'
 				}
-			]
+			],
+			useId:false
 		},
 		descriptors :{
-			args :['infile','outfile']
+			collection : constants.dbConstants.DRUGS.CLASSES.COLLECTION,
+			useId:true
 		},
-		patient : {
-			args :['infile','outfile']
+		patients : {
+			collection : constants.dbConstants.PATIENTS.COLLECTION,
+			useId:false
 		},
-		patients :{
-			args :['infile','outfile']
+		markers : {
+			collection:constants.dbConstants.PGX.COORDS.COLLECTION,
+			useId:true
 		}
 
 	}
@@ -234,7 +250,7 @@ var usage = function(op,col){
 
 	}
 
-	console.log(usgStsring);
+	console.log(usgStsring+'\n');
 	process.exit(0);
 };
 
@@ -304,8 +320,13 @@ for (var i = 0; i < ops[op][collection].args.length; i++ ){
 dbFunctions.connectAndInitializeDB().then(function(){
 	var colParams = ops.collections[collection];
 	var descriptors;
+	console.log("\nJOB: " + op.toUpperCase() )
+	console.log("DATE: " + new Date().toDateString());
 	if (op == 'import'){
 		var docs;
+		var updated = 0;
+		var added = 0;
+		var skipped = 0;
 
 		if (args.file.search(/.json$/) ==-1) {
 			console.log('ERROR: File must be in the json format');
@@ -318,26 +339,30 @@ dbFunctions.connectAndInitializeDB().then(function(){
 				usage(op,collection);
 			});
 		}).then(function(){
+			
 			var objects;
 			var sortedout;
 			docs = require(path.resolve(args.file));
+			
+			
 			/* Peform validation of the docs that are to be inserted into the new
 			 * database */
 
 			 //Check to ensure the document is an array;
-			 assert(Object.prototype.toString.call(docs) == '[object Array]','The documents to be inserted must be in an array');
-			 assert(docs.length > 0, args.file + " is an empty document.");
-
+			assert(Object.prototype.toString.call(docs) == '[object Array]','The documents to be inserted must be in an array');
+			assert(docs.length > 0, args.file + " is an empty document.");
+			console.log("FILE: " + args.file);
+			console.log("DOCUMENTS TO INSERT OR UPDATE: " + docs.length + '\n');
 			 //Check to ensure the document is in the right format by going over each file
 			for (var i = 0; i < docs.length; i++ ){
 				if (collection !== 'dbsnp'){
 					assert(Object.prototype.toString.call(docs[i]) == '[object Object]', "Documents to be inserted must be an object.");
 				 	objects = Object.keys(docs[i]);
 
-				 	//CHeck to ensure all the requqired parameters are present
+				 	//CHeck to ensure all the required parameters are present
 				 	for (var j = 0; j < colParams.fields.length; j++ ){
-				 		assert(objects.indexOf(colParams.fields[j].field) !== -1,'Missing required parameter: ' + colParams.fields[j].field + ' in json file at document ' + (i + 1));
-				 		assert(Object.prototype.toString.call(docs[i][colParams.fields[j].field]) == colParams.fields[j].type, "Invalid data type for " + colParams.fields[j].field + " at document " + (i + 1)+ ". Expecting " + colParams.fields[j].type + " but found " + Object.prototype.toString.call(docs[i][colParams.fields[j].field]));
+				 		assert(objects.indexOf(colParams.fields[j].field) !== -1,'Missing required parameter: ' + colParams.fields[j].field + ', in json file at document ' + (i + 1) +". Please review the documentation on file format.");
+				 		assert(Object.prototype.toString.call(docs[i][colParams.fields[j].field]) == colParams.fields[j].type, "Invalid data type for " + colParams.fields[j].field + " at document " + (i + 1)+ ". Expecting " + colParams.fields[j].type + " but found " + Object.prototype.toString.call(docs[i][colParams.fields[j].field]) +". Please review the documentation on file format.");
 				 		objects.splice(objects.indexOf(colParams.fields[j].field),1);
 				 		if (collection == 'recommendation') assert(docs[i].classes.length == docs[i].genes.length, "Genes and Predictor of effects are different lengths at document " + (i + 1) + ". Must be of equal length");	
 				 	}
@@ -349,7 +374,6 @@ dbFunctions.connectAndInitializeDB().then(function(){
 			 	//assert(objects.length === 0, "Malformed entry at document " + (i + 1)+", additional fields found. " + colParams.fields.length + " fields expeceted, but found " + Object.keys(docs[i]).length + " extra fields.");
 
 			 	// Passed all validation;
-
 			 	if (collection == 'haplotype'){
 			 		docs[i].markers = docs[i].markers.sort();
 			 	} else if (collection == 'recommendation'){
@@ -388,13 +412,20 @@ dbFunctions.connectAndInitializeDB().then(function(){
 			return Promise.resolve(docs).each(function(doc,index){
 				//Make sure if this is a recommendation then the f {};ields are eua
 				var include = true;
+				var update = false;
+				var searchId = false;
 
 
 				var query = {};
 				if (collection !== 'dbsnp'){
-					for (var j = 0; j < colParams.fields.length; j++ ){
-						if (colParams.fields[j].query)
-							query[colParams.fields[j].field] = doc[colParams.fields[j].field];
+					if (colParams.useId){
+						query._id = doc._id;	
+					} else {
+						if (doc._id) searchId = true;
+						for (var j = 0; j < colParams.fields.length; j++ ){
+							if (colParams.fields[j].query)
+								query[colParams.fields[j].field] = doc[colParams.fields[j].field];
+						}
 					}
 				} else {
 					query._id = doc;
@@ -403,12 +434,38 @@ dbFunctions.connectAndInitializeDB().then(function(){
 				return dbFunctions.findOne(colParams.collection,query).then(function(result){
 					if (collection == 'dbsnp'){
 						if (result) include = false;
-					} else {
-						assert(result == null && result == undefined, "An entry already exists in the databse for document " + (index + 1) + ".");
 					}
+					
+					else {
+						//If there is nothing found and there is an _id field present try searching with the id field
+						if(!result && searchId && ops.update.options.indexOf(collection) !== -1){
+							return dbFunctions.findOne(colParams.collection,{_id:ObjectId(doc._id)}).then(function(result){
+								//found something an will attempt to update it
+								if (result)
+									update = true;
+								//else it will attempt to insert the document
+							})
+						//Something was found
+						} else if (result && ops.update.options.indexOf(collection) !== -1) {
+							if (searchId){
+								if (result._id != doc._id) {
+									console.log("WARNING: Document found with matching paramenters to document " + (index + 1) + ", however _id field does not match. Ignoring input _id and updating database");
+									delete doc._id;
+									searchId = false;
+								}
 
+								//else the ids match
+
+							}
+
+							update = true;
+
+						} else if (result){
+							throw new Error("Existing entry already found at document " + (index + 1) + ", and current entry type does not support updating.")
+						}
+					}
 				}).then(function(){
-					/* We will not make any assumptions about there being a gene container for each entyr, if the gene container
+					/* We will not make any assumptions about there being a gene container for each entry, if the gene container
 					 * does not exists, throw an error informing the user to create a new container */
 					 if (collection !== 'genes' && collection !== 'custommarkers' && collection !== 'dbsnp'){
 						var query = {};
@@ -464,67 +521,94 @@ dbFunctions.connectAndInitializeDB().then(function(){
 					}
 				}).then(function(){
 					/* Everything is good, add the document and then update the gene document with the information */
-					if (collection !== 'genes' && collection !== 'dbsnp'){
-						return dbFunctions.insert(colParams.collection,doc).then(function(idoc){
-							if (collection !== 'custommarkers'){
-								var update = {$push:{}}
-								update.$push[colParams.dosing_field] = idoc._id;
-								
-								var genes = collection == 'recommendation' ? idoc.genes : [idoc.gene];
-								return Promise.resolve(genes).each(function(gene){
-									var query = {};
-									query[constants.dbConstants.DRUGS.ALL.ID_FIELD] = gene;
-									return dbFunctions.update(constants.dbConstants.DRUGS.ALL.COLLECTION,query,update).then(function(){
-										if (collection == 'haplotype'){
-											return dbFunctions.addMarkerToGene(idoc.markers,idoc.gene);
-										}
+					if (update){
+						var query = {};
+
+						if (doc._id){
+							if (!colParams.useId) doc._id = ObjectId(doc._id);
+							query._id = doc._id;
+							delete doc._id;
+						} else {
+							for (var j = 0; j < colParams.fields.length; j++ ){
+								if (colParams.fields[j].query)
+									query[colParams.fields[j].field] = doc[colParams.fields[j].field];
+							}
+						}
+
+						return dbFunctions.update(colParams.collection,query,{$set:doc}).then(function(){
+							updated++
+						})
+					} else {
+
+						if (collection !== 'genes' && collection !== 'dbsnp'){
+							return dbFunctions.insert(colParams.collection,doc).then(function(idoc){
+								added++;
+								if (collection !== 'custommarkers'){
+									var update = {$push:{}}
+									update.$push[colParams.dosing_field] = idoc._id;
+									
+									var genes = collection == 'recommendation' ? idoc.genes : [idoc.gene];
+									return Promise.resolve(genes).each(function(gene){
+										var query = {};
+										query[constants.dbConstants.DRUGS.ALL.ID_FIELD] = gene;
+										return dbFunctions.update(constants.dbConstants.DRUGS.ALL.COLLECTION,query,update).then(function(){
+											if (collection == 'haplotype'){
+												return dbFunctions.addMarkerToGene(idoc.markers,idoc.gene);
+											}
+										});
 									});
+								}
+							});
+						} else if (collection == 'genes'){
+							assert(descriptors[doc.type] !== undefined, "Invalid Gene Type for doc " + (index + 1));
+							return dbFunctions.drugs.createNewDoc(doc.gene,doc.type);
+						} else if (collection == 'dbsnp'){
+							if (include){
+								return getRS(doc).then(function(result){
+									if (result.missing.length > 0 ){
+										skipped++
+										console.log("WARNING: could not retrieve information for " + doc + " from dbSnp.")
+										warnings = true;
+										return
+									} else {
+										added++
+										return dbFunctions.insert(colParams.collection,result.dbSnp[0])
+									}
+								});
+							} else {
+								console.log("WARNING: dbsnp marker already detected, attempting to update marker");
+								return dbFunctions.updatedbSnpPGXCoords(doc).then(function(result){
+									assert(result.missing.length == 0, "marker " + doc + " could not be found in dbsnp and may no longer be supported. please remove from databsae and check dbsnp");
+									if (result.changed.length > 0 ){
+										updated++
+										console.log("WANRING: " + doc + " was out of date and has been updated");
+										warnings = true;
+									} else if (result.notchanged.length > 0 ) {
+										console.log("WANRING: " + doc + " is already up to date. No changes were made");
+										warnings = true;
+									}
 								});
 							}
-						});
-					} else if (collection == 'genes'){
-						assert(descriptors[doc.type] !== undefined, "Invalid Gene Type for doc " + (index + 1));
-						return dbFunctions.drugs.createNewDoc(doc.gene,doc.type);
-					} else if (collection == 'dbsnp'){
-						if (include){
-							return getRS(doc).then(function(result){
-								if (result.missing.length > 0 ){
-									console.log("WARNING: could not retrieve information for " + doc + " from dbSnp.")
-									warnings = true;
-									return
-								} else {
-									return dbFunctions.insert(colParams.collection,result.dbSnp[0])
-								}
-							});
-						} else {
-							console.log("WARNING: dbsnp marker already detected, attempting to update marker");
-							return dbFunctions.updatedbSnpPGXCoords(doc).then(function(result){
-								assert(result.missing.length == 0, "marker " + doc + " could not be found in dbsnp and may no longer be supported. please remove from databsae and check dbsnp");
-								if (result.changed.length > 0 ){
-									console.log("WANRING: " + doc + " was out of date and has been updated");
-									warnings = true;
-								} else if (result.notchanged.length > 0 ) {
-									console.log("WANRING: " + doc + " is already up to date. No changes were made");
-									warnings = true;
-								}
-							});
 						}
 					}
 
 				})
 			})
+		}).then(function(){
+			console.log("\nSTATUS: ADDED " + added + " NEW DOCUMENTS");
+			console.log("STATUS: UPDATED " + updated + " DOCUMENTS");
+			console.log("STATUS: SKIPPED " + skipped + " DOCUMNETS");
 		})
 	} else if (op == 'export'){
-
 	}
 
 }).then(function(){
-	if (warnings) console.log("\nSTATUS: completed all tasks with warnings. Exiting")
-	else console.log("STATUS: completed all tasks. Exiting")
+	if (warnings) console.log("STATUS: completed all tasks with warnings. Exiting\n")
+	else console.log("STATUS: completed all tasks. Exiting\n")
 	dbFunctions.closeConnection(process.exit);
 }).catch(function(err){
 	console.log('\nERROR: ' + err.message);
-	console.log(err.stack);
+	//console.log(err.stack);
 	dbFunctions.closeConnection();
 	usage(op,collection);
 });
