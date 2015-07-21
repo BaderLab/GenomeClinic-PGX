@@ -19,52 +19,68 @@ var getRS = require("./build/lib/getDbSnp");
 
 var ops = {
 	operation : ['import','export'],
+	helptxt : "Script to facilitate bulk operations for the PGX database",
 	import : {
+		helptxt : "Insert or update a large number of document at a single time from the specified json file, while ensuring databse validity",
 		options : ['future','recommendation','haplotype','genes','custommarkers','dbsnp'],
 		usage : '\nbulkop.js import [collection]\n',
 		future : {
+			helptxt : "Insert or update future considerations. Takes a json array of unique documents and attempts to insert then or update the database if they can be updated.  Requires that the genes are already present in the database",
 			args : ['file']
 		},
 		recommendation : {
+			helptxt : "Insert or update drug recommendations in a gene wise manner. Takes a json array of unique documents. Requires that the genes are already present in the database",
 			args : ['file']
 		},
 		haplotype : {
+			helptxt : "Insert or update haplotypes in a gene wise manner, adding the markers to the database as well if they can. Reqires that the genes and custom markers are already present in the database",
 			args : ['file']
 		},
 		genes : {
+			helptxt : "Insert a new gene with a given type. Takes a json array of unique documents containing the gene name and the gene type. This function does not support updating",
 			args : ['file']
 		},
 		custommarkers : {
+			helptxt : "Insert or update a new custom marker. Takes a json array of unique documents containeing marker information.",
 			args : ['file'] 
 		},
 		dbsnp : {
+			helptxt : "Insert or update new dbsnp markers. Takes a json array of strings consisting of valid dbsnp markers",
 			args : ['file']
 		}
 
 	},
 	export : {
 		options : ['future','recommendation','haplotype','genes','patients','patient','custommarkers','dbsnp'],
+		helptxt : "Export a large number of documents at a single time and save the output to a json file",
 		usage:'\nbulkop.js export [collection] [file]',
 		future : {
+			helptxt:"",
 			args :['outfile']
 		},
 		recommendation :{
+			helptxt:"",
 			args :['outfile']
 		},
 		haplotype : {
+			helptxt:"",
 			args :['outfile']
 		},
 		genes :{
+			helptxt:"",
 			args :['outfile']
 		},
 		descriptors :{
+			helptxt:"",
 			args :['outfile']
 		},
 		patients : {
+			helptxt:"",
 			args :['outfile'],
 			opts : ['patient']
 		},
 		markers : {
+			helptxt:"",
 			args : ['outfile'],
 			opts : ['type']
 		},
@@ -226,9 +242,11 @@ var ops = {
 
 var usage = function(op,col){
 	var i;
-	var usgStsring = '\nbulkop.js';
+	var usgStsring = '\nbulkops.js';
 	if (!op || op == '-h' || op == 'help'){
 		usgStsring += ' [operation]\n\n';
+		usgStsring += ops.helptxt;
+		usgStsring += '\n';
 		usgStsring += "Please select from the following list\n\n";
 		for (i = 0; i < ops.operation.length; i++ ){
 			usgStsring += '\t' + (i + 1) + '. ' + ops.operation[i] + '\n';
@@ -236,6 +254,8 @@ var usage = function(op,col){
 		usgStsring += '\n\thelp\t-h\tprovide this list';
 	} else if (!col || col == '-h' || col == 'help') {
 		usgStsring += ' ' + op + ' [collection]\n\n';
+		usgStsring += ops[op].helptxt;
+		usgStsring += '\n';
 		usgStsring += "Please select from the following list\n\n";
 		for (i = 0; i < ops[op].options.length; i++ ){
 			usgStsring += '\t' + (i + 1) + '. ' + ops[op].options[i] + '\n';
@@ -246,6 +266,8 @@ var usage = function(op,col){
 		for (i = 0; i < ops[op][col].args.length; i++ ){
 			usgStsring += ' [' + ops[op][col].args[i] + ']';
 		}
+		usgStsring += '\n\n'
+		usgStsring += ops[op][col].helptxt;
 		usgStsring += '\n\n\thelp\t-h\tprovide this list';
 
 	}
