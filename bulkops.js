@@ -51,38 +51,40 @@ var ops = {
 
 	},
 	export : {
-		options : ['future','recommendation','haplotype','genes','patients','patient','custommarkers','dbsnp'],
+		options : ['future','recommendation','haplotype','genes','patients','markers','descriptors'],
 		helptxt : "Export a large number of documents at a single time and save the output to a json file",
 		usage:'\nbulkop.js export [collection] [file]',
 		future : {
 			helptxt:"",
-			args :['outfile']
+			args : ['outfile']
 		},
 		recommendation :{
 			helptxt:"",
-			args :['outfile']
+			args : ['outfile']
 		},
 		haplotype : {
 			helptxt:"",
-			args :['outfile']
+			args : ['outfile']
 		},
 		genes :{
 			helptxt:"",
-			args :['outfile']
+			args : ['outfile']
 		},
 		descriptors :{
 			helptxt:"",
-			args :['outfile']
+			args : ['outfile']
 		},
 		patients : {
 			helptxt:"",
-			args :['outfile'],
-			opts : ['patient']
+			args : ['outfile'],
+			opts : [constants.dbConstants.PATIENTS.ID_FIELD],
+			possible: [['*']],
 		},
 		markers : {
 			helptxt:"",
 			args : ['outfile'],
-			opts : ['type']
+			opts : ['type'],
+			possible : [['custom','dbsnp']]
 		},
 
 	},
@@ -266,8 +268,25 @@ var usage = function(op,col){
 		for (i = 0; i < ops[op][col].args.length; i++ ){
 			usgStsring += ' [' + ops[op][col].args[i] + ']';
 		}
+		if (ops[op][col].opts){
+			for (i = 0; i < ops[op][col].opts.length; i++ ){
+				usgStsring += ' [' + ops[op][col].opts[i] + ']';
+			}
+		}
+
 		usgStsring += '\n\n'
 		usgStsring += ops[op][col].helptxt;
+
+		if (ops[op][col].possible){
+			for (i = 0; i < ops[op][col].opts.length; i++){
+				usgStsring += '\n\tOptions for '  +ops[op][col].opts[i] + ':\n\n'
+				for (var j = 0; j < ops[op][col].possible[i].length; j++ ){
+					usgStsring += '\t' + (j + 1) + '. '
+					if (ops[op][col].possible[i][j] == '*') usgStsring += 'Any valid string';
+					else usgStsring += ops[op][col].possible[i][j] + '\n';
+				}
+			}
+		}
 		usgStsring += '\n\n\thelp\t-h\tprovide this list';
 
 	}
@@ -327,6 +346,7 @@ if (collection == '-h' || collection == 'help'){
 
 
 var args = {};
+var count = 4;
 for (var i = 0; i < ops[op][collection].args.length; i++ ){
 	if (process.argv[i+4] == '-h' || process.argv[i+4] == 'help'){
 		usage(op,collection);
@@ -336,6 +356,21 @@ for (var i = 0; i < ops[op][collection].args.length; i++ ){
 		usage(op,collection);
 	}
 	args[ops[op][collection].args[i]] = process.argv[i + 4];
+
+	count++;
+}
+
+if (ops[op][collection].opts){
+	for (var i = 0; i < ops[op][collection].opts.length; i++ ){
+		if (process.argv[i+count] == '-h' || process.argv[i+count] == 'help'){
+			usage(op,collection);
+		}
+		else if ( process.argv[i + count] !== undefined && ops[op][collection].possible[i].indexOf(process.argv[i + count ]) == -1 && ops[op][collection].possible[i].indexOf('*') === -1){
+			console.log("ERROR: Invalid option provided for optional parameter: " + ops[op][collection].opts[i]);
+			usage(op,collection);
+		}
+		args[ops[op][collection].opts[i]] = process.argv[i + count];
+	}	
 }
 
 
@@ -622,6 +657,60 @@ dbFunctions.connectAndInitializeDB().then(function(){
 			console.log("STATUS: SKIPPED " + skipped + " DOCUMNETS");
 		})
 	} else if (op == 'export'){
+		if (args.outfile.search(/.json$/) ==-1) {
+			console.log('WANRING: Output file must be in json format. Outfile will have ".json" added');
+			args.outfile += '.json';
+		}
+
+		var fileExists;
+		//Ensure that the file that is being created does not already exist
+		return Promise.resolve().then(function(){
+			return fs.statAsync(path.resolve(args.outfile)).then(function(){
+				fileExists = true;
+			}).catch(function(err){
+				//the file does not exist
+				fileExists = false;
+			});
+		}).then(function(){
+			if (fileExists){
+				console.log("ERROR: Output file already exsits. Will not overwrite")
+				usage(op,collection);
+			}
+			//File does not exists an contiue
+			var query = {};	
+			var opParams = ops[op][collection].opts;
+			var options = {};
+
+			if (opParams){
+				for (var i = 0; i < opParams.length; i++ ){
+					if (args[opParams[i]]){
+						query[opParams[i]] = args[opParams[i]];	
+					}
+				}
+			}
+
+			if (collection == 'genes'){
+				options['gene'] = 1;
+				options['type'] = 1;
+				options._id = 0;
+			}
+			return dbFunctions.find(colParams.collection,query,options)
+		}).then(function(result){
+
+			if (result.length == 0){
+				console.log("WARNING: NO DOCUMENTS WERE FOUND");
+			}
+			if ( collection == 'patients' && args.patient_id){
+				//The user wants information on a specific patien.
+				var colId = result[0][constants.dbConstants.PATIENTS.COLLECTION_ID];
+				return dbFunctions.find(colId,{},{_id:0}).then(function(result){
+					return result;
+				});
+			}
+			return result;
+		}).then(function(result){
+			return fs.writeFileAsync(args.outfile,JSON.stringify(result,0,4))
+		});
 	}
 
 }).then(function(){
@@ -630,7 +719,7 @@ dbFunctions.connectAndInitializeDB().then(function(){
 	dbFunctions.closeConnection(process.exit);
 }).catch(function(err){
 	console.log('\nERROR: ' + err.message);
-	//console.log(err.stack);
+	console.log(err.stack);
 	dbFunctions.closeConnection();
 	usage(op,collection);
 });
