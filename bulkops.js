@@ -55,33 +55,33 @@ var ops = {
 		helptxt : "Export a large number of documents at a single time and save the output to a json file",
 		usage:'\nbulkop.js export [collection] [file]',
 		future : {
-			helptxt:"",
+			helptxt:"Export all future considerations into a JSON array.\n\n\t-tsv\toutput in tsv format\n",
 			args : ['outfile']
 		},
 		recommendation :{
-			helptxt:"",
+			helptxt:"Export all Recommendations into a JSON aray.\n\n\t-tsv\toutput in tsv format\n",
 			args : ['outfile']
 		},
 		haplotype : {
-			helptxt:"",
+			helptxt:"Export all haplotypes into a JSON array.\n\n\t-tsv\toutput in tsv format\n",
 			args : ['outfile']
 		},
 		genes :{
-			helptxt:"",
+			helptxt:"Export all genes into a json array, however only export the gene name and the gene type.\n\n\t-tsv\toutput in tsv format\n",
 			args : ['outfile']
 		},
 		descriptors :{
-			helptxt:"",
+			helptxt:"Export the gene types into a json array.\n\n\t-tsv\toutput in tsv format\n",
 			args : ['outfile']
 		},
 		patients : {
-			helptxt:"",
+			helptxt:"Export all patients into a json array. If a patient identifier is provided export the information contained in the vcf document.\n\n\t-tsv\toutput in tsv format\n",
 			args : ['outfile'],
 			opts : [constants.dbConstants.PATIENTS.ID_FIELD],
 			possible: [['*']],
 		},
 		markers : {
-			helptxt:"",
+			helptxt:"Export all markers into a json array. If the optional 'type' parameter is provided return only the dbsnp or the custommarkers.\n\n\t-tsv\toutput in tsv format\n",
 			args : ['outfile'],
 			opts : ['type'],
 			possible : [['custom','dbsnp']]
@@ -335,7 +335,6 @@ if ( op == '-h' || op == 'help'){
 	usage();
 }
 
-
 var collection = process.argv[3];
 if (collection == '-h' || collection == 'help'){
 	usage(op,collection);
@@ -346,6 +345,10 @@ if (collection == '-h' || collection == 'help'){
 
 
 var args = {};
+if (process.argv.indexOf('-tsv') !== -1){
+	args.tsv = true;
+	process.argv.splice(process.argv.indexOf('-tsv'),1);
+}
 var count = 4;
 for (var i = 0; i < ops[op][collection].args.length; i++ ){
 	if (process.argv[i+4] == '-h' || process.argv[i+4] == 'help'){
@@ -657,9 +660,12 @@ dbFunctions.connectAndInitializeDB().then(function(){
 			console.log("STATUS: SKIPPED " + skipped + " DOCUMNETS");
 		})
 	} else if (op == 'export'){
-		if (args.outfile.search(/.json$/) ==-1) {
+		if (!args.tsv && args.outfile.search(/.json$/) ==-1) {
 			console.log('WANRING: Output file must be in json format. Outfile will have ".json" added');
 			args.outfile += '.json';
+		} else if(args.tsv && args.outfile.search(/.tsv$/) == -1){
+			console.log("WARNING: -tsv flag given but specified outfile does not have a tsv extension. Outfile will have a'.tsv' added")
+			args.outfile += ".tsv";
 		}
 
 		var fileExists;
@@ -697,9 +703,6 @@ dbFunctions.connectAndInitializeDB().then(function(){
 			return dbFunctions.find(colParams.collection,query,options)
 		}).then(function(result){
 
-			if (result.length == 0){
-				console.log("WARNING: NO DOCUMENTS WERE FOUND");
-			}
 			if ( collection == 'patients' && args.patient_id){
 				//The user wants information on a specific patien.
 				var colId = result[0][constants.dbConstants.PATIENTS.COLLECTION_ID];
@@ -709,7 +712,34 @@ dbFunctions.connectAndInitializeDB().then(function(){
 			}
 			return result;
 		}).then(function(result){
-			return fs.writeFileAsync(args.outfile,JSON.stringify(result,0,4))
+			if (result.length == 0){
+				console.log("WARNING: NO DOCUMENTS WERE FOUND");
+			} else {
+				//Save the output in tsv format;
+				if (args.tsv) {
+					var outstring = "";
+					var header = false;
+					var keys;
+					for (var i = 0; i < result.length; i++ ){
+						if (!header){
+							keys = Object.keys(result[i]);
+							for (var key = 0; key < keys.length -1; key++ ){
+								outstring+= keys[key] + '\t'
+							}
+							outstring += keys[key] + '\n'
+							header = true;
+						}
+						for (var key = 0; key < keys.length-1; key++ ){
+							outstring+= result[i][keys[key]].toString() + '\t';
+						}
+						outstring += result[i][keys[key]].toString() + '\n'
+					}
+
+					return fs.writeFileAsync(args.outfile, outstring);
+				} else {	
+					return fs.writeFileAsync(args.outfile,JSON.stringify(result,0,4))
+				}
+			}
 		});
 	}
 
