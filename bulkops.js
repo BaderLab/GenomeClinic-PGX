@@ -388,6 +388,7 @@ dbFunctions.connectAndInitializeDB().then(function(){
 		var added = 0;
 		var skipped = 0;
 
+		if (args.tsv) console.log("MESSAGE: Unused parameter -tsv found, however the import method only takes json files");
 		if (args.file.search(/.json$/) ==-1) {
 			console.log('ERROR: File must be in the json format');
 			usage(op,collection);
