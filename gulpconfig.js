@@ -83,6 +83,10 @@ module.exports = {
 			name:'webapp.js',
 			dest:'build'
 		},
+		bulkops:{
+			src:'src/server/src/bulkops.js',
+			dest:'build'
+		},
 		routes:{
 			src:'src/server/routes/*.js',
 			dest:'build/controllers'

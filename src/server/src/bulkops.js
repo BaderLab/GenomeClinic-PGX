@@ -445,7 +445,7 @@ dbFunctions.connectAndInitializeDB().then(function(){
 
 		/* if the collection defined is 'patient' the user will be directly uplaoding a .tsv or a .vcf file
 		 * and adding a new patient to the server. The User patienst must be unique name s or the user must 
-		 * provide unoique names for the user */)
+		 * provide unoique names for the user */
 		if (collection == 'patient'){
 			//Load the parser
 			var parser = require('./lib/parseVCF');
