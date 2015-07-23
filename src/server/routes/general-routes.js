@@ -81,6 +81,12 @@ module.exports = function(app,logger,opts){
 		});
 	});
 
+	app.get('/config/current', utils.isLoggedIn, function(req,res){
+		dbFunctions.findOne(dbConstants.DB.ADMIN_COLLECTION,{},req.user.username).then(function(result){
+			res.send(result);
+		})
+	})
+
 	//==================================================================
 	//Generic page routers
 	//==================================================================
@@ -150,7 +156,7 @@ module.exports = function(app,logger,opts){
 	 * Essentially its sayin, anything coming in will be sent to 404notfound
 	 */
 	app.get(/^\/(.+)/, function(req,res){
-		utils.render(req,res,'notfound');
+		utils.render(req,res,{type:'notfound'});
 	});
 };
 

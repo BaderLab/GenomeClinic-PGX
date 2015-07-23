@@ -13,6 +13,8 @@ var bcrypt = require("bcrypt-nodejs");
 var randomstring = require("just.randomstring");
 var fs = Promise.promisifyAll(require('fs'));
 var logger = require('../lib/logger');
+var getRS = require('../lib/getDbSnp');
+var _ = require('underscore');
 
 var dbFunctions = function(){
 //=======================================================================================
@@ -54,6 +56,7 @@ var dbFunctions = function(){
 	var createInitCollections= function() {
 		logger("info","Creating and initializing database",{action:'createInitCollections'});
 		assert.notStrictEqual(db, undefined); // ensure we're connected first
+		
 		var promise= new Promise(function(resolve, reject) {
 			var currentDocument = {};
 			currentDocument[dbConstants.PATIENTS.CURRENT_INDEX_FIELD]= 1;
@@ -64,176 +67,196 @@ var dbFunctions = function(){
 			// Create a patient collection and index by unique identifiers.
 			// Do the same for panel collections.
 			self.insert(dbConstants.DB.ADMIN_COLLECTION, currentDocument)
-				.then(function(result) {
-					// Patient IDs are unique.
-					currentDocument= {};
-					currentDocument[dbConstants.PATIENTS.ID_FIELD]= 1;  // index in ascending order
-					return self.createIndex(dbConstants.PATIENTS.COLLECTION, currentDocument, {unique: true});
-				})
-				.then(function(result){
-					// Patient Collection IDs are also unique
-					currentDocument= {};
-					currentDocument[dbConstants.PATIENTS.COLLECTION_ID]= -1;  // index in descending order
-					return self.createIndex(dbConstants.PATIENTS.COLLECTION, currentDocument, {unique: true});
-				})
-				.then(function(result){
-					var currentDocument = {};
-					currentDocument[dbConstants.USERS.ID_FIELD]=-1;
-					return self.createIndex(dbConstants.USERS.COLLECTION,currentDocument,{unique:true});
-				})
-				.then(function(result) {
-					// Panel IDs are unique.
-					currentDocument= {};
-					currentDocument[dbConstants.PANELS.ID_FIELD]= 1;  // index in ascending order
-					return self.createIndex(dbConstants.PANELS.COLLECTION, currentDocument, {unique: true});
-				})
-				.then(function(result){
-					// Panel Collection IDs are also unique
-					currentDocument= {};
-					currentDocument[dbConstants.PANELS.COLLECTION_ID]= -1;  // index in descending order
-					return self.createIndex(dbConstants.PANELS.COLLECTION, currentDocument, {unique: true});
-				})
-				.then(function(result){
-					//project_id field should be unique
-					currentDocument = {};
-					currentDocument[dbConstants.PROJECTS.ID_FIELD] = 1; // index in ascending order
-					return self.createIndex(dbConstants.PROJECTS.COLLECTION, currentDocument,{unique:true}); 
-				})
-				//Add the default pgx data to the collection if its not there already and only if it exists.
-				.then(function(){
-					
-					fs.statAsync(dbConstants.PGX.COORDS.DEFAULT)
-					.then(function(){
-						// Make sure both the Genes and the Coords are available.
-						return fs.statAsync(dbConstants.PGX.GENES.DEFAULT);
-					}).catch(function(err){
-						logger('info','No Default PGx informaton detected, skipping step',{action:'createInitCollections'});
-					}).then(function(result){
-						var pgxCoords = require(dbConstants.PGX.COORDS.DEFAULT);
-						var pgxGenes = require(dbConstants.PGX.GENES.DEFAULT);
-						var o,rsIds;
-						var coordIds = [];
-						//Get a list of all the coordinate ids
-						for (var i=0; i < pgxCoords.length;i++ ){
-							coordIds.push(pgxCoords[i].id);
-						}
-						//Check to ensure the default information is complete.
-						for (i = 0; i < pgxGenes.length; i++ ){
-							rsIds = [];
-							var keys = Object.keys(pgxGenes[i].haplotypes);
-							for (var j = 0; j < keys.length; j++ ){
-								rsIds = rsIds.concat(pgxGenes[i].haplotypes[keys[j]]);
-							}
-							for ( j = 0; j < rsIds.length; j++){
-								if (coordIds.indexOf(rsIds[j]) === -1)
-									throw new Error("PGX coordinate information incompletee. Missing Id's in PGX coordinates that were found in haplotpyes");
-							}
-						}
+			.then(function(result) {
+				// Patient IDs are unique.
+				currentDocument= {};
+				currentDocument[dbConstants.PATIENTS.ID_FIELD]= 1;  // index in ascending order
+				return self.createIndex(dbConstants.PATIENTS.COLLECTION, currentDocument, {unique: true});
+			})
+			.then(function(result){
+				// Patient Collection IDs are also unique
+				currentDocument= {};
+				currentDocument[dbConstants.PATIENTS.COLLECTION_ID]= -1;  // index in descending order
+				return self.createIndex(dbConstants.PATIENTS.COLLECTION, currentDocument, {unique: true});
+			})
+			.then(function(result){
+				var currentDocument = {};
+				currentDocument[dbConstants.USERS.ID_FIELD]=-1;
+				return self.createIndex(dbConstants.USERS.COLLECTION,currentDocument,{unique:true});
+			})
+			.then(function(result) {
+				// Panel IDs are unique.
+				currentDocument= {};
+				currentDocument[dbConstants.PANELS.ID_FIELD]= 1;  // index in ascending order
+				return self.createIndex(dbConstants.PANELS.COLLECTION, currentDocument, {unique: true});
+			})
+			.then(function(result){
+				// Panel Collection IDs are also unique
+				currentDocument= {};
+				currentDocument[dbConstants.PANELS.COLLECTION_ID]= -1;  // index in descending order
+				return self.createIndex(dbConstants.PANELS.COLLECTION, currentDocument, {unique: true});
+			})
+			.then(function(result){
+				//project_id field should be unique
+				currentDocument = {};
+				currentDocument[dbConstants.PROJECTS.ID_FIELD] = 1; // index in ascending order
+				return self.createIndex(dbConstants.PROJECTS.COLLECTION, currentDocument,{unique:true}); 
+			//Add the default pgx data to the collection if its not there already and only if it exists.
 
-						o = {
-							documents : pgxCoords,
-							collectionName : dbConstants.PGX.COORDS.COLLECTION
-						};
-						return self.insertMany(o)
-						.then(function(result){
-							currentDocument = {};
-							currentDocument[dbConstants.PGX.COORDS.ID_FIELD] = 1;
-							return self.createIndex(dbConstants.PGX.COORDS.COLLECTION,currentDocument,{unique:true});
-						}).then(function(){
-							o.documents = pgxGenes;
-							o.collectionName = dbConstants.PGX.GENES.COLLECTION;
-							return self.insertMany(o);
-						}).then(function(result){
-							currentDocument = {};
-							currentDocument[dbConstants.PGX.GENES.ID_FIELD] = 1;
-							return self.createIndex(dbConstants.PGX.GENES.COLLECTION,currentDocument,{unique:true})
-						}).catch(function(err){
-							logger('error',err,{action:'createInitCollections'});
+			}).then(function(){
+			/* Drug recommendation (both future and current recommendations) as well as associated haplotypes
+			 * are all stored in separate collections. Each Entry in the colleciton is a single recommendation.
+			 * Additionally within there is a separate collection created that contains one document
+			 * corresponding to a single gene. This collection does not contain any data persay but contains
+			 * several fields, recommendations, future, and haplotypes. Each of these are an array with object
+			 * id's that link to the specific recmmomendation. This allows for very easy association of complex 
+			 * durg relationships. Ie if a single recommendation interacts with many drugs, its object id is simply
+			 * added to the dosing document for each of those drugs. All of the information is contained in the 
+			 * main recommendaiton document.
+			 */
+			 	var data;
+				//Check to see if there are currently any default dosing recommendations
+				return fs.statAsync(dbConstants.DRUGS.DEFAULT)
+				//If there are add them to the database
+				.then(function(result){
+					//Save the default data in the data objec
+					data = require(dbConstants.DRUGS.DEFAULT);
+				}).then(function(){
+					//Require he recommendations
+					return Promise.resolve(data.Recommendations).each(function(item){
+						return self.insert(dbConstants.DRUGS.DOSING.COLLECTION,item).then(function(result){
+							return Promise.resolve(result.genes).each(function(gene){
+								// check to see if there is a 
+								return self.checkInDatabase(dbConstants.DRUGS.ALL.COLLECTION,dbConstants.DRUGS.ALL.ID_FIELD,gene)
+								.then(function(exists){
+									if (!exists){
+										//If this is a new gene, create a new document
+										return self.drugs.createNewDoc(gene,data.Genes[gene])
+									}
+								}).then(function(){
+								//Update the documents now to iunclude the new objectID's
+									var query = {};
+									query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
+									var update = {$addToSet:{}};
+									update.$addToSet[dbConstants.DRUGS.ALL.RECOMMENDATIONS] = result._id;
+									return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update);
+								})
+							});
+						});
+					}).catch(function(err){
+						logger("error",err,{action:'createInitCollections'});
+					});
+				}).then(function(){
+					//Same as previously except for the future collections;
+					return Promise.resolve(data.Future).each(function(item){
+						return self.insert(dbConstants.DRUGS.FUTURE.COLLECTION,item).then(function(result){
+							var gene = result[dbConstants.DRUGS.FUTURE.ID_FIELD]
+								// check to see if it exists already
+							return self.checkInDatabase(dbConstants.DRUGS.ALL.COLLECTION,dbConstants.DRUGS.ALL.ID_FIELD,gene)
+							.then(function(exists){
+								if (!exists){
+									return self.drugs.createNewDoc(gene,data.Genes[gene]);
+								}
+							}).then(function(){
+								var query = {};
+								query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
+								var update = {$addToSet:{}}
+								update.$addToSet[dbConstants.DRUGS.ALL.FUTURE] = result._id;
+								return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update);
+							});
+						});
+					}).catch(function(err){
+						logger("error",err,{action:'createInitCollections'});
+					});
+				
+				}).then(function(){
+					/* Assignment of the recommendation centre around the concept of attributing classes
+					 * to a diplotype for a specific gene. These classes are different depending on the "type"
+					 * of gene (ie. metabolizer or other); */
+					var o = {
+						documents: data.Classes,
+						collectionName: dbConstants.DRUGS.CLASSES.COLLECTION
+					};
+					return self.insertMany(o)
+					.catch(function(err){
+						logger("err",err,{action:'createInitCollections'});
+					});
+				}).catch(function(err){
+					logger("info",dbConstants.DRUGS.DEFAULT + " was not found and could not be added to the databse",{action:'createInitCollections'});
+				});
+
+			}).then(function(){
+				//Create Collections for haplotypes.
+				currentDocument = {};
+				currentDocument[dbConstants.PGX.GENES.ID_FIELD] = 1;
+				return self.createIndex(dbConstants.PGX.GENES.COLLECTION,currentDocument);
+			}).then(function(){
+				//Chech to ensure the default haplotypes are located within direcetoryh
+				fs.statAsync(dbConstants.PGX.GENES.DEFAULT)
+				.then(function(){
+					var pgxGenes = require(dbConstants.PGX.GENES.DEFAULT);
+					var markers = [],keys;
+					//Compile a list of all the markers within the haplotypes
+					for (var i = 0; i < pgxGenes.length; i++ ){
+						for (var j = 0; j < pgxGenes[i].markers.length; j++ ){
+							if (markers.indexOf(pgxGenes[i].markers[j]) == -1 ) markers.push(pgxGenes[i].markers[j])
+						}
+					}
+
+					//Retrieve marker information from ncbi dbsnp databse and then save to the local database
+					return getRS(markers).then(function(result){
+						if (result.missing.length > 0 ){
+							logger('info','could not retrieve information from NCBI dbSNP for several markers', {action:'getRS',missing:result.missing.length});
+						}
+						if (result.dbSnp.length > 0 ){
+							var options = {
+								collectionName : dbConstants.PGX.COORDS.COLLECTION,
+								documents: result.dbSnp
+							};
+							return self.insertMany(options);
+						}
+					//Add the Haplotypes to the database
+					}).then(function(){
+
+						return Promise.resolve(pgxGenes).each(function(item){
+							delete item._id;
+							return self.insert(dbConstants.PGX.GENES.COLLECTION,item).then(function(result){
+								var gene = result.gene;
+								// check to see if it exists already
+								return self.checkInDatabase(dbConstants.DRUGS.ALL.COLLECTION,dbConstants.DRUGS.ALL.ID_FIELD,gene)
+								.then(function(exists){
+									if (!exists){
+										return self.drugs.createNewDoc(gene);
+									}
+								}).then(function(){
+									var query = {};
+									query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
+									var update = {$addToSet:{}}
+									update.$addToSet[dbConstants.DRUGS.ALL.CURRENT_HAPLO] = result._id;
+									return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update);
+								}).then(function(){
+									return self.addMarkerToGene(result.markers,gene)
+								});
+							});
 						});
 					}).catch(function(err){
 						logger('error',err,{action:'createInitCollections'});
 					});
-				}).then(function(){
-					//create non unique indexes based on pgx_1
-					currentDocument = {};
-					currentDocument[dbConstants.DRUGS.ALL.ID_FIELD] = 1;
-					return self.createIndex(dbConstants.DRUGS.ALL.COLLECTION,currentDocument);
-				}).then(function(){
-					return fs.statAsync(dbConstants.DRUGS.DOSING.DEFAULT)
-					.then(function(result){
 
-						var dosing = require(dbConstants.DRUGS.DOSING.DEFAULT);
-						return Promise.resolve(dosing).each(function(item){
-							return self.insert(dbConstants.DRUGS.DOSING.COLLECTION,item).then(function(result){
-								return Promise.resolve(result.genes).each(function(gene){
-									// check to see if it exists already
-									return self.checkInDatabase(dbConstants.DRUGS.ALL.COLLECTION,dbConstants.DRUGS.ALL.ID_FIELD,gene)
-									.then(function(exists){
-										if (!exists){
-											return self.drugs.createNewDoc(gene)
-										}
-									}).then(function(){
-										var query = {};
-										query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
-										var update = {$addToSet:{}}
-										update.$addToSet[dbConstants.DRUGS.ALL.RECOMMENDATIONS] = result._id;
-										return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update)
-									})
-								});
-							});
-						});
-					}).catch(function(err){
-						logger("error",err,{action:'createInitCollections'});
-					});
-				}).then(function(){
-					return fs.statAsync(dbConstants.DRUGS.FUTURE.DEFAULT)
-					.then(function(result){
-
-						var future = require(dbConstants.DRUGS.FUTURE.DEFAULT);
-						return Promise.resolve(future).each(function(item){
-							return self.insert(dbConstants.DRUGS.FUTURE.COLLECTION,item).then(function(result){
-								var gene = result[dbConstants.DRUGS.FUTURE.ID_FIELD]
-									// check to see if it exists already
-								return self.checkInDatabase(dbConstants.DRUGS.ALL.COLLECTION,dbConstants.DRUGS.ALL.ID_FIELD,gene)
-								.then(function(exists){
-									if (!exists){
-										return self.drugs.createNewDoc(gene)
-									}
-								}).then(function(){
-									var query = {};
-									query[dbConstants.DRUGS.ALL.ID_FIELD] = gene
-									var update = {$addToSet:{}}
-									update.$addToSet[dbConstants.DRUGS.ALL.FUTURE] = result._id;
-									return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update)
-								});
-							});
-						});
-					}).catch(function(err){
-						logger("error",err,{action:'createInitCollections'});
-					});
-				}).then(function(){
-					currentDocument = {};
-					currentDocument[dbConstants.DRUGS.CLASSES.ID_FIELD] = 1;
-					return self.createIndex(dbConstants.DRUGS.CLASSES.COLLECTION,currentDocument,{unique:true});
-				}).then(function(){
-					return fs.statAsync(dbConstants.DRUGS.CLASSES.DEFAULT)
-					.then(function(result){
-						var dosing = require(dbConstants.DRUGS.CLASSES.DEFAULT);
-						var o = {
-							documents: dosing,
-							collectionName: dbConstants.DRUGS.CLASSES.COLLECTION
-						};
-						return self.insertMany(o);
-					}).then(function(){
-					}).catch(function(err){
-						logger("info",dbConstants.DRUGS.CLASSES.DEFAULT + " was not found and could not be added to the databse",{action:'createInitCollections'});
-					});
-				}).then(function(result) {
-					resolve();
-				}).catch(function(err) {
-					logger('error',err);
-					reject(err);
+				}).catch(function(err){
+					logger('info','No Defualt PGx Data detected, skipping step',{action:'createInitCollections'});
 				});
+			}).then(function(){
+				//create non unique indexes basex on the gene name
+				currentDocument = {};
+				currentDocument[dbConstants.DRUGS.ALL.ID_FIELD] = 1;
+				return self.createIndex(dbConstants.DRUGS.ALL.COLLECTION,currentDocument);
+			}).then(function(result) {
+				resolve();
+			}).catch(function(err) {
+				logger('error',err);
+				reject(err);
+			}); 
 		});
 		return promise;
 	};
@@ -354,7 +377,7 @@ var dbFunctions = function(){
 		});
 	};
 
-	this.checkDefaultGenes = function(){
+	/*this.checkDefaultGenes = function(){
 		var genes,toAdd=[];
 		var _this = this;
 		assert.notStrictEqual(db,undefined);
@@ -381,7 +404,7 @@ var dbFunctions = function(){
 		}).catch(function(err){
 			logger('error',err,{action:'checkDefaultMarkers'});
 		});
-	};
+	};*/
 
 //=======================================================================================
 //=======================================================================================
@@ -424,9 +447,7 @@ var dbFunctions = function(){
 			 				});
 				 	} 
 				 }).then(function(){
-				 	return _this.checkDefaultMarkers();
-				 }).then(function(){
-				 	return _this.checkDefaultGenes();
+				 	return //_this.checkDefaultGenes();
 				 }).then(function(){
 				 	resolve();
 				 }).catch(function(err) {
@@ -554,7 +575,6 @@ var dbFunctions = function(){
 		if (options)
 			assert(Object.prototype.toString.call(options) == "[object Object]",
 			"Invalid update options");
-
 		var promise= new Promise(function(resolve, reject) {
 			db.collection(collectionName).update(query, doc, options, function(err, resultDoc) {
 				if (err) {
@@ -652,11 +672,16 @@ var dbFunctions = function(){
 					if ( err ){
 						logger("error",err,{action:'createCollection',target:name,user:user});
 						reject(err);
+						return false
 					} else {
-						logger("info","successfully create new collection",{action:'createCollection',target:name,user:user});
+						logger("info","successfully created new collection",{action:'createCollection',target:name,user:user});
 						resolve(collection);
+						return false
 					}
 				});
+			} else {
+				reject();
+				return false;
 			}
 		});
 		return promise;
@@ -1118,22 +1143,23 @@ var dbFunctions = function(){
 	};
 
 
-	this.getPGXCoords = function(rsID,username) {
+	this.getPGXCoords = function(rsID,username,type) {
 		assert.notStrictEqual(db,undefined);
 		var query = {};
 		if (Object.prototype.toString.call(rsID) == "[object Array]")
 			query[dbConstants.PGX.COORDS.ID_FIELD] = {$in:rsID};
 		else if (rsID)
 			query[dbConstants.PGX.COORDS.ID_FIELD] = rsID;
-
+		if (type)
+			query.type = type;
 		return find(dbConstants.PGX.COORDS.COLLECTION,query,undefined,null,username)
 		.then(function(result){
 			var out = {};
 			for (var i = 0; i < result.length; i++ ){
-				out[result[i].id] = {};
+				out[result[i]._id] = {};
 				for (var key in result[i]){
-					if (result[i].hasOwnProperty(key) && key != "id"){
-						out[result[i].id][key] = result[i][key];
+					if (result[i].hasOwnProperty(key)){
+						out[result[i]._id][key] = result[i][key];
 					}
 				}
 			}
@@ -1141,6 +1167,98 @@ var dbFunctions = function(){
 		});
 	};
 
+	/* Update all the pgxCoordinates
+	 * Query the NCBI's dbsnp to find all minformation on all the markers included in
+	 * our database (can take a minute). THen if there are any changes update the databse
+	 */
+	this.updatedbSnpPGXCoords = function(snp){
+		var record, update, changed = [], notFound = [], notchanged = [], toChange = [];
+		assert.notStrictEqual(db,undefined);
+		return self.getPGXCoords(snp ,null,'dbsnp').then(function(markers){
+			var markerNames = Object.keys(markers);
+			return getRS(markerNames).then(function(result){
+				foundMarkers = [];
+				//Check to see if any of the genes have changed.
+				for (var i = 0; i < result.dbSnp.length; i++ ){
+					//check version
+					record = result.dbSnp[i];
+					update = false;
+					foundMarkers.push(record._id);
+					if (markers[record._id].build < record.build) update = true;
+					if (markers[record._id].assembly < record.assembly ) update = true;
+					if (markers[record._id].ref != record.ref ) update = true;
+					if (!_.isEqual(markers[record._id].alt,record.alt) ) update = true;
+					if (update) toChange.push(record);	
+					else notchanged.push(record._id);
+				}
+
+				for (i = 0; i < markers.length; i++ ){
+					if (foundMarkers.indexOf(markers[i]) == -1 ) notFound.push(markers[i]);
+				}
+				return toChange;
+			}).each(function(record){
+				return self.update(dbConstants.PGX.COORDS.COLLECTION,{_id:record._id},record).then(function(){
+					changed.push(record);
+				});
+			}).then(function(){
+				output = {
+					changed:changed,
+					missing:notFound,
+					notchanged:notchanged
+				};
+				return output;
+			});
+		});
+	};
+
+
+	this.addMarkerToGene = function(markers,gene,user){
+		assert.notStrictEqual(db,undefined);
+		var _this = this;
+
+		if (Object.prototype.toString.call(markers) == '[object String]')
+			markers = [markers];
+
+		//ensure that each marker exists
+		return Promise.resolve(markers).each(function(marker){
+			return _this.findOne(dbConstants.PGX.COORDS.COLLECTION, {_id:marker},user).then(function(result){
+				if (!result) {
+					throw new Error("Could not find " + marker + ". Please add the marker and continue.");
+				} else {
+					var query = {};
+					var update = {$addToSet:{}}
+
+					query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
+					update.$addToSet[dbConstants.DRUGS.ALL.MARKERS] = marker;
+					return _this.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,undefined,undefined,user);
+				}
+			});
+		});
+	};
+
+
+	this.removeMarkerFromGene = function(markers,gene,user){
+		assert.notStrictEqual(db,undefined);
+		var _this = this;
+
+		if (Object.prototype.toString.call(markers) == '[object String]')
+			markers = [markers];
+		
+		return Promise.resolve(markers).each(function(marker){
+			return _this.findOne(dbConstants.PGX.COORDS.COLLECTION, {_id:marker},user).then(function(result){
+				if (!result) {
+					throw new Error("Could not find " + marker + ". Please add the marker and continue.");
+				} else {
+					var query = {};
+					var update = {$pull:{}}
+
+					query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
+					update.$pull[dbConstants.DRUGS.ALL.MARKERS] = marker;
+					return _this.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,undefined,undefined,user);
+				}
+			});
+		});
+	};
 	//remove the selected marker
 	this.removePGXCoords = function(rsID,user){
 		assert.notStrictEqual(db,undefined);
@@ -1150,25 +1268,33 @@ var dbFunctions = function(){
 		return removeDocument(dbConstants.PGX.COORDS.COLLECTION,query,user);
 
 	};
-
-
 	/*retrieve the selected Haplotype Gene(s). Accepts an array or string, or no
 	 * arugment. If an array or string is passed it will search for all of the genes
 	 * in that are named, while if no arguments are passed it will retrieve ALL
 	 * of the genes */
-	this.getPGXGenes = function(geneName,user){
+	this.getPGXGenesForAnalysis = function(geneName,user){
 		assert.notStrictEqual(db,undefined);
 		var query = {};
 		if (Object.prototype.toString.call(geneName) == '[object Array]')
-			query[dbConstants.PGX.GENES.ID_FIELD] = {$in:geneName};
+			query[dbConstants.DRUGS.ALL.ID_FIELD] = {$in:geneName};
 		else if (geneName)
-			query[dbConstants.PGX.GENES.ID_FIELD] = geneName;
-		return find(dbConstants.PGX.GENES.COLLECTION,query,{'_id':0},undefined,user)
-		.then(function(result){
+			query[dbConstants.DRUGS.ALL.ID_FIELD] = geneName;
+		return find(dbConstants.DRUGS.ALL.COLLECTION,query,undefined,undefined,user)
+		.each(function(geneResult){
+			var query = {_id:{$in:geneResult[dbConstants.DRUGS.ALL.CURRENT_HAPLO]}}
+			return find(dbConstants.PGX.GENES.COLLECTION,query,undefined,undefined,user).then(function(result){
+				geneResult[dbConstants.DRUGS.ALL.CURRENT_HAPLO] = result;
+			});
+		}).then(function(result){
 			var out = {};
 			for (var i=0; i< result.length; i++ ){
-
-				out[result[i].gene] = result[i].haplotypes;
+				temp = {}
+				if (result[i][dbConstants.DRUGS.ALL.CURRENT_HAPLO].length !== 0){
+					for (var j = 0; j < result[i][dbConstants.DRUGS.ALL.CURRENT_HAPLO].length; j++ ){
+						temp[result[i][dbConstants.DRUGS.ALL.CURRENT_HAPLO][j].haplotype] = result[i][dbConstants.DRUGS.ALL.CURRENT_HAPLO][j].markers
+						}
+					out[result[i].gene] = temp;
+				}
 			}
 			return out;
 		});
@@ -1176,13 +1302,36 @@ var dbFunctions = function(){
 
 	//Remove the specified Gene
 	this.removePGXGene = function(geneName,user){
+		var _this = this;
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(geneName) == "[object String]");
 		var query = {};
-		query[dbConstants.PGX.GENES.ID_FIELD] = geneName;
-		return removeDocument(dbConstants.PGX.GENES.COLLECTION,query,user);
-
+		query[dbConstants.DRUGS.ALL.ID_FIELD] = geneName;
+		return _this.findOne(dbConstants.DRUGS.ALL.COLLECTION,query,undefined,undefined,user).then(function(result){
+			var ids = result[dbConstants.DRUGS.ALL.CURRENT_HAPLO];
+			return ids;
+		}).each(function(id){
+			return _this.removePGXHaplotype(id,geneName,user);
+		}).then(function(result){
+			var update = {$set:{}};
+			update.$set[dbConstants.DRUGS.ALL.MARKERS] = [];
+			return _this.update(dbConstants.DRUGS.ALL.COLLECTION, query,update,undefined,undefined,user);
+		});
 	};
+
+	this.removePGXHaplotype = function(id,gene,user){
+		var _this = this;
+		assert.notStrictEqual(db,undefined);
+		var update = {$pull:{}};
+		var query = {};
+		query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
+		update.$pull[dbConstants.DRUGS.ALL.CURRENT_HAPLO] = id;
+		return this.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,undefined,user)
+		.then(function(result){
+			return removeDocument(dbConstants.PGX.GENES.COLLECTION,{_id:id},user);
+		});
+
+	}
 
 	//Update the specified gene with the requqired parameter Doc
 	this.updatePGXGene = function(id,doc,user){
@@ -1219,7 +1368,7 @@ var dbFunctions = function(){
 		var promise= this.findOne(dbConstants.PATIENTS.COLLECTION, query, user)
 		.then(function(result) {
 			currentPatientCollectionID = result[dbConstants.PATIENTS.COLLECTION_ID];
-			return self.getPGXGenes();
+			return self.getPGXGenesForAnalysis();
 		}).then(function(result){
 			pgxGenes = result;
 			return self.getPGXCoords();
@@ -1249,21 +1398,26 @@ var dbFunctions = function(){
 			return pgxCoords;
 		}).then(function(result){
 			// build search query
-			query = {'$or' : []};
+			//query = {'$or' : []};
 			
 			var tempCoords;
 			var keys = Object.keys(result);
-			for ( var i = 0; i < keys.length; i++){
+			/*for ( var i = 0; i < keys.length; i++){
 				tempCoords = {};
 				tempCoords[dbConstants.VARIANTS.CHROMOSOME] = result[keys[i]].chr;
 				tempCoords[dbConstants.VARIANTS.START] = result[keys[i]].pos;
 				query.$or.push(tempCoords);
-			}
+			}*/
+			query = {};
+			query[dbConstants.VARIANTS.IDENTIFIER] = {$in:keys};
 			return find(currentPatientCollectionID, query, {"_id": 0},undefined,user); // don't send internal _id field
 		})
 		.then(function(result) {
 			var doc= {};
-			doc.variants= result;
+			doc.variants= {};
+			for (var i = 0; i < result.length; i++ ) {
+				doc.variants[result[i][dbConstants.VARIANTS.IDENTIFIER]] = result[i];
+			}
 			doc.pgxGenes = pgxGenes;
 			doc.pgxCoordinates = pgxCoords;
 			doc.patientID = patientID;
@@ -1404,6 +1558,7 @@ var dbFunctions = function(){
 			options.$project.numRecs = {$size:'$' + dbConstants.DRUGS.ALL.RECOMMENDATIONS}
 			options.$project.numFuture = {$size:'$' + dbConstants.DRUGS.ALL.FUTURE}
 			options.$project.numHaplo = {$size:'$' + dbConstants.DRUGS.ALL.HAPLO}
+			options.$project.numCurrH = {$size:'$' + dbConstants.DRUGS.ALL.CURRENT_HAPLO}
 			var sort = {$sort:{}};
 			sort.$sort[dbConstants.DRUGS.ALL.ID_FIELD] = 1;
 			var pipeline = [options,sort]
@@ -1530,13 +1685,16 @@ var dbFunctions = function(){
 		},
 		/* Create an empty dosing document based on the gene name. If the Gene already exists
 		 * reject the process and return an error */
-		createNewDoc : function(gene,user){
+		createNewDoc : function(gene,type,user){
 		var promise = new Promise(function(resolve,reject){
 			var newDoc = {};
+			newDoc[dbConstants.DRUGS.ALL.TYPE] = type || 'metabolizer'; // metabolizer is the default type
 			newDoc[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
 			newDoc[dbConstants.DRUGS.ALL.RECOMMENDATIONS] = [];
 			newDoc[dbConstants.DRUGS.ALL.HAPLO] = [];
 			newDoc[dbConstants.DRUGS.ALL.FUTURE] = [];
+			newDoc[dbConstants.DRUGS.ALL.CURRENT_HAPLO] = [];
+			newDoc[dbConstants.DRUGS.ALL.MARKERS] = [];
 			return self.insert(dbConstants.DRUGS.ALL.COLLECTION,newDoc,user)
 			.then(function(result){
 				resolve(result);

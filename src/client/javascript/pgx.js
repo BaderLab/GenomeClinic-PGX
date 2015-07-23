@@ -70,11 +70,12 @@ var pgx =  {
 		// Create list of all marker IDs for each gene by iterating through all 
 		// haplotypes and store a unique list of markers
 		var genes= Object.keys(pgxData.pgxGenes);
+		//Iterate over the list of genes
 		for (var i= 0; i < genes.length; ++i) {
-			var geneMarkers= [];
+			var geneMarkers= []; // List of gene Markers
 			var geneName= genes[i];
 
-			var haplotypes= Object.keys(pgxData.pgxGenes[geneName]);
+			var haplotypes= Object.keys(pgxData.pgxGenes[geneName]); //for each gene iterate over each haplotype
 			for (var j= 0; j < haplotypes.length; ++j) {
 				var haplotypeName= haplotypes[j];
 
@@ -90,7 +91,6 @@ var pgx =  {
 			// Store the list of unique markers in this object
 			pgxData.geneMarkers[geneName]= geneMarkers;
 		}
-
 		return Promise.resolve(pgxData);
 	},
 	/* Use the GT field to determine if a variant is heterozygous or homozygous.
@@ -114,7 +114,6 @@ var pgx =  {
 	 * phased or homozygous (and unphased). */
 	addToDefinedDiplotype: function(marker, variant, diplotype) {
 		var definedDiplotype= diplotype;
-
 	 	// if empty, initialize defined diplotypes to exactly 2 haplotypes
 	 	if (definedDiplotype === null) {
 	 		definedDiplotype= [[], []];
@@ -124,6 +123,7 @@ var pgx =  {
 	 	//var alleles= [variant["ref"]].concat(variant["alt"]);
 
 	 	for (var i= 0; i < variant.gt.length; ++i) {
+	 		//include the genotype if it is not ref call
 	 		if (variant.gt[i] > 0) {
 	 			definedDiplotype[i].push(marker);
 	 		}
@@ -177,28 +177,42 @@ var pgx =  {
 				// Ensure list of computed/derived possible haplotypes is unique.
 				// Don't include duplicates.
 				var hetRefCallKey= hetRefCall.sort().toString();
-				alreadyObservedHaplotypes[hetRefCallKey]= true;
+				if (alreadyObservedHaplotypes[hetRefCallKey] === undefined ){
+					alreadyObservedHaplotypes[hetRefCallKey]= true;
+					newPossibleHaplotypes.push(hetRefCall);
+				}
 
+				//alreadyObservedHaplotypes[hetRefCallKey]= true;
 				var hetAltCallKey= hetAltCall.sort().toString();
 				if (alreadyObservedHaplotypes[hetAltCallKey] === undefined) {
 					alreadyObservedHaplotypes[hetAltCallKey]= true;
 					newPossibleHaplotypes.push(hetAltCall);
 				}
 			}
+			possibleHaplotypes= self.removeDuplicates(possibleHaplotypes.concat(newPossibleHaplotypes));
 
-			possibleHaplotypes= possibleHaplotypes.concat(newPossibleHaplotypes);
 		}
-
-		return possibleHaplotypes;
+		return possibleHaplotypes
 	},
 	/* Generate all possible haplotypes from the genotype data.
 	 * This takes into account 
 	 * Returns a promise. */
 	generateAllHaplotypes: function(pgxData) {
 		var self = this;
-		var m,chrom,pos,found,currentVariant,definedDiplotype,unphasedHets,possibleHaplotypes,allVariants,currentGeneMarkers;
+		var m, //current marker
+			chrom,
+			pos,
+			found,
+			currentVariant,
+			definedDiplotype, //the set diplotype
+			unphasedHets, //unphased heterozygous positions
+			possibleHaplotypes, // list of possible haplotypes
+			allVariants, // all the variants
+			currentGeneMarkers, //markers for a given gene
+			overallPhase;
 		pgxData.possibleHaplotypes= {};
-
+		pgxData.phaseStatus = {};
+		allVariants= pgxData.variants; //All of the patients variants
 		// Iterate through all genes
 		var geneNames= Object.keys(pgxData.pgxGenes);  ///// UNBLOCK AFTER MERGED WITH NEW ANNOTATOR
 		
@@ -210,49 +224,32 @@ var pgx =  {
 			definedDiplotype= null;
 			unphasedHets= {};
 			possibleHaplotypes= [];
+			overallPhase = true;
 
 			// Iterate through the markers for this gene, and match variants by
 			// coordinates not gene name (which is annotated by annovar)
 			currentGeneMarkers= pgxData.geneMarkers[geneNames[i]];
-			allVariants= pgxData.variants;
 
 			for (var j= 0; j < currentGeneMarkers.length; ++j) {
 				m= currentGeneMarkers[j];
-				chrom= pgxData.pgxCoordinates[m].chr;
-				pos= pgxData.pgxCoordinates[m].pos;
-
-				// Match with this patient's variants. Simplest to iterate through
-				// all patient variants and match coordinates for current marker
-				found= false;
-				for (var k= 0; k < allVariants.length; ++k) {
-					currentVariant= allVariants[k];
-					if (chrom === currentVariant.chr && pos === currentVariant.pos) {
-						// marker found
-						found= true;
-						markerByID[m]= currentVariant;
-
-						if (currentVariant.phased_status || self.isHom(currentVariant)) {
-							definedDiplotype= self.addToDefinedDiplotype(m, currentVariant, definedDiplotype);
-						} else {
-							unphasedHets[m]= currentVariant;
-						}
+				currentVariant = allVariants[m]
+				if (currentVariant){ 
+					if (currentVariant.phased_status ){
+						definedDiplotype = self.addToDefinedDiplotype(m, currentVariant,definedDiplotype);
+					} else if (self.isHom(currentVariant)){
+						overallPhase = false;
+						definedDiplotype = self.addToDefinedDiplotype(m, currentVariant,definedDiplotype);
+					}else {
+						overallPhase = false
+						unphasedHets[m]= currentVariant;
 					}
-				}
-
-				// Keep track of markers that weren't found
-				if (!found) {
-					// arbitrary value, but false makes more sense because it's missing
-					markerByID[m]= false;
-				}
+				} 
 			}
-
-			possibleHaplotypes= self.getPossibleHaplotypes(definedDiplotype, unphasedHets);
-
 			// add the possible haplotypes to the main pgx
-			pgxData.possibleHaplotypes[geneNames[i]]= possibleHaplotypes;
-			pgxData.markerByID= markerByID;
+			pgxData.possibleHaplotypes[geneNames[i]]= self.getPossibleHaplotypes(definedDiplotype, unphasedHets);
+			pgxData.phaseStatus[geneNames[i]] = overallPhase
+			pgxData.markerByID= allVariants;//markerByID;
 		}
-
 		return Promise.resolve(pgxData);
 	},
 	/* Map haplotype representation to markers to create a format that can be used
@@ -294,44 +291,51 @@ var pgx =  {
 		var knownHaplotypes= {};
 		var patientHaplotypes= {};
 		var self = this;
-
+		var cont= true;
 		// Convert all haplotypes (from patient or predefined known ones) to a
 		// string representation that can be compared using edit distance.
 
 		var ph= Object.keys(pgxData.possibleHaplotypes);
 		for (var i= 0; i < ph.length; ++i) {
 			var currentGene= ph[i];
+			cont = true;
 			var currentGeneMarkers= pgxData.geneMarkers[currentGene];
-
 			var haplotypes= pgxData.possibleHaplotypes[currentGene];
 			for (var j= 0; j < haplotypes.length; ++j) {
 				var currentHaplotype= haplotypes[j];
 				var stringRep= self.haplotypeToString(
 					pgxData.markerByID, currentHaplotype, currentGeneMarkers);
 
-				// Store patient haplotype, arbitrarily labeled "h1", "h2", etc.
-				var tempHaplotypeName= "h" + (j + 1);
-				// initialize
-				if (patientHaplotypes[currentGene] === undefined) {
-					patientHaplotypes[currentGene]= {};
-				}
-				if (patientHaplotypes[currentGene][tempHaplotypeName] === undefined) {
-					patientHaplotypes[currentGene][tempHaplotypeName]= {};
-				}
+				//This line is very important, it essentially prevents any haplotypes
+				//with 'MISSING' data from being included in the final data
+				if (stringRep.indexOf('m')!==-1)cont = false;
 
-				patientHaplotypes[currentGene][tempHaplotypeName].haplotype= currentHaplotype;
-				patientHaplotypes[currentGene][tempHaplotypeName].stringRep= stringRep;
+				if (cont){
+					// Store patient haplotype, arbitrarily labeled "h1", "h2", etc.
+					var tempHaplotypeName= "h" + (j + 1);
+					// initialize
+					if (patientHaplotypes[currentGene] === undefined) {
+						patientHaplotypes[currentGene]= {};
+					}
+					if (patientHaplotypes[currentGene][tempHaplotypeName] === undefined) {
+						patientHaplotypes[currentGene][tempHaplotypeName]= {};
+					}
+
+					patientHaplotypes[currentGene][tempHaplotypeName].haplotype= currentHaplotype;
+					patientHaplotypes[currentGene][tempHaplotypeName].stringRep= stringRep;
+				}
 			}
 		}
-
+		//Loop over each gene
 		var pg= Object.keys(pgxData.pgxGenes);
 		for (var i= 0; i < pg.length; ++i) {
-			var currentGene= pg[i];
-			var currentGeneMarkers= pgxData.geneMarkers[currentGene];
-
+			var currentGene= pg[i]; //the current gene
+			var currentGeneMarkers= pgxData.geneMarkers[currentGene]; // markers for the current gene
+			//Get the names of the haplotypes for the current gene
 			var haplotypeNames= Object.keys(pgxData.pgxGenes[currentGene]);
 			for (var j= 0; j < haplotypeNames.length; ++j) {
 				var currentHaplotype= pgxData.pgxGenes[currentGene][haplotypeNames[j]];
+				//generate the string rep for the known haplotypes
 				var stringRep= self.haplotypeToString(
 					null, currentHaplotype, currentGeneMarkers);
 
@@ -348,7 +352,6 @@ var pgx =  {
 				knownHaplotypes[currentGene][haplotypeNames[j]].stringRep= stringRep;
 			}
 		}
-
 		pgxData.pgxGenesStringRep= knownHaplotypes;
 		pgxData.possibleHaplotypesStringRep= patientHaplotypes;
 
@@ -360,10 +363,13 @@ var pgx =  {
 	 * Returns a promise. */
 	findClosestHaplotypeMatches: function(pgxData) {
 		var self = this;
+		//Patient Genes
 		var genes= Object.keys(pgxData.possibleHaplotypesStringRep);
+		//loop over each gene for the patient and get information about the gene.
 		for (var i= 0; i < genes.length; ++i) {
 			
 			var patientHaplotypes= Object.keys(pgxData.possibleHaplotypesStringRep[genes[i]]);
+			//Arbitrary names of the patient haplotypes
 			for (var j= 0; j < patientHaplotypes.length; ++j) {
 				
 				/* For each haplotype, compute the distance to each known haplotype
@@ -376,12 +382,15 @@ var pgx =  {
 				 	pgxData.possibleHaplotypesStringRep[genes[i]][patientHaplotypes[j]].stringRep;
 
 				 var knownHaplotypes= Object.keys(pgxData.pgxGenesStringRep[genes[i]]);
+				 //Given the currentPatientHaplotype, loop over all the knownHaplotypes 
+				 //find a close match for the string representations.
 				 for (var k= 0; k < knownHaplotypes.length; ++k) {
 				 	var currentKnownHaplotypeString= 
 				 		pgxData.pgxGenesStringRep[genes[i]][knownHaplotypes[k]].stringRep;
 				 	var tempDistance= self.getEditDistance(
 				 		currentPatientHaplotypeString, currentKnownHaplotypeString);
 
+				 	//If this is the first pass, or the tempDistance is less then the current minDistance
 				 	if (minDistance === null || tempDistance < minDistance) {
 				 		minDistance= tempDistance;
 				 		closestMatch= [knownHaplotypes[k]];
@@ -395,7 +404,6 @@ var pgx =  {
 				 	minDistance;
 				 pgxData.possibleHaplotypesStringRep[genes[i]][patientHaplotypes[j]].closestMatch=
 				 	closestMatch;
-
 			}
 		}
 
@@ -446,13 +454,14 @@ var pgx =  {
 		})
 		.then(function(result) {
 			self.globalPGXData= result;  // set the globally-scoped PGX Data
-			gl = result;
 			return result;
 		});
 	},
 
 	/* Add the event listeners */
  	addEventListeners: function() {
+
+
  		var self = this;
  		
 		// Animate haplotype variant tables with buttons and sliding tables
@@ -573,11 +582,15 @@ var pgx =  {
 				_o.patientHaplotypes = self.listPatientHaplotypes(gene,tempHaplotypes);
 				_o.haplotypes = self.listFinalHaplotypes(gene,tempHaplotypes,_o.patientHaplotypes);
 				_o.possibleHaplotypes = self.globalPGXData.possibleHaplotypesStringRep[gene];
+				_o.phased = self.globalPGXData.phaseStatus[gene];
 
-				templateData.pgxGenes.push(_o);
+				if (_o.patientHaplotypes)
+					templateData.pgxGenes.push(_o);
 			}
+			console.log(templateData);
 			resolve(templateData);
 		});
+
 		return promise;
 	},
 
@@ -610,6 +623,9 @@ var pgx =  {
 		return out;
 	},
 
+	/* the patient haplotypes have already been computed however they are not in a template friends format 
+	 * Convert the possible patient haplotypes into a format that can easily be rendered with handlebars
+	 */
 	listPatientHaplotypes:function(gene,haplotypes){
 		var hname,o,v,m,matches,match; 
 		var out = {};
@@ -617,6 +633,7 @@ var pgx =  {
 		if (phap === undefined)
 			return undefined;
 		var markers = this.globalPGXData.markerByID;
+		var patientVariants = this.globalPGXData.variants;
 		var phapKeys = Object.keys(phap);
 		for (var i=0; i< phapKeys.length; i++){
 			o = {};
@@ -627,15 +644,19 @@ var pgx =  {
 			o.variants = [];
 			for (var j=0; j < m.length; j++){
 				v = {};
+				//No marker
 				if (!markers[m[j]]){
 
 					v.variant = 'missing';
 					v.class = 'alt';
+				//Alt marker
 				} else if (this.globalPGXData.possibleHaplotypesStringRep[gene][hapname].haplotype.indexOf(m[j]) !== -1) {
-					var altGenotype= markers[m[j]].alt
+					var altGenotype= patientVariants[m[j]].alt
+					//There is only a single alt call
 					if (Object.prototype.toString.call(altGenotype) == "[object String]") {
 						v.variant=altGenotype.toUpperCase();
 						v.class='alt';
+					//Multiple alt calls comput an array of all possible calls
 					} else if (Object.prototype.toString.call(altGenotype) == "[object Array]") {
 						var indexes= [];
 						var gtArray= markers[m[j]].gt;
@@ -647,13 +668,14 @@ var pgx =  {
 						var possibleAltGenotypes= [];
 						for (var k= 0; k < indexes.length; ++k) {
 							// subtract 1 from index because 0 == ref and we're starting from alt #1
+							if (possibleAltGenotypes.indexOf(altGenotype[indexes[k] -1 ])==-1)
 							possibleAltGenotypes.push(altGenotype[indexes[k] - 1]);
 						}
 						v.variant = possibleAltGenotypes.toString().toUpperCase();
 						v.class="alt";
 					}
 				} else {  // ref
-					v.variant = markers[m[j]].ref.toUpperCase();
+					v.variant = patientVariants[m[j]].ref.toUpperCase();
 					v.class = "ref";
 				}
 				o.variants.push(v);
@@ -679,14 +701,12 @@ var pgx =  {
 		var outHaps = [];
 		var index;
 		if (possible){
-			for (var i = 0; i < possible.h1.possible.length; i++ ){
-				if (possibleArr.indexOf(possible.h1.possible[i].name) === -1){
-					possibleArr.push(possible.h1.possible[i].name);
-				}
-			}
-			for (var i = 0; i < possible.h2.possible.length; i++ ){
-				if (possibleArr.indexOf(possible.h2.possible[i].name) === -1){
-					possibleArr.push(possible.h2.possible[i].name);
+			var keys = Object.keys(possible);
+			for (var i=0;i<keys.length;i++){
+				for (var j = 0; j < possible[keys[i]].possible.length; j++ ){
+					if (possibleArr.indexOf(possible[keys[i]].possible[j].name) === -1){
+						possibleArr.push(possible[keys[i]].possible[j].name);
+					}
 				}
 			}
 		}
@@ -715,6 +735,8 @@ var pgx =  {
 	}
 
 };
+
+
 
 module.exports = pgx;
 

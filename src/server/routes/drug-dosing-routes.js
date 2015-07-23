@@ -84,10 +84,23 @@ module.exports = function(app,logger,opts){
 	//Dosing main page routes 
 	//==========================================================
 	/* Get the gene dosing recommendations for the specified gene */
-	app.get('/database/dosing/genes/:geneID',utils.isLoggedIn, function(req,res){
-		dbFunctions.drugs.getGeneDosing(req.params.geneID,req.user.username).then(function(result){
-			res.send(result);
-		});
+	app.get('/database/dosing/genes/:gene',utils.isLoggedIn, function(req,res){
+		if (req.query.type == 'true'){
+			var query = {};
+			query[constants.dbConstants.DRUGS.ALL.ID_FIELD] = req.params.gene;
+			dbFunctions.find(constants.dbConstants.DRUGS.ALL.COLLECTION,query,undefined,undefined,req.user.username)
+			.then(function(result){
+				if (result.length > 0) {
+					res.send(result[0][constants.dbConstants.DRUGS.ALL.TYPE])
+				} else{
+					res.send(null)
+				}
+			});
+		} else {
+			dbFunctions.drugs.getGeneDosing(req.params.gene,req.user.username).then(function(result){
+				res.send(result);
+			});
+		}
 	});
 
 	/* get all of the current genes that have dosing recommendations */
@@ -107,11 +120,24 @@ module.exports = function(app,logger,opts){
 		});
 	});
 
-	/* Get the therapeutic classes currently in the database */
-	app.get('/database/dosing/classes',utils.isLoggedIn,function(req,res){
-		var query = [{$group:{_id:null,classes:{$push:'$' + constants.dbConstants.DRUGS.CLASSES.ID_FIELD}}}];
-		dbFunctions.aggregate(constants.dbConstants.DRUGS.CLASSES.COLLECTION,query,req.user.username).then(function(result){
-			res.send(result);
+	/* Get the Predicted Effect  currently in the database */
+	app.get('/database/dosing/classes',function(req,res){
+		req.user = {}
+		req.user.username = 'me';
+		query = {};
+		//if no query pasesd this will return ALL the classes for every type
+		if (req.query.id){
+			query['_id'] = {$in:req.query.id.split(',')};
+		}
+		
+		dbFunctions.find(constants.dbConstants.DRUGS.CLASSES.COLLECTION,query,undefined,undefined,req.user.username).then(function(result){
+			var o = {}
+			if (result){
+				for (var i = 0; i < result.length; i++ ){
+					o[result[i]._id] = result[i];
+				}
+			}
+			res.send(o);
 		});
 	});
 
@@ -158,7 +184,6 @@ module.exports = function(app,logger,opts){
 	 * a single entry is inserted into the corresponding collection, the Object ID is then pushed to the appropriate
 	 * array for the correspoing genes */
 	app.post('/database/dosing/genes/:geneID/new',utils.isLoggedIn,function(req,res){
-		console.log('here');
 		var query = {},collection,field;
 		var doc = req.body;
 		var gene = req.body.gene || req.body.genes; //it will either be an array of gene sort a single gene.
@@ -180,7 +205,6 @@ module.exports = function(app,logger,opts){
 			query[dbConstants.DRUGS.FUTURE.ID_FIELD] = gene;
 			query[dbConstants.DRUGS.FUTURE.CLASS] = doc.class;
 		} else if (type == 'haplotype') {
-			console.log('here');
 			collection = dbConstants.DRUGS.HAPLO.COLLECTION;
 			field = dbConstants.DRUGS.ALL.HAPLO;
 			query[dbConstants.DRUGS.HAPLO.ID_FIELD] = gene;
@@ -192,7 +216,6 @@ module.exports = function(app,logger,opts){
 		/* Ensure this is a new 'unique entry' */
 		dbFunctions.findOne(collection,query,user).then(function(result){
 			var newDoc;
-			console.log(result);
 			if (!result){
 				dbFunctions.insert(collection,doc,user).then(function(result){
 					newDoc = result;
@@ -257,12 +280,14 @@ module.exports = function(app,logger,opts){
 	/* Initialize a new drug recommendation document. first checks to ensure there already is not
 	 * A gene the same as newGene. if this returns false a new document is inserted with the value
 	 * unitialized set to true. */
-	app.post('/dosing/new/:newGene',utils.isLoggedIn,function(req,res){
-		var newGene = req.params.newGene;
+	app.post('/database/dosing/new',utils.isLoggedIn,function(req,res){
+		var newGene = req.query.gene;
+		var type = req.query.type;
+		var user = req.user.username
 		dbFunctions.checkInDatabase(constants.dbConstants.DRUGS.ALL.COLLECTION,constants.dbConstants.DRUGS.ALL.ID_FIELD,newGene)
 		.then(function(exists){
 			if (!exists){
-				dbFunctions.drugs.createNewDoc(newGene,req.user.username).then(function(result){
+				dbFunctions.drugs.createNewDoc(newGene,type,req.user.username).then(function(result){
 					if (result) {
 						req.flash('statusCode','200');
 						req.flash('message','Gene successfully inserted to dosing tables');
@@ -270,7 +295,7 @@ module.exports = function(app,logger,opts){
 					} else {
 						var err = new Error("Unable to create new document")
 						logger('error',err,{user:user});
-						req.flash('statusCode','500');
+						req.flash('statusCode','501');
 						req.flash('error',"Unable to insert new document");
 						req.flash('message','unable to insert new gene ' + newGene );
 						res.redirect('/failure');
@@ -484,7 +509,7 @@ module.exports = function(app,logger,opts){
 			rigth:'20px'
 		};
 		//Get future recommendations
-		return genReport(req,res,req.params.patientID,constants.dbConstants.DRUGS.REPORT.DEFAULT,options)
+		return genReport(req,res,req.params.patientID,constants.dbConstants.DRUGS.REPORT.DEFAULT,options,logger)
 	});
 
 	/* Download the dosing recommendation report */
@@ -512,8 +537,5 @@ module.exports = function(app,logger,opts){
 				});
 			}
 		});
-
 	});
-	
-
 };

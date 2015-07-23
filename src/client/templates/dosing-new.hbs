@@ -54,10 +54,10 @@
 								<h6 class='left'><i>{{this}}</i></h6>
 							</div>
 							<div class="small-4 large-3 medium-3 columns">
-								<h6>Metabolic Status:</h6>
+								<h6>Predicted Effect:</h6>
 							</div>
 							<div class="small-8 large-4 medium-3 columns">
-								<h6 class='left class-name'><i>{{lookup ../classes @index}}</i></h6>
+								<h6 class='left class-name'><i>{{lookup @root.classes  @index}}</i></h6>
 							</div>
 						</div>
 						{{/each}}
@@ -69,7 +69,8 @@
 										<span class="prefix">Risk</span>
 									</div>
 									<div class="large-8 small-8 medium-8 columns left">
-										<select name="risk" disabled="disabled" data-originalvalue="{{risk}}" value="{{risk}}" required>
+										<select name="risk" disabled="disabled" data-originalvalue="{{risk}}" value="{{risk}}">
+											<option><option>
 											<option>Low</option>
 											<option>Medium</option>
 											<option>High</option>
@@ -103,7 +104,7 @@
 									<div class="small-12 medium-8 large-8 columns left size-16" style="margin-top:13px">
 										<ol class="pubmed-links" stlye="font-size:1em">
 										{{#each pubmed}}
-											<li class="pubmed-link-combo" data-id={{this}}>{{#if ../citations}}{{{lookup ../citations this}}}{{else}}{{this}}{{/if}}&nbsp&nbsp <a href="#" class="edit pubmed-remove-link hide" data-link="{{this}}"><i class="fi-x"></i></a></li>
+											<li class="pubmed-link-combo" data-id={{this}}>{{#if @root.citations}}{{{lookup @root.citations this}}}{{else}}{{this}}{{/if}}&nbsp&nbsp <a href="#" class="edit pubmed-remove-link hide" data-link="{{this}}"><i class="fi-x"></i></a></li>
 										{{/each}}
 										</ol>	
 									</div>

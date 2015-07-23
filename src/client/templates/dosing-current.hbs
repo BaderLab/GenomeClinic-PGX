@@ -97,7 +97,7 @@ a new recommendation, future, haplotype. Deleting the page etc
 								<div class="large-6 medium-12 small-12 columns">
 									<div class="row collapse prefix-radius">
 										<div class="large-4 small-4 medium-4 columns">
-											<span class="prefix">Therapeutic Class</span>
+											<span class="prefix">Predicted Effect</span>
 										</div>
 										<div class="large-8 small-8 medium-8 columns">
 											<select id="class-name-original" required>
@@ -131,7 +131,7 @@ a new recommendation, future, haplotype. Deleting the page etc
 										<span class="prefix">Risk</span>
 									</div>
 									<div class="large-8 small-8 medium-8 columns left">
-										<select name="risk" required id="new_risk">
+										<select name="risk" id="new_risk">
 											<option>Low</option>
 											<option>Medium</option>
 											<option>High</option>
@@ -154,11 +154,11 @@ a new recommendation, future, haplotype. Deleting the page etc
 								<div class="row">
 									<div class="small-12 medium-4 large-4 columns add-new-pubmed">
 										<div class="row collapse postfix-radius">
-											<div class="large-10 medium-10 small-10 columns">
+											<div class="large-11 medium-11 small-11 columns">
 												<input class="add-new-pubmed-input" type="text" placeholder="Pubmed ID">
 											</div>
-											<div class="large-2 medium-2 small-2 columns">
-												<a href="#" class="postfix add-new-pubmed-button button secondary tiny" style="margin-bottom:0"><i class="fi-plus"></i></a>
+											<div class="large-1 medium-1 small-1 columns text-center">
+												<a href="#" class="postfix add-new-pubmed-button button secondary"><i class="fi-plus"></i></a>
 											</div>
 										</div>
 									</div>
@@ -258,7 +258,7 @@ a new recommendation, future, haplotype. Deleting the page etc
 										<h6 class='left'><i>{{this}}</i></h6>
 									</div>
 									<div class="small-4 large-3 medium-3 columns">
-										<h6>Metabolic Status:</h6>
+										<h6>Predicted Effect:</h6>
 									</div>
 									<div class="small-8 large-4 medium-3 columns">
 										<h6 class='left class-name'><i>{{lookup ../classes @index}}</i></h6>
@@ -273,7 +273,8 @@ a new recommendation, future, haplotype. Deleting the page etc
 												<span class="prefix">Risk</span>
 											</div>
 											<div class="large-8 small-8 medium-8 columns left">
-												<select name="risk" disabled="disabled" data-originalvalue="{{risk}}" value="{{risk}}" required>
+												<select name="risk" disabled="disabled" data-originalvalue="{{risk}}" value="{{risk}}">
+													<option></option>
 													<option>Low</option>
 													<option>Medium</option>
 													<option>High</option>
@@ -306,10 +307,12 @@ a new recommendation, future, haplotype. Deleting the page etc
 												</div>
 											</div>
 											<!-- Citations generated with NCBI e-utils -->
-											<div class=" small-12 medium-12 large-12 columns left size-16" style="margin-top:13px">
+											<div class=" small-12 medium-12 large-12 columns left size-12" style="margin-top:13px">
 												<ol class="pubmed-links" stlye="font-size:1em">
 												{{#each pubmed}}
-													<li class="pubmed-link-combo" data-id={{this}}>{{#if ../citations}}{{{lookup ../citations this}}}{{else}}{{this}}{{/if}}&nbsp&nbsp <a href="#" class="edit pubmed-remove-link hide" data-link="{{this}}"><i class="fi-x"></i></a></li>
+													<!--<li>{{this}}</li>-->
+													
+													<li class="pubmed-link-combo" data-id="{{this}}">{{#if @root.citations}}{{{lookup @root.citations this}}}{{else}}{{this}}{{/if}}&nbsp&nbsp <a href="#" class="edit pubmed-remove-link hide" data-link="{{this}}"><i class="fi-x"></i></a></li>
 												{{/each}}
 												</ol>
 											</div>
@@ -367,7 +370,7 @@ a new recommendation, future, haplotype. Deleting the page etc
 					<div class="large-6 small-12 medium-6 columns">
 						<div class="row collapse prefix-radius">
 							<div class="large-4 small-4 medium-4 columns">
-								<span class="prefix">Therapeutic Class</span>
+								<span class="prefix">Predicted Effect</span>
 							</div>
 							<div class="large-8 small-8 medium-8 columns">
 								<select name="class" required>
@@ -447,7 +450,7 @@ a new recommendation, future, haplotype. Deleting the page etc
 							<div class="large-6 small-12 medium-6 columns">
 								<div class="row collapse prefix-radius">
 									<div class="large-4 small-4 medium-4 columns">
-										<span class="prefix">Therapeutic Class</span>
+										<span class="prefix">Predicted Effect</span>
 									</div>
 									<div class="large-8 small-8 medium-8 columns">
 										<select name="class" required>

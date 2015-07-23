@@ -123,7 +123,7 @@ logger('info','Starting server',{arguments:opts});
 //=======================================================================
 //Make log Directories
 //=======================================================================
-var prerequisiteDirectories = [nodeConstants.UPLOAD_DIR, nodeConstants.TMP_UPLOAD_DIR, nodeConstants.LOG_DIR];
+var prerequisiteDirectories = [nodeConstants.TMP_UPLOAD_DIR, nodeConstants.UPLOAD_DIR, nodeConstants.LOG_DIR];
 for (var i=0; i < prerequisiteDirectories.length; i++ ){
 	try {
 		fs.statSync(prerequisiteDirectories[i]);

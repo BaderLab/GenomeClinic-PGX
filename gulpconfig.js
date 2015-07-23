@@ -83,6 +83,10 @@ module.exports = {
 			name:'webapp.js',
 			dest:'build'
 		},
+		bulkops:{
+			src:'src/server/src/bulkops.js',
+			dest:'build'
+		},
 		routes:{
 			src:'src/server/routes/*.js',
 			dest:'build/controllers'
@@ -95,7 +99,8 @@ module.exports = {
 				'src/server/src/parseVCF.js',
 				'src/server/src/queue.js',
 				'src/server/src/utils.js',
-				'src/server/src/genReport.js'
+				'src/server/src/genReport.js',
+				'src/server/src/getDbSnp.js'
 			],
 			dest:'build/lib'
 		},
@@ -103,9 +108,7 @@ module.exports = {
 			src:[
 				'src/server/conf/api.js',
 				'src/server/conf/pgx*',
-				'src/server/conf/dosing_guidelines.json',
-				'src/server/conf/therapeutic_classes.json',
-				'src/server/conf/future_guidelines.json'
+				'src/server/conf/default_rec_data.json'
 			],
 			dest:'build/lib/conf'
 		},

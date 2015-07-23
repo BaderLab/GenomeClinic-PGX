@@ -12,20 +12,25 @@
           		</ul>
         	</div>
         </div>
+
         <div class="row">
         	<form data-abide="ajax" id="submit-new-gene-form" style="display:none"">
-	        	<div class="large-12 medium-12 small-12 columns">
-	        		<div class="row collapse prefix-radius">
-	        			<div class="large-3 small-4 medium-3 columns">
-	        				<span class="prefix">Gene Name</span>
-	        			</div>
-	        			<div class="large-9 small-8 medium-9 columns">
-	        				<input id="new-gene-name" type="text" required pattern="^[a-zA-Z.'*+-_:\/]+">
-	        				<small class="error">Valid gene name required.</small>
-	        			</div>
-	        		</div>
+	       		<div class="large-6 medium-12 small-6 columns">
+					<label>Gene Name</label>
+					<input id="new-gene-name" type="text" required pattern="^[a-zA-Z.'*+-_:\/]+">
+					<small class="error">Valid gene name required.</small>
+	        	</div>
+	        	<div class="large-6 small-12 medium-12 columns">
+    				<label>Enzymatic Class</label>
+    				<select id='new-gene-type' required>
+    					{{#each classes}}
+    					<option data-id="{{@key}}">{{fullname}}</option>
+    					{{/each}}
+    				</select>
+    				<small class="error">Required</small>
 	        	</div>
         		<button type="submit" style="display:none"></button>
+        		<hr>
         	</form>
       	</div>
       	<div class="row">

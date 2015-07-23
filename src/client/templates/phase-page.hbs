@@ -3,11 +3,50 @@
 		<h2><i class="fa fa-asterisk"></i>&nbspManage Haplotypes</h2>
 		<h5 class="subheader">Displaying all available phase infomration</h5>
 		<p>Select any of the available genes below to modify the phasing information for that specific gene, adding new haplotypes,markers,etc or additionally create a new haplotype.</p>
-		<div class="row">
+      	<div class="row">
         	<div class="large-3 medium-6 small-12 columns">
-          		<a href="haplotypes/new" class="small-12 medium-12 large-12 button alert radius left" id="add-new-haplotype">Add New Haplotype</a>
+          		<a href="#" class="small-12 medium-12 large-12 button alert radius left" id="add-new-gene">Add New Gene</a>
+          		<ul class="button-group even-2 radius" id="button-group" style="display:none">
+          			<li><a href="#" class="button success" id="submit-new-gene" >Submit</a></li>
+          			<li><a href="#" class="button" id="cancel-new-gene">Cancel</a></li>
+          		</ul>
         	</div>
-      	</div> 
+        </div>
+        <div class="row">
+        	<form data-abide="ajax" id="submit-new-gene-form" style="display:none"">
+	       		<div class="large-6 medium-12 small-6 columns">
+					<label>Gene Name</label>
+					<input id="new-gene-name" type="text" required pattern="^[a-zA-Z.'*+-_:\/]+">
+					<small class="error">Valid gene name required.</small>
+	        	</div>
+	        	<div class="large-6 small-12 medium-12 columns">
+    				<label>Enzymatic Class</label>
+    				<select id='new-gene-type' required>
+    					{{#each classes}}
+    					<option data-id="{{@key}}">{{fullname}}</option>
+    					{{/each}}
+    				</select>
+    				<small class="error">Required</small>
+	        	</div>
+        		<button type="submit" style="display:none"></button>
+        		<hr>
+        	</form>
+      	</div>
+      	<div class="row">
+		  	<div class="small-12 columns">
+		    	<div data-alert class="alert-box radius secondary" id="error-display-box"  style="display:none">
+		    	<!-- Alert message goes here -->
+			  		<div class="row">
+			    		<div class="small-11 columns">
+			      			<p id="error-display-message"></p>
+			    		</div>
+			  			<div class="small-1 columns">
+			    			<a href="#" class='close-box'><i class="fi-x size-16" style="color:#606060"></i></a>
+			  			</div>
+					</div>
+				</div>
+			</div>
+		</div> 
 	</div>
 </div>
 <div class="row">
@@ -26,15 +65,13 @@
 				<tr>
 					<th class="large-6 small-6 medium-6">Gene</th>
 					<th class="large-3 small-6 medium-6 text-center">Number of Haplotypes</th>
-					<th class="large-3 text-center">Number of Markers</th>
 				</tr>
 			</thead>
 			<tbody>
 				{{#each haplotypes}}
-				<tr class="haplotype-row" data-name="{{@key}}">
-					<td>{{@key}}</td>
-					<td class="text-center">{{this.numHap}}</td>
-					<td class="text-center">{{this.numMark}}</td>
+				<tr class="haplotype-row" data-name="{{gene}}">
+					<td>{{gene}}</td>
+					<td class="text-center">{{this.numCurrH}}</td>
 				</tr>
 				{{/each}}
 			</tbody>

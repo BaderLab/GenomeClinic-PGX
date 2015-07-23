@@ -271,20 +271,20 @@
 											<th>Gene</th>
 											<th>First Haplotype</th>
 											<th>Second Haplotype</th>
-											<th>Therapeutic Class</th>
+											<th>Predicted Effect</th>
 										</tr>
 									</thead>
 									<tbody>
 										{{#each pgxGenes}}	
 										<tr class="gene-row">
 											<td class="gene-name">{{gene}}</td>
-											<td class="allele_1"><i>{{hap1}}</i></td>
-											<td class="allele_2"><i>{{hap2}}</i></td>
+											<td class="allele_1"><i>{{possibleHaplotypes.h1.closestMatch}}</i></td>
+											<td class="allele_2"><i>{{possibleHaplotypes.h2.closestMatch}}</i></td>
 											<td>
 												<select class="therapeutic-class">
-													{{#each @root.classes}}
+													{{#classIter @root.classes type gene}}
 													<option>{{this}}</option>
-													{{/each}}
+													{{/classIter}}
 												</select>
 											</td>
 										</tr>

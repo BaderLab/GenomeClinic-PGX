@@ -153,7 +153,7 @@
 	  	<section>
 			<h5 class="thin lspacer-1">PGx Analysis and Results</h5>
 			<hr color="#B0B0B0" style="height:1px">
-			{{!-- only add this table if there are genes found, otherwise show an alert box--}}
+			{{!-- only add this table if there are genes found, otherwise show an alert box --}}
 			{{#if genes}}
 			<table class="rec no-space col-12">
 		  		<thead class="rec">
@@ -161,7 +161,7 @@
 						<th class="size-10 col-2 rec" style="padding:1%">Gene</th>
 						<th class="size-10 col-3 rec" style="padding:1%">First Haplotype</th>
 						<th class="size-10 col-3 rec" style="padding:1%">Second Haplotype</th>
-						<th class="size-10 col-4 rec" style="padding:1%">Therapeutic Class</th>
+						<th class="size-10 col-4 rec" style="padding:1%">Predicted Effect</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -224,7 +224,7 @@
 		<section>
 		  	<h5 class="thin lspacer-1">Dosaging Recommendations</h5>
 		  	<hr color="#B0B0B0" style="height:1px">
-		  	{{!-- Only add table if there are recommendations to actually add}}
+		  	{{!-- Only add table if there are recommendations to actually add --}}
 		  	{{#if  recommendations}}
 			  	<table class="rec no-space col-12">
 			  		<thead class="rec">
@@ -235,7 +235,7 @@
 						</tr>
 					</thead>
 					<tbody>
-					{{!-- cycle over each recommendation}}
+					{{!-- cycle over each recommendation --}}
 			  		{{#each recommendations}}
 			  			<tr class="rec">
 							<td class="size-8" style="padding:1%">{{drug}}</td>

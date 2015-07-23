@@ -68,6 +68,12 @@ var utility = require('./utility');
 
 	};
 	
+	var getGeneInfo = function(geneName){
+		return Promise.resolve($.ajax({
+			url:"/database/dosing/genes/"+ geneName + '?type=true',
+			type:"GET"
+		}));
+	}
 	/* Serialzie a field and return the document that results. This is for new fields only and not updated fields.
 	 * The type can be one of recommendation, future, or haplotype, corresponding to the three types of information on
 	 * the page. 
@@ -200,9 +206,10 @@ var utility = require('./utility');
 			 * navigate to the new gene's drug recommendation page */
 			$('#submit-new-gene-form').on('valid.fndtn.abide',function(e){
 				var val = $('#new-gene-name').val().replace('/');
+				var type = $('#new-gene-type').find('option:selected').data('id');
 
 				Promise.resolve($.ajax({
-					url:'/dosing/new/' + val,
+					url:'/database/dosing/new?gene=' + val+ "&type="+ type,
 					type:"POST",
 					contentType:'application/json',
 					dataType:'json'
@@ -332,6 +339,33 @@ var utility = require('./utility');
 					templates.drugs.gene(opts).then(function(renderedHtml){
 						$('#additional-genes').append(renderedHtml);
 					}).then(function(){
+
+						//Handler for retrieving the information on the specific
+						//Predicted result for the specific enyzme catefory fo the
+						//New Gene
+						$('#gene-name-'+pageOptions.counter).on('keyup',function(){
+							var _this = this;
+							var val = $(this).val();
+							if (val !== ""){
+								getGeneInfo(val)
+								.then(function(type){
+									if (type){
+										var html = "";
+										for (var i = 0; i<pageOptions.classes[type].classes.length; i++ ){
+											html += "<option>" + pageOptions.classes[type].classes[i] + "</option>"
+										}
+										$(_this).closest('.additional-gene-row').find('.class-name').removeAttr('disabled')
+										.html(html)
+									} else {
+										$(_this).closest('.additional-gene-row').find('.class-name').val('');
+										$(_this).closest('.additional-gene-row').find('.class-name').attr('disabled','disabled')
+									}
+								}).catch(function(err){
+									$(_this).closest('.additional-gene-row').find('.class-name').val('');
+									$(_this).closest('.additional-gene-row').find('.class-name').attr('disabled','disabled')
+								});
+							}
+						});
 						_this.removeRow('#remove-additional-gene-' + pageOptions.counter);
 						utility.refresh(abideOptions,'#additional-gene-row-' + pageOptions.counter);
 						pageOptions.counter++
@@ -873,8 +907,13 @@ var utility = require('./utility');
 				contentType:'application/json',
 				dataType:'json'
 			})).then(function(result){
-
-				return templates.drugs.index({genes:result});
+				return Promise.resolve($.ajax({
+					url:'/database/dosing/classes',
+					type:'GET',
+					dataType:'json'
+				})).then(function(classes){
+					return templates.drugs.index({genes:result,classes:classes});
+				});
 			}).then(function(renderedHtml){
 				return $('#main').html(renderedHtml);
 			}).then(function(){
@@ -907,8 +946,8 @@ var utility = require('./utility');
 					dataType:'json'
 				}));
 			}).then(function(result){
-				resultObj.classes = result[0].classes;
-				pageOptions.classes = result[0].classes;
+				resultObj.classes = result[resultObj.type].classes;
+				pageOptions.classes = result;
 				var pubmedIds = [];
 				for (var i=0; i < resultObj.recommendations.length; i++ ){
 					for (var j = 0; j <resultObj.recommendations[i].recs.length; j++){
@@ -947,9 +986,7 @@ var utility = require('./utility');
 
 			}).then(function(){
 				$('#toggle-all').trigger('click');
-			})/*.catch(function(err){
-				console.log(err);
-			})*/;
+			});
 		}
 
 		return promise;
