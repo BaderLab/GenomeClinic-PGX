@@ -15,13 +15,8 @@ The admin collection contains information pertinent to the running of the server
 | config | Bool | Stores the status of the database, ie has it been configured by the user or not | no | 
 | institution | String | The institution that is using the PGX app | no |
 | admin-email | String | Email of the admin user. Setting this provides the admin certain privileges over a regular user. | no |
-| annovar-path | String | Path to the annovar executable | no |
-| genome-build | String | Current Genome build being used for alignment ex. hg19 | no|
 | max-query-records | Number | Deprecated | no |
-| report-footer | String | Generic disclaimer used on the bottom of reports | no | 
-| annovar-dbs  | Array | List of databases to use when annotating the variant file |no |
-| annovar-usage | Array | List of usage for the each database ex. g/f|  no| 
-| annovar-index | array | which annotations should be indexed after they have been uploaded | no |
+| report-footer | String | Generic disclaimer used on the bottom of reports | no |
 
 ```js
 {
@@ -31,13 +26,8 @@ The admin collection contains information pertinent to the running of the server
 	"config" : Boolean,
 	"institution" : String,
 	"admin-email" : email,
-	"annovar-path" : Path,
-	"genome-build" : String,
 	"max-query-records" : Number,
-	"report-footer" : String,
-	"annovar-dbs" : [],
-	"annovar-usage" : [],
-	"annovar-index" : []
+	"report-footer" : String
 }
 ```
 
@@ -50,7 +40,7 @@ Information specific to each user. Currently this field is underutilized and doe
 | **Field**  | **Type** | **Definition** | **Indexed** |
 |:------------|:-----:|:------------|:------:|
 |_id | ObjectId | Unique document Id | yes |
-|username | String | Unique email for each user | yes |
+| username | String | Unique email for each user | yes |
 | password | String | B-crypted password string | no |
 
 
@@ -104,21 +94,21 @@ Each patient has an individual patient collection assigned to them when they are
 
 **Default Collection Name:** p(number);
 
-| **Field**  | **Type** | **Definition** | **Indexed** |
+| **Field**  | **Type** | **Definition** | **Indexed** | **required** |
 |:------------|:-----:|:------------|:------:|
-|_id | ObjectId | Unique document Id | yes |
-| chr | String | Chromosome | yes |
-| pos | Number | Position of variant | yes | 
-| id | string | rsID of the Variant if any | yes |
-| ref | String | Reference Allele for this position | no |
-| alt | Array | Array of alternate alleles for this position | no |
-| original_alt | String | Original alternate allele prior to shifting position | no |
-| original_ref | String | Original reference allele prior to shifting position | no |
-| original_pos | String | Original position prior to shifting | no |
-| zygosity | String | Based on the genotype is the user homo_ref homo_alt or heter | yes | 
-| gt-raw | String | Raw genotype with phasing status recorded in vcf file | no |
-| gt | Array | Genotype of the patient, first index  is ref, second is alt | no |
-| phased_status | Bool | Whether the information is phased or not | no |
+|_id | ObjectId | Unique document Id | yes | yes |
+| chr | String | Chromosome | yes | no |
+| pos | Number | Position of variant | yes | no |
+| id | string | rsID of the Variant if any | yes | yes |
+| ref | String | Reference Allele for this position | no | yes | 
+| alt | Array | Array of alternate alleles for this position | no | yes |
+| original_alt | String | Original alternate allele prior to shifting position | no | yes |
+| original_ref | String | Original reference allele prior to shifting position | no | yes |
+| original_pos | String | Original position prior to shifting | no | no |
+| zygosity | String | Based on the genotype is the user homo_ref homo_alt or heter | yes | no |
+| gt-raw | String | Raw genotype with phasing status recorded in vcf file | no | no |
+| gt | Array | Genotype of the patient, first index  is ref, second is alt | no | yes |
+| phased_status | Bool | Whether the information is phased or not | no | yes |
 
 ```js
 {
@@ -174,21 +164,19 @@ Each document in this collection corresponds to a single marker used in the PGX 
 
 | **Field**  | **Type** | **Definition** | **Indexed** |
 |:------------|:-----:|:------------|:------:|
-|_id | ObjectId | Unique document Id | yes |
-| id | String | Unique rsID corresponding to the rsID's in dbSNP | yes |
+| _id | String | Unique rsID corresponding to the rsID's in dbSNP | yes |
 | alt | Array | Expected alternate alleles | no |
 | ref | String | Reference allele | no |
-|chr | String | Chromosome the marker is situated on | no |
-| pos| Number | Base position of the marker on the chromosome |no |
-
+| type| string | signifies if the marker is a custom marker or a dbsnp marker | no |
+| date | date string | date of laste modification | no |
 
 ```js
 {
 	"_id" : ObjectId(),
 	"id" : String,
 	"alt" : Array,
-	"chr" : String,
-	"pos" : Number,
+	"type" : String,
+	"date" : Date String,
 	"ref" : String
 }
 ```
@@ -217,8 +205,6 @@ Each document corresponds the a gene. Each gene has information on the haplotype
 }
 ```
 
-
-### Therapeutic Classes
 
 
 ### Dosing recommendation collection

@@ -6,41 +6,11 @@ Web application for clinical pharmacogenomic interpretation.
 ## Dependencies
 1. [Node.js](http://nodejs.org/)
 2. [MongoDB](http://mongodb.org/downloads)
-3. [Annovar](http://www.openbioinformatics.org/annovar/annovar_download_form.php)
 4. [PhantomJS](http://phantomjs.org/) 2.0.0 or later
 
-The web server is built as an [express](http://expressjs.com/) app and utilizes a mongo database for back end storage of variant information as well as general server information. Additionally the current annotation pipeline utilizes Annovar for variant annotation. Annovar is a third party application which requires a licesnce agreement and can be used for free so long as it is not for commercial purposes.
+The web server is built as an [express](http://expressjs.com/) app and utilizes a mongo database for back end storage of variant information as well as general server information.Users can upload VCF files or a custom TSV format defined in the documentation, that can then be utilized for performing PGX analysis on the data that was uplaoded. Additionally the user has the ability to modify and update the backend databse ensuring that all the information can easily be edited and updated.
 
 PhantomJS must be installed and accessible through the path environment variable
-
-## Annovar Installation
-
-Simply follow the instrcutions on the annovar website to install. Additionally there are several annotation libraries that the webserver expects to be installed. We have included a convienient script that will download the required libraries for you, assuming that annovar has already been installed. To do so run the script in a terminal with one argument directing the script to the annovar folder.
-
-```shell
-./download_annovar_modules.sh /path/to/annovar
-```
-
-You will need approximaetly 35gb of hard disk space to accomodate all of the databases once they are downloaded and unpacked. 
-
-Optionally, if you did not want to downalod all of the annotations, simply pick the annotations you want to download from the list below of currently supported annotations
-
-1. knowngene
-2. ljb26_all
-3. cg69
-4. esp6500_all
-5. 1000g2014sep_all
-6. clinvar_20140929
-7. snp138
-
-Use the following command to download each database individually
-
-
-```shell
-/path/to/annovar/annotate_variation.pl -buildver hg19 -downdb -webfrom annovar [database] humandb/
-```
-
-Then once you start the server for the first time, check off the databses that were installed from the configuration page to let the server know which annotations to inlcude.
 
 ## MongoDB setup
 
@@ -121,32 +91,3 @@ If you are going to run the server in the background, like this
 we advise that you terminate the server using a SIGINT, allowing the server to exit gracefully:
 
 `kill -SIGINT <process_id>`
-
-
-## Google OAUTH Setup.
-This app is enabled to use google-OAUTH2, however in order for this to work you must activate it from the [google developers console](https://console.developers.google.com/).
-
-Once there click on the 'Create Project' tab, make a name for it, agree to the terms then click accept. IT will take several moments for
-a new project to be created
-
-once your project is created, click on 'APIS & auth' in the sidebar and select "Create New Client Id" under the OAUTH. A new screen will pop up the default option 'Web application' selected. This is what we want, so click Configure Consent Screen. Here you can customize what people see when they attempt to authenticate with Google. It has several required fields, but most are options. Click save.
-
-A new screen will pop up asking for you to create a client ID. This will ask for the Authorized Javascript origins and the Authorized Redirect URIS.
-
-For the Authorized Javascript origin, type in the http address of your server. ie the ip address or: localhost:8080 if you are running from your own computer. for example:
-
-`127.0.0.1`
-
-Under the Authorized Redirect URIS type in
-
-`http://127.0.0.1/auth/google/callback`
-
-
-click save. This will generate A client ID that is registered with google. The next thing you will want to do is copy and past the:
-
-1. callback url
-2. client ID
-3. client Secret
-
-to the api.js script located in src/server/conf/. Once this is done you should now have a perfectly functioning OAUTH system for google!
-
