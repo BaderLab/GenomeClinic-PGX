@@ -27,39 +27,60 @@ var path = require('path');
 var dbConstants = require('./conf/constants.json').dbConstants;
 
 
-/* Empty constructor for the parseVCF object */
-var parseVCF = function(file,options,bufferSize,mask){
-	this.user = options.user;
-	this.file = file;
-	this.patients = options.patients;
-	this.bufferSize = (bufferSize || 10000000);
-	this.bufferArray = [];
-	this.oldString = "";
-	this.mapper = {'static':{},'anno':[]};
-	this.docMax = 5000;
-	this.patientObj = {};
-	this.stream = undefined;
-	this.reading = false;
-	this.mask = (mask || ['qual','filter']);
-	this.numHeader = 0;
-	this.useDbSnpID = false;
-	this.vcf = undefined;
-};
+
+
+var params = {
+	PGX : {
+		headers : [
+			'id',
+			'ref',
+			'alt',
+		],
+		mask : []
+	},
+	VCF : {
+		headers : [
+			'chrom',
+			'pos',
+			'id',
+			'ref',
+			'alt',
+		],
+		mask : [
+			'qual',
+			'filter',
+			'info'
+		]
+	}
+}
+
+
+var ops = {
+	user : undefined,
+	file: undefined,
+	patients : undefined,
+	bufferSize : 10000000,
+	bufferArray : [],
+	oldString : "",
+	mapper : {'static':{}},
+	docMax : 5000,
+	patientObj : {},
+	stream : undefined,
+	reading : false,
+	numHeader : 0
+}
 
 
 /* Each patient is given a separate colleciton to store the genetic information in. Each collection
  * was already given a name when the patients were first inserted. This function will create the collection
  * for each patient, returning a promise when this has been accomplished/
  */
-parseVCF.prototype.setupCollections = function(){
-	var _this = this;
-	return Promise.resolve(this.patients).each(function(patient){
-		var logOpts = {user:+this.user,target:patient[dbConstants.PATIENTS.ID_FIELD],action:'createCollection'};
+var setupCollections = function(){
+	return Promise.resolve(ops.patients).each(function(patient){
+		var logOpts = {user:+ops.user,target:patient[dbConstants.PATIENTS.ID_FIELD],action:'createCollection'};
 		logger('info','creating patient collection',logOpts);
-
 		var collectionName = patient[dbConstants.PATIENTS.COLLECTION_ID];
-
-		return dbFunctions.createCollection(collectionName,_this.user);
+		return dbFunctions.createCollection(collectionName,ops.user);
 	});
 }
 //==============================================================================================================
@@ -73,63 +94,66 @@ parseVCF.prototype.setupCollections = function(){
  * finally when the end of the file has been reached the remaining files are
  * inserted into the document
  */
-parseVCF.prototype.read = function(){
-	logger("info","reading file",{user:this.user,target:this.file,action:'parseVCF'});
-	var self = this;
+var read = function(){
+	var stream;
+	logger("info","reading file",{user:ops.user,target:ops.file,action:'parseVCF'});
 	var promise = new Promise(function(resolve,reject){
-		self.stream = fs.createReadStream(self.file,{'bufferSize':self.bufferSize});
-		self.stream.on('data',function(data){
-			self.stream.pause();
+		stream = fs.createReadStream(ops.file,{'bufferSize':ops.bufferSize});
+		//When data is received, stop the stream until the data is read and parsed
+		stream.on('data',function(data){
+			stream.pause();
 			var promise = new Promise(function(resolve,reject){
-				self.bufferArray.push(data);
-				if (!self.reading){
-					self.reading = true;
-					self.readAndParse()
+				ops.bufferArray.push(data);
+				if (!ops.reading){
+					ops.reading = true;
+					readAndParse()
 					.then(function(){
-						self.stream.resume();
-						self.reading = false;
-						resolve(self.stream);
+						stream.resume();
+						ops.reading = false;
+						resolve(stream);
+					}).catch(function(err){
+						console.log('here');
 					});
 				} else {
-					resolve(self.stream);
+					resolve(stream);
 				}
 			});
 			return promise;
 
 		});
 
-		self.stream.on('end',function(){
+		stream.on('end',function(){
 			var promise;
 			//if there is any remaining itms in the string. add them
-			if (self.oldString !== ""){
-				promise = self.parseChunk([self.oldString])
+			if (ops.oldString !== ""){
+				promise = parseChunk([ops.oldString])
 				.then(function(){
-					return Object.keys(self.patientObj);
+					return Object.keys(ops.patientObj);
 				});
 			} else {
-				promise = Promise.resolve(Object.keys(self.patientObj));
+				promise = Promise.resolve(Object.keys(ops.patientObj));
 			}
+
 			promise.each(function(patient){
-				return self.checkAndInsertDoc(patient);
+				return checkAndInsertDoc(patient);
 			}).then(function(){
-				logger("info","file read successful, documents inserted into database",{user:self.user,target:self.file,action:'parseVCF'});
+				logger("info","file read successful, documents inserted into database",{user:ops.user,target:ops.file,action:'parseVCF'});
 				var igArray = [];
-				for (var patient in self.patientObj){
-					if (self.patientObj.hasOwnProperty(patient)){
-						igArray.push(self.patientObj[patient].ignored + self.numHeader);
+				for (var patient in ops.patientObj){
+					if (ops.patientObj.hasOwnProperty(patient)){
+						igArray.push(ops.patientObj[patient].ignored + ops.numHeader);
 					}
 				}
-				//logger('info','Writing Number lines skipped to file ' + self.file + ".json",{user:self.user,target:self.file +'.json',action:'writeFileAsync'});
-				//return fs.writeFileAsync(self.file + ".json",JSON.stringify(igArray));
 			}).then(function(){
-				logger('info','all jobs complete',{user:self.user,target:self.file,action:'parseVCF'});
+				logger('info','all jobs complete',{user:ops.user,target:ops.file,action:'parseVCF'});
 				resolve('done');
 			});
 		});
 
-		self.stream.on('error',function(err){
-			logger('error',err,{user:self.user,target:self.file,action:'parseVCF'})
-			//self.stream.destroy();
+		stream.on('error',function(err){
+			console.log(err);
+			logger('error',err,{user:ops.user,target:ops.file,action:'parseVCF'})
+			stream.destroy();
 			reject(err);
 		});
 	});
@@ -145,45 +169,39 @@ parseVCF.prototype.read = function(){
  * 
  * returns a promise
  */
-parseVCF.prototype.readAndParse = function(chunk){
-	var self = this;	
+var readAndParse = function(chunk){	
 	var promise = new Promise(function(resolve,reject){
-		var chunk = self.bufferArray[0];
-		self.bufferArray.shift();
+		var chunk = ops.bufferArray[0];
+		ops.bufferArray.shift();
 		Promise.resolve().then(function(){
 			return chunk.toString('utf-8');
 		}).then(function(string){
-			if (self.oldString !== ""){
-				string = self.oldString + string;
+			if (ops.oldString !== ""){
+				string = ops.oldString + string;
 			}
 			splitString = string.split('\n');
 			if (string.substr(string.length - 1) == "\n"){
-				self.oldString = "";
+				ops.oldString = "";
 			}  else {
-				self.oldString = splitString.pop();
+				ops.oldString = splitString.pop();
 			}
 			return splitString;
 		}).then(function(stringArray){
 			if (stringArray.length > 0 )
-				return self.parseChunk(stringArray).map(function(patient){
-					if (self.patientObj[patient].documents.length >= self.docMax)
-						return self.checkAndInsertDoc(patient);
+				return parseChunk(stringArray).map(function(patient){
+					if (ops.patientObj[patient].documents.length >= ops.docMax)
+						return checkAndInsertDoc(patient);
 			});
 		}).then(function(){
-			if (self.bufferArray.length > 0){
-				return self.readAndParse();
+			if (ops.bufferArray.length > 0){
+				return readAndParse();
 			}
 		}).then(function(){
 			resolve('read chunk');
-		}).catch(function(err){
-			logger('error',err,{user:self.user,target:self.file,action:'readAndParse'})
-			reject(err);
 		});
 	});
 	return promise;
 };
-
-
 
 //==============================================================================================================
 /* Annovar multi-anno parser. Takes an array as input that contains lines separated by the
@@ -194,71 +212,73 @@ parseVCF.prototype.readAndParse = function(chunk){
  *
  * return a promise, and an array of patient keys
  */
-parseVCF.prototype.parseChunk = function(stringArray){
-	var self = this;
+var parseChunk = function(stringArray){
 	var line;
 	var promise = new Promise(function(resolve,reject){
-		//iterate over all strings that are include
+		//iterate over all strings that are include;
 		for (var i=0; i < stringArray.length ; i++ ){
+
 			//Check to make sure the first entry equates to a vcf format
 			if (stringArray[i] !== "" ){
-				if (!self.vcf){
-					self.numHeader++;
-					version = parseFloat(stringArray[i].match(/VCFv.+/ig)[0].replace(/[a-z]+/ig,""));
-					if (version < 4.0 || version  > 4.2)
-						throw new Error ("Invalid vcf File format");
-					else
-						self.vcf = version;
-				} else if (stringArray[i].search(/##INFO/i) !== -1 && stringArray[i].search(/annovar/i) !== -1){
-					line = stringArray[i].toLowerCase().match(/id=[^,]+/i)[0].replace('id=','').replace('.','_');
-					if (line.search(/^snp+/i) !== -1 ){
-						self.useDbSnpID = true;
-						self.mask.push('id');
+				if (!ops.format){
+					ops.numHeader++;
+					if (stringArray[i].search(/##fileformat=PGX/) !== -1 ){
+						ops.format = 'PGX';
+					} else if (stringArray[i].search(/##fileformat=VCF/) !== -1 ){
+						ops.format = 'VCF';
 					}
-					self.mapper.anno.push(line);
-					self.numHeader++;
-				} else if (stringArray[i].search(/^#CHROM/i)!== -1) {
-					self.numHeader++;
+					if (!ops.format) {
+						throw new Error("Invalid file format. File must be of VCF or TSV format")
+						reject("Invalid file format. File must be of VCF or TSV format");
+					}
+				} else if (stringArray[i].search(/##INFO/i) !== -1 ) {
+					ops.numHeader++;
+				} else if (stringArray[i].search(/^#[a-z]/i)!== -1){
+					ops.numHeader++;
 					var formatReached = false;
 					var staticLine = stringArray[i].toLowerCase().split('\t');
 					for (var j = 0; j < staticLine.length; j++ ){
-						if(self.mask.indexOf(staticLine[j]) == -1){
+						if(params[ops.format].mask.indexOf(staticLine[j]) == -1){
 							if (staticLine[j].search(/format/i)!== -1){
-								self.mapper.format = j;
+								ops.mapper.format = j;
 								formatReached = true;
 
 							} else if (formatReached) {
-								self.patientObj[self.patients[j - self.mapper.format - 1][dbConstants.PATIENTS.ID_FIELD]] = {'id':j,
-											'collection':self.patients[j - self.mapper.format - 1][dbConstants.PATIENTS.COLLECTION_ID],
+								ops.patientObj[ops.patients[j - ops.mapper.format - 1][dbConstants.PATIENTS.ID_FIELD]] = {'id':j,
+											'collection':ops.patients[j - ops.mapper.format - 1][dbConstants.PATIENTS.COLLECTION_ID],
 											'documents':[],
 											'ignored':0,
 											'insertCache':[]};
-							} else if (staticLine[j].search(/info/i) !== -1){
-								self.mapper.annofield = j;
 							} else {
-								self.mapper.static[staticLine[j].replace('#','')] = j;
+								ops.mapper.static[staticLine[j].replace('#','')] = j;
  							}
  						}
 					}
+
+					if (! formatReached){
+						reject("Format field is missing.");
+					}
+
+					for (var j = 0; j < params[ops.format].headers.length; j++ ){
+						if ( ops.mapper.static[params[ops.format].headers[j]] == undefined ){
+							reject("Rquired field missing for the specified file type: "  + params[ops.format].headers[j]);
+						}
+					}
 				} else if (stringArray[i].search(/^#/) === -1) {
-					//line = stringArray[i].toLowerCase().split('\t');
 					line = stringArray[i].split('\t');
-					var annoObj = self.convertAnnoString(line[self.mapper.annofield]);
-					var annoList = self.mapper.anno;
-					//loop over all of the patients included
-					for (var patient in self.patientObj){
+					for (var patient in ops.patientObj){
 						var cont = true; 
 						var currDoc = {};
 						var ref,alt;
 						var posModifier = 0;
 						var toString = true;
 						//check to make sure that patient exists
-						if (self.patientObj.hasOwnProperty(patient)){
+						if (ops.patientObj.hasOwnProperty(patient)){
 							//loop over all of the static fields ie. chr pos etc
-							for (var field in self.mapper.static){
-								if (self.mapper.static.hasOwnProperty(field)){
+							for (var field in ops.mapper.static){
+								if (ops.mapper.static.hasOwnProperty(field)){
 									toString = true;
-									var itemToInsert = line[self.mapper.static[field]].split(',');
+									var itemToInsert = line[ops.mapper.static[field]].split(',');
 									if (field.search('chr') === -1){ // we want to keep chr as a string so dont convert it
 										itemToInsert = itemToInsert.map(convertNum);
 									} else {
@@ -278,53 +298,38 @@ parseVCF.prototype.parseChunk = function(stringArray){
 								}
 							}
 
+							if ( currDoc['id'] == '.' || currDoc['id'] == undefined ) {
+								//Ignore this file
+								cont = false;
+							}
 							var alleles = convertAlleles(ref,alt);
 							currDoc.original_alt = alt;
 							currDoc.original_ref = ref;
-							currDoc.original_pos = currDoc.pos;
 							currDoc.alt = alleles.alt;
 							currDoc.ref = alleles.ref;
-							currDoc.pos += alleles.posModifier;
-							//Loop over all the items in the annovar annotation list
-							for (var j=0; j < annoList.length; j++){
-								//if the annotation is the annovar_date or annovar_end then dont include it
-								if (annoList[j].search(/annovar(\.|_)date/gi) == -1 && 
-										annoList[j].search(/allele(\.|_)end/gi) == -1){
-									//currDoc[annoList[j]] = annoObj
-									var itemToInsert = annoObj[annoList[j]];
-									itemToInsert = itemToInsert.map(function(item){
-										if (item !== "."){
-											if (isNaN(item))
-												item = item.split(',');
-											else
-												item = [item];
-											return (item.length > 1 ? item:item[0]);
-										}
-									});
-
-									if(annoList[j].search(/^snp+/i) !== -1 ){
-										currDoc.id = (isArray(itemToInsert) ? itemToInsert[0]:itemToInsert);
-									} else if (countUndefined(itemToInsert)){
-										currDoc[annoList[j]] = (itemToInsert.length > 1 ? itemToInsert:itemToInsert[0]);
-									}
-								}
+							if (ops.format == 'VCF' ){
+								currDoc.original_pos = currDoc.pos;
+								currDoc.pos += alleles.posModifier;
 							}
+							//Loop over all the items in the annovar annotation list
 						}
 
 						//Add the format fields now, these are additional information including the genotype
 						var formatMapper = [];
-						var formatField = line[self.mapper.format].split(':');
-						var formatRegex = new RegExp(line[self.mapper.format].replace(/[a-z0-9]+/gi,".*"),'i');
-						var formatLine = line[self.patientObj[patient].id].split(':');
-						if (line[self.patientObj[patient].id].match(formatRegex) === null){
-							throw new Error("Invalid Genotype field found");
+						var formatField = line[ops.mapper.format].split(':');
+						var formatRegex = new RegExp(line[ops.mapper.format].replace(/[a-z0-9]+/gi,".*"),'i');
+						var formatLine = line[ops.patientObj[patient].id].split(':');
+						if (line[ops.patientObj[patient].id].match(formatRegex) === null){
+							reject("Invalid Genotype field found");
 						}
+
 						for (var j = 0; j < formatField.length; j++ ){
 							var info = formatLine[j].split(/[\/|,]/);
 							info = info.map(convertNum);
+
 							if (formatField[j].toLowerCase() == 'gt'){
 								if (info.indexOf('.') != -1){
-									self.patientObj[patient].ignored++;
+									ops.patientObj[patient].ignored++;
 									cont = false;
 								} else {
 									currDoc[dbConstants.VARIANTS.ZYGOSITY] = zygosity(info);
@@ -342,15 +347,16 @@ parseVCF.prototype.parseChunk = function(stringArray){
 								currDoc['a' + p] = currDoc.gt[p] == 0 ? currDoc.ref:currDoc.alt[currDoc.gt[p] - 1];
 							} 
 
-							self.patientObj[patient].documents.push(currDoc);
+							ops.patientObj[patient].documents.push(currDoc);
 						}
-					}
+
+					} 
 				} else {
-					self.numHeader++;
+					ops.numHeader++;
 				}
 			}
 		}
-		resolve(Object.keys(self.patientObj));
+		resolve(Object.keys(ops.patientObj));
 	});
 	return promise;
 };
@@ -359,12 +365,11 @@ parseVCF.prototype.parseChunk = function(stringArray){
 /* Upon completetion of the parsing, add any remaining entries into
  * the database. recursively calling itself until all entries are in
  */
-parseVCF.prototype.cleanup = function(patient){
-	var self = this;
-	return this.checkAndInsertDoc(patient)
+var cleanup = function(patient){
+	return checkAndInsertDoc(patient)
 	.then(function(){
-		if (self.patientObj[patient].documents.length > 0){
-			self.cleanup(patient);
+		if (ops.patientObj[patient].documents.length > 0){
+			cleanup(patient);
 		}
 	});
 };
@@ -372,8 +377,8 @@ parseVCF.prototype.cleanup = function(patient){
 /* When a file has finished parsing, the database must be updated to indicate that it has successfully
  * completed. Update the database for each patient, addoing a date, showing that the file has finished
  */
-parseVCF.prototype.setComplete = function(){
-	var patient_list = this.patients.map(function(obj){
+var setComplete = function(){
+	var patient_list = ops.patients.map(function(obj){
 		return obj[dbConstants.PATIENTS.ID_FIELD];
 	});
 	var query = {};
@@ -382,30 +387,28 @@ parseVCF.prototype.setComplete = function(){
 	documents.$set[dbConstants.PATIENTS.ANNO_COMPLETE] = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 	documents.$set[dbConstants.PATIENTS.READY_FOR_USE] = true;
 	var insOptions = {multi:true};
-	return dbFunctions.update(dbConstants.PATIENTS.COLLECTION, query,documents, insOptions, this.user);
+	return dbFunctions.update(dbConstants.PATIENTS.COLLECTION, query,documents, insOptions, ops.user);
 }
 
 /* When an error has been encountered we want to remoev the patient from the current database,
  * adding them to the Fail collection. */
-parseVCF.prototype.fail = function(err){
-	var _this = this;
-	logger('error',err,{user:this.user,target:this.file,action:'parseVCF'})
+var fail = function(err){
+	logger('error',err,{user:ops.user,target:ops.file,action:'parseVCF'})
 	var pat;
-	Promise.each(this.patients,function(patient){
+	Promise.each(ops.patients,function(patient){
 		pat = patient;
-		return dbFunctions.removePatient(patient[dbConstants.PATIENTS.ID_FIELD],_this.user);
+		return dbFunctions.removePatient(patient[dbConstants.PATIENTS.ID_FIELD],ops.user);
 	}).catch(function(err){
-		logger('error',err,{user:_this.user,target:pat,action:'removePatient'});
+		logger('error',err,{user:ops.user,target:pat,action:'removePatient'});
 	});
 
 }
 
 /* remnove the vcf file from the server */
-parseVCF.prototype.removeFile = function(){
-	var _this = this;
-	logger('info','removing file',{user:this.user,target:this.file,action:'unlink'});
-	return fs.unlinkAsync(this.file).catch(function(err){
-		logger('error',err,{user:_this.user,action:'unlink'});
+var removeFile = function(){
+	logger('info','removing file',{user:ops.user,target:ops.file,action:'unlink'});
+	return fs.unlinkAsync(ops.file).catch(function(err){
+		logger('error',err,{user:ops.user,action:'unlink'});
 	});		
 }
 
@@ -416,42 +419,22 @@ parseVCF.prototype.removeFile = function(){
  * returns a promise
 
  */
-parseVCF.prototype.checkAndInsertDoc = function(patient){
-	var self = this;
+var checkAndInsertDoc = function(patient){
 	var promise = new Promise(function(resolve,reject){
-		var docsToInsert = self.patientObj[patient].documents;
+		var docsToInsert = ops.patientObj[patient].documents;
 		var options = {documents: docsToInsert,
-				   collectionName:self.patientObj[patient].collection};
+				   collectionName:ops.patientObj[patient].collection};
 		
-		dbFunctions.insertMany(options,self.user)
+		dbFunctions.insertMany(options,ops.user)
 		.then(function(){
-			self.patientObj[patient].documents = [];//self.patientObj[patient]['documents'].slice(ind);
-			self.patientObj[patient].insertCache = [];
-			resolve(self.patientObj[patient].documents.length);
+			ops.patientObj[patient].documents = [];//self.patientObj[patient]['documents'].slice(ind);
+			ops.patientObj[patient].insertCache = [];
+			resolve(ops.patientObj[patient].documents.length);
 		}).catch(function(err){
-			logger('error',err,{user:self.user,target:self.file,action:'checkAndInsertDoct'})
+			logger('error',err,{user:ops.user,target:ops.file,action:'checkAndInsertDoct'})
 		});
 	});
 	return promise;
-};
-
-
-
-parseVCF.prototype.convertAnnoString = function(string){
-	var out = {};
-	var line = string.split(';');
-	for (var i = 0; i < line.length; i++ ){
-		if ( line[i].match(/^\.$/) === null ){
-			var inputLine = line[i].split('=');
-			inputLine[0] = inputLine[0].replace('.','_').toLowerCase();
-			if (!out.hasOwnProperty(inputLine[0])){
-				out[inputLine[0]] = [convertNum(inputLine[1])];
-			} else {
-				out[inputLine[0]].push(convertNum(inputLine[1]));
-			}
-		}
-	}
-	return out;
 };
 
 
@@ -593,24 +576,27 @@ var convertAlleles = function(ref,alt){
 // Wrapper to run all the functions as a pipeline
 //==============================================================================================================
 //==============================================================================================================
-var run = function(file, patients, user){
 
+var run = function(file, patients, user,remove){
 	var options = {
 		patients : patients,
 		user : user
 	}
-	
-	var parser = new parseVCF(file,options);
-	return parser.setupCollections().then(function(){
-		return parser.read()
-	}).then(function(){
-		return parser.setComplete();
-	}).catch(function(err){
-		return parser.fail(err)
-	}).done(function(){
-		return parser.removeFile();
-	});
 
+	ops.file = file;
+	ops.user = user;
+	ops.patients = patients;
+	return setupCollections().then(function(){
+		return read()
+	}).then(function(){
+		return setComplete();
+	}).catch(function(err){
+		fail(err)
+	}).then(function(){
+		if (remove){
+			return removeFile();
+		}
+	});
 };
 
 module.exports = run;

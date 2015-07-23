@@ -105,7 +105,6 @@ queue.prototype.splitInputFields = function(fields){
 	var promise = new Promise(function(resolve,reject){
 		var tempObj = {};
 		var outList = [];
-
 		for (var field in fields){
 			if (fields.hasOwnProperty(field)){
 				var splitFields = field.split('-');
@@ -153,7 +152,8 @@ queue.prototype.run = function(){
 		//var collectionName = patient[dbConstants.PATIENTS.COLLECTION_ID];
 		//return dbFunctions.createCollection(collectionName,user);
 	}).then(function(){
-		return parser(nodeConstants.VCF_UPLOAD_DIR +'/' + fileInfo.name, fields, user);
+		return parser(nodeConstants.VCF_UPLOAD_DIR +'/' + fileInfo.name, fields, user,true).then(function(result){
+		});
 	}).catch(function(err){
 		logger('error',err,{user:req.user.username,target:fileInfo.name,action:'run'});
 	}).done(function(){

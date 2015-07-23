@@ -672,11 +672,16 @@ var dbFunctions = function(){
 					if ( err ){
 						logger("error",err,{action:'createCollection',target:name,user:user});
 						reject(err);
+						return false
 					} else {
-						logger("info","successfully create new collection",{action:'createCollection',target:name,user:user});
+						logger("info","successfully created new collection",{action:'createCollection',target:name,user:user});
 						resolve(collection);
+						return false
 					}
 				});
+			} else {
+				reject();
+				return false;
 			}
 		});
 		return promise;
