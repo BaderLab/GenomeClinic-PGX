@@ -251,7 +251,7 @@ require("./lib/jquery.fileupload");*/
         var name = data.files[0].name;
 
         //ensure the file is in the appropriate format
-        if (!(name.endsWith('.vcf'))){
+        if (!(name.endsWith('.vcf') || name.endsWith('.tsv'))){
           $("#error-display-message").text("Invalid File, please choose a file that ends in .vcf extension").parents().find("#error-display-box").slideDown(300);
         } else {
           //preview the first megabyte of the file, parse patient names and dynamically
@@ -267,61 +267,49 @@ require("./lib/jquery.fileupload");*/
             var promise = Promise.resolve().then(function(){
               //There technically only are 8 fixed fields, however, we required genotype infomration
               //To compute pgx data. therefor we require the format field to uplaod and store variants
-              var reqFields = ['#CHROM','POS','ID', 'REF','ALT','QUAL','FILTER','INFO','FORMAT'];
+              var ops = {
+                PGX:{
+                  reqFields:['#ID','REF','ALT', 'FORMAT']
+                },
+                VCF:{
+                  reqFields:['#CHROM','POS','ID', 'REF','ALT','QUAL','FILTER','INFO','FORMAT']
+                }
+              }
               previewData = previewData.split(/[\n\r]+/);
               for (var count=0; count < previewData.length-1; count ++){
                 tempString = previewData[count].toUpperCase();
                 //This should be the first field;
                 if (count === 0){
                   if (tempString.search(/fileFormat/i) !== -1){
-                    format = parseFloat(tempString.match(/VCFv.+$/i)[0].replace(/VCFv/i,""));
-                    if (format <= 4 || format === undefined)
+
+                    if (tempString.search(/PGX/) !== -1) format = 'PGX';
+                    else if (tempString.search(/VCF/) !== -1) format = 'VCF'
+                    if (format !== 'VCF' && format !== 'PGX' || format === undefined)
                       throw new Error('Input File not in proper Format');
                   } else {
                     throw new Error('Input Does not contain proper format field');
                   }
-                } else if (tempString.search(/^#CHROM/i)!== -1) {
+                } else if (tempString.search(/^#[a-z]/i)!== -1) {
                   foundSeq = true;
                   // Split data on any white space
                   tempArray = tempString.split(/[\s]+/);
-                  for (var i=0; i < reqFields.length; i++){
-                    regex = new RegExp(reqFields[i],'i');
+                  for (var i=0; i < ops[format].reqFields.length; i++){
+                    regex = new RegExp(ops[format].reqFields[i],'i');
                     //If there is an extra field this will throw an error
                     if (tempArray[i].search(regex) === -1){
-                      if (reqFields[i] === "FORMAT")
+                      if (ops[format].reqFields[i] === "FORMAT")
                         throw new Error ("Genotype Information is required");
-                      throw new Error("Invalid input file, missing required field: " + reqFields[i]);
+                      throw new Error("Invalid input file, missing required field: " + ops[format].reqFields[i]);
                     }
                   }
-                  patientIds = tempArray.slice(reqFields.indexOf('FORMAT') + 1).filter(function(p){if(p!==""){return p;}});
+                  patientIds = tempArray.slice(ops[format].reqFields.indexOf('FORMAT') + 1).filter(function(p){if(p!==""){return p;}});
                   options = {'patient_ids':patientIds,
                               'Id': + Id,
                               'size':(data.files[0].size/1000),
                               'file-name':name
                             };
-                } else if (foundSeq){
-                  tempArray = tempString.split(/[\s]+/);
-                  field = tempArray[reqFields.indexOf("FORMAT")];
-                  if (field && field.search(/[^:]+/g) !== -1) 
-                    regex = new RegExp(tempArray[reqFields.indexOf('FORMAT')].replace(/[^:]+/g,".*"));
-                  else { 
-                    throw new Error('Formatting error detected on line: ' + (count + 1));
                   }
-
-                  for (var i=reqFields.length; i < patientIds.length + reqFields.length; i++){
-                    if (!tempArray[i]){
-                      throw new Error("Missing Genotype information at line " + (count + 1));
-                    }
-                    if (tempArray[i].match(regex)===null){
-                      throw new Error("A genotype field that does not correspond to the FORMAT field was found, please review the file and fix prior to uploading");
-                    }
-                  } 
-                }
               }
-              //if there was no field with #CHROM found then assume improperly formatted vcf
-              //or if the formatField of the vcf file was not found.
-              if (!foundSeq)
-                throw new Error('Input File not in proper Format, could not find header information');
             }).then(function(){
               //Render the html async to add it to the page
               return templates.uploadpage.vcf(options)
