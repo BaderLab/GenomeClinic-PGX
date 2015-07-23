@@ -112,7 +112,6 @@ var read = function(){
 						ops.reading = false;
 						resolve(stream);
 					}).catch(function(err){
-						console.log('here');
 					});
 				} else {
 					resolve(stream);
@@ -407,6 +406,7 @@ var fail = function(err){
 /* remnove the vcf file from the server */
 var removeFile = function(){
 	logger('info','removing file',{user:ops.user,target:ops.file,action:'unlink'});
+	console.log(ops.file);
 	return fs.unlinkAsync(ops.file).catch(function(err){
 		logger('error',err,{user:ops.user,action:'unlink'});
 	});		
@@ -571,6 +571,26 @@ var convertAlleles = function(ref,alt){
 };
 
 
+//Reset the page options
+var resetOps = function(){
+	ops = {
+		user : undefined,
+		file: undefined,
+		patients : undefined,
+		bufferSize : 10000000,
+		bufferArray : [],
+		oldString : "",
+		mapper : {'static':{}},
+		docMax : 5000,
+		patientObj : {},
+		stream : undefined,
+		reading : false,
+		numHeader : 0,
+		format : undefined,
+		file : undefined,
+		user : undefined
+	}
+}
 //==============================================================================================================
 //==============================================================================================================
 // Wrapper to run all the functions as a pipeline
@@ -596,6 +616,8 @@ var run = function(file, patients, user,remove){
 		if (remove){
 			return removeFile();
 		}
+	}).then(function(){
+		resetOps();
 	});
 };
 

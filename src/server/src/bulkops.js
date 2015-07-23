@@ -11,12 +11,15 @@ var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs'));
 var path = require('path');
 var assert= require("assert");
-var constants = require('./src/server/conf/constants.json');
-var dbFunctions = require("./build/models/mongodb_functions");
-var utils = require('./build/lib/utils');
-var getRS = require("./build/lib/getDbSnp");
-//var constants = require('./lib/conf/constants.json');
+var constants = require('./lib/conf/constants.json');
+var dbFunctions = require("./models/mongodb_functions");
+var utils = require('./lib/utils');
+var getRS = require("./lib/getDbSnp");
 
+
+/* ops object with the command line options, arguments and helptexts at each level. Additionally it containes information on
+ * file and field validation for the import documents. 
+ */
 var ops = {
 	operation : ['import','export'],
 	helptxt : "Script to facilitate bulk operations for the PGX database",
@@ -252,6 +255,8 @@ var ops = {
 };
 
 
+
+/* search an array and return the index taht matches a regex */
 var regIndex = function(array,reg){
 	for (var i = 0; i < array.length; i++ ){
 		if (array[i].search(reg) !== -1 ){
@@ -262,9 +267,13 @@ var regIndex = function(array,reg){
 	return -1
 }
 
+
+/* Print the usage at the current level that the user has provided 
+ * and exit the script */
 var usage = function(op,col){
 	var i;
 	var usgStsring = '\nbulkops.js';
+	//Either no operation provieded or there is a help flag passed
 	if (!op || op == '-h' || op == 'help'){
 		usgStsring += ' [operation]\n\n';
 		usgStsring += ops.helptxt;
@@ -274,6 +283,7 @@ var usage = function(op,col){
 			usgStsring += '\t' + (i + 1) + '. ' + ops.operation[i] + '\n';
 		}
 		usgStsring += '\n\thelp\t-h\tprovide this list';
+	//If no collection is provided or the positional argument is help, print the help text
 	} else if (!col || col == '-h' || col == 'help') {
 		usgStsring += ' ' + op + ' [collection]\n\n';
 		usgStsring += ops[op].helptxt;
@@ -297,6 +307,7 @@ var usage = function(op,col){
 		usgStsring += '\n\n'
 		usgStsring += ops[op][col].helptxt;
 
+		//Print the contents of the possible parameters
 		if (ops[op][col].possible){
 			for (i = 0; i < ops[op][col].opts.length; i++){
 				usgStsring += '\n\tOptions for '  +ops[op][col].opts[i] + ':\n\n'
@@ -316,6 +327,10 @@ var usage = function(op,col){
 };
 
 
+
+/* Recursively search through an array in order to determine if there are any conflicts,
+ * fields parameter is an array that indicates whtat must be a unique combination for 
+ * the current entry */
 var searchForConflicts = function(fields,arr){
 	var truthSum = 0;
 	var i;
@@ -348,6 +363,7 @@ var searchForConflicts = function(fields,arr){
 var op  =  process.argv[2];
 var warnings = false;
 
+//parse the operation from the command line, if the -h flag is provided then print the usage and exit
 if ( op == '-h' || op == 'help'){
 	usage(op);
 } else if ( ops.operation.indexOf(op) ==-1 || op === undefined){
@@ -355,6 +371,7 @@ if ( op == '-h' || op == 'help'){
 	usage();
 }
 
+//parse the collection from the command line
 var collection = process.argv[3];
 if (collection == '-h' || collection == 'help'){
 	usage(op,collection);
@@ -363,6 +380,9 @@ if (collection == '-h' || collection == 'help'){
 	usage(op);
 }
 
+
+//Parse all additional arguments from the commandline and set them to a args object
+//If there is a -tsv detected signal that there should be a tsv file expected
 
 var args = {};
 if (process.argv.indexOf('-tsv') !== -1){
@@ -383,6 +403,7 @@ for (var i = 0; i < ops[op][collection].args.length; i++ ){
 	count++;
 }
 
+//And parse optional arguments and ensure that the proper options are provided
 if (ops[op][collection].opts){
 	for (var i = 0; i < ops[op][collection].opts.length; i++ ){
 		if (process.argv[i+count] == '-h' || process.argv[i+count] == 'help'){
@@ -397,17 +418,21 @@ if (ops[op][collection].opts){
 }
 
 
+/* Connect to the database */
 dbFunctions.connectAndInitializeDB().then(function(){
 	var colParams = ops.collections[collection];
 	var descriptors;
 	console.log("\nJOB: " + op.toUpperCase() )
 	console.log("DATE: " + new Date().toDateString());
+
+	/* the operation defined by the user was import */
 	if (op == 'import'){
 		var docs;
 		var updated = 0;
 		var added = 0;
 		var skipped = 0;
 
+		//ensure the appropriate file type
 		if (args.tsv) console.log("MESSAGE: Unused parameter -tsv found, however the import method only takes json files");
 		if (collection !== 'patient' && args.file.search(/.json$/) ==-1) {
 			console.log('ERROR: File must be in the json format');
@@ -417,9 +442,13 @@ dbFunctions.connectAndInitializeDB().then(function(){
 			usage(op,collection);
 		}	
 
+
+		/* if the collection defined is 'patient' the user will be directly uplaoding a .tsv or a .vcf file
+		 * and adding a new patient to the server. The User patienst must be unique name s or the user must 
+		 * provide unoique names for the user */)
 		if (collection == 'patient'){
-			//var queue = new require('./build/lib/queue');
-			var parser = require('./build/lib/parseVCF');
+			//Load the parser
+			var parser = require('./lib/parseVCF');
 
 			//set the extension 
 			var ext;
@@ -433,6 +462,7 @@ dbFunctions.connectAndInitializeDB().then(function(){
 					usage(op,collection);
 				});
 			}).then(function(){
+				//Ensure the user provided exists in the db
 				return dbFunctions.findUserById(args.user).then(function(result){
 					assert(result !== null, "user could not be found. Please provide a valid user to associate the patients with.");
 				});
@@ -496,7 +526,7 @@ dbFunctions.connectAndInitializeDB().then(function(){
 				return parser(path.resolve(args.file),args.patientfields,args.user);
 			})
 
-
+		//The collection is not a patient collection and we will be uploading or updating the entries in the database
 		} else {
 
 			return Promise.resolve().then(function(){

@@ -139,8 +139,8 @@
 	},
 	"nodeConstants":{
 		"SERVER_DIR":"{{DIR}}",
-		"VCF_UPLOAD_DIR":"{{DIR}}/upload/vcf",
-		"UPLOAD_DIR":"{{DIR}}/upload",
+		"VCF_UPLOAD_DIR":"{{DIR}}/tmp/upload/vcf",
+		"UPLOAD_DIR":"{{DIR}}/tmp/upload",
 		"TMP_UPLOAD_DIR":"{{DIR}}/tmp",
 		"LOG_DIR":"{{DIR}}/logs",
 		"COM_LOG_PATH":"https.log",
