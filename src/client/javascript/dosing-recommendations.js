@@ -21,7 +21,48 @@ var emptyFieldhtml = '<div class="row">\
 						    	</div>\
 						    </div>\
 						</div>\
-					</div>'
+					</div>';
+
+var abideOptions = {
+		abide: {
+			validators:{
+				day:function(el,required,parent){
+				/* if the element =pointed to by the data-requiredIf is not null then the current field must
+				 * be not null as well */
+					var val = el.value;
+					if (isNaN(val)) return false
+					var month = document.getElementById('patient-dob-month').value;
+					var year = document.getElementById('patient-dob-year').value;
+					var maxDays;
+					if (year === '') year = 0;
+					if (month === '') month = 0;
+					if (val === '') return false;
+
+					maxDays = new Date(year,month,0).getDate();
+					if (val > maxDays || val <= 0) return false;
+					return true;
+				},
+				
+				month:function(el,required,parent){
+					/* The incoming gene name must be unique */
+					var val = el.value;
+					if (isNaN(val)) return false
+					if (val === '') return false;
+					if (val > 12 || val <= 0) return false;
+					return true;
+				},
+
+				year:function(el,required,parent){
+					var val = el.value;
+					if (isNaN(val)) return false
+					var year  = new Date().getFullYear();
+					if (val === '') return false;
+					if (val > year || val <= 0 ) return false;
+					return true;
+				}
+			}
+		}
+	};
 
 module.exports = {
 
@@ -61,6 +102,7 @@ module.exports = {
 		var temp,field;
 		var fields = $('form').serializeArray();
 		var currDrugs = $('.patient-drug-name');
+		var currDose = $('.patient-drug-dose');
 		output.patient = {};
 		output.dr = {};
 		//Loop over all the fields
@@ -94,13 +136,18 @@ module.exports = {
 			}
 		}
 		//Add the current drugs that the patient is taking.
+		
+
 		if (currDrugs.length > 0 ){
-			output.patient.medications = [];
-			for (var i = 0; i < currDrugs.length; i ++ ){
-				output.patient.medications.push($(currDrugs[i]).text());
+			output.patient.medications= "";
+			output.patient.allMedications = [];
+			for (i = 0; i < currDrugs.length; i ++ ){
+				output.patient.allMedications.push({name:$(currDrugs[i]).text(),dose:$(currDose[i]).text()});
+				if (output.patient.medications !== "") output.patient.medications += ', '
+				output.patient.medications += $(currDrugs[i]).text() + ' at ' + $(currDose[i]).text()
+
 			}
 			//Convert the current drugs form an array into text
-			output.patient.medications = output.patient.medications.join(", ");
 		}
 		return output;
 	},
@@ -126,15 +173,11 @@ module.exports = {
 				temp.rec = $(fields[i]).find(".rec").val();
 				temp.risk = $(fields[i]).find(".risk").text();
 
-				genes = $(fields[i]).find('.gene-name');
-				for (var j = 0; j < genes.length; j++){
-					temp.genes.push($(genes[i]).text());
-				}
+				$(fields[i]).each(function(ind,item){
+					temp.genes.push($(item).find('.gene-name').find('i').text())
+					temp.classes.push($(item).find('.class-name').find('i').text())
+				});
 
-				classes = $(fields[i]).find('.class-name');
-				for (var j = 0; j < genes.length; j++){
-					temp.classes.push($(genes[i]).text());
-				}
 				pubmed = $(fields[i]).find(".pubmed");
 				//add the associated citations
 				for(var j=0; j < pubmed.length; j++ ){
@@ -293,7 +336,7 @@ module.exports = {
 				}).then(function(){
 					return _this.recommendationHandlers("#future-recommendations");
 				}).catch(function(err){
-					console.log(err);
+					console.error(err);
 				});
 			}
 		});
@@ -330,7 +373,7 @@ module.exports = {
 				}).then(function(){
 					_this.recommendationHandlers('#drug-recommendations');
 				}).catch(function(err){
-					console.log(err);
+					console.error(err);
 				})
 			}
 		});
@@ -392,9 +435,10 @@ module.exports = {
 		$('#patient-add-drug').on('click',function(e){
 			e.preventDefault();
 			var val = $('#patient-new-drug').val();
-			if (val !== ""){
+			var dose = $('#patient-new-dose').val();
+			if (val !== "" && dose !== ""){
 				$('#patient-new-drug').val('');
-				var html = "<tr><td class='patient-drug-name'>" + val + "</td><td class='text-center'><a href='#'><i class='fi-x'></i></a></td></tr>";
+				var html = "<tr><td class='patient-drug-name'>" + val + "</td><td class='patient-drug-dose text-center'>" + dose + "</td><td class='text-center'><a href='#'><i class='fi-x'></i></a></td></tr>";
 				$('#patient-drug-table').find('tbody').append(html);
 				removeRow($('#patient-drug-table').find('tbody').last('tr').find('a'));
 				if (!$('#patient-drug-table').is(":visible")){
@@ -404,6 +448,30 @@ module.exports = {
 
 			}
 		});
+
+		$('#patient-dob-date,#patient-dob-month,#patient-dob-year').on('keyup',function(){
+			var date = $('#patient-dob-date').val();
+			var month = $('#patient-dob-month').val();
+			var year = $('#patient-dob-year').val();
+			if (year.length == 4 && date.length <= 2 && month.length <= 2 && year > 0 && date > 0 && month > 0){
+				$('#patient-dob-date,#patient-dob-month,#patient-dob-year').trigger('change');
+				if(!$('#patient-dob-date').hasClass('error') && !$('#patient-dob-month').hasClass('error') && !$('#patient-dob-year').hasClass('error')){
+					var todayDate = new Date();
+					var todayYear = todayDate.getFullYear();
+					var todayMonth = todayDate.getMonth();
+					var todayDay = todayDate.getDate();
+					var age = todayYear - year;
+					if (todayMonth < month - 1) {
+						age--;
+					}
+					if (month - 1 == todayMonth && todayDay < date){
+						age--;
+					}
+					$('input[name=patient-age]').val(age);
+				}	
+			}		
+		});
+
 
 		/* Once the form is submitted, listen for a valid event. When all fields are validated, serialize the form and submit
 		 * and Ajax request to the server with the form info. If the submission is successful and returns the name of the report,
@@ -425,7 +493,7 @@ module.exports = {
 			}).then(function(){
 				$('form').find('button').text('Generate Report');
 			}).catch(function(err){
-				console.log(err);
+				console.error(err);
 			});
 		});
 	},
@@ -455,6 +523,7 @@ module.exports = {
 			var genes = [];
 			var geneData = []
 			var ignoredGenes = []
+			var closestMatches;
 			//Extract infromation for each gene and the haplotypes that were predicted
 			//Select the case where there is only Two possible Haplotypes.
 			//Any other cases cannot be determined
@@ -465,12 +534,20 @@ module.exports = {
 						 * it appropriately, therefore we should only take genes that for 
 						 * Sure are known. */
 					 var keys = Object.keys(result.pgxGenes[i].possibleHaplotypes);
-					 if (keys.length == 2){
+					 closestMatches = [];
+					 $.each(keys,function(ind,item){
+					 	closestMatches = closestMatches.concat(result.pgxGenes[i].possibleHaplotypes[item].closestMatch);
+					 })
+					 //There are only 2 possible haploptypes and there are only 2 possible matches
+					 //THis means it is a distinct match.
+					 if (keys.length == 2 && closestMatches.length == 2){
 					 	geneData.push(result.pgxGenes[i]);
 					 	genes.push(result.pgxGenes[i].gene);
-					 }else{
+					 } else {
 					 	ignoredGenes.push(result.pgxGenes[i]);
 					 }
+				} else {
+					ignoredGenes.push(result.pgxGenes[i]);
 				}
 				
 			}
@@ -512,12 +589,12 @@ module.exports = {
 			return _this.getFutureRecommendations();
 		}).then(function(){
 			// refresh foundation
-			return utility.refresh();
+			return utility.refresh(abideOptions);
 		}).then(function(){
 			//add hanlders
 			_this.staticHandlers();
 		}).catch(function(err){
-			console.log(err);
+			console.error(err);
 		});
 	}
 };

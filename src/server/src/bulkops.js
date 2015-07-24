@@ -367,7 +367,7 @@ var warnings = false;
 if ( op == '-h' || op == 'help'){
 	usage(op);
 } else if ( ops.operation.indexOf(op) ==-1 || op === undefined){
-	console.log("ERROR: invalid operation provided: " + op);
+	console.error("ERROR: invalid operation provided: " + op);
 	usage();
 }
 
@@ -376,7 +376,7 @@ var collection = process.argv[3];
 if (collection == '-h' || collection == 'help'){
 	usage(op,collection);
 } else if (ops[op].options.indexOf(collection) === -1 || collection === undefined){
-	console.log('ERROR: invalid collection provided: ' + collection);
+	console.error('ERROR: invalid collection provided: ' + collection);
 	usage(op);
 }
 
@@ -395,7 +395,7 @@ for (var i = 0; i < ops[op][collection].args.length; i++ ){
 		usage(op,collection);
 	}
 	else if (process.argv[i + 4] === undefined){
-		console.log("ERROR: missing parameter");
+		console.error("ERROR: missing parameter");
 		usage(op,collection);
 	}
 	args[ops[op][collection].args[i]] = process.argv[i + 4];
@@ -410,7 +410,7 @@ if (ops[op][collection].opts){
 			usage(op,collection);
 		}
 		else if ( process.argv[i + count] !== undefined && ops[op][collection].possible[i].indexOf(process.argv[i + count ]) == -1 && ops[op][collection].possible[i].indexOf('*') === -1){
-			console.log("ERROR: Invalid option provided for optional parameter: " + ops[op][collection].opts[i]);
+			console.error("ERROR: Invalid option provided for optional parameter: " + ops[op][collection].opts[i]);
 			usage(op,collection);
 		}
 		args[ops[op][collection].opts[i]] = process.argv[i + count];
@@ -435,10 +435,10 @@ dbFunctions.connectAndInitializeDB().then(function(){
 		//ensure the appropriate file type
 		if (args.tsv) console.log("MESSAGE: Unused parameter -tsv found, however the import method only takes json files");
 		if (collection !== 'patient' && args.file.search(/.json$/) ==-1) {
-			console.log('ERROR: File must be in the json format');
+			console.error('ERROR: File must be in the json format');
 			usage(op,collection);
 		} else if (collection == 'patient' &&  args.file.search(/(.vcf$|.tsv$)/) == -1){
-			console.log("ERROR: File must be in .vcf or .tsv format.");
+			console.error("ERROR: File must be in .vcf or .tsv format.");
 			usage(op,collection);
 		}	
 
@@ -458,7 +458,7 @@ dbFunctions.connectAndInitializeDB().then(function(){
 			return Promise.resolve().then(function(){
 				return fs.statAsync(path.resolve(args.file))
 				.catch(function(){
-					console.log('ERROR: File not found. Could not find ' + args.file);
+					console.error('ERROR: File not found. Could not find ' + args.file);
 					usage(op,collection);
 				});
 			}).then(function(){
@@ -524,6 +524,8 @@ dbFunctions.connectAndInitializeDB().then(function(){
 				//Parse the new files and insert them into the patient databsa
 				console.log("MESSAGE: adding all patients to the databse");
 				return parser(path.resolve(args.file),args.patientfields,args.user);
+			}).then(function(){
+				added++;
 			})
 
 		//The collection is not a patient collection and we will be uploading or updating the entries in the database
@@ -532,7 +534,7 @@ dbFunctions.connectAndInitializeDB().then(function(){
 			return Promise.resolve().then(function(){
 				return fs.statAsync(path.resolve(args.file))
 				.catch(function(){
-					console.log('ERROR: File not found. Could not find ' + args.file);
+					console.error('ERROR: File not found. Could not find ' + args.file);
 					usage(op,collection);
 				});
 			}).then(function(){
@@ -817,7 +819,7 @@ dbFunctions.connectAndInitializeDB().then(function(){
 			});
 		}).then(function(){
 			if (fileExists){
-				console.log("ERROR: Output file already exsits. Will not overwrite")
+				console.error("ERROR: Output file already exsits. Will not overwrite")
 				usage(op,collection);
 			}
 			//File does not exists an contiue
@@ -886,7 +888,7 @@ dbFunctions.connectAndInitializeDB().then(function(){
 	else console.log("STATUS: completed all tasks. Exiting\n")
 	dbFunctions.closeConnection(process.exit);
 }).catch(function(err){
-	console.log('\nERROR: ' + err.message);
+	console.error('\nERROR: ' + err.message);
 	//console.log(err.stack);
 	dbFunctions.closeConnection();
 	usage(op,collection);
