@@ -7,7 +7,23 @@ var callsite = require('callsite');
 
 var winston = require("winston"),
 	nodeConstants = require('./conf/constants.json').nodeConstants,
+	fs = require('fs');
 	traceback = require('traceback');
+
+
+/* ensure there are the appropriate directories */
+
+try {
+	fs.statSync(nodeConstants.LOG_DIR)
+} catch (err) {
+	try {
+		fs.mkdir(nodeConstants.LOG_DIR);
+	} catch (err2){
+		console.error("ERROR: Could not create log directies");
+		console.error(err2.stack);
+		process.exit(1);
+	}
+}
 
 var logger = new (winston.Logger)({
 		transports:[
@@ -23,6 +39,9 @@ var logger = new (winston.Logger)({
 			})
 		]
 	});
+
+
+/* ensure there are 
 
 
 
