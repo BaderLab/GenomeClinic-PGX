@@ -3,7 +3,7 @@ var Promise = require('bluebird');
 var constants = require("./conf/constants.json");
 var cons = Promise.promisifyAll(require('consolidate')); // Promisify consolidate
 var fs = Promise.promisifyAll(require('fs'));
-
+var Path = require('path');
 /* Generate Reports based on the template provided and send the name of the report to the client 
  * once the report has been rendered for easy downloading.
  * The function takes in four mandatory fields:
@@ -43,8 +43,8 @@ module.exports = function(req,res,reportName,template,options,logger){
 		//the date and time are appending to the report name in order to make a unique report name, in the case of multiple files sharing the same name
 		name = reportName + "_report_"+ date.getDay().toString() + "_" + date.getMonth().toString() + "_" + date.getUTCFullYear().toString() + 
 		"_" + date.getTime().toString();
-		path = constants.nodeConstants.TMP_UPLOAD_DIR + '/' + name;
-		
+		path =   Path.resolve(constants.nodeConstants.TMP_UPLOAD_DIR + '/' + name)
+		path = path.replace(/\\/gi,'/');
 		//The options from the intial request will be ussed to populate the template. Additionally add user info and date info
 		var opts = req.body;
 		opts.user = req.user[constants.dbConstants.USERS.ID_FIELD];
@@ -77,7 +77,7 @@ module.exports = function(req,res,reportName,template,options,logger){
             			}
 					});
 					page.set('viewportSize',{width:100,height:200});
-					page.open(path + '.html',function(status){ // retrieve the html file and render it
+					page.open('file:///' +  path + '.html',function(status){
 						if (status !== "success") {
 							throw new Error("file did not open properly");
 						} else {
