@@ -135,15 +135,15 @@
 										<span class="prefix"><b style="color:red">*</b> D.O.B</span>
 									</div>
 									<div class="large-2 small-2 medium-2 columns">
-										<input name="patient-dob-date" type="text" placeholder="DD" pattern="^\d{1,2}$" required>
+										<input id="patient-dob-date" name="patient-dob-date" type="text" placeholder="DD" data-abide-validator="day" required>
 										<small class="error">Date required</small>
 									</div>
 									<div class="large-2 small-2 medium-2 columns">
-										<input name="patient-dob-month" type="text" placeholder="MM" pattern="^\d{1,2}$" required>
+										<input id="patient-dob-month" name="patient-dob-month" type="text" placeholder="MM" data-abide-validator="month" required>
 										<small class="error">Month Required</small>
 									</div>
 									<div class="large-4 small-4 medium-4 columns left">
-										<input name="patient-dob-year" type="text" placeholder="YYYY" pattern="^\d\d\d\d$" required>
+										<input id="patient-dob-year" name="patient-dob-year" type="text" placeholder="YYYY" data-abide-validator="year" required>
 										<small class="error">Please provide a 4 digit year</small>
 									</div>
 								</div>
@@ -151,10 +151,10 @@
 							<div class="large-6 small-12 medium-6 columns">
 								<div class="row collapse prefix-radius">
 									<div class="large-4 small-4 medium-4 columns">
-										<span class="prefix">Sex</span>
+										<span class="prefix"><b style="color:red">*</b> Sex</span>
 									</div>
 									<div class="large-8 small-8 medium-3 column">
-										<input type="text" name="patient-sex" placeholder="M/F" pattern="^(m|f|female|male|M|F|Female|Male)$">
+										<input type="text" name="patient-sex" placeholder="M/F" pattern="^(m|f|female|male|M|F|Female|Male)$" required>
   										<small class="error">Sex must be M / F</small>
 									</div>
 								</div>
@@ -226,8 +226,11 @@
 									<div class="large-2 small-4 medium-2 columns">
 										<span class="prefix">Current Medications</span>
 									</div>
-									<div class="large-8 small-6 medium-8 columns">
-										<input type="text" id="patient-new-drug" placeholder="Provide one drug name at a time">
+									<div class="large-4 small-3 medium-4 columns">
+										<input type="text" id="patient-new-drug" placeholder="Drug Name">
+									</div>
+									<div class="large-4 small-3 medium-4 columns">
+										<input type="text" id="patient-new-dose" placeholder="Drug Dose">
 									</div>
 									<div class="large-2 small-2 medium-2 columns">
 										<a href="#" id="patient-add-drug" class="button secondary postfix"><i class="fi-plus"></i></a>
@@ -241,7 +244,8 @@
 									<thead>
 										<tr>
 											<th>Medication name</th>
-											<th>Remove</th>
+											<th class="text-center">Dose</th>
+											<th class="text-center">Remove</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -265,6 +269,7 @@
 						<div class="row">
 							<div class="large-12 small-12 medium-12 columns">
 								{{#if pgxGenes}}
+								<label>* Only displaying genes with two possible hoplotypes and one close match for each haplotype</label>
 								<table class="large-12 small-12 medium-12" id="pgx-result-table">
 									<thead>
 										<tr>

@@ -1,0 +1,15 @@
+[
+	{
+		"classes" : [
+			"Low Risk",
+			"Intermediate Metabolizer"
+		],
+		"drug" : "Abacavir",
+		"genes" : [
+			"HLA-B*57:01",
+			"VKORC1"
+		],
+		
+		"rec" : "The patient is an HLA-B*57:01 allele carrier and  therefore is at a higher risk to develop abacavir induced hypersensitivity reaction. Treatment with an abacavir-containing regimen is not recommended and should be considered only under exceptional circumstances when the potential benefit outweighs the risk. The risk for HLA-B*57:01 carriers to develop significant hypersensitivity reactions  is above 50%. "
+	}
+]
