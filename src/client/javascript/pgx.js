@@ -587,7 +587,6 @@ var pgx =  {
 				if (_o.patientHaplotypes)
 					templateData.pgxGenes.push(_o);
 			}
-			console.log(templateData);
 			resolve(templateData);
 		});
 
