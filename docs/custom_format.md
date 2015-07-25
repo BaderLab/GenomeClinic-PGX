@@ -27,11 +27,11 @@ The first line of the file defines the specified file format. It is required, an
 ### Fields
 A single tab separated header line is required, defining the contents of the file. There are 4 required fields, with at least one additional field required defining the patient, but more patient fields can be added.
 
-	1. #ID - Marker Id as a dbSnp rsID or a custom marker. This is a required field and must be populated otherwise the line will be ignored
-	2. REF - The reference allele. Alleles are in the same format defined in the VCF documentation. It consists of a single allele and is a required field and must be populated.
-	3. ALT - The alternate allele. Alleles are in the same format defined in the VCF documentation. Multiple alleles can be defined in this field as a comma separated list, if this field is empty it will simply be ignored by the server
-	4. FORMAT - Defines the format that the following patient fields will appear in as a list separated by colons. Each item in the list is an abbreviation, however there is only a single item required. The genotype, denoted by GT, must always be present otherwise the entry will not be considered as it is being entered into the database.
-	a. 
-	5. <PATIENT> - The patient column follows the same format as the FORMAt column. The header for the patient column must be a unique identifier for the patient. This will be used as a unique name, unless another name is defined by the user. 
-		a. GT - Genotype. Two numbers separated by either a `/` or a `|` defining the genotype. the different numbers identify whether it's a reference or an alternate allele. A "0" signifies the reference allele, while any number greater then 0 is the Alternate allele. Additionally phasing is defined by the separator, `|` indicates a phased genotype, while `/` indicates an unphased genotype.
+1. #ID - Marker Id as a dbSnp rsID or a custom marker. This is a required field and must be populated otherwise the line will be ignored
+2. REF - The reference allele. Alleles are in the same format defined in the VCF documentation. It consists of a single allele and is a required field and must be populated.
+3. ALT - The alternate allele. Alleles are in the same format defined in the VCF documentation. Multiple alleles can be defined in this field as a comma separated list, if this field is empty it will simply be ignored by the server
+4. FORMAT - Defines the format that the following patient fields will appear in as a list separated by colons. Each item in the list is an abbreviation, however there is only a single item required. The genotype, denoted by GT, must always be present otherwise the entry will not be considered as it is being entered into the database.
+a. 
+5. <PATIENT> - The patient column follows the same format as the FORMAt column. The header for the patient column must be a unique identifier for the patient. This will be used as a unique name, unless another name is defined by the user. 
+	a. GT - Genotype. Two numbers separated by either a `/` or a `|` defining the genotype. the different numbers identify whether it's a reference or an alternate allele. A "0" signifies the reference allele, while any number greater then 0 is the Alternate allele. Additionally phasing is defined by the separator, `|` indicates a phased genotype, while `/` indicates an unphased genotype.
 
