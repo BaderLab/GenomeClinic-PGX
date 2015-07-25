@@ -8,9 +8,11 @@ Web application for clinical pharmacogenomic interpretation.
 2. [MongoDB](http://mongodb.org/downloads)
 4. [PhantomJS](http://phantomjs.org/) 2.0.0 or later
 
-The web server is built as an [express](http://expressjs.com/) app and utilizes a mongo database for back end storage of variant information as well as general server information.Users can upload VCF files or a custom TSV format defined in the documentation, that can then be utilized for performing PGX analysis on the data that was uplaoded. Additionally the user has the ability to modify and update the backend databse ensuring that all the information can easily be edited and updated.
+Clinical Pharmacogenetics is a new and growing field with large implications for patient care. As genetic information becomes more readily available, the software used to interpret it must also become more broadly accesible and reliable for a wide range of client usage. GenomeClinic-PGX attempts to address the issues posed by having a diverse user group by providing an easy to use interface for data entry and report generation. GenomeClinic-PGX takes information on genetic variation in the form of VCF files or a custom file format described [here]() and performs a pharmacogenetic analysis on a specified set of variants. The results from this analysis are then used to provide a detailed and customizable report containing drug recommendations and a genetic profile of the patient for use by the clinicians.
 
-PhantomJS must be installed and accessible through the path environment variable
+The GenomeClinic-PGX web server is built in [Node.js](http://nodejs.org) as an [express](http://expressjs.com/) application. It uses mongo is used for back end storage of all information, including the session data store. The design of the dabatase can be found [here](docs/database_design.md). On the client side the app employs the [Handlebars.js](http://handlebarsjs.com/) templating engine in combination with [Jquery](http://jquery.com) and native javascript in order to produce dynamic and responsive page content that gives a fluid feeling to the web interface. In addition, [Foundation 5](http://foundation.zurb.com) is used as a comprehensive front end framework that enables fast, rapid prototpying of new page content.
+
+Reports are the cornerstone of the app and are generated in PDF format with the use of [PhantomJS](http://phantomjs.org). Any custom template can be designed and used for the final report quite easily using a handlebars template.
 
 ## MongoDB setup
 
