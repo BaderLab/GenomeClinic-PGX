@@ -1555,13 +1555,14 @@ var dbFunctions = function(){
 			assert.notStrictEqual(db,undefined);
 			var options = {$project:{}};
 			options.$project[dbConstants.DRUGS.ALL.ID_FIELD] = 1;
-			options.$project.numRecs = {$size:'$' + dbConstants.DRUGS.ALL.RECOMMENDATIONS}
-			options.$project.numFuture = {$size:'$' + dbConstants.DRUGS.ALL.FUTURE}
-			options.$project.numHaplo = {$size:'$' + dbConstants.DRUGS.ALL.HAPLO}
-			options.$project.numCurrH = {$size:'$' + dbConstants.DRUGS.ALL.CURRENT_HAPLO}
+			options.$project.type = '$type';
+			options.$project.numRecs = {$size:'$' + dbConstants.DRUGS.ALL.RECOMMENDATIONS};
+			options.$project.numFuture = {$size:'$' + dbConstants.DRUGS.ALL.FUTURE};
+			options.$project.numHaplo = {$size:'$' + dbConstants.DRUGS.ALL.HAPLO};
+			options.$project.numCurrH = {$size:'$' + dbConstants.DRUGS.ALL.CURRENT_HAPLO};
 			var sort = {$sort:{}};
 			sort.$sort[dbConstants.DRUGS.ALL.ID_FIELD] = 1;
-			var pipeline = [options,sort]
+			var pipeline = [options,sort];
 			return aggregate(dbConstants.DRUGS.ALL.COLLECTION,pipeline,user);
 		},
 
