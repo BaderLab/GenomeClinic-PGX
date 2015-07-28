@@ -50,7 +50,7 @@ var params = {
 			'qual',
 			'filter',
 			'info'
-		]
+		],
 	}
 }
 
@@ -102,23 +102,19 @@ var read = function(){
 		//When data is received, stop the stream until the data is read and parsed
 		stream.on('data',function(data){
 			stream.pause();
-			var promise = new Promise(function(resolve,reject){
-				ops.bufferArray.push(data);
-				if (!ops.reading){
-					ops.reading = true;
-					readAndParse()
-					.then(function(){
-						stream.resume();
-						ops.reading = false;
-						resolve(stream);
-					}).catch(function(err){
-					});
-				} else {
+			ops.bufferArray.push(data);
+			if (!ops.reading){
+				ops.reading = true;
+				readAndParse()
+				.then(function(){
+					stream.resume();
+					ops.reading = false;
 					resolve(stream);
-				}
-			});
-			return promise;
-
+				}).catch(function(err){
+					stream.destroy();
+					reject(err);
+				});
+			}
 		});
 
 		stream.on('end',function(){
@@ -150,7 +146,6 @@ var read = function(){
 		});
 
 		stream.on('error',function(err){
-			console.log(err);
 			logger('error',err,{user:ops.user,target:ops.file,action:'parseVCF'})
 			stream.destroy();
 			reject(err);
@@ -186,11 +181,14 @@ var readAndParse = function(chunk){
 			}
 			return splitString;
 		}).then(function(stringArray){
-			if (stringArray.length > 0 )
+			if (stringArray.length > 0 ){
 				return parseChunk(stringArray).map(function(patient){
 					if (ops.patientObj[patient].documents.length >= ops.docMax)
 						return checkAndInsertDoc(patient);
-			});
+				}).catch(function(err){
+					reject(err);
+				});
+			}
 		}).then(function(){
 			if (ops.bufferArray.length > 0){
 				return readAndParse();
@@ -254,7 +252,7 @@ var parseChunk = function(stringArray){
  						}
 					}
 
-					if (! formatReached){
+					if (!formatReached){
 						reject("Format field is missing.");
 					}
 
@@ -266,6 +264,8 @@ var parseChunk = function(stringArray){
 				} else if (stringArray[i].search(/^#/) === -1) {
 					line = stringArray[i].split('\t');
 					for (var patient in ops.patientObj){
+						if (line[ops.mapper.static.id] === '.' || line[ops.mapper.static.id] === '') reject("Missing Marker Data");
+
 						var cont = true; 
 						var currDoc = {};
 						var ref,alt;
@@ -317,7 +317,14 @@ var parseChunk = function(stringArray){
 						var formatMapper = [];
 						var formatField = line[ops.mapper.format].split(':');
 						var formatRegex = new RegExp(line[ops.mapper.format].replace(/[a-z0-9]+/gi,".*"),'i');
-						var formatLine = line[ops.patientObj[patient].id].split(':');
+						var formatLine;
+
+						try {
+							formatLine = line[ops.patientObj[patient].id].split(':');
+						} catch (err) {
+							reject("An error occured while parsing " + ops.file + ". Format line does not appear to be formed correctly")
+						}
+
 						if (line[ops.patientObj[patient].id].match(formatRegex) === null){
 							reject("Invalid Genotype field found");
 						}
@@ -357,7 +364,7 @@ var parseChunk = function(stringArray){
 		}
 		resolve(Object.keys(ops.patientObj));
 	});
-	return promise;
+	return promise;	
 };
 
 //==============================================================================================================
@@ -406,7 +413,6 @@ var fail = function(err){
 /* remnove the vcf file from the server */
 var removeFile = function(){
 	logger('info','removing file',{user:ops.user,target:ops.file,action:'unlink'});
-	console.log(ops.file);
 	return fs.unlinkAsync(ops.file).catch(function(err){
 		logger('error',err,{user:ops.user,action:'unlink'});
 	});		
