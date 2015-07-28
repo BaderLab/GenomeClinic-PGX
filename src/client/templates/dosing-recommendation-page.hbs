@@ -269,7 +269,7 @@
 						<div class="row">
 							<div class="large-12 small-12 medium-12 columns">
 								{{#if pgxGenes}}
-								<label>* Only displaying genes with two possible hoplotypes and one close match for each haplotype</label>
+								<label>* Only displaying genes without missing data. If more then two possible matches were found you must manually input a recommendation</label>
 								<table class="large-12 small-12 medium-12" id="pgx-result-table">
 									<thead>
 										<tr>
@@ -287,6 +287,7 @@
 											<td class="allele_2"><i>{{possibleHaplotypes.h2.closestMatch}}</i></td>
 											<td>
 												<select class="therapeutic-class">
+													<option>Other</option>
 													{{#classIter @root.classes type gene}}
 													<option>{{this}}</option>
 													{{/classIter}}
@@ -294,9 +295,22 @@
 											</td>
 										</tr>
 										{{/each}}
+										{{#each otherGenes}}
+										<tr class="gene-row other-gene">
+											<td class="gene-name">{{gene}}</td>
+											<td class="allele_1"><i>{{possibleHaplotypes.h1.closestMatch}}</i></td>
+											<td class="allele_2"><i>{{possibleHaplotypes.h2.closestMatch}}</i></td>
+											<td>
+												<select class="therapeutic-class">
+													<option>Other</option>
+												</select>
+											</td>
+										</tr>
+										{{/each}}
 									</tbody>
 								</table>
 								{{else}}
+
 								<div data-alert class="alert-box radius secondary" id="error-display-box">
 							      <!-- Alert message goes here -->
 							      	<div class="row">

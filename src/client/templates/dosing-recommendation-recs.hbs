@@ -2,11 +2,14 @@
 	<fieldset class="recommendation-field" data-id="{{_id}}">
 		<legend class="drug-name">{{drug}}</legend>
 		<div class="row">
-			<div class="large-11 small-11 medium-11 columns">
+			<div class="large-10 small-8 medium-8 columns">
 				<label><h6><b>Dependant Genes</b></h6></label>
 			</div>
-			<div class="large-1 small-1 medium-1 columns">
-				<a href="#" class="button tiny radius right"><i class="fi-x"></i></a>
+			<div class="large-1 small-2 medium-2 columns">
+				<a href="#" class="button tiny flag radius right {{#unless flagged}}secondary{{/unless}}"><i class="fa fa-flag"></i></a>
+			</div>
+			<div class="large-1 small-2 medium-2 columns">
+				<a href="#" class="button tiny radius right remove"><i class="fi-x"></i></a>
 			</div>
 		</div>
 		{{#each genes}}
@@ -25,8 +28,6 @@
 			</div>
 		</div>
 		{{/each}}
-		<label><h6><b>Perceived Risk</b></h6><label>
-		<p class="risk">{{risk}}</p>
 		<div class="row">
 			<div class="large-12 small-12 medium-12 columns">
 				<label><h6><b>Dosing Recommendation</b></h6></label>

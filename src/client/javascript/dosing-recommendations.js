@@ -171,7 +171,9 @@ module.exports = {
 				temp.classes = [];
 				temp.pubmed = [];
 				temp.rec = $(fields[i]).find(".rec").val();
-				temp.risk = $(fields[i]).find(".risk").text();
+				if( !$(fields[i]).find('.flag').hasClass('secondary') ){
+					temp.flagged = true;
+				}
 
 				$(fields[i]).each(function(ind,item){
 					temp.genes.push($(item).find('.gene-name').find('i').text())
@@ -210,7 +212,9 @@ module.exports = {
 				temp.rec = $(fields[i]).find(".rec").val();
 				temp.class = $(fields[i]).find(".class-name").text();
 				temp.gene = $(fields[i]).find(".gene-name").text();
-
+				if( !$(fields[i]).find('.flag').hasClass('secondary') ){
+					temp.flagged = true;
+				}
 				output.push(temp);
 			}
 		
@@ -230,6 +234,10 @@ module.exports = {
 		output.recommendations = recs.drugs;
 		output.genes = this.serializeTable();
 		output.future = this.serializeFuture();
+		var flags = $('.flag');
+		for (var i = 0; i < flags.length; i++ ){
+			if(!$(flags[i]).hasClass('secondary')) output.flagged = true;
+		}
 		if (output.recommendations){
 			output.drugsOfInterest = [];
 			for (var i = 0; i < output.recommendations.length; i++ ){
@@ -321,6 +329,13 @@ module.exports = {
 	getFutureRecommendations : function(){
 		var _this = this;
 		var tableValues = this.serializeTable();
+		var otherValues = tableValues.filter(function(item){
+			if (item.class=="Other") {
+				item.flagged = true;
+				item.rec = "";
+				return item;
+			}
+		});
 		return Promise.resolve($.ajax({
 			url:'/database/recommendations/future/get',
 			type:"POST",
@@ -328,9 +343,10 @@ module.exports = {
 			dataType:'json',
 			data:JSON.stringify(tableValues)
 		})).then(function(result){
-			if (result.length === 0) {
+			if (result.length === 0 && otherValues.length == 0) {
 				return $('#future-recommendations').html(emptyFieldhtml.replace(/\{\{message\}\}/,'There are no future considerations to report'))
 			} else {
+				result = result.concat(otherValues);
 			 	return templates.drugs.rec.future({future:result}).then(function(renderedHtml){
 					$('#future-recommendations').html(renderedHtml);
 				}).then(function(){
@@ -350,6 +366,17 @@ module.exports = {
 	getRecommendations : function(){
 		var _this = this;
 		var tableValues = this.serializeTable();
+		var otherValues = tableValues.filter(function(item){
+			if (item.class=="Other") {
+				item.genes = [item.gene];
+				item.classes = [item.class];
+				item.flagged = true;
+				item.pubmed = [];
+				item.rec = "";
+				item.drug = "Other"
+				return item;
+			}
+		});
 
 		return Promise.resolve($.ajax({
 			url:"/database/recommendations/recommendations/get",
@@ -362,11 +389,12 @@ module.exports = {
 			for (var i=0; i < result.length; i++ ){	
 				pubMedIDs = pubMedIDs.concat(result[i].pubmed);
 			}
-			if ( result.length === 0 ){
+			if ( result.length === 0 && otherValues.length == 0){
 				return $('#drug-recommendations').html(emptyFieldhtml.replace(/\{\{message\}\}/,'There are no recommendations to report'))
 
 			} else {
 				return utility.pubMedParser(pubMedIDs).then(function(citations){
+					result = result.concat(otherValues);
 					return templates.drugs.rec.recs({recommendation:result,citations:citations})
 				}).then(function(renderedHtml){
 					$('#drug-recommendations').html(renderedHtml);
@@ -499,13 +527,20 @@ module.exports = {
 	},
 
 	recommendationHandlers:function(context){
-		$(context).find('a.button').on('click',function(e){
+		$(context).find('a.remove').on('click',function(e){
 			var _this = this;
 			e.preventDefault();
 			$(this).closest('fieldset').slideUp(function(){
 				$(_this).remove()
 			})
-		});	
+		});
+
+		$('.flag').on('click',function(e){
+			e.preventDefault();
+			if ($(this).hasClass('secondary')) $(this).removeClass('secondary');
+			else $(this).addClass('secondary');
+			
+		});
 	},
 
 	/* Render the initial, get all gene information, re-run the pgx-analysis to get haplotype information and
@@ -521,8 +556,9 @@ module.exports = {
 			return pgx.convertTotemplateData(result);
 		}).then(function(result){
 			var genes = [];
-			var geneData = []
-			var ignoredGenes = []
+			var geneData = [];
+			var ignoredGenes = [];
+			var otherGenes = [];
 			var closestMatches;
 			//Extract infromation for each gene and the haplotypes that were predicted
 			//Select the case where there is only Two possible Haplotypes.
@@ -544,7 +580,7 @@ module.exports = {
 					 	geneData.push(result.pgxGenes[i]);
 					 	genes.push(result.pgxGenes[i].gene);
 					 } else {
-					 	ignoredGenes.push(result.pgxGenes[i]);
+					 	otherGenes.push(result.pgxGenes[i]);
 					 }
 				} else {
 					ignoredGenes.push(result.pgxGenes[i]);
@@ -553,6 +589,7 @@ module.exports = {
 			}
 
 			result.ignoredGenes = ignoredGenes;
+			result.otherGenes = otherGenes;
 			result.pgxGenes = geneData;
 			result.pgxGeneNames = genes
 			pgxTemplateData= result;
