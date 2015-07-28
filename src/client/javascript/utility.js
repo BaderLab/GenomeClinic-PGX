@@ -135,7 +135,7 @@ module.exports = {
 	 * from the json data. It returns an object of citations */
 	 pubMedParser : function(ids){
 		//Submit an ajax request
-		var httpReq = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id="
+		var httpReq = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id="
 		if (Object.prototype.toString.call(ids) == '[object Array]') ids = ids.join(',');
 		httpReq += ids;
 		httpReq += '&retmode=json';
