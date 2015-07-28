@@ -290,7 +290,7 @@ module.exports = function(app,logger,opts){
 			return dbFunctions.find(constants.dbConstants.PGX.GENES.COLLECTION,{_id:{$in:ids}},undefined,undefined,req.user.username)
 		}).then(function(result){
 			out.haplotypes = result;
-			var query = {$or:[{asgenes:gene},{asgenes:{$size:0}}]};
+			var query = {$or:[{_id:{$in:incMarkers}},{asgenes:gene},{asgenes:{$size:0}}]};
 			return dbFunctions.find(constants.dbConstants.PGX.COORDS.COLLECTION,query,undefined,undefined,req.user.username)
 		}).then(function(result){
 			out.amarkers = [] // all associated markers
@@ -342,7 +342,6 @@ module.exports = function(app,logger,opts){
 								dummy:true
 							});
 						}
-
 						out.allMarkers[out.markers[j]].added = true;
 
 					}

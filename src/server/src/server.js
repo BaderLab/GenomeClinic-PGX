@@ -235,10 +235,12 @@ dbFunctions.connectAndInitializeDB()
 //=======================================================================
 // Start Listening on the set port
 //=======================================================================
+http.globalAgent.maxSockets = 25;
 if (opts.https){
 	var privateKey = fs.readFileSync(opts.key);
 	var certificate = fs.readFileSync(opts.crt);
 	var credentials = {key:privateKey,cert:certificate};
+	https.globalAgent.maxSockets = 25;
 	http.createServer(app).listen(opts.httpPortNumber);
 	https.createServer(credentials,app).listen(opts.httpsPortNumber);
 	logger('info',"Server running on https port: " + opts.httpsPortNumber + " http port:" + opts.httpPortNumber);
