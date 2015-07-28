@@ -173,7 +173,6 @@ var dbFunctions = function(){
 					/* Assignment of the recommendation centre around the concept of attributing classes
 					 * to a diplotype for a specific gene. These classes are different depending on the "type"
 					 * of gene (ie. metabolizer or other); */
-					console.log(dat)
 					var o = {
 						documents: data.Classes,
 						collectionName: dbConstants.DRUGS.CLASSES.COLLECTION
