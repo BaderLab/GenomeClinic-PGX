@@ -46,8 +46,11 @@
 <div class="row">
 	<div class="large-12 small-12 medium-12 columns">
 		<div class="row">
-			<div class="large-9 small-12 medium-9 columns">
+			<div class="large-8 small-8 medium-8 columns">
 				<h3><strong>{{gene}}</strong></h3>
+			</div>
+			<div class="large-3 small-4 medium-3 columns">
+				{{#if missing}}<h6 class="variant-alt rigth"><i class="fa fa-exclamation"></i> Gene has missing data</h6>{{/if}}
 			</div>
 			<div class="large-1 small-12 medium-1 columns">
 				<a href="#"><i class="fa fa-plus haplotype-expand" gene="{{gene}}" expanded="yes"></i></a>
@@ -55,8 +58,10 @@
 		</div>
 
 		<div id="table{{gene}}" class="haplotype-expand-div small-12 medium-12 large-12 columns">
+		{{#if patientHaplotypes}}
 		<h6>Phased Status: {{#if phased}}<i>Phased</i>{{else}}<i>Unphased</i>{{/if}}</h6>
-			{{#if patientHaplotypes}}
+			
+			<h6>Genotype: {{{gtString}}}</h6>
 			{{#each patientHaplotypes}}
 				<table class="patient-haplotype-table" style="margin-bottom:0px;border-bottom-width: 1px; border-bottom-color: #ffffff;">
 					<thead>

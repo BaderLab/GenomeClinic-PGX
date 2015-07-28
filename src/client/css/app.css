@@ -176,7 +176,7 @@ tr.haplotype-row:hover {
 }
 
 /* Different styling for alternate genotype calls (not reference). */
-td.variant-alt {
+.variant-alt {
   font-style: italic;
   color: red;
 }

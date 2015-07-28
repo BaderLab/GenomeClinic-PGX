@@ -308,7 +308,7 @@ var pgx =  {
 
 				//This line is very important, it essentially prevents any haplotypes
 				//with 'MISSING' data from being included in the final data
-				if (stringRep.indexOf('m')!==-1)cont = false;
+				//if (stringRep.indexOf('m')!==-1)cont = false;
 
 				if (cont){
 					// Store patient haplotype, arbitrarily labeled "h1", "h2", etc.
@@ -477,6 +477,16 @@ var pgx =  {
 			$(element).css("transform", "rotate(0deg)");
 		};
 
+		var genes = Object.keys(this.globalPGXData.pgxGenes);
+		var table,container;
+		for (var i = 0; i< genes.length; i++){
+			table = $('#table' + genes[i]).find('.patient-haplotype-table')[0]
+			container = $('#table' + genes[i])[0]
+
+			if (table && container)utility.checkWidth(table,container);
+		}
+		//utility.checkWidth()
+
 		$('.haplo-name').on('mouseover',function(){
 			var name = $(this).text();
 			var haplotypeRow = $(this).closest('.haplotype-expand-div').find(".all-possible-haplotypes").find('tbody tr:contains("' + name +'")');
@@ -583,16 +593,32 @@ var pgx =  {
 				_o.haplotypes = self.listFinalHaplotypes(gene,tempHaplotypes,_o.patientHaplotypes);
 				_o.possibleHaplotypes = self.globalPGXData.possibleHaplotypesStringRep[gene];
 				_o.phased = self.globalPGXData.phaseStatus[gene];
+				_o.gtString = self.getGTString(gene,_o.heads);
+				_o.missing = _o.gtString.search(/missing/) !== -1 ? true : undefined
 
-				if (_o.patientHaplotypes)
-					templateData.pgxGenes.push(_o);
+				
+
+				//if (_o.patientHaplotypes)
+				templateData.pgxGenes.push(_o);
 			}
 			resolve(templateData);
 		});
 
 		return promise;
 	},
-
+	getGTString : function(gene,markers){
+		var out = "";
+		for (var i = 0; i< markers.length; i++){
+			if (!this.globalPGXData.variants[markers[i].id]){
+					out += '&nbsp&nbsp<i class="variant-alt">missing</i>';
+			} else {
+				out += '&nbsp&nbsp' + this.globalPGXData.variants[markers[i].id].a0;
+				out += this.globalPGXData.variants[markers[i].id].phased_status ? '|' : '/';
+				out +=  this.globalPGXData.variants[markers[i].id].a1;
+			}
+		}
+		return out;
+	},
 	listHaplotypes:function(gene){
 		var m, uppercaseAlts,o,_v;
 		var out = [];
@@ -645,7 +671,6 @@ var pgx =  {
 				v = {};
 				//No marker
 				if (!markers[m[j]]){
-
 					v.variant = 'missing';
 					v.class = 'alt';
 				//Alt marker
@@ -688,7 +713,6 @@ var pgx =  {
 				}
 
 			}
-
 			out[hapname] = o;
 		}
 		// add the matches now;
