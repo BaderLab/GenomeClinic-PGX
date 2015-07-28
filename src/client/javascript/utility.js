@@ -210,6 +210,20 @@ module.exports = {
 	    a.dataset.downloadurl =  ['text/json', a.download, a.href].join(':')
 	    e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
 	    a.dispatchEvent(e)
+	},
+	/* Checks the width of the element or elements defined 
+	 * and if it is larger then a specific size, adds a scrollbar
+	 */
+	checkWidth : function(inner,outer){
+
+		var ele1 = $(inner);
+		var ele2 = $(outer);
+		if (ele1[0].offsetWidth < ele2[0].scrollWidth){
+			ele2.addClass('scrollit2');
+		} else {
+			ele2.removeClass('scrollit2');
+		}
+		
 	}
 
 	
