@@ -173,6 +173,7 @@ var dbFunctions = function(){
 					/* Assignment of the recommendation centre around the concept of attributing classes
 					 * to a diplotype for a specific gene. These classes are different depending on the "type"
 					 * of gene (ie. metabolizer or other); */
+					console.log(dat)
 					var o = {
 						documents: data.Classes,
 						collectionName: dbConstants.DRUGS.CLASSES.COLLECTION
@@ -1230,7 +1231,7 @@ var dbFunctions = function(){
 
 					query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
 					update.$addToSet[dbConstants.DRUGS.ALL.MARKERS] = marker;
-					return _this.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,undefined,undefined,user);
+					return _this.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,undefined,user);
 				}
 			});
 		});
@@ -1254,7 +1255,7 @@ var dbFunctions = function(){
 
 					query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
 					update.$pull[dbConstants.DRUGS.ALL.MARKERS] = marker;
-					return _this.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,undefined,undefined,user);
+					return _this.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,undefined,user);
 				}
 			});
 		});
@@ -1315,7 +1316,7 @@ var dbFunctions = function(){
 		}).then(function(result){
 			var update = {$set:{}};
 			update.$set[dbConstants.DRUGS.ALL.MARKERS] = [];
-			return _this.update(dbConstants.DRUGS.ALL.COLLECTION, query,update,undefined,undefined,user);
+			return _this.update(dbConstants.DRUGS.ALL.COLLECTION, query,update,undefined,user);
 		});
 	};
 
@@ -1545,7 +1546,7 @@ var dbFunctions = function(){
 		doc[dbConstants.USERS.PASSWORD_FIELD] = encryptPassword;
 		doc = {$set:doc};
 		logger('info','changing password for' + user,{action:'changePassword'});
-		return this.update(dbConstants.USERS.COLLECTION,query,doc,user);
+		return this.update(dbConstants.USERS.COLLECTION,query,doc,undefined,user);
 	};
 
 	//Functions related to dealing with drug dosing and drugs
