@@ -264,7 +264,7 @@ var parseChunk = function(stringArray){
 				} else if (stringArray[i].search(/^#/) === -1) {
 					line = stringArray[i].split('\t');
 					for (var patient in ops.patientObj){
-						if (line[ops.mapper.static.id] === '.' || line[ops.mapper.static.id] === '') reject("Missing Marker Data");
+						if (line[ops.mapper.static.id] === '.' || line[ops.mapper.static.id] === '') cont = false;
 
 						var cont = true; 
 						var currDoc = {};
