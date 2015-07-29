@@ -1560,6 +1560,7 @@ var dbFunctions = function(){
 			options.$project.numFuture = {$size:'$' + dbConstants.DRUGS.ALL.FUTURE};
 			options.$project.numHaplo = {$size:'$' + dbConstants.DRUGS.ALL.HAPLO};
 			options.$project.numCurrH = {$size:'$' + dbConstants.DRUGS.ALL.CURRENT_HAPLO};
+			options.$project.numCurrM = {$size:'$' + dbConstants.DRUGS.ALL.MARKERS}
 			var sort = {$sort:{}};
 			sort.$sort[dbConstants.DRUGS.ALL.ID_FIELD] = 1;
 			var pipeline = [options,sort];

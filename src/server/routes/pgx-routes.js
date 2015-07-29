@@ -58,10 +58,18 @@ module.exports = function(app,logger,opts){
 
 
 	app.param('hapid',function(req,res,next,hapid){
-		dbFunctions.checkInDatabase(constants.dbConstants.DRUGS.ALL.COLLECTION,constants.dbConstants.DRUGS.ALL.ID_FIELD,hapid)
+		//If there is no new status
+		var status = req.query.new;
+		var query = {};
+		query[constants.dbConstants.DRUGS.ALL.ID_FIELD] = hapid
+		dbFunctions.findOne(constants.dbConstants.DRUGS.ALL.COLLECTION,query)
 		.then(function(result){
 			if (result)
-				next();
+				if (result[constants.dbConstants.DRUGS.ALL.MARKERS].length == 0 && result[constants.dbConstants.DRUGS.ALL.CURRENT_HAPLO] && !status){
+					utils.render(req,res,{type:'notfound'});
+				} else { 
+					next();
+				}
 			else
 				utils.render(req,res,{type:'notfound'});
 		});
@@ -139,14 +147,12 @@ module.exports = function(app,logger,opts){
 		if (type == 'all'){
 			dbFunctions.removePGXGene(gene,req.user.username)
 			.then(function(result){
-				console.log(result);
 				if (result){
 					res.redirect('/success');
 				} else {
 					res.redirect('/failure');
 				}
 			}).catch(function(err){
-				console.log(err.stack);
 				res.redirect('/failure');
 			});
 		} else {
@@ -158,7 +164,6 @@ module.exports = function(app,logger,opts){
 				else
 					res.redirect('/failure');
 			}).catch(function(err){
-				console.log(err);
 				req.flash('message',err.message);
 				req.flash('error',err.stack);
 				res.redirect('/failure');
@@ -242,7 +247,6 @@ module.exports = function(app,logger,opts){
 		}).then(function(){
 			res.redirect('/success');
 		}).catch(function(err){
-			console.log(err.stack);
 			req.flash('message',err.message);
 			req.flash('error',err.stack);
 			res.redirect('/failure');
@@ -269,10 +273,15 @@ module.exports = function(app,logger,opts){
 		});
 	});
 
-	//Get a list of all the current haploytpes and geenes
+	//Get a list of all the current haploytpes and genes
 	app.get('/database/haplotypes/getgenes',utils.isLoggedIn,function(req,res){
-		dbFunctions.drugs.getGenes(req.user.username).then(function(result){	
-			res.send(result);
+		dbFunctions.drugs.getGenes(req.user.username).then(function(result){
+			var out = [];
+			for (var i = 0; i < result.length; i++ ){
+				if (result[i].numCurrH > 0 && result[i].numCurrM > 0)
+					out.push(result[i]);
+			}	
+			res.send(out);
 		});
 	})
 		

@@ -530,7 +530,7 @@ var utility = require('./utility');
 				dataType:'json'
 			})).then(function(result){
 				if (result.status == 'ok') {
-					window.location.reload();
+					window.location.replace('/haplotypes');
 				} else {
 					$('#error-display-message').text(result.message);
 					$('#error-display-box').removeClass('secondary').addClass('warning').show();
@@ -597,9 +597,9 @@ var utility = require('./utility');
 					dataType:'json'
 				})).then(function(result){
 					if (result.statusCode == 200){
-						window.location.replace('/haplotypes/current/' + val);
+						window.location.replace('/haplotypes/current/' + val + '?new=true');
 					} else if ( result.statusCode == 500 ){
-						window.location.replace('/haplotypes/current/' + val);
+						window.location.replace('/haplotypes/current/' + val + '?new=true');
 					} else {
 						$('#error-display-message').text(result.message);
 						$('#error-display-box').slideDown();
