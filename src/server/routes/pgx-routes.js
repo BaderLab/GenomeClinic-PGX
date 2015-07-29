@@ -475,10 +475,11 @@ module.exports = function(app,logger,opts){
 	app.get('/database/markers/getmarkers/:marker',utils.isLoggedIn,function(req,res){
 		var marker = req.params.marker;
 		dbFunctions.getPGXCoords(marker,req.user.username).then(function(result){
-			if (result)
+			var keys = Object.keys(result);
+			if (keys.length > 0)
 				res.send(result);
 			else 
-				res.send(undefined);
+				res.redirect('/failure');
 		});
 	})
 };

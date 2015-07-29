@@ -557,6 +557,76 @@ var utility = require('./utility');
 		return false;
 	};
 
+	var suggestionBox = function(){
+		var clickRow = function(){
+			$('.suggestion').on('click',function(){
+				$('#suggestion-input').val($(this).text());
+				$('.suggestion-list').html('').closest('.suggestions').slideUp();
+			});
+		}
+
+		$(document).on('mouseup.suggestion',function(e){
+			var targ1 = $('#suggestion-input');
+			var targ2 = $('.suggestion-list,.suggestion');
+			var target = e.target;
+			if (!targ1.is(target) && !targ2.is(target)){
+				$('.suggestion-list').html('').closest('.suggestions').slideUp();
+			}
+
+		})
+
+		$('#suggestion-input').on('keyup',function(e){
+			var val = $(this).val();
+			if (val.length > 2){
+				//get the suggestion from the server
+				utility.getSuggestions(val,'pgxCoordinates','_id',10).then(function(result){
+					var html = "";
+					if (result.length > 0){
+						for (var i = 0; i < result.length; i++ ){
+							var searchIndex = result[i].search(val);
+							html += '<li class="suggestion">'
+							for (var j = 0; j < result[i].length; j++ ){
+								if (j == searchIndex) html += '<b class=suggetion-match>'
+								html += result[i][j];
+								if (j - searchIndex == val.length -1) html += '</b>'
+							}
+							html += '</li>'
+						}
+					} else {
+						html += '<li><i>No Suggestions</i></li>'
+					}
+					return $('.suggestion-list').html(html).closest('.suggestions').slideDown();
+
+				}).then(function(){
+					clickRow();
+				})
+			} else {
+				$('.suggestion-list').html('').closest('.suggestions').slideUp();	
+			}
+		});
+
+
+		$('#search-new-marker').on('click',function(e){
+			e.preventDefault();
+
+			var val = $('#suggestion-input').val()
+			if (val != ''){
+				Promise.resolve($.ajax({
+					url:'/database/markers/getmarkers/' + val,
+					type:'GET',
+					dataType:'json'
+				})).then(function(result){
+					console.log(result);
+				});
+
+			}
+
+		})
+
+
+
+	}
+
 
 	/* handlers for all pages. These functions contain static page specific
 	 * handlers, as well as determining which handlers to dynamically call and
@@ -678,6 +748,7 @@ var utility = require('./utility');
 			utility.refresh();
 		}).then(function(){
 			staticHandlers.current();
+			suggestionBox();
 			checkWidth();
 		});
 	}

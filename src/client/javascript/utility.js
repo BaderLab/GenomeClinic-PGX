@@ -224,6 +224,20 @@ module.exports = {
 			ele2.removeClass('scrollit2');
 		}
 		
+	},
+	getSuggestions : function(term,collection,field,num){
+		return Promise.resolve($.ajax({
+			url:'/database/suggestions?term=' + term +'&num=' + num + '&col=' + collection + '&returnfield=' + field,
+			type:"GET",
+			dataType:'json',
+			contentType:'application/json'
+		})).then(function(result){
+
+			console.log(result);
+			return result;
+		}).catch(function(err){
+			console.log(err);
+		})
 	}
 
 	

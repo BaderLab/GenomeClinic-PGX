@@ -302,3 +302,39 @@ hr {
 .icon-button:hover {
   background-color: #D1D1D1;
 };
+
+.suggestion-wrapper {
+  position: relative;
+  width:100%;
+}
+
+#suggestion-input{
+  margin-bottom:0px
+}
+
+.suggestions {
+  background-color: #ffffff;
+  border: solid 1px #838383;
+  position: absolute;
+  width: 100%;
+  padding: 5px;
+  display:none;
+}
+.suggestion {
+  width:100%;
+  color:rgb(111, 111, 111);
+}
+.suggestion-match {
+  color:rgb(0,0,0);
+}
+.suggestion:hover {
+  background-color: #B2D1FF;
+  cursor:pointer;
+}
+
+.suggestion-list { 
+  list-style:none;
+  margin: 0;
+  padding: 0;
+}
+

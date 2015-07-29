@@ -270,7 +270,7 @@ module.exports = function(app,logger,opts){
 			req.flash('statusCode','200');
 			res.redirect('/success');
 		}).catch(function(err){
-			console.log(err.stack);
+			
 			logger('error',err,{user:user});
 			req.flash('error',err.toString());
 			req.flash('message',err.message);
