@@ -225,9 +225,10 @@ module.exports = {
 		}
 		
 	},
-	getSuggestions : function(term,collection,field,num){
+	getSuggestions : function(term,collection,num){
+		// One of Marker, drug, gene, haplotype, user
 		return Promise.resolve($.ajax({
-			url:'/database/suggestions?term=' + term +'&num=' + num + '&col=' + collection + '&returnfield=' + field,
+			url:'/database/suggestions?term=' + term +'&num=' + num + '&col=' + collection,
 			type:"GET",
 			dataType:'json',
 			contentType:'application/json'

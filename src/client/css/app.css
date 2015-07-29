@@ -338,3 +338,9 @@ hr {
   padding: 0;
 }
 
+
+input.glowing-error {
+  outline: none !important;
+  border-color: #FF3333 !important;
+  box-shadow: 0 0 10px #FF3333 !important;
+}

@@ -146,24 +146,37 @@ module.exports = function(app,logger,opts){
 	});
 
 	app.get('/database/suggestions',utils.isLoggedIn,function(req,res){
+		var mapper = {
+			marker : {
+				col:dbConstants.PGX.COORDS.COLLECTION,
+				field:dbConstants.PGX.COORDS.ID_FIELD
+			}
+		}
+
 		var term = req.query.term;
 		var collection = req.query.col;
-		var field = req.query.returnfield;
 		var num = parseInt(req.query.num) || 20;
 		var strict = req.query.strict !== 'true' ? 'i' : '';
 		var multiple = req.query.multiple == 'true' ? 'g' : '';
 
+		if (mapper[collection] == num ){
+			req.flash('message','Invalid collection');
+			res.redirect('/failure');
+			return;
+		}
+
+
 		var agg = [];
 		var query = {};
 		var reg = new RegExp('$' + term);
-		query[field] = {$regex:term}
-		if (strict !== '') query[field].$options = strict;
-		if (multiple !== '') query[field].$options = multiple;
+		query[mapper[collection].field] = {$regex:term}
+		if (strict !== '') query[mapper[collection].field].$options = strict;
+		if (multiple !== '') query[mapper[collection].field].$options = multiple;
 
 		agg.push({$match:query})
 		agg.push({$limit:num});
-		agg.push({$group:{_id:null,matches:{$addToSet:'$' + field}}});
-		return dbFunctions.aggregate(collection,agg).then(function(result){
+		agg.push({$group:{_id:null,matches:{$addToSet:'$' + mapper[collection].field}}});
+		return dbFunctions.aggregate(mapper[collection].col,agg).then(function(result){
 			if (result.length > 0) res.send(result[0].matches);
 			else res.send([]);
 		});
