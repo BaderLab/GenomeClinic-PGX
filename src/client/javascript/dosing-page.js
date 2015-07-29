@@ -209,7 +209,7 @@ var utility = require('./utility');
 				var type = $('#new-gene-type').find('option:selected').data('id');
 
 				Promise.resolve($.ajax({
-					url:'/database/dosing/new?gene=' + val+ "&type="+ type,
+					url:'/database/dosing/new?gene=' + val+ "&type="+ type + '&from=Dosing',
 					type:"POST",
 					contentType:'application/json',
 					dataType:'json'

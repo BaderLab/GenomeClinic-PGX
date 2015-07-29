@@ -29,7 +29,10 @@ module.exports = function(app,logger,opts){
 	/* Whenever geneID parameter is included in a url first ensure that the
 	 * gene ID exists prior to loading information */
 	app.param('geneID',function(req,res,next,geneID){
-		dbFunctions.checkInDatabase(constants.dbConstants.DRUGS.ALL.COLLECTION,constants.dbConstants.DRUGS.ALL.ID_FIELD,geneID)
+		var query = {};
+		query[constants.dbConstants.DRUGS.ALL.ID_FIELD] = geneID;
+		query.useDosing = true;
+		dbFunctions.findOne(constants.dbConstants.DRUGS.ALL.COLLECTION, query)
 		.then(function(result){
 			if (result)
 				next();
@@ -105,7 +108,7 @@ module.exports = function(app,logger,opts){
 
 	/* get all of the current genes that have dosing recommendations */
 	app.get('/database/dosing/genes', utils.isLoggedIn, function(req,res){
-		dbFunctions.drugs.getGenes(req.user.username).then(function(result){	
+		dbFunctions.drugs.getGenes(req.user.username,'Dosing').then(function(result){	
 			res.send(result);
 		});
 	});
@@ -262,11 +265,12 @@ module.exports = function(app,logger,opts){
 		var id = ObjectID(req.query.id);
 		
 
-		dbFunctions.drugs.removeEntry(id,type,user).then(function(result){
+		dbFunctions.drugs.removeEntry(id,type,'Dosing',user).then(function(result){
 			req.flash('message','Entry Successfully removed from database');
 			req.flash('statusCode','200');
 			res.redirect('/success');
 		}).catch(function(err){
+			console.log(err.stack);
 			logger('error',err,{user:user});
 			req.flash('error',err.toString());
 			req.flash('message',err.message);
@@ -284,11 +288,15 @@ module.exports = function(app,logger,opts){
 		var newGene = req.query.gene;
 		var type = req.query.type;
 		var user = req.user.username
-		dbFunctions.checkInDatabase(constants.dbConstants.DRUGS.ALL.COLLECTION,constants.dbConstants.DRUGS.ALL.ID_FIELD,newGene)
-		.then(function(exists){
-			if (!exists){
-				dbFunctions.drugs.createNewDoc(newGene,type,req.user.username).then(function(result){
-					if (result) {
+		var from = req.query.from;
+		var opposite = from == 'Haplotype' ?  "Dosing" : "Haplotype";
+		var query = {};
+		query[constants.dbConstants.DRUGS.ALL.ID_FIELD] = newGene;
+		dbFunctions.findOne(constants.dbConstants.DRUGS.ALL.COLLECTION,query)
+		.then(function(result){
+			if (!result){
+				dbFunctions.drugs.createNewDoc(newGene,type,from,req.user.username).then(function(result){
+				if (result) {
 						req.flash('statusCode','200');
 						req.flash('message','Gene successfully inserted to dosing tables');
 						res.redirect('/success');
@@ -308,12 +316,34 @@ module.exports = function(app,logger,opts){
 					res.redirect('/failure');
 				});
 			} else {
-				var err = new Error("Unable to create new document,document already exists")
-				logger('error',err,{user:user})
-				req.flash('statusCode', '500');
-				req.flash('message',"The Gene you supplied already exists, please provide another");
-				req.flash('error','Gene already exists');
-				res.redirect('/failure');
+				//This gene is not currently being used at all by the source, therefore update the source
+
+				if (!result['use' + from]){
+					if (result['use' + opposite] && result.type !== type){
+						var err = new Error("Unable to create new gene, Gene type entered does not match existing gene type");
+						logger('error',err,{user:user})
+						req.flash('statusCode', '500');
+						req.flash('message',"Could not create new gene because the Gene already exists and is being used for " + opposite + " information. The Type provided for the new gene does not match the type in the existing gene");
+						req.flash('error','Gene already exists');
+						res.redirect('/failure');
+					} else {
+						var update = {$set:{}}
+						update.$set['use' + from] = true;
+						if (result.type !== type ) update.$set.type = type;
+						return dbFunctions.update(constants.dbConstants.DRUGS.ALL.COLLECTION,query,update).then(function(){
+							req.flash('statusCode','200');
+							req.flash('message','Gene successfully inserted to dosing tables');
+							res.redirect('/success');
+						});
+					}
+				} else {
+					var err = new Error("Unable to create new document,document already exists")
+					logger('error',err,{user:user})
+					req.flash('statusCode', '500');
+					req.flash('message',"The Gene you supplied already exists, please provide another");
+					req.flash('error','Gene already exists');
+					res.redirect('/failure');
+				}
 			}
 		});
 	});

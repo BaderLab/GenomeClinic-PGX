@@ -131,13 +131,13 @@ var dbFunctions = function(){
 								.then(function(exists){
 									if (!exists){
 										//If this is a new gene, create a new document
-										return self.drugs.createNewDoc(gene,data.Genes[gene])
+										return self.drugs.createNewDoc(gene,data.Genes[gene],'Dosing')
 									}
 								}).then(function(){
 								//Update the documents now to iunclude the new objectID's
 									var query = {};
 									query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
-									var update = {$addToSet:{}};
+									var update = {$addToSet:{},$set:{useDosing:true}};
 									update.$addToSet[dbConstants.DRUGS.ALL.RECOMMENDATIONS] = result._id;
 									return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update);
 								})
@@ -155,12 +155,12 @@ var dbFunctions = function(){
 							return self.checkInDatabase(dbConstants.DRUGS.ALL.COLLECTION,dbConstants.DRUGS.ALL.ID_FIELD,gene)
 							.then(function(exists){
 								if (!exists){
-									return self.drugs.createNewDoc(gene,data.Genes[gene]);
+									return self.drugs.createNewDoc(gene,data.Genes[gene],'Dosing');
 								}
 							}).then(function(){
 								var query = {};
 								query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
-								var update = {$addToSet:{}}
+								var update = {$addToSet:{},$set:{useDosing:true}};
 								update.$addToSet[dbConstants.DRUGS.ALL.FUTURE] = result._id;
 								return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update);
 							});
@@ -226,12 +226,12 @@ var dbFunctions = function(){
 								return self.checkInDatabase(dbConstants.DRUGS.ALL.COLLECTION,dbConstants.DRUGS.ALL.ID_FIELD,gene)
 								.then(function(exists){
 									if (!exists){
-										return self.drugs.createNewDoc(gene);
+										return self.drugs.createNewDoc(gene,undefined,"Haplotype");
 									}
 								}).then(function(){
 									var query = {};
 									query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
-									var update = {$addToSet:{}}
+									var update = {$addToSet:{},$set:{useHaplotype:true}}
 									update.$addToSet[dbConstants.DRUGS.ALL.CURRENT_HAPLO] = result._id;
 									return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update);
 								}).then(function(){
@@ -1211,7 +1211,7 @@ var dbFunctions = function(){
 		});
 	};
 
-
+	/* Markers can be associated with a given gene */
 	this.addMarkerToGene = function(markers,gene,user){
 		assert.notStrictEqual(db,undefined);
 		var _this = this;
@@ -1236,7 +1236,6 @@ var dbFunctions = function(){
 		});
 	};
 
-
 	this.removeMarkerFromGene = function(markers,gene,user){
 		assert.notStrictEqual(db,undefined);
 		var _this = this;
@@ -1251,10 +1250,14 @@ var dbFunctions = function(){
 				} else {
 					var query = {};
 					var update = {$pull:{}}
-
 					query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
 					update.$pull[dbConstants.DRUGS.ALL.MARKERS] = marker;
-					return _this.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,undefined,user);
+					return _this.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,undefined,user).then(function(){
+						//Remove the Marker from all the haplotypes associated with this gene
+						var query = {gene:gene};
+						var update = {$pull:{markers:{$in:markers}}};
+						return _this.update(dbConstants.PGX.GENES.COLLECTION,query,update,{multi:true},user);
+					});
 				}
 			});
 		});
@@ -1299,39 +1302,6 @@ var dbFunctions = function(){
 			return out;
 		});
 	};
-
-	//Remove the specified Gene
-	this.removePGXGene = function(geneName,user){
-		var _this = this;
-		assert.notStrictEqual(db,undefined);
-		assert(Object.prototype.toString.call(geneName) == "[object String]");
-		var query = {};
-		query[dbConstants.DRUGS.ALL.ID_FIELD] = geneName;
-		return _this.findOne(dbConstants.DRUGS.ALL.COLLECTION,query,undefined,undefined,user).then(function(result){
-			var ids = result[dbConstants.DRUGS.ALL.CURRENT_HAPLO];
-			return ids;
-		}).each(function(id){
-			return _this.removePGXHaplotype(id,geneName,user);
-		}).then(function(result){
-			var update = {$set:{}};
-			update.$set[dbConstants.DRUGS.ALL.MARKERS] = [];
-			return _this.update(dbConstants.DRUGS.ALL.COLLECTION, query,update,undefined,user);
-		});
-	};
-
-	this.removePGXHaplotype = function(id,gene,user){
-		var _this = this;
-		assert.notStrictEqual(db,undefined);
-		var update = {$pull:{}};
-		var query = {};
-		query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
-		update.$pull[dbConstants.DRUGS.ALL.CURRENT_HAPLO] = id;
-		return this.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,undefined,user)
-		.then(function(result){
-			return removeDocument(dbConstants.PGX.GENES.COLLECTION,{_id:id},user);
-		});
-
-	}
 
 	//Update the specified gene with the requqired parameter Doc
 	this.updatePGXGene = function(id,doc,user){
@@ -1551,8 +1521,10 @@ var dbFunctions = function(){
 	//Functions related to dealing with drug dosing and drugs
 	this.drugs = {
 		//Get the genes associated with drug recomednations and return an array of genes;
-		getGenes : function(user){
+		getGenes : function(user,from){
 			assert.notStrictEqual(db,undefined);
+			var match = {$match:{}}
+			match.$match['use' + from] = true;
 			var options = {$project:{}};
 			options.$project[dbConstants.DRUGS.ALL.ID_FIELD] = 1;
 			options.$project.type = '$type';
@@ -1563,7 +1535,7 @@ var dbFunctions = function(){
 			options.$project.numCurrM = {$size:'$' + dbConstants.DRUGS.ALL.MARKERS}
 			var sort = {$sort:{}};
 			sort.$sort[dbConstants.DRUGS.ALL.ID_FIELD] = 1;
-			var pipeline = [options,sort];
+			var pipeline = [match,options,sort];
 			return aggregate(dbConstants.DRUGS.ALL.COLLECTION,pipeline,user);
 		},
 
@@ -1616,79 +1588,143 @@ var dbFunctions = function(){
 		 *		  from its collections entirely.
 		 * haplotype -removes the haplotype association from a gene and removes the document entry from the haplotype collection.
 		 */
-		removeEntry : function(oID,type,user){
+		removeEntry : function(oID,type,from,user){
 			assert.notStrictEqual(db,undefined);
 			var collection, query, ids;
+			var toRemove = [];
+			var genes;
 
+			var promise;
 			/* Remove the entire document and all entries relating to it. This will remove all
 			 * shared entries as well. So this is a very dangerous action */
 			if (type == 'all'){
 				var recIDs,futureIDs,haploIDs;
-				return self.findOne(dbConstants.DRUGS.ALL.COLLECTION,{'_id':oID},user).then(function(result){
-					recIDs = result[dbConstants.DRUGS.ALL.RECOMMENDATIONS];
-					futureIDs = result[dbConstants.DRUGS.ALL.FUTURE];
-					haploIDs = result[dbConstants.DRUGS.ALL.HAPLO];
-					/* for each reomendation, fid the associated genes, remove the oID from the genes, then delete the
-					 * recommendation entry itself */
-					return Promise.resolve(recIDs).each(function(id){
-						return self.findOne(dbConstants.DRUGS.DOSING.COLLECTION,{_id:id},user).then(function(result){
-							var genes = result.genes;
-							var update = {$pull:{}};
-							var query = {};
-							query[dbConstants.DRUGS.ALL.ID_FIELD] = {$in:genes};
-							update.$pull[dbConstants.DRUGS.ALL.RECOMMENDATIONS] = id;
-							return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,{multi:true},user);
-						}).then(function(){
-							return removeDocument(dbConstants.DRUGS.DOSING.COLLECTION,{'_id':id},user);
+				var query = {};
+				if (from == 'Haplotype') query[dbConstants.DRUGS.ALL.ID_FIELD] = oID;
+				else if (from == 'Dosing') query._id = oID
+				else throw new Error("Source must be from Haplotype or Dosing");
+
+				promise = self.findOne(dbConstants.DRUGS.ALL.COLLECTION,query,user).then(function(result){
+					if (from == 'Dosing'){
+						genes = [result[dbConstants.DRUGS.ALL.ID_FIELD]];
+						toRemove.push({
+							ids : result[dbConstants.DRUGS.ALL.RECOMMENDATIONS],
+							collection : dbConstants.DRUGS.DOSING.COLLECTION,
+							field:dbConstants.DRUGS.ALL.RECOMMENDATIONS
 						});
-					}).then(function(){
-						return Promise.resolve(futureIDs).each(function(id){
-							return removeDocument(dbConstants.DRUGS.FUTURE.COLLECTION,{'_id':id},user);
+						toRemove.push({
+							ids : result[dbConstants.DRUGS.ALL.FUTURE],
+							collection : dbConstants.DRUGS.FUTURE.COLLECTION,
+							field:dbConstants.DRUGS.ALL.FUTURE
+						})
+						toRemove.push({
+							ids : result[dbConstants.DRUGS.ALL.HAPLO],
+							collection : dbConstants.DRUGS.FUTURE.COLLECTION,
+							field:dbConstants.DRUGS.ALL.HAPLO
+						})
+					} else {
+						genes = [oID];
+						toRemove.push({
+							ids: result[dbConstants.DRUGS.ALL.CURRENT_HAPLO],
+							collection : dbConstants.PGX.GENES.COLLECTION,
+							field:dbConstants.DRUGS.ALL.CURRENT_HAPLO
+						})
+						toRemove.push({
+							genes:[oID],
+							ids:result[dbConstants.DRUGS.ALL.MARKERS],
+							field: dbConstants.DRUGS.ALL.MARKERS
 						});
-					}).then(function(){
-						return Promise.resolve(haploIDs).each(function(id){
-							return removeDocument(dbConstants.DRUGS.HAPLO.COLLECTION,{'_id':id},user);
-						});
-					});
-				}).then(function(){
-					return removeDocument(dbConstants.DRUGS.ALL.COLLECTION,{"_id":oID},user);
+
+					}
+
+					return toRemove;
 				});
-				//Get all secondary oID's loop through them, delete the 
-
-
-			/* Remove a specific interaciton, and remove interaction from all genes */
 			} else {
-				var cons, option, query={},updateField,update = {$pull:{}},options;
-				if (type == 'future') {
-					cons = dbConstants.DRUGS.FUTURE;
-					updateField = dbConstants.DRUGS.ALL.FUTURE;
-				} else if (type == 'recommendation'){
-					cons = dbConstants.DRUGS.DOSING;
-					options = {multi:true};
-					updateField = dbConstants.DRUGS.ALL.RECOMMENDATIONS;
-				} else if (type == 'haplotype'){
-					cons = dbConstants.DRUGS.HAPLO;
-					updateField = dbConstants.DRUGS.ALL.HAPLO;
+				promise = Promise.resolve().then(function(){
+					if (type == 'future' && from == 'Dosing'){
+						toRemove.push({
+							ids : [oID],
+							collection : dbConstants.DRUGS.FUTURE.COLLECTION,
+							field:dbConstants.DRUGS.ALL.FUTURE
+						});
+					}
+					else if (type == 'recommendation' && from == 'Dosing'){
+						toRemove.push({
+							ids : [oID],
+							collection : dbConstants.DRUGS.DOSING.COLLECTION,
+							field:dbConstants.DRUGS.ALL.RECOMMENDATIONS
+						});
 
+					}
+					else if (type == 'haplotye' && from == 'Dosing'){
+						toRemove.push({
+							ids : [oID],
+							collection : dbConstants.DRUGS.FUTURE.COLLECTION,
+							field:dbConstants.DRUGS.ALL.HAPLO
+						});
+					} 
+					else if (type == 'haplotype' && from == 'Haplotype') {
+						toRemove.push({
+							ids:[oID],
+							collection:dbConstants.PGX.GENES.COLLECTION,
+							field:dbConstants.DRUGS.ALL.CURRENT_HAPLO
+						});
+					}
+
+					return toRemove;
+				});
+			}
+				//Remove each item
+			return promise.each(function(item){
+				var newPromise;
+				var update = {};
+				if (item.collection && item.ids.length > 0){
+				//Get all the genes to act upon.
+					newPromise = self.findOne(item.collection,{_id:{$in:item.ids}},user).then(function(result){
+						genes  = result.genes || [result.gene]
+						return removeDocument(item.collection,{_id:ids},user);
+						//Item has now been found, so get the genes
+					});
+				} else {
+					//Perform the pull here 
+					newPromise = Promise.resolve()
 				}
 
-				return self.findOne(cons.COLLECTION,{'_id':oID},user).then(function(result){
-					var gene = result[cons.ID_FIELD || cons.GENES];
-					if (Object.prototype.toString.call(gene) == '[object Array]')
-						query[dbConstants.DRUGS.ALL.ID_FIELD] = {$in:gene};
-					else
-						query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
-					update.$pull[updateField] = oID;
-					return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,options,user);
-				}).then(function(){
-					return removeDocument(cons.COLLECTION,{_id:oID},user);
-				})
-			}
+				return newPromise.then(function(){
+					update.$pull = {};
+					if (item.genes) genes = item.genes;
+					update.$pull[item.field] = {$in:item.ids};
+					query = {};
+					query[dbConstants.DRUGS.ALL.ID_FIELD] = {$in:genes}
+					return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,{mulit:true},user)
+				});
+			}).then(function(){
+				var query = {};
+				var update = {$set:{}};
+				query[dbConstants.DRUGS.ALL.ID_FIELD] = {$in:genes}
+				return find(dbConstants.DRUGS.ALL.COLLECTION,query).each(function(entry){
+					var newQeury = {};
+					newQeury[dbConstants.DRUGS.ALL.ID_FIELD] = entry[dbConstants.DRUGS.ALL.ID_FIELD]
+					if (from == 'Haplotype'){
+						if (entry[dbConstants.DRUGS.ALL.MARKERS].length === 0 && entry[dbConstants.DRUGS.ALL.CURRENT_HAPLO].length === 0) update.$set['useHaplotype'] = false;
+					} else if (from == 'Dosing'){
+						if (entry[dbConstants.DRUGS.ALL.FUTURE].length === 0 && entry[dbConstants.DRUGS.ALL.RECOMMENDATIONS].length === 0 && entry[dbConstants.DRUGS.ALL.HAPLO].length === 0) update.$set['useDosing'] = false;
+					}	
+					//this gene is empty, remove
+					if (update.$set.useDosing == false || update.$set.useHaplotype == false){
+						return self.update(dbConstants.DRUGS.ALL.COLLECTION,newQeury,update,undefined,user)
+					} else {
+						return true;
+					}
+
+				});
+			});
 		},
 		/* Create an empty dosing document based on the gene name. If the Gene already exists
 		 * reject the process and return an error */
-		createNewDoc : function(gene,type,user){
+		createNewDoc : function(gene,type,from,user){
 		var promise = new Promise(function(resolve,reject){
+			if (from) assert(['Haplotype','Dosing'].indexOf(from)!== -1);
 			var newDoc = {};
 			newDoc[dbConstants.DRUGS.ALL.TYPE] = type || 'metabolizer'; // metabolizer is the default type
 			newDoc[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
@@ -1697,6 +1733,7 @@ var dbFunctions = function(){
 			newDoc[dbConstants.DRUGS.ALL.FUTURE] = [];
 			newDoc[dbConstants.DRUGS.ALL.CURRENT_HAPLO] = [];
 			newDoc[dbConstants.DRUGS.ALL.MARKERS] = [];
+			if (from) newDoc['use' + from] = true;
 			return self.insert(dbConstants.DRUGS.ALL.COLLECTION,newDoc,user)
 			.then(function(result){
 				resolve(result);

@@ -529,6 +529,7 @@ var utility = require('./utility');
 				contentType:'application/json',
 				dataType:'json'
 			})).then(function(result){
+				console.log(result);
 				if (result.status == 'ok') {
 					window.location.replace('/haplotypes');
 				} else {
@@ -591,14 +592,12 @@ var utility = require('./utility');
 				var type = $('#new-gene-type').find('option:selected').data('id');
 
 				Promise.resolve($.ajax({
-					url:'/database/dosing/new?gene=' + val+ "&type="+ type,
+					url:'/database/dosing/new?gene=' + val+ "&type="+ type +'&from=Haplotype',
 					type:"POST",
 					contentType:'application/json',
 					dataType:'json'
 				})).then(function(result){
 					if (result.statusCode == 200){
-						window.location.replace('/haplotypes/current/' + val + '?new=true');
-					} else if ( result.statusCode == 500 ){
 						window.location.replace('/haplotypes/current/' + val + '?new=true');
 					} else {
 						$('#error-display-message').text(result.message);

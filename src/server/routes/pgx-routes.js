@@ -59,17 +59,13 @@ module.exports = function(app,logger,opts){
 
 	app.param('hapid',function(req,res,next,hapid){
 		//If there is no new status
-		var status = req.query.new;
 		var query = {};
 		query[constants.dbConstants.DRUGS.ALL.ID_FIELD] = hapid
+		query.useHaplotype = true;
 		dbFunctions.findOne(constants.dbConstants.DRUGS.ALL.COLLECTION,query)
 		.then(function(result){
 			if (result)
-				if (result[constants.dbConstants.DRUGS.ALL.MARKERS].length == 0 && result[constants.dbConstants.DRUGS.ALL.CURRENT_HAPLO] && !status){
-					utils.render(req,res,{type:'notfound'});
-				} else { 
-					next();
-				}
+				next();
 			else
 				utils.render(req,res,{type:'notfound'});
 		});
@@ -145,7 +141,7 @@ module.exports = function(app,logger,opts){
 		var type = req.query.type;
 
 		if (type == 'all'){
-			dbFunctions.removePGXGene(gene,req.user.username)
+			dbFunctions.drugs.removeEntry(gene,'all','Haplotype',req.user.username)
 			.then(function(result){
 				if (result){
 					res.redirect('/success');
@@ -157,7 +153,7 @@ module.exports = function(app,logger,opts){
 			});
 		} else {
 			var id = ObjectId(req.query.id);
-			dbFunctions.removePGXHaplotype(id,gene,req.user.username)
+			dbFunctions.drugs.removeEntry(id,'haplotype','Haplotype',req.user.username)
 			.then(function(result){
 				if (result)
 					res.redirect('/success');
@@ -275,13 +271,8 @@ module.exports = function(app,logger,opts){
 
 	//Get a list of all the current haploytpes and genes
 	app.get('/database/haplotypes/getgenes',utils.isLoggedIn,function(req,res){
-		dbFunctions.drugs.getGenes(req.user.username).then(function(result){
-			var out = [];
-			for (var i = 0; i < result.length; i++ ){
-				if (result[i].numCurrH > 0 && result[i].numCurrM > 0)
-					out.push(result[i]);
-			}	
-			res.send(out);
+		dbFunctions.drugs.getGenes(req.user.username,'Haplotype').then(function(result){	
+			res.send(result);
 		});
 	})
 		
