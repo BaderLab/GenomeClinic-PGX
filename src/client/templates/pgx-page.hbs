@@ -30,7 +30,7 @@
 				<div class="row" style="padding-left:10px">
 					<div class="large-12 small-12 medium-12 columns" style="padding-left:0px">
 						<h5 style="margin-top: 30px;">Pharmacogenomic results based on phased and unphased genotypes from this sample.</h5>
-						<h6 style="margin-bottom: 40px;"><em><a href="#" id="collapse-all-haplotypes">Show less</a></em></h6></p>
+						<h6 style="margin-bottom: 40px;"><em><a href="#" id="collapse-all-haplotypes">Collapse all</a></em></h6></p>
 					</div>
 				</div>
 			</div>
@@ -50,22 +50,31 @@
 				<h3><strong>{{gene}}</strong></h3>
 			</div>
 			<div class="large-3 small-4 medium-3 columns">
-				{{#if missing}}<h6 class="variant-alt rigth"><i class="fa fa-exclamation"></i> Gene has missing data</h6>{{/if}}
+				{{#if missing}}<h6 class="variant-alt right"><i class="fa fa-exclamation"></i> Gene has missing data</h6>{{/if}}
 			</div>
 			<div class="large-1 small-12 medium-1 columns">
-				<a href="#"><i class="fa fa-plus haplotype-expand" gene="{{gene}}" expanded="yes"></i></a>
+				<a href="#"><i class="fa fa-chevron-up haplotype-expand" gene="{{gene}}" expanded="yes"></i></a>
 			</div>
 		</div>
 
 		<div id="table{{gene}}" class="haplotype-expand-div small-12 medium-12 large-12 columns">
 		{{#if patientHaplotypes}}
 		<h6>Phased Status: {{#if phased}}<i>Phased</i>{{else}}<i>Unphased</i>{{/if}}</h6>
-			
-			<h6>Genotype: {{{gtString}}}</h6>
+			<table class="patient-haplotype-table">
+				<thead>
+					<tr>
+						<th class="haplotype-columns">Genotype</th>
+						{{#each gtString}}
+						<th class="marker-column">{{{this}}}</th>
+						{{/each}}
+					</tr>
+				</thead>
+			</table>
 			{{#each patientHaplotypes}}
 				<table class="patient-haplotype-table" style="margin-bottom:0px;border-bottom-width: 1px; border-bottom-color: #ffffff;">
 					<thead>
 						<tr>
+							
 							<th class="haplotype-columns">{{#if ../phased}}Phased{{else}}Possible{{/if}} Haplotype {{inc @index}}</th>
 							{{#../heads}}
 							<th class="marker-column"><a target="_blank" href={{url}} rs={{id}}">{{id}}</a></th>

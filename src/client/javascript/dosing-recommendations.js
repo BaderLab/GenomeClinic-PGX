@@ -655,7 +655,6 @@ module.exports = {
 			// refresh foundation
 			return utility.refresh(abideOptions);
 		}).then(function(){
-			document.SER = _this.serializeRecommendations
 			//add hanlders
 			utility.suggestionHandlers();
 			_this.staticHandlers();

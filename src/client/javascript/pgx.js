@@ -468,13 +468,17 @@ var pgx =  {
 		var expand= function(element) {
 			$(element).attr("expanded", "yes");
 			$(element).css("color", "#FFAD99");
-			$(element).css("transform", "rotate(45deg)");
+			$(element).removeClass("fa-chevron-down");
+			$(element).addClass('fa-chevron-up');
+			//$(element).css("transform", "rotate(45deg)");
 		};
 
 		var collapse= function(element) {
 			$(element).attr("expanded", "no");
 			$(element).css("color", self.originalCollapseButtonColor);
-			$(element).css("transform", "rotate(0deg)");
+			$(element).removeClass("fa-chevron-up");
+			$(element).addClass('fa-chevron-down');
+			//$(element).css("transform", "rotate(0deg)");
 		};
 
 		var genes = Object.keys(this.globalPGXData.pgxGenes);
@@ -531,8 +535,8 @@ var pgx =  {
 		$("#collapse-all-haplotypes").on('click',function(event) {
 			event.preventDefault();
 
-			var collapseText= "Show less";
-			var expandText= "Show more";
+			var collapseText= "Collapse all";
+			var expandText= "Expand all";
 			var allCollapseButtons= $("i.haplotype-expand");
 
 			// Toggle collapse/expand
@@ -594,7 +598,7 @@ var pgx =  {
 				_o.possibleHaplotypes = self.globalPGXData.possibleHaplotypesStringRep[gene];
 				_o.phased = self.globalPGXData.phaseStatus[gene];
 				_o.gtString = self.getGTString(gene,_o.heads);
-				_o.missing = _o.gtString.search(/missing/) !== -1 ? true : undefined
+				_o.missing = _o.gtString.indexOf('<i class=variant-alt>missing</i>') !== -1 ? true : undefined
 
 				
 
@@ -607,15 +611,17 @@ var pgx =  {
 		return promise;
 	},
 	getGTString : function(gene,markers){
-		var out = "";
+		var out = [];
 		for (var i = 0; i< markers.length; i++){
 			if (!this.globalPGXData.variants[markers[i].id]){
-					out += '&nbsp&nbsp<i class="variant-alt">missing</i>';
+					out.push('<i class=variant-alt>missing</i>');
 			} else {
-				out += '&nbsp&nbsp' + this.globalPGXData.variants[markers[i].id].a0;
-				out += this.globalPGXData.variants[markers[i].id].phased_status ? '|' : '/';
-				out +=  this.globalPGXData.variants[markers[i].id].a1;
-			}
+				temp = ""
+				temp += this.globalPGXData.variants[markers[i].id].a0;
+				temp += this.globalPGXData.variants[markers[i].id].phased_status ? '|' : '/';
+				temp += this.globalPGXData.variants[markers[i].id].a1;
+				out.push(temp);
+			}	
 		}
 		return out;
 	},
