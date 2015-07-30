@@ -145,7 +145,7 @@ module.exports = {
 			type:"GET",
 			dataType:'json',
 			cache:false,
-			timeout:3000
+			timeout:20000
 		})).then(function(result){
 			var citations = {}; //citations per id;
 			var citation,authorString;
