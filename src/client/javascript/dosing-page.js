@@ -103,8 +103,10 @@ var utility = require('./utility');
 				}
 			}
 			doc.pubmed = links;
+			doc.flagged = !$(context).find(".flag").hasClass('secondary');
 		} else if ( type == 'future' ){
 			doc.gene = pageOptions.gene;
+			doc.flagged = !$(context).find(".flag").hasClass('secondary');
 		} else if ( type == 'haplotype' ){
 			doc.gene = pageOptions.gene;
 			doc.haplotypes = [doc.allele_1,doc.allele_2];
@@ -124,6 +126,7 @@ var utility = require('./utility');
 				doc[fields[i].name] = fields[i].value;
 			}
 		}
+
 		//Add additional fields.
 		if (type == 'recommendation'){
 			//additionally add the pubmedID's
@@ -135,8 +138,11 @@ var utility = require('./utility');
 				}
 			}
 			doc.pubmed = links;
+			doc.flagged = !$(context).find(".flag").hasClass('secondary');
 		} else if ( type == 'haplotype' ){
 			doc.haplotypes = [doc.allele_1,doc.allele_2];
+		} else if ( type == 'future' ){
+			doc.flagged = !$(context).find(".flag").hasClass('secondary');
 		}
 
 		return doc;
@@ -241,6 +247,16 @@ var utility = require('./utility');
 		current: {
 			page: function(){
 				_this = this;
+
+
+				$('.flag').on('click',function(e){
+					e.preventDefault();
+					if ($(this).hasClass('editfixed') ){
+						if ($(this).hasClass('secondary')) $(this).removeClass('secondary')
+						else $(this).addClass('secondary');
+					}
+					return;
+				});
 				// If future recomednations is not empty show it;
 				if ( $('#future-recommendations').find('tbody').find('tr').length > 0 ){
 					$('#future-recommendations').show();
@@ -605,6 +621,7 @@ var utility = require('./utility');
 					$(this).hide();
 					$(this).closest('form').find('input,select,textarea').prop('disabled',false);
 					$(this).closest('form').find('.form-triggers,.edit').show();
+					$(this).closest('form').find('.flag').addClass('editfixed');
 				});
 
 				//cancel the chagens, restoring the original values to each field
@@ -619,6 +636,10 @@ var utility = require('./utility');
 					}
 					$(this).closest('form').find('.form-triggers,.edit').hide().closest('form').find('.edit-table,.temp-hide').show();
 					$(this).closest('form').find('.temp-remove').remove();
+					var flag = $(this).closest('form').find('.flag').data('originalvalue');
+					if (flag) $(this).closest('form').find('.flag').removeClass('secondary');
+					else $(this).closest('form').find('.flag').addClass('secondary');
+					$(this).closest('form').find('.flag').removeClass('editfixed');
 				});
 
 				//Remove a pubmed link from an entry
@@ -674,6 +695,7 @@ var utility = require('./utility');
 					})).then(function(result){
 						if (result.statusCode == 200 ){
 							$(_this).find('[name=rec]').data('originalvalue',o.rec);
+							$(_this).find('.flag').data('originalvalue',o.flagged)
 							$(_this).find('.cancel-changes').trigger('click');
 							$(_this).find('.alert-message').text(result.message).closest('.alert-box').slideDown();
 						} else {
@@ -823,6 +845,7 @@ var utility = require('./utility');
 						if (result.statusCode == 200){
 							$(_this).find('[name=risk]').data('originalvalue',doc.risk);
 							$(_this).find('[name=rec]').data('originalvalue',doc.rec);
+							$(_this).find('.flag').data('originalvalue',doc.flagged)
 							$(_this).find('.pubmed-link-combo').removeClass('temp-remove');
 							$(_this).find('.temp-hide').remove();
 							$(_this).find('.cancel-changes').trigger('click');
