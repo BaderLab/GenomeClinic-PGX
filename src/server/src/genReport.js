@@ -31,7 +31,8 @@ module.exports = function(req,res,reportName,template,options,logger){
 	//get template dir and pass this information into the handlebars template,
 	//This can be used to ensure proper inclusion of CSS and other elements for non
 	//Default templates
-	req.body.DIR = template.replace(/\/([^\/])*$/,"");
+	//req.body.DIR = template.replace(/\/([^\/])*$/,"");
+	//console.log(req.body.DIR);
 
 	//Turn the process into a promise.
 	var promise = Promise.resolve()
@@ -43,7 +44,7 @@ module.exports = function(req,res,reportName,template,options,logger){
 		//the date and time are appending to the report name in order to make a unique report name, in the case of multiple files sharing the same name
 		name = reportName + "_report_"+ date.getDay().toString() + "_" + date.getMonth().toString() + "_" + date.getUTCFullYear().toString() + 
 		"_" + date.getTime().toString();
-		path =   Path.resolve(constants.nodeConstants.TMP_UPLOAD_DIR + '/' + name)
+		path = Path.resolve(constants.nodeConstants.TMP_UPLOAD_DIR + '/' + name)
 		path = path.replace(/\\/gi,'/');
 		//The options from the intial request will be ussed to populate the template. Additionally add user info and date info
 		var opts = req.body;
@@ -102,7 +103,6 @@ module.exports = function(req,res,reportName,template,options,logger){
 		res.send(JSON.stringify(o));
 
 	}).catch(function(err){
-		console.log(err);
 		logger('error',err,{user:req.user[constants.dbConstants.USERS.ID_FIELD],'action':'genReport','target':name});
 		throw new Error(err);
 	});

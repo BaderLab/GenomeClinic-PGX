@@ -184,11 +184,14 @@ module.exports = {
 					temp.flagged = true;
 				}
 
-				$(fields[i]).each(function(ind,item){
-					temp.genes.push($(item).find('.gene-name').find('i').text())
-					temp.classes.push($(item).find('.class-name').find('i').text())
+				$(fields[i]).find('.gene-name').each(function(ind,gene){
+					temp.genes.push($(gene).text());
+				})
+				$(fields[i]).find(".class-name").each(function(ind,className){
+					temp.classes.push($(className).text());
 				});
-
+					//temp.genes.push($(item).find('.gene-name').find('i').text())
+					//temp.classes.push($(item).find('.class-name').find('i').text()			
 				pubmed = $(fields[i]).find(".pubmed");
 				//add the associated citations
 				for(var j=0; j < pubmed.length; j++ ){
@@ -652,6 +655,7 @@ module.exports = {
 			// refresh foundation
 			return utility.refresh(abideOptions);
 		}).then(function(){
+			document.SER = _this.serializeRecommendations
 			//add hanlders
 			utility.suggestionHandlers();
 			_this.staticHandlers();

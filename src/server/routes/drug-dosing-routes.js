@@ -124,7 +124,7 @@ module.exports = function(app,logger,opts){
 	});
 
 	/* Get the Predicted Effect  currently in the database */
-	app.get('/database/dosing/classes',function(req,res){
+	app.get('/database/dosing/classes', utils.isLoggedIn, function(req,res){
 		req.user = {}
 		req.user.username = 'me';
 		query = {};
