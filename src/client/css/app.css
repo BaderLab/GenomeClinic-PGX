@@ -308,8 +308,8 @@ hr {
   width:100%;
 }
 
-#suggestion-input{
-  margin-bottom:0px
+input.suggestion-input{
+  margin-bottom:0px !important;
 }
 
 .suggestions {

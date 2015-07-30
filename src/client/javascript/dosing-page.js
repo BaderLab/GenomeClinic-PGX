@@ -343,7 +343,8 @@ var utility = require('./utility');
 						//Handler for retrieving the information on the specific
 						//Predicted result for the specific enyzme catefory fo the
 						//New Gene
-						$('#gene-name-'+pageOptions.counter).on('keyup',function(){
+						utility.suggestionHandlers();
+						$('#gene-name-'+pageOptions.counter).on('change',function(){
 							var _this = this;
 							var val = $(this).val();
 							if (val !== ""){
@@ -367,6 +368,7 @@ var utility = require('./utility');
 							}
 						});
 						_this.removeRow('#remove-additional-gene-' + pageOptions.counter);
+
 						utility.refresh(abideOptions,'#additional-gene-row-' + pageOptions.counter);
 						pageOptions.counter++
 					});
@@ -983,6 +985,7 @@ var utility = require('./utility');
 				staticHanlders.current.future();
 				staticHanlders.current.haplotypes();
 				staticHanlders.current.generic();
+				utility.suggestionHandlers();
 
 			}).then(function(){
 				$('#toggle-all').trigger('click');

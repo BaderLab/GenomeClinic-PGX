@@ -134,6 +134,10 @@
 				"COLLECTION":"geneDescriptors",
 				"ID_FIELD":"_id",
 				"CLASSES":"classes"	
+			},
+			"DRUGS":{
+				"COLLECTION":"drugs",
+				"ID_FIELD":"_id"
 			}
 		}
 	},

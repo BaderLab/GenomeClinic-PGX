@@ -570,7 +570,8 @@ var utility = require('./utility');
 	};
 
 	var suggestionBox = function(){
-		var clickRow = function(){
+		utility.suggestionHandlers();
+		/*var clickRow = function(){
 			$('.suggestion').on('click',function(){
 				$('#suggestion-input').val($(this).text());
 				$('.suggestion-list').html('').closest('.suggestions').slideUp();
@@ -615,7 +616,7 @@ var utility = require('./utility');
 			} else {
 				$('.suggestion-list').html('').closest('.suggestions').slideUp();	
 			}
-		});
+		});*/
 		$('#search-new-marker').on('click',function(e){
 			e.preventDefault();
 			var val = $('#suggestion-input').val()

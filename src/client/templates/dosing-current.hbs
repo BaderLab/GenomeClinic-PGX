@@ -89,8 +89,14 @@ a new recommendation, future, haplotype. Deleting the page etc
 											<span class="prefix">Drug Name</span>
 										</div>
 										<div class="large-8 small-8 medium-8 columns">
-											<input type="text" name="drug" required>
+											<input type="text" name="drug" required id="drugname" class="suggestion-input" data-col="drugs" data-num="10">
 											<small class="error">Required</small>
+											<div class="suggestion-wrapper">
+												<div class="suggestions" for="#drugname" style="z-index:100">
+													<ul class="suggestion-list">
+													</ul>
+												</div>
+											</div>
 										</div>
 									</div>
 								</div>
@@ -470,7 +476,13 @@ a new recommendation, future, haplotype. Deleting the page etc
 										<span class="prefix">First Haplotype</span>
 									</div>
 									<div class="large-8 small-8 medium-8 columns">
-										<input type="text" placeholder='ex *1' name="allele_1" required>
+										<input type="text" placeholder='ex *1' name="allele_1" required id="allele_1" data-col="haplotype" data-num="10" class="suggestion-input" data-gene="{{@root.gene}}">
+										<div class="suggestion-wrapper">
+											<div class="suggestions" for="#allele_1" style="z-index:100">
+												<ul class="suggestion-list">
+												</ul>
+											</div>
+										</div>
 										<small class="error">Required</small>
 									</div>
 								</div>
@@ -481,7 +493,13 @@ a new recommendation, future, haplotype. Deleting the page etc
 										<span class="prefix">Second Haplotype</span>
 									</div>
 									<div class="large-8 small-8 medium-8 columns">
-										<input type="text" placeholder='ex *3' name="allele_2" required>
+										<input type="text" placeholder='ex *3' name="allele_2" required id="allele_2" data-col="haplotype" data-num="10" data-gene="{{@root.gene}}" class="suggestion-input">
+										<div class="suggestion-wrapper">
+											<div class="suggestions" for="#allele_2" style="z-index:100">
+												<ul class="suggestion-list">
+												</ul>
+											</div>
+										</div>
 										<small class="error">Required</small>
 									</div>
 								</div>

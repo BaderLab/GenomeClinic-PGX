@@ -103,6 +103,9 @@ module.exports = {
 		var fields = $('form').serializeArray();
 		var currDrugs = $('.patient-drug-name');
 		var currDose = $('.patient-drug-dose');
+		var currFreq = $('.patient-drug-frequency');
+		var currRoute = $('.patient-drug-route');
+		var currNotes = $('.patient-drug-notes');
 		output.patient = {};
 		output.dr = {};
 		//Loop over all the fields
@@ -142,7 +145,7 @@ module.exports = {
 			output.patient.medications= "";
 			output.patient.allMedications = [];
 			for (i = 0; i < currDrugs.length; i ++ ){
-				output.patient.allMedications.push({name:$(currDrugs[i]).text(),dose:$(currDose[i]).text()});
+				output.patient.allMedications.push({name:$(currDrugs[i]).text(),dose:$(currDose[i]).text(),route:$(currRoute[i]).text(),frequency:$(currFreq[i]).text(),notes:$(currNotes[i]).text()});
 				if (output.patient.medications !== "") output.patient.medications += ', '
 				output.patient.medications += $(currDrugs[i]).text() + ' at ' + $(currDose[i]).text()
 
@@ -464,16 +467,20 @@ module.exports = {
 			e.preventDefault();
 			var val = $('#patient-new-drug').val();
 			var dose = $('#patient-new-dose').val();
-			if (val !== "" && dose !== ""){
-				$('#patient-new-drug').val('');
-				var html = "<tr><td class='patient-drug-name'>" + val + "</td><td class='patient-drug-dose text-center'>" + dose + "</td><td class='text-center'><a href='#'><i class='fi-x'></i></a></td></tr>";
+			var freq = $('#patient-new-frequency').val();
+			var route = $('#patient-new-route').val();
+			var notes = $('#patient-new-notes').val();
+			if (val !== "" && dose !== "" && freq !== "" && route !== ""){
+				var html = "<tr><td class='patient-drug-name'>" + val + "</td><td class='patient-drug-dose text-center'>" + dose + "</td>"
+				html += '<td class="patient-drug-route text-center">' + route + '</td><td class="patient-drug-frequency text-center">' + freq + '</td>';
+				html += '<td class="patient-drug-notes">'+notes+"</td><td class='text-center'><a href='#'><i class='fi-x'></i></a></td></tr>";
 				$('#patient-drug-table').find('tbody').append(html);
 				removeRow($('#patient-drug-table').find('tbody').last('tr').find('a'));
 				if (!$('#patient-drug-table').is(":visible")){
 					$('#patient-drug-table').show();
 				}
-				
 
+				$('#patient-new-drug,#patient-new-dose,#patient-new-notes,#patient-new-frequency,#patient-new-route').val('');
 			}
 		});
 
@@ -618,7 +625,6 @@ module.exports = {
 				$('#main').html(renderedHtml);
 		}).then(function(){
 			return _this.getHaplos();
-			
 			// get information from each gene
 		}).then(function(){
 			return _this.getRecommendations();
@@ -629,6 +635,7 @@ module.exports = {
 			return utility.refresh(abideOptions);
 		}).then(function(){
 			//add hanlders
+			utility.suggestionHandlers();
 			_this.staticHandlers();
 		}).catch(function(err){
 			console.error(err);

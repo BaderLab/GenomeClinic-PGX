@@ -122,6 +122,17 @@ var dbFunctions = function(){
 					//Save the default data in the data objec
 					data = require(dbConstants.DRUGS.DEFAULT);
 				}).then(function(){
+
+					if (data.drugs){
+						var options = {
+							collectionName : dbConstants.DRUGS.DRUGS.COLLECTION,
+							documents: data.drugs
+						}
+						return self.insertMany(options).catch(function(err){
+							logger("error",err,{action:'createInitCollections'});
+						});
+					}
+				}).then(function(){
 					//Require he recommendations
 					return Promise.resolve(data.Recommendations).each(function(item){
 						return self.insert(dbConstants.DRUGS.DOSING.COLLECTION,item).then(function(result){

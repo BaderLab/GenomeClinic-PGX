@@ -150,6 +150,19 @@ module.exports = function(app,logger,opts){
 			marker : {
 				col:dbConstants.PGX.COORDS.COLLECTION,
 				field:dbConstants.PGX.COORDS.ID_FIELD
+			},
+			drugs : {
+				col :dbConstants.DRUGS.DRUGS.COLLECTION,
+				field:dbConstants.DRUGS.DRUGS.ID_FIELD
+			},
+			genes : {
+				col : dbConstants.DRUGS.ALL.COLLECTION,
+				field : dbConstants.DRUGS.ALL.ID_FIELD
+			},
+			haplotype : {
+				col : dbConstants.PGX.GENES.COLLECTION,
+				field : dbConstants.PGX.GENES.ID_FIELD,
+				gene : dbConstants.PGX.GENES.GENE
 			}
 		}
 
@@ -158,6 +171,7 @@ module.exports = function(app,logger,opts){
 		var num = parseInt(req.query.num) || 20;
 		var strict = req.query.strict !== 'true' ? 'i' : '';
 		var multiple = req.query.multiple == 'true' ? 'g' : '';
+		var gene = req.query.gene || "";
 
 		if (mapper[collection] == num ){
 			req.flash('message','Invalid collection');
@@ -168,11 +182,11 @@ module.exports = function(app,logger,opts){
 
 		var agg = [];
 		var query = {};
-		var reg = new RegExp('$' + term);
+		term = term.replace(/\*/g,'\\*').replace(/\+/g,'\\+')
 		query[mapper[collection].field] = {$regex:term}
 		if (strict !== '') query[mapper[collection].field].$options = strict;
 		if (multiple !== '') query[mapper[collection].field].$options = multiple;
-
+		if (mapper[collection].gene) query[mapper[collection].gene] = gene;
 		agg.push({$match:query})
 		agg.push({$limit:num});
 		agg.push({$group:{_id:null,matches:{$addToSet:'$' + mapper[collection].field}}});
