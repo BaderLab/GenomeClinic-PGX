@@ -743,8 +743,11 @@ dbFunctions.connectAndInitializeDB().then(function(){
 								return dbFunctions.insert(colParams.collection,doc).then(function(idoc){
 									added++;
 									if (collection !== 'custommarkers'){
-										var update = {$push:{}}
+										var update = {$push:{},$set{}}
 										update.$push[colParams.dosing_field] = idoc._id;
+										var from = collection == 'custommarkers' || collection == 'haplotype' ? 'useHaplotype' : 'useDosing';
+										update.$set[from] = true;
+
 										
 										var genes = collection == 'recommendation' ? idoc.genes : [idoc.gene];
 										return Promise.resolve(genes).each(function(gene){
