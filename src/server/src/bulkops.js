@@ -339,13 +339,22 @@ var searchForConflicts = function(fields,arr){
 	}
 	if ( arr.length == 2){
 		for (i = 0; i < fields.length; i++){
-			if (arr[0][fields[i]].toString() == arr[1][fields[i]].toString()) truthSum++;
+			if (arr[0][fields[i]].toString() == arr[1][fields[i]].toString())truthSum++;	
 		}
-		if (truthSum == fields.length) return false;
+		if (truthSum == fields.length) {
+			console.error("ERROR Conflicts found in the following docs");
+			console.error("============================================");
+			console.error(JSON.stringify(arr[0],0,4));
+			console.error("============================================");
+			console.error(JSON.stringify(arr[1],0,4));
+			console.error("\n\nPlease Fix conflicts and restry Import");
+			return false;
+		}
 		return true;
 	} else {
 		var unique = searchForConflicts(fields,arr.slice(1));
 		var item = arr[0];
+		if(!unique) //console.log(arr[1]);
 		if (!unique) return false;
 		for (i = 1; i < arr.length; i++ ){
 			truthSum = 0;
@@ -353,7 +362,15 @@ var searchForConflicts = function(fields,arr){
 				if (item[fields[j]].toString() == arr[i][fields[j]].toString()) truthSum++;
 
 			}
-			if (truthSum == fields.length) return false;
+			if (truthSum == fields.length) {
+				console.error("ERROR Conflicts found in the following docs");
+				console.error("=======================ENTRY 1==============================");
+				console.error(JSON.stringify(item,0,4));
+				console.error("=======================ENTRY 2==============================");
+				console.error(JSON.stringify(arr[i],0,4));
+				console.error("\n\n=========================================================\n\nPlease Fix conflicts and retry Import");
+				return false;
+			}
 		}
 		return true;
 	}
@@ -743,12 +760,12 @@ dbFunctions.connectAndInitializeDB().then(function(){
 								return dbFunctions.insert(colParams.collection,doc).then(function(idoc){
 									added++;
 									if (collection !== 'custommarkers'){
-										var update = {$push:{},$set{}}
+										var update = {$push:{},$set:{}}
 										update.$push[colParams.dosing_field] = idoc._id;
 										var from = collection == 'custommarkers' || collection == 'haplotype' ? 'useHaplotype' : 'useDosing';
 										update.$set[from] = true;
 
-										
+
 										var genes = collection == 'recommendation' ? idoc.genes : [idoc.gene];
 										return Promise.resolve(genes).each(function(gene){
 											var query = {};
