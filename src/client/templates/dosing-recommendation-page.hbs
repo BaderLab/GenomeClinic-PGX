@@ -303,6 +303,31 @@
 					</fieldset>
 					<fieldset>
 						<legend>Medications of Interest</legend>
+						<div class="row collapse prefix-radius postfix-radius">
+							<div class="large-3 small-3 medium-3 columns">
+								<span class="prefix">Drug Name</span>
+							</div>
+							<div class="large-6 small-6 medium-6 columns">
+								<input type="text" id="patient-drug-of-interest-input" placeholder="Drug Name" class="suggestion-input" data-col="drugs" data-num="10">
+								<div class="suggestion-wrapper">
+									<div class="suggestions" for="#patient-drug-of-interest-input" style="z-index:100">
+										<ul class="suggestion-list">
+										</ul>
+									</div>
+								</div>
+							</div>
+							<div class="large-3 small-3 medium-3 columns"><a href="#" id="add-drug-of-interest" class="button secondary tiny postfix" style="margin:0;line-height:100%"><i class="fa fa-plus size-14"></i></a>	
+							</div>
+						</div>
+						<div class="row">
+							<div class="large-12 small-12 medium-12 columns">
+								<div class="multicol">
+									<ol class="multicol" id="patient-drug-of-interest">
+									</ol>
+								</div>
+							</div>
+						</div>
+
 					</fieldset>
 
 					<fieldset>

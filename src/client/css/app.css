@@ -344,3 +344,17 @@ input.glowing-error {
   border-color: #FF3333 !important;
   box-shadow: 0 0 10px #FF3333 !important;
 }
+
+ol.multicol {
+    width: 100%;
+ }  /* float & allow room for the widest item */
+li.multicol {
+    float: left;
+    width: 33%;
+}  /* stop the float */
+br.multicol{
+    clear: left;
+}  /* separate the list from subsequent markup */
+div.multicol {
+    margin-bottom: 1em;
+}

@@ -106,6 +106,7 @@ module.exports = {
 		var currFreq = $('.patient-drug-frequency');
 		var currRoute = $('.patient-drug-route');
 		var currNotes = $('.patient-drug-notes');
+		var moI = $('#patient-drug-of-interest').find('li');
 		output.patient = {};
 		output.dr = {};
 		//Loop over all the fields
@@ -152,6 +153,11 @@ module.exports = {
 			}
 			//Convert the current drugs form an array into text
 		}
+
+		output.drugsOfInterest = [];
+		for (var i = 0; i < moI.length; i++ ){
+			output.drugsOfInterest.push($(moI[i]).find('span').text());
+		}
 		return output;
 	},
 
@@ -162,7 +168,7 @@ module.exports = {
 	serializeRecommendations : function(){
 		var output = {drugs:[],citations:[]}
 		var temp,drug,pubmed,genes,classes,index;
-		var fields = $('.recommendation-field'); 
+		var fields = $('.recommendation-field:visible'); 
 		// Gather all of the receomendations
 		//If the user has toggled the recommendations off dont iterate over them
 		if ($('#drug-recommendations').is(':visible')){
@@ -208,7 +214,7 @@ module.exports = {
 	serializeFuture : function (){
 		output = [];
 		var temp;
-		var fields = $('.future-field')
+		var fields = $('.future-field:visible')
 		if ($('#drug-recommendations').is(':visible')){
 			for (var i = 0; i < fields.length; i++ ){
 				temp = {};
@@ -237,17 +243,9 @@ module.exports = {
 		output.recommendations = recs.drugs;
 		output.genes = this.serializeTable();
 		output.future = this.serializeFuture();
-		var flags = $('.flag');
+		var flags = $('.flag:visible');
 		for (var i = 0; i < flags.length; i++ ){
 			if(!$(flags[i]).hasClass('secondary')) output.flagged = true;
-		}
-		if (output.recommendations){
-			output.drugsOfInterest = [];
-			for (var i = 0; i < output.recommendations.length; i++ ){
-				output.drugsOfInterest.push(output.recommendations[i].drug);
-			}
-
-			output.drugsOfInterest = output.drugsOfInterest.join(', ');
 		}
 		return output;
 	},
@@ -424,6 +422,26 @@ module.exports = {
 				}
 			});
 		};
+
+		var removeLink = function(ele){
+			ele.on('click',function(e){
+				e.preventDefault();
+				$(this).closest('li').remove();
+			});
+		};
+
+
+		$('#add-drug-of-interest').on('click',function(e){
+			e.preventDefault();
+			var val = $('#patient-drug-of-interest-input').val();
+			if (val !== "" ){
+				var html = "<li class='multicol'><span>" + val + "</span>&nbsp&nbsp<a href='#'><i class='fi-x'></i></a></li>";
+				$('ol.multicol').append(html);
+				removeLink($('ol.multicol').last('li').find('a'));
+			} else {
+				$('#patient-drug-of-interest-input').addClass("glowing-error");
+			}
+		});
 
 		/* anytime the user changes any of therapeutic classes in the PGX analyisis table, check to see if
 		 * there are any new recommendations and re-render the contents */
