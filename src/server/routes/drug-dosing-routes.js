@@ -80,7 +80,7 @@ module.exports = function(app,logger,opts){
 		utils.render(req,res,{scripts:'dosing-page.js'});
 	});
 
-	app.get('/browsepatients/dosing/:patientID',utils.isLoggedIn,function(req,res){
+	app.get('/browsepatients/id/:patientID/dosing',utils.isLoggedIn,function(req,res){
 		utils.render(req,res,{scripts:'patients.js'})
 	})
 	//==========================================================
@@ -531,7 +531,7 @@ module.exports = function(app,logger,opts){
 	})
 	
 	/* Generate the dosing recommendation report */
-	app.post('/browsepatients/dosing/:patientID/report', utils.isLoggedIn,function(req,res){
+	app.post('/browsepatients/id/:patientID/dosing/report', utils.isLoggedIn,function(req,res){
 		var options = {
 			top:'1cm',
 			bottom:'1cm',
@@ -547,7 +547,7 @@ module.exports = function(app,logger,opts){
 	});
 
 	/* Download the dosing recommendation report */
-	app.get('/browsepatients/dosing/:patientID/download/:id',utils.isLoggedIn,function(req,res){
+	app.get('/browsepatients/id/:patientID/dosing/download/:id',utils.isLoggedIn,function(req,res){
 		var file = req.params.id;
 		var path = constants.nodeConstants.TMP_UPLOAD_DIR + '/' + file;
 		var user = req.user[constants.dbConstants.USERS.ID_FIELD];

@@ -579,7 +579,8 @@ module.exports = {
 		var pgxTemplateData, therapeuticClasses, drugRecommendations;
 		//load information on patient and generate pgx info.
 		var location = window.location.pathname;
-		var patientID = location.split('/').splice(-1)[0];
+		var patientID = location.split('/').splice(-2)[0];
+		console.log(patientID);
 		//Generate pgx results and convert them into a usable format;
 		pgx.generatePgxResults(patientID).then(function(result){
 			return pgx.convertTotemplateData(result);

@@ -71,13 +71,14 @@ var utility = require('./utility'),
 			}).then(function(){
 				addEventListeners();
 			});
-		} else if (location.match(/^\/browsepatients\/id\/.*/) !== null){
-			pgx.loadPGx();
-
-		} else if (location.match(/^\/browsepatients\/dosing\/.*/) !== null){
+		} else if (location.match(/^\/browsepatients\/id\/.*\/dosing/) !== null){
 			dosing.render();
+
+		} else if (location.match(/^\/browsepatients\/id\/.*$/) !== null){
+			pgx.loadPGx();
+			
 		}
-	}
+	};
 	$(document).ready(function(){
 		return main();
 	})
