@@ -33,12 +33,12 @@ module.exports = function(app,logger,opts){
 				if (!configured) {
 					configured= resolved_config;
 				}
-				var options = {
-					code:{
+				var options = {default:true}
+					/*code:{
 						code: "$(document).ready(function(){templates.index({title:'PGX Webapp'}).then(function(renderedHtml){$('#main').html(renderedHtml);});});",
 						type:"text/javascript"
 					}
-				}
+				}*/
 				utils.render(req,res,options);
 			} else {
 				res.redirect('/config');
@@ -96,6 +96,9 @@ module.exports = function(app,logger,opts){
 	});
 
 
+	app.get('/definitions',utils.isLoggedIn,function(req,res){
+		utils.render(req,res,{definitions:true});
+	})
 	//==================================================================
 	//Generic DB  / utility routes
 	//==================================================================
@@ -144,7 +147,62 @@ module.exports = function(app,logger,opts){
 			res.send(result);
 		});
 	});
+	app.get('/database/suggestions',utils.isLoggedIn,function(req,res){
+		var mapper = {
+			marker : {
+				col:dbConstants.PGX.COORDS.COLLECTION,
+				field:dbConstants.PGX.COORDS.ID_FIELD
+			},
+			drugs : {
+				col :dbConstants.DRUGS.DRUGS.COLLECTION,
+				field:dbConstants.DRUGS.DRUGS.ID_FIELD
+			},
+			genes : {
+				col : dbConstants.DRUGS.ALL.COLLECTION,
+				field : dbConstants.DRUGS.ALL.ID_FIELD
+			},
+			haplotype : {
+				col : dbConstants.PGX.GENES.COLLECTION,
+				field : dbConstants.PGX.GENES.ID_FIELD,
+				gene : dbConstants.PGX.GENES.GENE
+			},
+			users : {
+				col : dbConstants.USERS.COLLECTION,
+				field : dbConstants.USERS.ID_FIELD
+			}
+		}
 
+		var term = req.query.term;
+		var collection = req.query.col;
+		var num = parseInt(req.query.num) || 20;
+		var strict = req.query.strict !== 'true' ? 'i' : '';
+		var multiple = req.query.multiple == 'true' ? 'g' : '';
+		var gene = req.query.gene || "";
+
+		if (mapper[collection] == undefined ){
+			res.send([]);
+			return;
+		}
+
+
+		var agg = [];
+		var query = {};
+		term = term.replace(/\*/g,'\\*').replace(/\+/g,'\\+')
+		query[mapper[collection].field] = {$regex:term}
+		if (strict !== '') query[mapper[collection].field].$options = strict;
+		if (multiple !== '') query[mapper[collection].field].$options = multiple;
+		if (mapper[collection].gene) query[mapper[collection].gene] = gene;
+		agg.push({$match:query})
+		agg.push({$limit:num});
+		agg.push({$group:{_id:null,matches:{$addToSet:'$' + mapper[collection].field}}});
+		return dbFunctions.aggregate(mapper[collection].col,agg).then(function(result){
+			if (result.length > 0) res.send(result[0].matches);
+			else res.send([]);
+		});
+
+		
+
+	})
 
 
 

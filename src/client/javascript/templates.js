@@ -1,14 +1,8 @@
 /* Templates to be rendered and precompiled prior to be sent to webpage
  * @author Patrick Magee
  */
-var index = require('../templates/index.hbs'),
-	login = require('../templates/login.hbs'),
-	signup = require('../templates/signup.hbs'),
-	recover = require('../templates/recover.hbs'),
-	setpassword = require('../templates/set-password.hbs'),
-	statuspageIndex = require('../templates/status-page.hbs'),
+var statuspageIndex = require('../templates/status-page.hbs'),
 	statuspageRow = require('../templates/status-page-add-status-row.hbs'),
-	uploadpageIndex = require('../templates/upload.hbs'),
 	uploadpageVcf = require('../templates/upload-add-vcf.hbs'),
 	uploadpageProgress = require('../templates/upload-add-progress-bar.hbs'),
 	projectIndex = require('../templates/project.hbs'),
@@ -20,7 +14,6 @@ var index = require('../templates/index.hbs'),
 	config = require('../templates/server-config.hbs'),
 	phase_page = require('../templates/phase-page.hbs'),
 	phase_current = require('../templates/phase-current.hbs'),
-	marker_page = require('../templates/marker-page.hbs'),
 	marker_add_row = require('../templates/marker-add-marker.hbs'),
 	dosing_page = require('../templates/dosing-page.hbs'),
 	dosing_current = require('../templates/dosing-current.hbs'),
@@ -89,16 +82,9 @@ var _t = function(t){
 	//bind the templates object to the global window 
 	window.templates = {
 		//Main Index home page content
-		index:_t(index),
-
+		
 		//Spinner used for laoding
 		spinner:_t(spinner),
-
-		//Authentication templates
-		login:_t(login),
-		signup:_t(signup),
-		recover:_t(recover),
-		setpassword:_t(setpassword),
 
 		//Page to check the status of the current uploads
 		statuspage:{
@@ -108,7 +94,6 @@ var _t = function(t){
 
 		//Templates for the the uploadpage
 		uploadpage:{
-			index:_t(uploadpageIndex),
 			vcf:_t(uploadpageVcf),
 			progress:_t(uploadpageProgress)
 		},
@@ -138,7 +123,6 @@ var _t = function(t){
 
 		//Templates for the Markers
 		markers:{
-			index:_t(marker_page),
 			row:_t(marker_add_row)
 		},
 

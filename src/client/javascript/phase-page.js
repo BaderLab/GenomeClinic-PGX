@@ -17,18 +17,18 @@ var utility = require('./utility');
 		var promise = new Promise(function(resolve,reject){
 			var out = [];
 			var temp,cell;
-			var gene = window.location.pathname.split('/').splice(-1)[0]
+			var gene = window.location.pathname.split('/').splice(-1)[0];
 			var rows = $('.haplotype-row:visible');
 
 			//Retrieve the marker names from the table header
 			var markers = $('#haplotypes').find('th[id^=marker-rs]').map(function(ind,item){
-				return  { marker:$(item).text(), ind: ind + 1}
+				return  { marker:$(item).text(), ind: ind + 1};
 			});
 			var markerComb = [];
 			//If the marker is of length 0 reject the page.
 			if (markers.length === 0){
 				reject('You need at least one marker to save the haplotype');
-				return
+				return;
 			}
 			if (rows.length === 0) {
 				//reject("Need at least one")
@@ -36,35 +36,35 @@ var utility = require('./utility');
 			for (var i = 0; i < rows.length; i ++ ){
 				temp = {};
 				temp._id = $(rows[i]).data('id');
-				temp.gene = gene
+				temp.gene = gene;
 				//Check to ensure there is no errors on the form 
 				if ($(rows[i]).find('.haploytpe-cell').find('input').hasClass('error')){
 					reject('Errors were found present on the page, please address before submitting');
-					return
+					return;
 				} else if ($(rows[i]).find('.haplotype-cell').find('input').attr('disabled') !== 'disabled'){
 					$(rows[i]).find('.haplotype-cell').find('input').addClass('error').siblings('small').text("Must Finish before submitting").show();
-					reject("Incomplete Form, please fill out all fields prior to submitting")
-					return
+					reject("Incomplete Form, please fill out all fields prior to submitting");
+					return;
 				} else {
 					temp.haplotype = $(rows[i]).find('.haplotype-cell').find('input').val();
 				}
 				temp.markers = [];
 				for (var j = 0; j < markers.length; j ++ ){
-					cell = $(rows[i]).find('td').eq(markers[j].ind)
+					cell = $(rows[i]).find('td').eq(markers[j].ind);
 					if (cell.hasClass('use-alt')){
-						temp.markers.push(markers[j].marker)
+						temp.markers.push(markers[j].marker);
 					}
 				}
 				if (markerComb.indexOf(temp.markers.join('')) === -1 ){
 					markerComb.push(temp.markers.join(''));
 				} else {
-					reject('Each Haplotype must have a unique Marker combination. Please make the appropriate correction before submitting')
+					reject('Each Haplotype must have a unique Marker combination. Please make the appropriate correction before submitting');
 					return false;
 				}
 
 				out.push(temp);
 			}
-			resolve(out)
+			resolve(out);
 		});
 		return promise;
 	};
@@ -74,8 +74,8 @@ var utility = require('./utility');
 	 * and retrieve the mongo object Id for the haplotype. An array of all
 	 * Id's to be removed will be returned */
 	serializeRemovedHaplotypes = function(){
-		var rows = $('.haplotype-row:hidden')
-		var ids = []	
+		var rows = $('.haplotype-row:hidden');
+		var ids = [];
 		if (rows.length > 0 ){
 			for (var i = 0; i < rows.length; i++ ){
 				ids.push($(rows[i]).data('id'));
@@ -183,19 +183,29 @@ var utility = require('./utility');
 	/* Instead of utilizing a template for addng a row, take the server response and render
 	 * a new haplotype row. THis will return the HTML  */
 	var generateRowHtml = function(response){
-		var html = '<tr class="haplotype-row" data-id="' + response._id + '"">'
-		html += '<td class="haplotype-cell"><span>' + response.haplotype + '</span>'
-		html += '<div class="row collapse postfix-radius" style="display:none;min-width:250px">'
-		html += '<div class="large-8 small-8 medium-8 columns">'
-		html += '<input type="text" disabled=disabled value="'+ response.haplotype +'">'
-		html += '<small class="error" style="display:none">Unique Name Required</small>'
-		html +=	'</div><div class="large-4 small-4 medium-4 columns"><a href="#" class="postfix">Done</a></div></div></td>'
+		var html = '<tr class="haplotype-row" data-id="' + response._id + '"">';
+		html += '<td class="haplotype-cell"><span>' + response.haplotype + '</span>';
+		html += '<div class="row collapse postfix-radius" style="display:none;min-width:250px">';
+		html += '<div class="large-8 small-8 medium-8 columns">';
+		html += '<input type="text" disabled=disabled value="'+ response.haplotype +'">';
+		html += '<small class="error" style="display:none">Unique Name Required</small>';
+		html +=	'</div><div class="large-4 small-4 medium-4 columns"><a href="#" class="postfix">Done</a></div></div></td>';
 
 		var markers = $('#haplotypes').find('th[id^=marker-rs]').map(function(ind,item){ return  $(item).text();});
 		for (var i = 0; i < markers.length; i++){
-			html+='<td class="marker use-ref text-center">' + $('#' + markers[i]).find('.ref').text() + '</td>'
+			html+='<td class="marker use-ref text-center">' + $('#' + markers[i]).find('.ref').text() + '</td>';
 		}
-		html += '<td class="text-center"><a href="#" class="remove button tiny radius" style="margin-bottom:0px;"><i class="fi-x"></i></a></td>'
+		html += '<td class="text-center"><a href="#" class="remove button tiny radius" style="margin-bottom:0px;"><i class="fi-x"></i></a></td>';
+		return html;
+	}
+
+	var generateMarkerHtml = function(response){
+		var html = '<tr id="'+ response._id + '">';
+		html +=	'<td>' + response._id + '</td>';
+		html +=	'<td class="text-center chr">' + response.chr + '</td>';
+		html +=	'<td class="text-center ref">' + response.ref + '</td>';
+		html +=	'<td class="text-center alt">' + response.alt + '</td>';
+		html +=	'<td class="text-center"><a href="#" class="marker-status unadded button tiny radius" style="margin-bottom:0px">Add</a></td>';
 		return html;
 	}
 
@@ -208,8 +218,7 @@ var utility = require('./utility');
 	var markerCellHandlers = function(context){
 		//if no context then this is being applied to the whole document
 		//otherwise this is being applied to a specifc marker box
-		if (!context)
-			context = $(document).find('.marker');
+		if (!context) context = $(document).find('.marker');
 		context.on('click',function(){
 			var index = $(this).index();
 			var identifer = $('#haplotypes').find('thead').find('th:nth-child(' + ( index + 1 ) + ')').text();
@@ -229,8 +238,7 @@ var utility = require('./utility');
 	 * this function will apply the handlers to all of the haplotype cells, or a
 	 * specific haplotype cell if the context is passed */
 	var haploCellHandlers=function(context){
-		if (!context)
-			context = $(document).find('.haplotype-cell');
+		if (!context)context = $(document).find('.haplotype-cell');
 
 		//WHenj the haplotype cell is clicked show the Input
 		context.on('click',function(){
@@ -275,7 +283,7 @@ var utility = require('./utility');
 				$(this).siblings('small').hide();
 			}
 		});
-	}
+	};
 
 
 	/* Handler form removing a haplotype row. when the context is added 
@@ -290,7 +298,7 @@ var utility = require('./utility');
 			$(this).closest('tr').hide();
 		});
 
-	}
+	};
 
 
 	/* All the handlers for the Haplo page that do not deal specifically with
@@ -403,11 +411,15 @@ var utility = require('./utility');
 					$('#error-display-box').removeClass('secondary').addClass('warning').show();
 				}
 			});
-		})
-			
+		});
+	};
+	var markerHandlers = function(context){
 		/* When the marker status is clicked update the page depending on the current status of the 
 		 * marker */
-		$('.marker-status').on('click',function(e){
+		 if (context) context = $(context);
+		 else context = $(document);
+
+		context.find('.marker-status').on('click',function(e){
 			e.preventDefault();
 			var id = $(this).closest('tr').attr('id')
 			var _this = this;
@@ -470,7 +482,9 @@ var utility = require('./utility');
 				}
 			}
 		})
+	};
 
+	var haplotypeHandlers =function(){
 		//Add a new haplotype
 		$('#add-new-haplotype').on('click',function(e){
 			e.preventDefault();
@@ -509,8 +523,6 @@ var utility = require('./utility');
 			if ($(this).hasClass('error'))
 				$(this).removeClass('error').siblings('small').hide()
 		});		
-
-		
 	};
 	/* When the user is about make a delete, confirm they want to
 	 * do so.
@@ -529,8 +541,9 @@ var utility = require('./utility');
 				contentType:'application/json',
 				dataType:'json'
 			})).then(function(result){
+				console.log(result);
 				if (result.status == 'ok') {
-					window.location.reload();
+					window.location.replace('/haplotypes');
 				} else {
 					$('#error-display-message').text(result.message);
 					$('#error-display-box').removeClass('secondary').addClass('warning').show();
@@ -554,6 +567,78 @@ var utility = require('./utility');
 		else if (input.match(re) !== null)
 			return true;
 		return false;
+	};
+
+	var suggestionBox = function(){
+		utility.suggestionHandlers();
+		/*var clickRow = function(){
+			$('.suggestion').on('click',function(){
+				$('#suggestion-input').val($(this).text());
+				$('.suggestion-list').html('').closest('.suggestions').slideUp();
+			});
+		}
+
+		$(document).on('mouseup.suggestion',function(e){
+			var targ1 = $('#suggestion-input');
+			var targ2 = $('.suggestion-list,.suggestion');
+			var target = e.target;
+			if (!targ1.is(target) && !targ2.is(target)){
+				$('.suggestion-list').html('').closest('.suggestions').slideUp();
+			}
+
+		});
+
+		$('#suggestion-input').on('keyup',function(e){
+			$(this).removeClass('glowing-error').attr('placeholder','');
+			var val = $(this).val();
+			if (val.length > 2){
+				//get the suggestion from the server
+				utility.getSuggestions(val,'marker',10).then(function(result){
+					var html = "";
+					if (result.length > 0){
+						for (var i = 0; i < result.length; i++ ){
+							var searchIndex = result[i].search(val);
+							html += '<li class="suggestion">'
+							for (var j = 0; j < result[i].length; j++ ){
+								if (j == searchIndex) html += '<b class=suggetion-match>'
+								html += result[i][j];
+								if (j - searchIndex == val.length -1) html += '</b>'
+							}
+							html += '</li>'
+						}
+					} else {
+						html += '<li><i>No Suggestions</i></li>'
+					}
+					return $('.suggestion-list').html(html).closest('.suggestions').slideDown();
+				}).then(function(){
+					clickRow();
+				});
+			} else {
+				$('.suggestion-list').html('').closest('.suggestions').slideUp();	
+			}
+		});*/
+		$('#search-new-marker').on('click',function(e){
+			e.preventDefault();
+			var val = $('#suggestion-input').val()
+			$('#suggestion-input').val('');
+			if (val != '' && $(val).length == 0){
+				Promise.resolve($.ajax({
+					url:'/database/markers/getmarkers/' + val,
+					type:'GET',
+					dataType:'json'
+				})).then(function(result){
+					if (result[val]){
+						var html = generateMarkerHtml(result[val])
+						$('#umarkers').find("tbody").append(html);
+						markerHandlers('#' + val);
+					} else {
+						$('#suggestion-input').addClass('glowing-error').attr('placeholder','No markers found');
+					}
+				});
+			} else {
+				$('#suggestion-input').addClass('glowing-error').attr('placeholder','No markers found');
+			}
+		});
 	};
 
 
@@ -591,15 +676,13 @@ var utility = require('./utility');
 				var type = $('#new-gene-type').find('option:selected').data('id');
 
 				Promise.resolve($.ajax({
-					url:'/database/dosing/new?gene=' + val+ "&type="+ type,
+					url:'/database/dosing/new?gene=' + val+ "&type="+ type +'&from=Haplotype',
 					type:"POST",
 					contentType:'application/json',
 					dataType:'json'
 				})).then(function(result){
 					if (result.statusCode == 200){
-						window.location.replace('/haplotypes/current/' + val);
-					} else if ( result.statusCode == 500 ){
-						window.location.replace('/haplotypes/current/' + val);
+						window.location.replace('/haplotypes/current/' + val + '?new=true');
 					} else {
 						$('#error-display-message').text(result.message);
 						$('#error-display-box').slideDown();
@@ -631,6 +714,8 @@ var utility = require('./utility');
 		current:function(){
 			confirmDelete('#delete',window.location.pathname);
 			haploPageHanlders();
+			markerHandlers();
+			haplotypeHandlers();
 			removeHandler();
 			markerCellHandlers();
 			haploCellHandlers();		
@@ -679,6 +764,7 @@ var utility = require('./utility');
 			utility.refresh();
 		}).then(function(){
 			staticHandlers.current();
+			suggestionBox();
 			checkWidth();
 		});
 	}

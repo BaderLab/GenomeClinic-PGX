@@ -41,7 +41,7 @@ module.exports = function(app,logger,opts){
 	});
 
 	app.get('/markers',utils.isLoggedIn,function(req,res){
-		utils.render(req,res,{scripts:'markers-page.js'});
+		utils.render(req,res,{scripts:'markers-page.js',markers:true});
 	});
 
 
@@ -58,7 +58,11 @@ module.exports = function(app,logger,opts){
 
 
 	app.param('hapid',function(req,res,next,hapid){
-		dbFunctions.checkInDatabase(constants.dbConstants.DRUGS.ALL.COLLECTION,constants.dbConstants.DRUGS.ALL.ID_FIELD,hapid)
+		//If there is no new status
+		var query = {};
+		query[constants.dbConstants.DRUGS.ALL.ID_FIELD] = hapid
+		query.useHaplotype = true;
+		dbFunctions.findOne(constants.dbConstants.DRUGS.ALL.COLLECTION,query)
 		.then(function(result){
 			if (result)
 				next();
@@ -137,28 +141,25 @@ module.exports = function(app,logger,opts){
 		var type = req.query.type;
 
 		if (type == 'all'){
-			dbFunctions.removePGXGene(gene,req.user.username)
+			dbFunctions.drugs.removeEntry(gene,'all','Haplotype',req.user.username)
 			.then(function(result){
-				console.log(result);
 				if (result){
 					res.redirect('/success');
 				} else {
 					res.redirect('/failure');
 				}
 			}).catch(function(err){
-				console.log(err.stack);
 				res.redirect('/failure');
 			});
 		} else {
 			var id = ObjectId(req.query.id);
-			dbFunctions.removePGXHaplotype(id,gene,req.user.username)
+			dbFunctions.drugs.removeEntry(id,'haplotype','Haplotype',req.user.username)
 			.then(function(result){
 				if (result)
 					res.redirect('/success');
 				else
 					res.redirect('/failure');
 			}).catch(function(err){
-				console.log(err);
 				req.flash('message',err.message);
 				req.flash('error',err.stack);
 				res.redirect('/failure');
@@ -242,7 +243,6 @@ module.exports = function(app,logger,opts){
 		}).then(function(){
 			res.redirect('/success');
 		}).catch(function(err){
-			console.log(err.stack);
 			req.flash('message',err.message);
 			req.flash('error',err.stack);
 			res.redirect('/failure');
@@ -269,9 +269,9 @@ module.exports = function(app,logger,opts){
 		});
 	});
 
-	//Get a list of all the current haploytpes and geenes
+	//Get a list of all the current haploytpes and genes
 	app.get('/database/haplotypes/getgenes',utils.isLoggedIn,function(req,res){
-		dbFunctions.drugs.getGenes(req.user.username).then(function(result){	
+		dbFunctions.drugs.getGenes(req.user.username,'Haplotype').then(function(result){	
 			res.send(result);
 		});
 	})
@@ -475,10 +475,11 @@ module.exports = function(app,logger,opts){
 	app.get('/database/markers/getmarkers/:marker',utils.isLoggedIn,function(req,res){
 		var marker = req.params.marker;
 		dbFunctions.getPGXCoords(marker,req.user.username).then(function(result){
-			if (result)
+			var keys = Object.keys(result);
+			if (keys.length > 0)
 				res.send(result);
 			else 
-				res.send(undefined);
+				res.redirect('/failure');
 		});
 	})
 };

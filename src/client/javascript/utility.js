@@ -122,11 +122,16 @@ module.exports = {
 	matchSearch :function(input){
 		var val = $('#search-box').val();
 		var re = new RegExp(val,'i');
-		if ( val === '' )
-			return true;
-		else if (input.match(re) !== null)
-			return true;
-		return false;
+		if (val == '') return true;
+		if (Object.prototype.toString.call(input) == '[object String]'){
+			if (input.match(re) !== null) return true;
+			return false;
+		} else if (Object.prototype.toString.call(input) == '[object Array]'){
+			for (var i = 0 ; i < input.length; i++ ){
+				if (input[i].match(re) !== null) return true;
+			}
+			return false;
+		}
 	},
 
 	/* Using the E-utils tool from ncbi, generate a citation from a pubmed id
@@ -145,7 +150,7 @@ module.exports = {
 			type:"GET",
 			dataType:'json',
 			cache:false,
-			timeout:3000
+			timeout:20000
 		})).then(function(result){
 			var citations = {}; //citations per id;
 			var citation,authorString;
@@ -214,16 +219,94 @@ module.exports = {
 	/* Checks the width of the element or elements defined 
 	 * and if it is larger then a specific size, adds a scrollbar
 	 */
-	checkWidth : function(inner,outer){
+	checkWidth : function(inner,outer,cb){
+		promise = Promise.resolve().then(function(){
+			var ele1 = $(inner);
+			var ele2 = $(outer);
+			if (ele1[0].offsetWidth < ele2[0].scrollWidth){
+				ele2.addClass('scrollit2');
+			} else {
+				ele2.removeClass('scrollit2');
+			}
+			return
+		}).then(function(){
+			if(cb)
+				return cb()
+		})
+	},
+	getSuggestions : function(term,collection,num,gene){
 
-		var ele1 = $(inner);
-		var ele2 = $(outer);
-		if (ele1[0].offsetWidth < ele2[0].scrollWidth){
-			ele2.addClass('scrollit2');
-		} else {
-			ele2.removeClass('scrollit2');
+		var gene = gene !== undefined ? '&gene=' + gene : ""
+		// One of Marker, drug, gene, haplotype, user
+		return Promise.resolve($.ajax({
+			url:'/database/suggestions?term=' + term +'&num=' + num + '&col=' + collection + gene,
+			type:"GET",
+			dataType:'json',
+			contentType:'application/json'
+		})).then(function(result){
+			return result;
+		}).catch(function(err){
+			console.log(err);
+		})
+	},
+
+	suggestionHandlers : function (){
+		var _this = this;
+		var clickRow = function(){
+			$('.suggestion').on('click.suggestion',function(){
+				var input = $($(this).closest('.suggestions').attr('for'));
+				input.val($(this).text());
+				input.trigger('change');
+				$('.suggestion-list').html('').closest('.suggestions').slideUp();
+			});
 		}
-		
+
+		$(document).on('mouseup.suggestion',function(e){
+			var targ1 = $('.suggestion-input');
+			var targ2 = $('.suggestion-list,.suggestion');
+			var target = e.target;
+			if (!targ1.is(target) && !targ2.is(target)){
+				$('.suggestion-list').html('').closest('.suggestions').slideUp();
+			}
+
+		});
+
+		$('.suggestion-input').on('keyup.suggestion',function(e){
+			var context = $(this);
+			$(this).removeClass('glowing-error').attr('placeholder','');
+			var col = $(this).data('col');
+			var num = $(this).data('num');
+			var gene = $(this).data('gene');
+			var v = $(this).val();
+			if (v.length  > 0 ){
+				//get the suggestion from the server
+
+				_this.getSuggestions(v,col,num,gene).then(function(result){
+					var html = "";
+					if (result.length > 0){
+						for (var i = 0; i < result.length; i++ ){
+							var val = v.replace(/\*/g,'\\*').replace(/\+/g,"\\+");
+							var reg = new RegExp(val,'i')
+							var searchIndex = result[i].search(reg);
+							html += '<li class="suggestion">'
+							for (var j = 0; j < result[i].length; j++ ){
+								if (j == searchIndex) html += '<b class=suggetion-match>'
+								html += result[i][j];
+								if (j - searchIndex == val.length -1) html += '</b>'
+							}
+							html += '</li>'
+						}
+					} else {
+						html += '<li><i>No Suggestions</i></li>'
+					}
+					return context.siblings('.suggestion-wrapper').find('.suggestion-list').html(html).closest('.suggestions').slideDown();
+				}).then(function(){
+					clickRow();
+				});
+			} else {
+				$('.suggestion-list').html('').closest('.suggestions').slideUp();	
+			}
+		});
 	}
 
 	

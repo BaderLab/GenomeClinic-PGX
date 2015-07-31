@@ -237,33 +237,6 @@ var utility = require('./utility'),
 			});
 		});
 		//Form is submitted and listening for a valid even from the foundation event 
-		//Trigger
-		/*sel.on('valid.fndtn.abide',function(){
-			var _this = this;
-			var array = $(this).serializeArray();
-			var input = serializeNewMarker(array);
-			input.id = $(this).find('.marker-name').text();
-			//now send the updated input to the server
-			Promise.resolve($.ajax({
-				url:'/markers/current/' + input.id,
-				type:'POST',
-				contentType:'application/json',
-				dataType:'json',
-				data:JSON.stringify(input)
-			})).then(function(result){
-				if (result.status === 'ok'){
-					$(_this).find('.chr').text(input.chr)
-					.closest(_this).find('.asgenes').text(input.asgenes)
-					.closest(_this).find('.ref').text(input.ref)
-					.closest(_this).find('.alt').text(input.alt.join())
-					.closest(_this).find('.edit').hide()
-					.closest(_this).find('.static-marker-field').show('fast',function(){
-						refreshClick($(_this));
-					});
-				}
-			});
-		});*/
-
 	}
 
 	//Serialize the markers into an object and return the object
@@ -282,17 +255,6 @@ var utility = require('./utility'),
 			return input;
 		}	
 
-		/* match funcion for the searchbar */
-	var matchSearch = function(input){
-		var val = $('#search-box').val();
-		var re = new RegExp(val,'g','i');
-		if ( val === '' )
-			return true;
-		else if (input.match(re) !== null)
-			return true;
-		return false;
-	};
-
 	//Static page handlers
 	var statichandlers = function(){
 
@@ -303,8 +265,15 @@ var utility = require('./utility'),
 
 		$('#search-box').on('keyup',function(){
 			var items = $('.marker-row');
+			var searchArr;
+			var obj;
+			var keys;
 			for (var i=0; i<items.length;i++){
-				if (!matchSearch($(items[i]).find('.marker-name').text())){
+				obj = $(items[i]).find('form').data();
+				keys = Object.keys(obj)
+				searchArr = keys.map(function(item){if (Object.prototype.toString.call(obj[item]) != '[object Object]') return obj[item].toString()}).filter(function(item){if (item) return item})
+				searchArr.push($(items[i]).find('form').attr('id'));
+				if (!utility.matchSearch(searchArr)) {
 					$(items[i]).hide();
 				} else {
 					$(items[i]).show();
@@ -457,17 +426,12 @@ var utility = require('./utility'),
 	var main = function(){
 		//render the html
 		var dbMarkers = {}, customMarkers = {};
-		return templates.markers.index()
-		.then(function(renderedHtml){
-			return $('#main').html(renderedHtml);
-		}).then(function(){
-			return Promise.resolve($.ajax({
-				url:'/database/markers/getmarkers',
-				type:'GET',
-				dataType:'json',
-				contentType:'application/json'
-			}));
-		}).then(function(result){
+		return Promise.resolve($.ajax({
+			url:'/database/markers/getmarkers',
+			type:'GET',
+			dataType:'json',
+			contentType:'application/json'		
+		})).then(function(result){
 			for (marker in result){
 				if (result.hasOwnProperty(marker)){
 					if (result[marker].type == 'dbsnp') dbMarkers[marker] = result[marker];

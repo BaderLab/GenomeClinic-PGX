@@ -64,18 +64,12 @@
 						<br>
 						<div class="row">
 							<div class="large-6 small-12 medium-6 columns">
-								<div class="row collapse prefix-radius">
-									<div class="large-4 small-4 medium-4 columns">
-										<span class="prefix">Risk</span>
+								<div class="row">
+									<div class="large-3 small-3 medium-3 columns">
+										<h4>Flag?</h4>
 									</div>
-									<div class="large-8 small-8 medium-8 columns left">
-										<select name="risk" disabled="disabled" data-originalvalue="{{risk}}" value="{{risk}}">
-											<option><option>
-											<option>Low</option>
-											<option>Medium</option>
-											<option>High</option>
-										</select>
-										<small class="error">Required</small>
+									<div class="large-9 small-9 medium-9 columns left">
+										<a href="#" data-originavalue="{{#unless flagged}}false{{/unless}}"class="button flag {{#unless flagged}}secondary{{/unless}} tiny radius"><i class="fa fa-flag"></i></a>
 									</div>
 								</div>
 							</div>

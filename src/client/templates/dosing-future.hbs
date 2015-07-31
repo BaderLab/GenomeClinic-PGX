@@ -29,6 +29,14 @@
 				</div>
 			</div>
 			<div class="row">
+				<div class="large-3 small-3 medium-3 columns">
+					<h4>Flag?</h4>
+				</div>
+				<div class="large-9 small-9 medium-9 columns left">
+					<a href="#" data-originavalue="{{#unless flagged}}false{{/unless}}"class="button flag {{#unless flagged}}secondary{{/unless}} tiny radius"><i class="fa fa-flag"></i></a>
+				</div>
+			</div>
+			<div class="row">
 				<div class="large-12 small-12 medium-12 columns">
 					<label><h6><b>Recommendation</b></h6></label>			
 					<textarea data-originalvalue="{{rec}}" disabled="disabled" name="rec" rows=3 required>{{rec}}</textarea>

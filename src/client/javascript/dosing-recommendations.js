@@ -103,6 +103,10 @@ module.exports = {
 		var fields = $('form').serializeArray();
 		var currDrugs = $('.patient-drug-name');
 		var currDose = $('.patient-drug-dose');
+		var currFreq = $('.patient-drug-frequency');
+		var currRoute = $('.patient-drug-route');
+		var currNotes = $('.patient-drug-notes');
+		var moI = $('#patient-drug-of-interest').find('li');
 		output.patient = {};
 		output.dr = {};
 		//Loop over all the fields
@@ -142,12 +146,17 @@ module.exports = {
 			output.patient.medications= "";
 			output.patient.allMedications = [];
 			for (i = 0; i < currDrugs.length; i ++ ){
-				output.patient.allMedications.push({name:$(currDrugs[i]).text(),dose:$(currDose[i]).text()});
+				output.patient.allMedications.push({name:$(currDrugs[i]).text(),dose:$(currDose[i]).text(),route:$(currRoute[i]).text(),frequency:$(currFreq[i]).text(),notes:$(currNotes[i]).text()});
 				if (output.patient.medications !== "") output.patient.medications += ', '
 				output.patient.medications += $(currDrugs[i]).text() + ' at ' + $(currDose[i]).text()
 
 			}
 			//Convert the current drugs form an array into text
+		}
+
+		output.drugsOfInterest = [];
+		for (var i = 0; i < moI.length; i++ ){
+			output.drugsOfInterest.push($(moI[i]).find('span').text());
 		}
 		return output;
 	},
@@ -159,7 +168,7 @@ module.exports = {
 	serializeRecommendations : function(){
 		var output = {drugs:[],citations:[]}
 		var temp,drug,pubmed,genes,classes,index;
-		var fields = $('.recommendation-field'); 
+		var fields = $('.recommendation-field:visible'); 
 		// Gather all of the receomendations
 		//If the user has toggled the recommendations off dont iterate over them
 		if ($('#drug-recommendations').is(':visible')){
@@ -175,11 +184,14 @@ module.exports = {
 					temp.flagged = true;
 				}
 
-				$(fields[i]).each(function(ind,item){
-					temp.genes.push($(item).find('.gene-name').find('i').text())
-					temp.classes.push($(item).find('.class-name').find('i').text())
+				$(fields[i]).find('.gene-name').each(function(ind,gene){
+					temp.genes.push($(gene).text());
+				})
+				$(fields[i]).find(".class-name").each(function(ind,className){
+					temp.classes.push($(className).text());
 				});
-
+					//temp.genes.push($(item).find('.gene-name').find('i').text())
+					//temp.classes.push($(item).find('.class-name').find('i').text()			
 				pubmed = $(fields[i]).find(".pubmed");
 				//add the associated citations
 				for(var j=0; j < pubmed.length; j++ ){
@@ -205,7 +217,7 @@ module.exports = {
 	serializeFuture : function (){
 		output = [];
 		var temp;
-		var fields = $('.future-field')
+		var fields = $('.future-field:visible')
 		if ($('#drug-recommendations').is(':visible')){
 			for (var i = 0; i < fields.length; i++ ){
 				temp = {};
@@ -234,17 +246,9 @@ module.exports = {
 		output.recommendations = recs.drugs;
 		output.genes = this.serializeTable();
 		output.future = this.serializeFuture();
-		var flags = $('.flag');
+		var flags = $('.flag:visible');
 		for (var i = 0; i < flags.length; i++ ){
 			if(!$(flags[i]).hasClass('secondary')) output.flagged = true;
-		}
-		if (output.recommendations){
-			output.drugsOfInterest = [];
-			for (var i = 0; i < output.recommendations.length; i++ ){
-				output.drugsOfInterest.push(output.recommendations[i].drug);
-			}
-
-			output.drugsOfInterest = output.drugsOfInterest.join(', ');
 		}
 		return output;
 	},
@@ -422,6 +426,27 @@ module.exports = {
 			});
 		};
 
+		var removeLink = function(ele){
+			ele.on('click',function(e){
+				e.preventDefault();
+				$(this).closest('li').remove();
+			});
+		};
+
+
+		$('#add-drug-of-interest').on('click',function(e){
+			e.preventDefault();
+			var val = $('#patient-drug-of-interest-input').val();
+			if (val !== "" ){
+				var html = "<li class='multicol'><span>" + val + "</span>&nbsp&nbsp<a href='#'><i class='fi-x'></i></a></li>";
+				$('ol.multicol').append(html);
+				removeLink($('ol.multicol').last('li').find('a'));
+				$('#patient-drug-of-interest-input').val('')
+			} else {
+				$('#patient-drug-of-interest-input').addClass("glowing-error");
+			}
+		});
+
 		/* anytime the user changes any of therapeutic classes in the PGX analyisis table, check to see if
 		 * there are any new recommendations and re-render the contents */
 		$('.therapeutic-class').on('change',function(){
@@ -464,16 +489,20 @@ module.exports = {
 			e.preventDefault();
 			var val = $('#patient-new-drug').val();
 			var dose = $('#patient-new-dose').val();
-			if (val !== "" && dose !== ""){
-				$('#patient-new-drug').val('');
-				var html = "<tr><td class='patient-drug-name'>" + val + "</td><td class='patient-drug-dose text-center'>" + dose + "</td><td class='text-center'><a href='#'><i class='fi-x'></i></a></td></tr>";
+			var freq = $('#patient-new-frequency').val();
+			var route = $('#patient-new-route').val();
+			var notes = $('#patient-new-notes').val();
+			if (val !== "" && dose !== "" && freq !== "" && route !== ""){
+				var html = "<tr><td class='patient-drug-name'>" + val + "</td><td class='patient-drug-dose text-center'>" + dose + "</td>"
+				html += '<td class="patient-drug-route text-center">' + route + '</td><td class="patient-drug-frequency text-center">' + freq + '</td>';
+				html += '<td class="patient-drug-notes">'+notes+"</td><td class='text-center'><a href='#'><i class='fi-x'></i></a></td></tr>";
 				$('#patient-drug-table').find('tbody').append(html);
 				removeRow($('#patient-drug-table').find('tbody').last('tr').find('a'));
 				if (!$('#patient-drug-table').is(":visible")){
 					$('#patient-drug-table').show();
 				}
-				
 
+				$('#patient-new-drug,#patient-new-dose,#patient-new-notes,#patient-new-frequency,#patient-new-route').val('');
 			}
 		});
 
@@ -618,7 +647,6 @@ module.exports = {
 				$('#main').html(renderedHtml);
 		}).then(function(){
 			return _this.getHaplos();
-			
 			// get information from each gene
 		}).then(function(){
 			return _this.getRecommendations();
@@ -629,6 +657,7 @@ module.exports = {
 			return utility.refresh(abideOptions);
 		}).then(function(){
 			//add hanlders
+			utility.suggestionHandlers();
 			_this.staticHandlers();
 		}).catch(function(err){
 			console.error(err);

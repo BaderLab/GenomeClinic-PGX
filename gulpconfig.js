@@ -42,6 +42,10 @@ module.exports = {
 			name:'templates.js',
 			dest:'build/public/js'
 		},
+		partials:{
+			src:'./src/client/templates/partials/*',
+			dest:'build/views/partials'
+		},
 		modernizr:{
 			src:'bower_components/modernizr/modernizr.js',
 			dest:'build/public/js/vendor'

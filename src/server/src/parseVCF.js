@@ -109,7 +109,6 @@ var read = function(){
 				.then(function(){
 					stream.resume();
 					ops.reading = false;
-					resolve(stream);
 				}).catch(function(err){
 					stream.destroy();
 					reject(err);
@@ -142,8 +141,10 @@ var read = function(){
 			}).then(function(){
 				logger('info','all jobs complete',{user:ops.user,target:ops.file,action:'parseVCF'});
 				resolve('done');
+			}).catch(function(err){
+				reject(err);
 			});
-		});
+		})
 
 		stream.on('error',function(err){
 			logger('error',err,{user:ops.user,target:ops.file,action:'parseVCF'})
@@ -433,12 +434,10 @@ var checkAndInsertDoc = function(patient){
 		
 		dbFunctions.insertMany(options,ops.user)
 		.then(function(){
-			ops.patientObj[patient].documents = [];//self.patientObj[patient]['documents'].slice(ind);
+			ops.patientObj[patient].documents = [];
 			ops.patientObj[patient].insertCache = [];
 			resolve(ops.patientObj[patient].documents.length);
-		}).catch(function(err){
-			logger('error',err,{user:ops.user,target:ops.file,action:'checkAndInsertDoct'})
-		});
+		})
 	});
 	return promise;
 };
@@ -604,10 +603,6 @@ var resetOps = function(){
 //==============================================================================================================
 
 var run = function(file, patients, user,remove){
-	var options = {
-		patients : patients,
-		user : user
-	}
 
 	ops.file = file;
 	ops.user = user;

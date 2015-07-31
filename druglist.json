@@ -1,0 +1,507 @@
+[
+    {
+        "_id": "Tolterodine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7801#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7801#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122519#"
+    },
+    {
+        "_id": "Tramadol",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7795#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7795#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122516#"
+    },
+    {
+        "_id": "Trimipramine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7829#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7829#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122525#"
+    },
+    {
+        "_id": "Venlafaxine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7862#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7862#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122530#"
+    },
+    {
+        "_id": "Voriconazole",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3385141#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3385141#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122535#"
+    },
+    {
+        "_id": "Vortioxetine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/4720782#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/4720782#",
+        "pharmacogenetics": ""
+    },
+    {
+        "_id": "Warfarin",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3385126#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3385126#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122536#"
+    },
+    {
+        "_id": "Zuclopenthixol",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7903",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122542#"
+    },
+    {
+        "_id": "Abacavir",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3361659#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3361659#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122077#"
+    },
+    {
+        "_id": "Acenocoumarol",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/150061#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/150061#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/1152639#"
+    },
+    {
+        "_id": "Allopurinol",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3361899#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3361899#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122087#"
+    },
+    {
+        "_id": "Amitriptyline",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3452473#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3452473#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/pated_f/400464#"
+    },
+    {
+        "_id": "Second generation antipsychotics",
+        "monograph": "",
+        "pharmacogenetics": ""
+    },
+    {
+        "_id": "Aripiprazole",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6384#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6384#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122103#"
+    },
+    {
+        "_id": "Atomoxetine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6398#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6398#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122108#"
+    },
+    {
+        "_id": "Azathioprine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3366976#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3366976#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122109#"
+    },
+    {
+        "_id": "Boceprevir",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/3439545#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/3439545#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/3597202#"
+    },
+    {
+        "_id": "Bupropion",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6485#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6485#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122128#"
+    },
+    {
+        "_id": "Capecitabine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6519#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6519#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122135#"
+    },
+    {
+        "_id": "Carbamazepine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3369260#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3369260#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122137#"
+    },
+    {
+        "_id": "Carisoprodol",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6540#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6540#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122139#"
+    },
+    {
+        "_id": "Carvedilol",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3369262#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3369262#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122141#"
+    },
+    {
+        "_id": "Celecoxib",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6565#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6565#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122144#"
+    },
+    {
+        "_id": "Cevimeline",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6578#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6578#",
+        "pharmacogenetics": ""
+    },
+    {
+        "_id": "Cisplatin",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3452359#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3452359#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122158#"
+    },
+    {
+        "_id": "Citalopram",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3369277#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3369277#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122159#"
+    },
+    {
+        "_id": "Clobazam",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3369303#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3369303#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122163#"
+    },
+    {
+        "_id": "Clomipramine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3452472#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3452472#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122166#"
+    },
+    {
+        "_id": "Clopidogrel",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3369307#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3369307#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122169#"
+    },
+    {
+        "_id": "Clozapine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6649#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6649#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122171#"
+    },
+    {
+        "_id": "Codeine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6653#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6653#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122173#"
+    },
+    {
+        "_id": "Desipramine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3452471#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3452471#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122182#"
+    },
+    {
+        "_id": "Dexlansoprazole",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/1658719#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/1658719\\#",
+        "pharmacogenetics": ""
+    },
+    {
+        "_id": "Dextromethorphan and quinidine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/2940100#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/2940100#",
+        "pharmacogenetics": ""
+    },
+    {
+        "_id": "Diazepam",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3378024#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3378024#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/pated_f/400748#"
+    },
+    {
+        "_id": "Doxepin",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/1827021#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/1827021#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/2139761#"
+    },
+    {
+        "_id": "Drospirenone and ethinyl estradiol",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6799#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6799#",
+        "pharmacogenetics": ""
+    },
+    {
+        "_id": "Duloxetine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6798#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6798#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/1153441#"
+    },
+    {
+        "_id": "Escitalopram",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6846#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6846#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122221#"
+    },
+    {
+        "_id": "Esomeprazole",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3001039#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3001039#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122223#"
+    },
+    {
+        "_id": "Flecainide",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3416841#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3416841#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122250#"
+    },
+    {
+        "_id": "Fluorouracil",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3452370#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3452370#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/2139773#"
+    },
+    {
+        "_id": "Fluoxetine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3416844#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3416844#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122253#"
+    },
+    {
+        "_id": "Flupenthixol",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6933#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6933#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122254#"
+    },
+    {
+        "_id": "Flurbiprofen",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/1797302#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/1797302#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/2139775#"
+    },
+    {
+        "_id": "Fluvoxamine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6942#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6942#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122262#"
+    },
+    {
+        "_id": "Galantamine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6964#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6964#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122270#"
+    },
+    {
+        "_id": "Glibenclamide",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6988#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6988#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122276#"
+    },
+    {
+        "_id": "Gliclazide",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6979#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6979#",
+        "pharmacogenetics": ""
+    },
+    {
+        "_id": "Glimepiride",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6980#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/6980#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122274#"
+    },
+    {
+        "_id": "Haloperidol",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3433663#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3433663#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122281#"
+    },
+    {
+        "_id": "Hormonal contraceptives for systemic use",
+        "monograph": "",
+        "pharmacogenetics": ""
+    },
+    {
+        "_id": "Iloperidone",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/1731499#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/1731499#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/3456864#"
+    },
+    {
+        "_id": "Imipramine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3452470#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3452470#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122297#"
+    },
+    {
+        "_id": "Indacaterol",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/3479346#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/3479346#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/3616082#"
+    },
+    {
+        "_id": "Irinotecan",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3452427#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3452427#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122303#"
+    },
+    {
+        "_id": "Ivacaftor",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/3636103#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/3636103#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/3695263#"
+    },
+    {
+        "_id": "Lansoprazole",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3435838#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3435838#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122314#"
+    },
+    {
+        "_id": "Mercaptopurine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3452423#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3452423#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122343#"
+    },
+    {
+        "_id": "Methotrexate",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3439572#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3439572#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/3388659#"
+    },
+    {
+        "_id": "Metoprolol",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3435580#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3435580#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122359#"
+    },
+    {
+        "_id": "Mirtazapine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7305#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7305#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122365#"
+    },
+    {
+        "_id": "Moclobemide",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7309#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7309#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122367#"
+    },
+    {
+        "_id": "Modafinil",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7312#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7312#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122368#"
+    },
+    {
+        "_id": "Nefazodone",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7350#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7350#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122383#"
+    },
+    {
+        "_id": "Nortriptyline",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7385#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7385#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122395#"
+    },
+    {
+        "_id": "Olanzapine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3407240#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3407240#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122398#"
+    },
+    {
+        "_id": "Omeprazole",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3002822#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3002822#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122401#"
+    },
+    {
+        "_id": "Oxycodone",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3407245#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3407245#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122405#"
+    },
+    {
+        "_id": "Pantoprazole",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3002825#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3002825#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122410#"
+    },
+    {
+        "_id": "Paroxetine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7442#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7442#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122412#"
+    },
+    {
+        "_id": "Peginterferon-alfa-2a",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7447#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7447#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/3597165#"
+    },
+    {
+        "_id": "Peginterferon-alfa-2b",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7448#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7448#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/3597182#"
+    },
+    {
+        "_id": "Perphenazine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7472#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7472#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122418#"
+    },
+    {
+        "_id": "Phenytoin",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3003239#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3003239#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122421#"
+    },
+    {
+        "_id": "Pimozide",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7494#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7494#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122422#"
+    },
+    {
+        "_id": "Prasugrel",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/1803419#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/1803419#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/3654303#"
+    },
+    {
+        "_id": "Propafenone",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3406799#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3406799#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122437#"
+    },
+    {
+        "_id": "Propranolol",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3003319#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3003319#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122441#"
+    },
+    {
+        "_id": "Protriptyline",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7582#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7582#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122442#"
+    },
+    {
+        "_id": "Quinidine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7601#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7601#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122445#"
+    },
+    {
+        "_id": "Rabeprazole",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7604#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7604#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122447#"
+    },
+    {
+        "_id": "Rasburicase",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3402053#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3402053#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122452#"
+    },
+    {
+        "_id": "Ribavirin",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3415490#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3415490#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/3597183#"
+    },
+    {
+        "_id": "Risperidone",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3402052#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3402052#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122460#"
+    },
+    {
+        "_id": "Sertraline",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3402048#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3402048#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122470#"
+    },
+    {
+        "_id": "Simvastatin",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7671#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7671#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122475#"
+    },
+    {
+        "_id": "Tacrolimus",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3385181#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3385181#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/2139820#"
+    },
+    {
+        "_id": "Tamoxifen",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7724#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7724#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122492#"
+    },
+    {
+        "_id": "Tegafur",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7847#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7847#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/4647254#"
+    },
+    {
+        "_id": "Telaprevir",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/3445779#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/3445779#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/3597203#"
+    },
+    {
+        "_id": "Terbinafine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/751#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/751#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/2139822#"
+    },
+    {
+        "_id": "Tetrabenazine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/150063#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/150063#",
+        "pharmacogenetics": ""
+    },
+    {
+        "_id": "Thioguanine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3452438#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3452438#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122503#"
+    },
+    {
+        "_id": "Thioridazine",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7759#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7759#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122504#"
+    },
+    {
+        "_id": "Ticagrelor",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/3452307#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/3452307#",
+        "pharmacogenetics": ""
+    },
+    {
+        "_id": "Tolbutamide",
+        "monograph": "http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7785#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/7785#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122512#"
+    },
+    {
+        "_id": "Isoniazid",
+        "monograph": "#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3435830#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/122304#"
+    },
+    {
+        "_id": "Ondansetron",
+        "monograph": "#http://online.lexi.com/lco/action/doc/retrieve/docid/sickkids_f/3407241#",
+        "pharmacogenetics": "#http://online.lexi.com/lco/action/doc/retrieve/docid/genom_f/1259824#"
+    },
+    {
+        "_id": "Cerivastatin",
+        "monograph": "#http://online.lexi.com/lco/action/doc/retrieve/docid/fc_fms/4791803#",
+        "pharmacogenetics": ""
+    },
+    {
+        "_id": "Statins",
+        "monograph": "#http://online.lexi.com/lco/action/doc/retrieve/docid/patch_f/4258#",
+        "pharmacogenetics": ""
+    }
+]
