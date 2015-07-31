@@ -219,16 +219,20 @@ module.exports = {
 	/* Checks the width of the element or elements defined 
 	 * and if it is larger then a specific size, adds a scrollbar
 	 */
-	checkWidth : function(inner,outer){
-
-		var ele1 = $(inner);
-		var ele2 = $(outer);
-		if (ele1[0].offsetWidth < ele2[0].scrollWidth){
-			ele2.addClass('scrollit2');
-		} else {
-			ele2.removeClass('scrollit2');
-		}
-		
+	checkWidth : function(inner,outer,cb){
+		promise = Promise.resolve().then(function(){
+			var ele1 = $(inner);
+			var ele2 = $(outer);
+			if (ele1[0].offsetWidth < ele2[0].scrollWidth){
+				ele2.addClass('scrollit2');
+			} else {
+				ele2.removeClass('scrollit2');
+			}
+			return
+		}).then(function(){
+			if(cb)
+				return cb()
+		})
 	},
 	getSuggestions : function(term,collection,num,gene){
 

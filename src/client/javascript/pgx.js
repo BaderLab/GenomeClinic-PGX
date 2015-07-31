@@ -484,9 +484,8 @@ var pgx =  {
 		var genes = Object.keys(this.globalPGXData.pgxGenes);
 		var table,container;
 		for (var i = 0; i< genes.length; i++){
-			table = $('#table' + genes[i]).find('.patient-haplotype-table')[0]
+			table = $('#table' + genes[i]).find('.patient-haplotype-table,.all-possible-haplotypes')[0] 
 			container = $('#table' + genes[i])[0]
-
 			if (table && container)utility.checkWidth(table,container);
 		}
 		//utility.checkWidth()
