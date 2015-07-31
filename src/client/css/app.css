@@ -202,7 +202,7 @@ tr.patient-genotype-row {
 /* Formatting for haplotype expansion "+" buttons. */
 .haplotype-expand {
   color: #FFAD99;
-  /*font-size: 18pt;*/
+  /*font-size: 30pt;*/
   /*transition: 0.3s ease-in-out;*/
   /*transform: rotate(45deg);*/
 }
