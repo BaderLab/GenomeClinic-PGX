@@ -1,8 +1,14 @@
 var constants = require('../lib/conf/constants.json')
 var dbFunctions = require(constants.nodeConstants.SERVER_DIR + "/models/mongodb_functions"),
 	_ = require('underscore');
+	glob = require('glob');
 /* utility functions available for all routes
  * @author Patrick Magee */
+
+
+/* retrive the partials from the partials directory*/
+var partialsArr = glob.GlobSync(constants.nodeConstants.SERVER_DIR + '/' + constants.nodeConstants.PARTIALSDIR + '/*').found;
+
 module.exports = {
 	/* when give the request check to ensure that the user is serialized to an active session
 	 * or not. If they are move to the next function, else redirect them to /login
@@ -45,6 +51,16 @@ module.exports = {
 		if (!_o){ // initialize _o if not set
 			_o = {};
 		}
+
+		if (!_o.partials)	//Add partials to the partials option.
+			_o.partials = {};
+		for (var i = 0; i < partialsArr.length; i++){
+			var file = partialsArr[i].split(/[\/\\]/g).splice(-1)[0].split('.')
+			var name = file[0]
+			var ext = '.' + file[1];
+			_o.partials[name] = 'partials' + '/' + name;
+		}
+
 		if (!_o.scripts) //initialize _o.scripts if not passed
 			_o.scripts = [];
 		//scripts can be an array or a string, however for the template an array is required.
@@ -59,9 +75,9 @@ module.exports = {
 
 		if (!_o.title)
 			_o.title = 'PGX webapp';
-		if(!_o.cache)
-			_o.cache = true;
-
+		if(_o.cache == undefined)
+			//_o.cache = true;
+			_o.cache = false;
 		//if a type is given this indicates taht the
 		if (_o.type == "construction")
 			_o.construction = true;
