@@ -43,47 +43,9 @@ var utility = require('./utility'),
 			});
 	};
 	var checkAuthAndRender = function(){
-		return Promise.resolve($.ajax({
-			url:'/auth/check',
-			type:'GET',
-			contentType:'application/json'	
-		})).then(function(result){
-			var opts = {};
-			if (location == '/signup'){
-				if (result.signup){
-					opts.login = result.login;
-					opts.recover = result.recover;
-					t = templates.signup;
-				} else {	
-					t = templates.notfound;
-				}
-			} else if (location =='/recover') {
-				if (result.recover){
-					opts.login = result.login;
-					opts.signup = result.signup;
-					t = templates.recover;
-				} else {
-					t = templates.notfound;
-				}
-			} else if (location == '/login'){
-				opts.signup = result.signup;
-				opts.recover = result.recover;
-				t = templates.login;
-			} else if (location == '/setpassword'){
-				t = templates.setpassword;
-			}
-			if (result.oauth)
-				opts.oauth = true;
-			t(opts).then(function(renderedHtml){
-				$('#main').html(renderedHtml);
-			}).then(function(){
-				utility.refresh();
-			}).then(function(){
-				abideVal();
-			}).then(function(){
-				submitHandler();
-			});
-		});
+		utility.refresh();
+		abideVal();
+		submitHandler();
 	};
 	//=======================================================================
   	// Submit the form, and add handlers

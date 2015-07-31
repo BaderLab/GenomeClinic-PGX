@@ -72,7 +72,7 @@
 			</thead>
 			<tbody>
 				{{#each genes}}
-				<tr class="dose-row" onclick="document.location='/dosing/current/{{gene}}'" data-gene="{{gene}}">
+				<tr class="dose-row" onclick="document.location='/dosing/current/{{gene}}'" data-gene="{{gene}}" data-enzymaticclass="{{lookUpIdInfo @root.classes type 'fullname'}}">
 					<td>{{gene}}</td>
 					<td>{{lookUpIdInfo @root.classes type 'fullname'}}</td>
 					<td class="text-center">{{numRecs}}</td>

@@ -31,7 +31,7 @@ module.exports = function(req,res,reportName,template,options,logger){
 	//get template dir and pass this information into the handlebars template,
 	//This can be used to ensure proper inclusion of CSS and other elements for non
 	//Default templates
-	//req.body.DIR = template.replace(/\/([^\/])*$/,"");
+	req.body.DIR = template.replace(/\/([^\/])*$/,"");
 	//console.log(req.body.DIR);
 
 	//Turn the process into a promise.

@@ -122,11 +122,16 @@ module.exports = {
 	matchSearch :function(input){
 		var val = $('#search-box').val();
 		var re = new RegExp(val,'i');
-		if ( val === '' )
-			return true;
-		else if (input.match(re) !== null)
-			return true;
-		return false;
+		if (val == '') return true;
+		if (Object.prototype.toString.call(input) == '[object String]'){
+			if (input.match(re) !== null) return true;
+			return false;
+		} else if (Object.prototype.toString.call(input) == '[object Array]'){
+			for (var i = 0 ; i < input.length; i++ ){
+				if (input[i].match(re) !== null) return true;
+			}
+			return false;
+		}
 	},
 
 	/* Using the E-utils tool from ncbi, generate a citation from a pubmed id

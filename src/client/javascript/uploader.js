@@ -417,11 +417,6 @@ require("./lib/jquery.fileupload");*/
 
   //render main page html
  $(document).ready(function(){
-    return templates.uploadpage.index()
-    .then(function(renderedHtml){
-      $('#main').html(renderedHtml);
-    }).then(function(){
-      addAllEventListeners();
-    });
+    addAllEventListeners();
   });
 })();

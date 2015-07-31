@@ -12,6 +12,8 @@ associated with the current gene. Additionally, it enables the user to add new e
 		<div class="row">
 			<div class="large-10 small-12 medium-8 columns">
 				<h1><i class="fa fa-medkit"></i>&nbsp{{gene}}</h1>
+				<p class="subheader">Enzymatic Class: {{lookUpIdInfo @root.allClasses type 'fullname'}}</p>
+				<p><a href="/definitions">More information on Enzymatic Classes and Predictors of Effect</a></p>
 			</div>
 			<div class="large-2 small-12 medium-4 columns">
 				<a href="#" class="button radius large-12 small-12 medium-12" id="delete-all" data-id="{{_id}}">Delete</a>
@@ -90,13 +92,13 @@ a new recommendation, future, haplotype. Deleting the page etc
 										</div>
 										<div class="large-8 small-8 medium-8 columns">
 											<input type="text" name="drug" required id="drugname" class="suggestion-input" data-col="drugs" data-num="10">
-											<small class="error">Required</small>
 											<div class="suggestion-wrapper">
 												<div class="suggestions" for="#drugname" style="z-index:100">
 													<ul class="suggestion-list">
 													</ul>
 												</div>
 											</div>
+											<small class="error">Required</small>
 										</div>
 									</div>
 								</div>

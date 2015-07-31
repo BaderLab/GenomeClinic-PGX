@@ -41,7 +41,7 @@ module.exports = function(app,logger,opts){
 	});
 
 	app.get('/markers',utils.isLoggedIn,function(req,res){
-		utils.render(req,res,{scripts:'markers-page.js'});
+		utils.render(req,res,{scripts:'markers-page.js',markers:true});
 	});
 
 

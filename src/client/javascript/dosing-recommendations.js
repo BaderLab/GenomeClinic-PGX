@@ -441,6 +441,7 @@ module.exports = {
 				var html = "<li class='multicol'><span>" + val + "</span>&nbsp&nbsp<a href='#'><i class='fi-x'></i></a></li>";
 				$('ol.multicol').append(html);
 				removeLink($('ol.multicol').last('li').find('a'));
+				$('#patient-drug-of-interest-input').val('')
 			} else {
 				$('#patient-drug-of-interest-input').addClass("glowing-error");
 			}

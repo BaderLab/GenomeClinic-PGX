@@ -190,7 +190,7 @@
 							<div class="large-6 small-12 medium-6 columns">
 								<div class="row collapse prefix-radius">
 									<div class="large-4 small-4 medium-4 columns">
-										<span class="prefix"><b style="color:red">*</b> Weigth (kg)</span>
+										<span class="prefix"><b style="color:red">*</b> Weight (kg)</span>
 									</div>
 									<div class="large-8 small-8 medium-8 columns">
 										<input type="text" name="patient-weight" pattern="^\d{1,3}$" required>
@@ -258,7 +258,23 @@
 												<span class="prefix">Route</span>
 											</div>
 											<div class="large-8 small-8 medium-8 columns">
-												<input type="text" id="patient-new-route" placeholder="Drug Name">
+												<select id="patient-new-route">
+													<option>PO (oral)</option>
+													<option>Buccal</option>
+													<option>NG/G/J- tube</option>
+													<option>PR (rectal)</option>
+													<option>Topical</option>
+													<option>SC (subcutaneous)</option>
+													<option>IV (intravenous)</option>
+													<option>IM (intramuscular)</option>
+													<option>Ophthalmic</option>
+													<option>Otic</option>
+													<option>Nasal</option>
+													<option>Inhalation</option>
+													<option>TD (transdermal)</option>
+													<option>Vaginal</option>
+													<option>Other</option>
+												</select>
 											</div>
 										</div>
 									</div>

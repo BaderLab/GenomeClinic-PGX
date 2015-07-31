@@ -193,7 +193,7 @@ var utility = require('./utility');
 			$('#search-box').on('keyup',function(){
 				var currentRows = $('.dose-row');
 				for (var i=0; i < currentRows.length; i++ ){
-					if (!utility.matchSearch($(currentRows[i]).data('gene')))
+					if (!utility.matchSearch([$(currentRows[i]).data('gene'),$(currentRows[i]).data('enzymaticclass')]))
 						$(currentRows[i]).hide();
 					else 
 						$(currentRows[i]).show();
@@ -972,6 +972,7 @@ var utility = require('./utility');
 				}));
 			}).then(function(result){
 				resultObj.classes = result[resultObj.type].classes;
+				resultObj.allClasses = result;
 				pageOptions.classes = result;
 				var pubmedIds = [];
 				for (var i=0; i < resultObj.recommendations.length; i++ ){
