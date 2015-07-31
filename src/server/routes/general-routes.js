@@ -33,12 +33,12 @@ module.exports = function(app,logger,opts){
 				if (!configured) {
 					configured= resolved_config;
 				}
-				var options = {
-					code:{
+				var options = {default:true}
+					/*code:{
 						code: "$(document).ready(function(){templates.index({title:'PGX Webapp'}).then(function(renderedHtml){$('#main').html(renderedHtml);});});",
 						type:"text/javascript"
 					}
-				}
+				}*/
 				utils.render(req,res,options);
 			} else {
 				res.redirect('/config');
@@ -96,6 +96,9 @@ module.exports = function(app,logger,opts){
 	});
 
 
+	app.get('/definitions',utils.isLoggedIn,function(req,res){
+		utils.render(req,res,{definitions:true});
+	})
 	//==================================================================
 	//Generic DB  / utility routes
 	//==================================================================
@@ -144,7 +147,6 @@ module.exports = function(app,logger,opts){
 			res.send(result);
 		});
 	});
-
 	app.get('/database/suggestions',utils.isLoggedIn,function(req,res){
 		var mapper = {
 			marker : {
@@ -163,6 +165,10 @@ module.exports = function(app,logger,opts){
 				col : dbConstants.PGX.GENES.COLLECTION,
 				field : dbConstants.PGX.GENES.ID_FIELD,
 				gene : dbConstants.PGX.GENES.GENE
+			},
+			users : {
+				col : dbConstants.USERS.COLLECTION,
+				field : dbConstants.USERS.ID_FIELD
 			}
 		}
 
@@ -173,9 +179,8 @@ module.exports = function(app,logger,opts){
 		var multiple = req.query.multiple == 'true' ? 'g' : '';
 		var gene = req.query.gene || "";
 
-		if (mapper[collection] == num ){
-			req.flash('message','Invalid collection');
-			res.redirect('/failure');
+		if (mapper[collection] == undefined ){
+			res.send([]);
 			return;
 		}
 
