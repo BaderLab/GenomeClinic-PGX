@@ -3,93 +3,117 @@ Clinical Genomics Web App
 
 Web application for clinical pharmacogenomic interpretation.
 
-## Dependencies
-1. [Node.js](http://nodejs.org/)
-2. [MongoDB](http://mongodb.org/downloads)
-4. [PhantomJS](http://phantomjs.org/) 2.0.0 or later
-
+## Description
 Clinical Pharmacogenetics is a new and growing field with large implications for patient care. As genetic information becomes more readily available, the software used to interpret it must also become more broadly accesible and reliable for a wide range of client usage. GenomeClinic-PGX attempts to address the issues posed by having a diverse user group by providing an easy to use interface for data entry and report generation. GenomeClinic-PGX takes information on genetic variation in the form of VCF files or a custom file format described [here](docs/custom_format.md) and performs a pharmacogenetic analysis on a specified set of variants. The results from this analysis are then used to provide a detailed and customizable report containing drug recommendations and a genetic profile of the patient for use by the clinicians.
 
 The GenomeClinic-PGX web server is built in [Node.js](http://nodejs.org) as an [express](http://expressjs.com/) application. It uses mongo is used for back end storage of all information, including the session data store. The design of the dabatase can be found [here](docs/database_design.md). On the client side the app employs the [Handlebars.js](http://handlebarsjs.com/) templating engine in combination with [Jquery](http://jquery.com) and native javascript in order to produce dynamic and responsive page content that gives a fluid feeling to the web interface. In addition, [Foundation 5](http://foundation.zurb.com) is used as a comprehensive front end framework that enables fast, rapid prototpying of new page content.
 
 Reports are the cornerstone of the app and are generated in PDF format with the use of [PhantomJS](http://phantomjs.org). Any custom template can be designed and used for the final report quite easily using a handlebars template.
 
-## MongoDB setup
+## Downloading
 
-MongoDB is a noSQL database with built in js support. Our web application requires a MongoDB server to be running that can easily be connected to. To install. To install on unix type the following:
+To get the stable reslease version of GenomeClinic-PGX, clone the github repository via: 
 
-Client software
-`sudo apt-get install mongodb-client`
+`git clone https://github.com/BaderLab/GenomeClinic-PGX.git`
 
-Server Software
-`sudo apt-get install mongodb-server`
+For the most recent development version you can `git --checkout dev`
 
-Once installed, you will need to run the MongoDB server prior to running our web application server. Create a `db_data/` directory and then type the following to start the server listening on port 27017
 
-`mongod --dbpath=db_data/ --port 27017`
+## Build Dependencies 
 
-The default port number for mongo is 27017. If you want to change this feel free, however in order to connect you will need to modify the [constants.json](src/server/conf/constants.json) file to reflect the new port. change dbConstants.PORT to whatever your desired port is.
+Install the dependencies and then run `npm install` to build the required node.js libraries.
+- [Node.js](http://nodejs.org/) >= 0.10.0 
+- [MongoDB](http://mongodb.org/downloads) >= 3.0.0
+- [PhantomJS](http://phantomjs.org/) >= 1.9.8
 
-It is recomended that you modify the default settings for namespace file size when first initializing the server. The default setting limits the number of namespaces to a maximum of 24000 per databse or a ns file of 16mb. This is generally enough, however a databse running over a longer perior of time may accumulate far more namespaces then this. The namespace file go be written up to a maximum of 2gb per db effectively providing upt to 3,000,000 potential namespaces. To set this when starting the server simply run the service with the addition `--nssize` command and the number of megabytes you want the namespace file to be. For example, a mazium nsfile size of 2gb would be:
+## Build instructions
 
-`mongod --dbpath=db_data/ --port 27017 --nssize 2048`
+Once installed run `gulp` from the console. By default gulp is not installed globally but can be found in the `node_modules/.bin/gulp`. You can Select from the following options.
 
-There are a variety of other options you can customize, we suggest reading the [documentation](http://docs.mongodb.org/manual/reference/configuration-options/) about server configuration. It is important to note that at this time, the app does not support an authenticated database. This will be coming in the near future. 	
+##### Building:
+- `default` : create the final `build` directory.
+- `watch` : create the `build` directory and watch for any changes to source files, updating them they need be.
+- `clean` : clean the `build` directory
 
-## Setting up the server
 
-When you first download the sourcecode, you will need to install the package dependencies within the package.json file. If you are building the web app from source, you will need all the dev dependencies. However if you are using a previously built version you can only install the production dependencies. To install all dependencies open a terminal and within the main project folder type the following command:
+## Usage
 
-`npm install`
+The server can be started from the command line as a node application. By default the server runs on port 80 for http traffic and port 443 for https traffic. In some configurations these ports may be closed and require sudo/administrator accesss when the server is started.
 
-or
+#### Basic usage
 
-`npm install --production`
+Starting the server is simple. From the commandline in the build directory type:
 
-this will take care of installing all of the dependencies listed within the package.json file.
+```js
+node webapp.js
+```
 
-We are using gulptasks to automate the deploying of both the server and the client front end. After installing the package.json type the following command to build the working server:
+#### Advanced usage
 
-`sudo node_modules/.bin/gulp`
+There are multiple configurable settings that can be specified from the commandline at startup. The user has the option of enabling or disabling various authentication routes by passing certain flags from the commandline. By default new users are able to signup from the web-interface as well as recover their password. In order for the password recovery to work an email and accurate credentials must be supplied by the admin at server startup.
 
-This will deploy the project and place it in the build folder. To properly run the gulp task you must run it as sudo in order to install global dependencies. By default gulp will enter into a watch loop, rerunning tasks when any of the src files change. If you are working on developing this project, simply leave the terminal running and modify the files within the src/ directory instead of the files within the build/ directory. Changes in build/ will not be tracked.
+- Disable Signup: `--nosignup`
+- Disbale Password Recovery: `--norecover`
 
-To disable this behaviour and build a production quality server run the gulp command but pass it the production task as an option
+example
 
-`node_modules/.bin/gulp --type production`
+```js
+node webapp.js --nosignup --norecover
+```
 
-To clean the the build directory run:
+Additionally In order to set up Google OAUTH requires registering with google and supplying the api-keys that they provide in the `api.js` file
+- Enable Google O-Auth: `--oauth
 
-`sudo node_modules/.bin/gulp clean`
+##### Database settings
 
-the command has to be run in sudo if you have already run the server. This is because the log files require sudo permissions to remove.
+By default the server will attempt to connect to a mongodb instance running on the `localhost` on port `27017`. However this can be modified from the commandline to connect to a remote mongodb server. Password Authentication is not currently provided.
+	
+- Set Mongodb Host Path : `--mongodb-host [address Default: localhost]`
+- Set Mongodb Port Number : `--mongodb-port [number Default: 27017]`
+- Set Mongodb Database : `--mongodb-db [ databse Default: webappDB ]`
 
-## Running the server
+example :
 
-Running the server is quite easy. There are several customizable options that you can pass in order to change basic functionality (such as enabling signup and password recovery or even oauth login). The basic usage utilizing all defaults is:
+```js
+node webapp.js --mongodb-host [remote host address] --mongodb-port [ remote port address ]
+```
 
-`node webapp.js`
+##### Setting up HTTPS
 
-Depending on what ports you are running the server on you may have to run the command as sudo. The default ports (443 for https and 80) are closed by default on a unix based system.
+By default the server routes all traffic through HTTP, however it can be configured to run as an HTTPS server so long as the user supplies a valid certificate and key. Additionally, the user can specify a custom https or http port number.
+	
+- Turn on HTTPS usage : `--https`
+- SSL key : `--key [ path to key ]`
+- SSL Certificate : `--crt [path to certificate]`
+- Change the https port : `--httpsport [ port Default: 443 ]`
+- Change the http port : `--httpport [ port Default: 80]`
 
-## Running the server with https
 
-If you possess an https certificate and would like to use only https routes, the server is set up so that you can easily configure it for this purpose. It will automatically redirect all incoming http traffic to a secure https connection. This behaviour is toggled with a single command, however it requires you provide it with a key and crt file as well.
+example:
 
-`node webapp.js --https --key path/to/key --crt path/to/crt`
+```js
+node webapp.js --https --crt ../path/to/cert.crt --key ../path/to/key.key
+```
 
-The server by default operates on ports 80 and 443 (for https traffic). You can modify this with the `--httpsport` and `--httpport` commands followed by the desired port number. We do not recommend you to use non standard ports, unless you must. For a complete list of options run
+## Generating Reports
 
-`node webapp.js -h`
+GenomeClinic-PGX uses [Handlebars.js](www.handlebarsjs.com) to dynamically generate downloadable reports for the users. CA data Object from the report page  is passed to handlebars containing all fo the patient information as well as the data inputed by the user. A generic report is included with the app by default, however it can easily be changed and updated to have a custom report by creating a new template by following the parameters listed [here](). To direct the app to use a new template you can pass the path of the template via an argument on the commandline. The file must be a handlebars template with the extension `.hbs`. We suggest that all resources referenced in the hbs file are referenced with an absolute path.
 
-## Killing the Server
+- Change report : `--report [ report name ]`
 
-The server can be terminated by typing "CTRL-C" in a Unix terminal.
+exmaple:
+```js
+node webapp.js --report ../path/to/report.hbs
+```
 
-If you are going to run the server in the background, like this
 
-`node webapp.js &`
+## Default Data
 
-we advise that you terminate the server using a SIGINT, allowing the server to exit gracefully:
+The first time the server starts, it will search in the build directory for the default JSON data to add to the database. The user can provide a path to new default data that can be uploaded during the first time the server is started. The data must follow a specific format that is documented [here](). The data can only be uploaded the first time the server is started, otherwise in order to perform any sort of bulk operation the user must use the [bulkops.js]() application to perform the action.
 
-`kill -SIGINT <process_id>`
+- Change default data : `--def-data [data Default: lib/conf/default_rec_data.json]`
+
+example:
+```js
+node webapp.js --def-data ../path/to/data.json
+```
