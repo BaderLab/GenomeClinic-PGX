@@ -352,4 +352,16 @@ Every gene has a specified type, each document in this collection contains a sin
 }
 
 
+### Drugs
+A large number of drugs has been included in the default data with very little required informtion other then the drug _id
+
+**default collection:** drugs
+| **Field**  | **Type** | **Definition** | **Indexed** |
+| _id | String | A unique drug name | no |
+
+{
+	_id : String
+}
+
+
 
