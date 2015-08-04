@@ -7,15 +7,37 @@ We have proposed a modified file format that strips the VCF file of all annotati
 
 ### Example
 
+```
 ##fileformat=PGXv1.0
-| #ID | REF | ALT |	FORMAT | <PATIENT> |
-|:--: | :--:|:--:|:--:|:--:|
-|rs123  | A | G  | GT | 0/1 |
-|rs5522 | G | GAC|GT  |	1/1 |
-|rs021	|TG |T   | GT |	0/1 |
+#ID	REF 	ALT 	FORMAT 	<PATIENT>
+rs123	A	G	GT 	0/1
+rs5522	G	GAC	GT	1/1
+rs021	TG	T	GT	0/1
+rs022	A	T	GT	0/1
+rs023	C	A	GT	0/1
+rs024	G	C	GT	0/1
+rs025	T	A	GT	0/1
+rs026	T	T	GT	0/1
+rs027	A	T	GT	0/1
+```
 
+###Example with multiple patients
 
 ### File Format Specification
+
+```
+##fileformat=PGXv1.0
+#ID	REF 	ALT 	FORMAT 	<PATIENT1>	<PATIENT2> 	<PATIENT3>	<PATIENT4>
+rs123	A	G	GT 	0/1	0/1	0/1	0/1 	
+rs5522	G	GAC	GT	1/1	0/1	0/1	0/1
+rs021	TG	T	GT	0/1	0/1	0/1	0/1
+rs022	A	T	GT	0/1	0/1	0/1	0/1
+rs023	C	A	GT	0/1	0/1	0/1	0/1
+rs024	G	C	GT	0/1	0/1	0/1	0/1
+rs025	T	A	GT	0/1	0/1	0/1	0/1
+rs026	T	T	GT	0/1	0/1	0/1	0/1
+rs027	A	T	GT	0/1	0/1	0/1	0/1
+```
 
 
 #### File Format line

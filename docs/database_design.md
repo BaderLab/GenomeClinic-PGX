@@ -18,7 +18,7 @@ The admin collection contains information pertinent to the running of the server
 | max-query-records | Number | Deprecated | no |
 | report-footer | String | Generic disclaimer used on the bottom of reports | no |
 
-```js
+```javasscript
 {
 	"_id" : ObjectId(),
 	"curr_patient_index" : Number,
@@ -44,7 +44,7 @@ Information specific to each user. Currently this field is underutilized and doe
 | password | String | B-crypted password string | no |
 
 
-```js
+```javasscript
 {
 	"_id" : ObjectId(),
 	"username" : String,
@@ -73,7 +73,7 @@ Contains information about all the patients that have been uploaded, including t
 
 
 
-```js
+```javasscript
 {
 	"_id" : ObjectID,
 	"patient_id" : String,
@@ -107,7 +107,7 @@ The information stored in this collection varies depending on the source of the 
 | gt | Array | Genotype of the patient, first index  is ref, second is alt | no | yes |
 | phased_status | Bool | Whether the information is phased or not | no | yes |
 
-```js
+```javasscript
 {
 	"_id" : ObjectId(),
 	"id" : string,
@@ -139,7 +139,7 @@ Each document in the project collection corresponds to a separate project. The d
 | date | Date | Date the project was created | no |
 
 
-```js
+```javasscript
 {
 	"_id" : ObjectId,
 	"project_id" : String,
@@ -164,7 +164,7 @@ Each document in this collection corresponds to a single marker used in the PGX 
 | type| string | signifies if the marker is a custom marker or a dbsnp marker and will be one of custom / dbsnp | no |
 | date | date string | date of laste modification | no |
 
-```js
+```javasscript
 {
 	"_id" : ObjectId(),
 	"id" : String,
@@ -189,7 +189,7 @@ All information regarding haplotypes is stored here. Each document in the collec
 | markers | Array | a unique array (for each gene) of marker id's | no | 
 
 
-```js
+```javasscript
 {
 	"_id" : ObjectId(),
 	"gene" : String,
@@ -221,7 +221,7 @@ Each document corresponds to a single gene and allows easy retrieval of all info
 | markers | Array | Array of marker ID's pointing to marker collections | no |
 
 
-```js
+```javasscript
 {
 	"_id" : ObjectId(),
 	"gene" : String, // unique key
@@ -259,7 +259,7 @@ The drugReceomendation collection consists of all of a series of documents. Each
 | pubmed  | Array | Array consisting of pubmed ID's as strings | no |
 
 
-```js
+```javasscript
 {
 	"_id":ObjectId(),
 	"drug": String,
@@ -289,7 +289,7 @@ Each document corresponds to a single gene and allows easy retrieval of all info
 | markers | Array | Array of marker ID's pointing to marker collections | no |
 
 
-```js
+```javasscript
 {
 	"_id" : ObjectId(),
 	"gene" : String, // unique key
@@ -321,7 +321,7 @@ the future recommendation table consists of unsorted documents that are associat
 | rec | String | The actual recommendation for the specific gene and predicted effect combination | no |
 
 
-```js
+```javasscript
 {
 	"_id":ObjectId(),
 	"gene" : String,
@@ -342,7 +342,7 @@ Every gene has a specified type, each document in this collection contains a sin
 | definition | String | A summary definition of the type | no |
 | fullname | String | Thee name that will appear to the user | no |
 
-```js
+```javasscript
 {
 	"_id" : String,
 	"classes" : [
@@ -362,7 +362,7 @@ A large number of drugs has been included in the default data with very little r
 | _id | String | A unique drug name | no |
 
 
-```js
+```javasscript
 {
 	_id : String
 }
