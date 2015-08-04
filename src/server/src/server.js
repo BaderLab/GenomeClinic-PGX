@@ -62,6 +62,14 @@ var opts= require("nomnom")
 			dbConstants.DB.PORT= parseInt(mongodbPortNumber);
 		}
 	})
+	.option('mongoDatabase',{
+		full:"mongodb-db",
+		default:dbConstants.DB.NAME,
+		help: "User specificed Mongodb databse",
+		callback: function(mongoDatabase){
+			dbConstants.DB.NAME = mongoDatabase;
+		}
+	})
 	.option("gmail",{
 		abr:'g',
 		full: "gmail-account",
@@ -109,6 +117,19 @@ var opts= require("nomnom")
 		full:'key',
 		help:'Pass in the key file for https usage. Required if -https is used',
 		default:undefined
+	})
+	.option('report',{
+		abbr:'r',
+		full:'report',
+		help:'Path to a user defined output report',
+		default:undefined
+	})
+	.option('defaultData',{
+		full:"def-data",
+		help:"Define a path to default data other then that specificed by the constants folder"
+		callback: function(defaultData){
+			dbConstants.DRUGS.DEFAULT = defaultData;
+		}
 	})
 	.parse();
 opts.signup =  !opts.nosignup;
@@ -200,6 +221,7 @@ require('./controllers/passport-config')(app,logger,opts,passport);
 //=======================================================================
 // Initialize the session Session
 //=======================================================================
+var host = opts.mongodbHost
 app.use(session({secret:'webb_app_server',
 	store: new mongoStore({
 		url:'mongodb://' + dbConstants.DB.HOST + ':' + dbConstants.DB.PORT + '/sessionInfo'
