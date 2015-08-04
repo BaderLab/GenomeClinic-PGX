@@ -103,6 +103,10 @@ module.exports = {
 		var fields = $('form').serializeArray();
 		var currDrugs = $('.patient-drug-name');
 		var currDose = $('.patient-drug-dose');
+		var currFreq = $('.patient-drug-frequency');
+		var currRoute = $('.patient-drug-route');
+		var currNotes = $('.patient-drug-notes');
+		var moI = $('#patient-drug-of-interest').find('li');
 		output.patient = {};
 		output.dr = {};
 		//Loop over all the fields
@@ -142,12 +146,17 @@ module.exports = {
 			output.patient.medications= "";
 			output.patient.allMedications = [];
 			for (i = 0; i < currDrugs.length; i ++ ){
-				output.patient.allMedications.push({name:$(currDrugs[i]).text(),dose:$(currDose[i]).text()});
+				output.patient.allMedications.push({name:$(currDrugs[i]).text(),dose:$(currDose[i]).text(),route:$(currRoute[i]).text(),frequency:$(currFreq[i]).text(),notes:$(currNotes[i]).text()});
 				if (output.patient.medications !== "") output.patient.medications += ', '
 				output.patient.medications += $(currDrugs[i]).text() + ' at ' + $(currDose[i]).text()
 
 			}
 			//Convert the current drugs form an array into text
+		}
+
+		output.drugsOfInterest = [];
+		for (var i = 0; i < moI.length; i++ ){
+			output.drugsOfInterest.push($(moI[i]).find('span').text());
 		}
 		return output;
 	},
@@ -159,7 +168,7 @@ module.exports = {
 	serializeRecommendations : function(){
 		var output = {drugs:[],citations:[]}
 		var temp,drug,pubmed,genes,classes,index;
-		var fields = $('.recommendation-field'); 
+		var fields = $('.recommendation-field:visible'); 
 		// Gather all of the receomendations
 		//If the user has toggled the recommendations off dont iterate over them
 		if ($('#drug-recommendations').is(':visible')){
@@ -171,13 +180,18 @@ module.exports = {
 				temp.classes = [];
 				temp.pubmed = [];
 				temp.rec = $(fields[i]).find(".rec").val();
-				temp.risk = $(fields[i]).find(".risk").text();
+				if( !$(fields[i]).find('.flag').hasClass('secondary') ){
+					temp.flagged = true;
+				}
 
-				$(fields[i]).each(function(ind,item){
-					temp.genes.push($(item).find('.gene-name').find('i').text())
-					temp.classes.push($(item).find('.class-name').find('i').text())
+				$(fields[i]).find('.gene-name').each(function(ind,gene){
+					temp.genes.push($(gene).text());
+				})
+				$(fields[i]).find(".class-name").each(function(ind,className){
+					temp.classes.push($(className).text());
 				});
-
+					//temp.genes.push($(item).find('.gene-name').find('i').text())
+					//temp.classes.push($(item).find('.class-name').find('i').text()			
 				pubmed = $(fields[i]).find(".pubmed");
 				//add the associated citations
 				for(var j=0; j < pubmed.length; j++ ){
@@ -203,14 +217,16 @@ module.exports = {
 	serializeFuture : function (){
 		output = [];
 		var temp;
-		var fields = $('.future-field')
+		var fields = $('.future-field:visible')
 		if ($('#drug-recommendations').is(':visible')){
 			for (var i = 0; i < fields.length; i++ ){
 				temp = {};
 				temp.rec = $(fields[i]).find(".rec").val();
 				temp.class = $(fields[i]).find(".class-name").text();
 				temp.gene = $(fields[i]).find(".gene-name").text();
-
+				if( !$(fields[i]).find('.flag').hasClass('secondary') ){
+					temp.flagged = true;
+				}
 				output.push(temp);
 			}
 		
@@ -230,13 +246,9 @@ module.exports = {
 		output.recommendations = recs.drugs;
 		output.genes = this.serializeTable();
 		output.future = this.serializeFuture();
-		if (output.recommendations){
-			output.drugsOfInterest = [];
-			for (var i = 0; i < output.recommendations.length; i++ ){
-				output.drugsOfInterest.push(output.recommendations[i].drug);
-			}
-
-			output.drugsOfInterest = output.drugsOfInterest.join(', ');
+		var flags = $('.flag:visible');
+		for (var i = 0; i < flags.length; i++ ){
+			if(!$(flags[i]).hasClass('secondary')) output.flagged = true;
 		}
 		return output;
 	},
@@ -321,6 +333,13 @@ module.exports = {
 	getFutureRecommendations : function(){
 		var _this = this;
 		var tableValues = this.serializeTable();
+		var otherValues = tableValues.filter(function(item){
+			if (item.class=="Other") {
+				item.flagged = true;
+				item.rec = "";
+				return item;
+			}
+		});
 		return Promise.resolve($.ajax({
 			url:'/database/recommendations/future/get',
 			type:"POST",
@@ -328,9 +347,10 @@ module.exports = {
 			dataType:'json',
 			data:JSON.stringify(tableValues)
 		})).then(function(result){
-			if (result.length === 0) {
+			if (result.length === 0 && otherValues.length == 0) {
 				return $('#future-recommendations').html(emptyFieldhtml.replace(/\{\{message\}\}/,'There are no future considerations to report'))
 			} else {
+				result = result.concat(otherValues);
 			 	return templates.drugs.rec.future({future:result}).then(function(renderedHtml){
 					$('#future-recommendations').html(renderedHtml);
 				}).then(function(){
@@ -350,6 +370,17 @@ module.exports = {
 	getRecommendations : function(){
 		var _this = this;
 		var tableValues = this.serializeTable();
+		var otherValues = tableValues.filter(function(item){
+			if (item.class=="Other") {
+				item.genes = [item.gene];
+				item.classes = [item.class];
+				item.flagged = true;
+				item.pubmed = [];
+				item.rec = "";
+				item.drug = "Other"
+				return item;
+			}
+		});
 
 		return Promise.resolve($.ajax({
 			url:"/database/recommendations/recommendations/get",
@@ -362,11 +393,12 @@ module.exports = {
 			for (var i=0; i < result.length; i++ ){	
 				pubMedIDs = pubMedIDs.concat(result[i].pubmed);
 			}
-			if ( result.length === 0 ){
+			if ( result.length === 0 && otherValues.length == 0){
 				return $('#drug-recommendations').html(emptyFieldhtml.replace(/\{\{message\}\}/,'There are no recommendations to report'))
 
 			} else {
 				return utility.pubMedParser(pubMedIDs).then(function(citations){
+					result = result.concat(otherValues);
 					return templates.drugs.rec.recs({recommendation:result,citations:citations})
 				}).then(function(renderedHtml){
 					$('#drug-recommendations').html(renderedHtml);
@@ -393,6 +425,27 @@ module.exports = {
 				}
 			});
 		};
+
+		var removeLink = function(ele){
+			ele.on('click',function(e){
+				e.preventDefault();
+				$(this).closest('li').remove();
+			});
+		};
+
+
+		$('#add-drug-of-interest').on('click',function(e){
+			e.preventDefault();
+			var val = $('#patient-drug-of-interest-input').val();
+			if (val !== "" ){
+				var html = "<li class='multicol'><span>" + val + "</span>&nbsp&nbsp<a href='#'><i class='fi-x'></i></a></li>";
+				$('ol.multicol').append(html);
+				removeLink($('ol.multicol').last('li').find('a'));
+				$('#patient-drug-of-interest-input').val('')
+			} else {
+				$('#patient-drug-of-interest-input').addClass("glowing-error");
+			}
+		});
 
 		/* anytime the user changes any of therapeutic classes in the PGX analyisis table, check to see if
 		 * there are any new recommendations and re-render the contents */
@@ -436,16 +489,20 @@ module.exports = {
 			e.preventDefault();
 			var val = $('#patient-new-drug').val();
 			var dose = $('#patient-new-dose').val();
-			if (val !== "" && dose !== ""){
-				$('#patient-new-drug').val('');
-				var html = "<tr><td class='patient-drug-name'>" + val + "</td><td class='patient-drug-dose text-center'>" + dose + "</td><td class='text-center'><a href='#'><i class='fi-x'></i></a></td></tr>";
+			var freq = $('#patient-new-frequency').val();
+			var route = $('#patient-new-route').val();
+			var notes = $('#patient-new-notes').val();
+			if (val !== "" && dose !== "" && freq !== "" && route !== ""){
+				var html = "<tr><td class='patient-drug-name'>" + val + "</td><td class='patient-drug-dose text-center'>" + dose + "</td>"
+				html += '<td class="patient-drug-route text-center">' + route + '</td><td class="patient-drug-frequency text-center">' + freq + '</td>';
+				html += '<td class="patient-drug-notes">'+notes+"</td><td class='text-center'><a href='#'><i class='fi-x'></i></a></td></tr>";
 				$('#patient-drug-table').find('tbody').append(html);
 				removeRow($('#patient-drug-table').find('tbody').last('tr').find('a'));
 				if (!$('#patient-drug-table').is(":visible")){
 					$('#patient-drug-table').show();
 				}
-				
 
+				$('#patient-new-drug,#patient-new-dose,#patient-new-notes,#patient-new-frequency,#patient-new-route').val('');
 			}
 		});
 
@@ -499,13 +556,20 @@ module.exports = {
 	},
 
 	recommendationHandlers:function(context){
-		$(context).find('a.button').on('click',function(e){
+		$(context).find('a.remove').on('click',function(e){
 			var _this = this;
 			e.preventDefault();
 			$(this).closest('fieldset').slideUp(function(){
 				$(_this).remove()
 			})
-		});	
+		});
+
+		$('.flag').on('click',function(e){
+			e.preventDefault();
+			if ($(this).hasClass('secondary')) $(this).removeClass('secondary');
+			else $(this).addClass('secondary');
+			
+		});
 	},
 
 	/* Render the initial, get all gene information, re-run the pgx-analysis to get haplotype information and
@@ -515,14 +579,16 @@ module.exports = {
 		var pgxTemplateData, therapeuticClasses, drugRecommendations;
 		//load information on patient and generate pgx info.
 		var location = window.location.pathname;
-		var patientID = location.split('/').splice(-1)[0];
+		var patientID = location.split('/').splice(-2)[0];
+		console.log(patientID);
 		//Generate pgx results and convert them into a usable format;
 		pgx.generatePgxResults(patientID).then(function(result){
 			return pgx.convertTotemplateData(result);
 		}).then(function(result){
 			var genes = [];
-			var geneData = []
-			var ignoredGenes = []
+			var geneData = [];
+			var ignoredGenes = [];
+			var otherGenes = [];
 			var closestMatches;
 			//Extract infromation for each gene and the haplotypes that were predicted
 			//Select the case where there is only Two possible Haplotypes.
@@ -544,7 +610,7 @@ module.exports = {
 					 	geneData.push(result.pgxGenes[i]);
 					 	genes.push(result.pgxGenes[i].gene);
 					 } else {
-					 	ignoredGenes.push(result.pgxGenes[i]);
+					 	otherGenes.push(result.pgxGenes[i]);
 					 }
 				} else {
 					ignoredGenes.push(result.pgxGenes[i]);
@@ -553,6 +619,7 @@ module.exports = {
 			}
 
 			result.ignoredGenes = ignoredGenes;
+			result.otherGenes = otherGenes;
 			result.pgxGenes = geneData;
 			result.pgxGeneNames = genes
 			pgxTemplateData= result;
@@ -581,7 +648,6 @@ module.exports = {
 				$('#main').html(renderedHtml);
 		}).then(function(){
 			return _this.getHaplos();
-			
 			// get information from each gene
 		}).then(function(){
 			return _this.getRecommendations();
@@ -592,6 +658,7 @@ module.exports = {
 			return utility.refresh(abideOptions);
 		}).then(function(){
 			//add hanlders
+			utility.suggestionHandlers();
 			_this.staticHandlers();
 		}).catch(function(err){
 			console.error(err);

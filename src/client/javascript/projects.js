@@ -218,11 +218,16 @@ var utility = require('./utility'),
 					emails.push(text);
 				}
 			}
-			if (emails.indexOf(val) != -1) {
+			if (val == user){
+				$('#new-user').addClass('error').siblings('small').text('Cannot add youself as an authorized user').show();
+				return;
+			}
+			else if (emails.indexOf(val) != -1) {
 				$("#new-user").addClass('error').siblings('small').text('That user already has authorization').show();
+				return;
 			} else if (val !== ''){
 				//submit ajax requst to check to see if the username exists in the db
-				utility.existsInDb(userConstants.COLLECTION,userConstants.ID_FIELD,val)
+				return utility.existsInDb(userConstants.COLLECTION,userConstants.ID_FIELD,val)
 				.then(function(result){
 					//user exists so add to Auth user table
 					if (result){
@@ -269,6 +274,7 @@ var utility = require('./utility'),
 		searchBoxHandler('#patient-information');
 		addNewAuthUser();
 		removeInputErrors();
+		utility.suggestionHandlers();
 		//add a new authorized user
 
 		//Clear the error whenever you start typing within an input
@@ -600,6 +606,7 @@ var utility = require('./utility'),
 				projectPageHandlers();
 			});	
 		}).then(function(){
+			utility.suggestionHandlers();
 			utility.refresh();
 		}).catch(function(err){
 			console.log(err);

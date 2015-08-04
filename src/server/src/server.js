@@ -20,6 +20,8 @@ var express= require("express"),
 	morgan = require('morgan'),
 	constants = require('./lib/conf/constants.json'),
 	cons = require('consolidate'),
+	//handlebars = require('handlebars'),
+	//exphbs  = require('express-handlebars');
 	logger = require('./lib/logger');
 	
 
@@ -224,6 +226,14 @@ app.use(flash());
 app.set('views',nodeConstants.SERVER_DIR + '/views');
 app.engine('hbs',cons.handlebars);
 app.set('view engine', 'hbs');
+app.set('partialsDir', 'views/partials/');
+
+//var hbs = exphbs.create({
+//	patrialsDir:"views/partials/",
+//	extname:'.hbs'
+//})
+//app.engine('.hbs', hbs.engine);
+app.set('view engine', '.hbs');
 require('./controllers/routes')(app,logger,opts,passport);
 
 //=======================================================================
@@ -234,10 +244,12 @@ dbFunctions.connectAndInitializeDB()
 //=======================================================================
 // Start Listening on the set port
 //=======================================================================
+http.globalAgent.maxSockets = 25;
 if (opts.https){
 	var privateKey = fs.readFileSync(opts.key);
 	var certificate = fs.readFileSync(opts.crt);
 	var credentials = {key:privateKey,cert:certificate};
+	https.globalAgent.maxSockets = 25;
 	http.createServer(app).listen(opts.httpPortNumber);
 	https.createServer(credentials,app).listen(opts.httpsPortNumber);
 	logger('info',"Server running on https port: " + opts.httpsPortNumber + " http port:" + opts.httpPortNumber);

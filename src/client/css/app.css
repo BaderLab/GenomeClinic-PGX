@@ -176,7 +176,7 @@ tr.haplotype-row:hover {
 }
 
 /* Different styling for alternate genotype calls (not reference). */
-td.variant-alt {
+.variant-alt {
   font-style: italic;
   color: red;
 }
@@ -202,9 +202,9 @@ tr.patient-genotype-row {
 /* Formatting for haplotype expansion "+" buttons. */
 .haplotype-expand {
   color: #FFAD99;
-  font-size: 18pt;
-  transition: 0.3s ease-in-out;
-  transform: rotate(45deg);
+  /*font-size: 30pt;*/
+  /*transition: 0.3s ease-in-out;*/
+  /*transform: rotate(45deg);*/
 }
 
 /* Set standard spacing for the horizontal rule. */
@@ -233,11 +233,13 @@ hr {
 }
 
 .haplotype-columns {
-  width:250px;
+  min-width:250px;
+  width: 250px;
 }
 
 .marker-column {
   width: 98px;
+  min-width: 98px;
   text-align: center;
 }
 
@@ -302,3 +304,59 @@ hr {
 .icon-button:hover {
   background-color: #D1D1D1;
 };
+
+.suggestion-wrapper {
+  position: relative;
+  width:100%;
+}
+
+input.suggestion-input{
+  margin-bottom:0px !important;
+}
+
+.suggestions {
+  background-color: #ffffff;
+  border: solid 1px #838383;
+  position: absolute;
+  width: 100%;
+  padding: 5px;
+  display:none;
+}
+.suggestion {
+  width:100%;
+  color:rgb(111, 111, 111);
+}
+.suggestion-match {
+  color:rgb(0,0,0);
+}
+.suggestion:hover {
+  background-color: #B2D1FF;
+  cursor:pointer;
+}
+
+.suggestion-list { 
+  list-style:none;
+  margin: 0;
+  padding: 0;
+}
+
+
+input.glowing-error {
+  outline: none !important;
+  border-color: #FF3333 !important;
+  box-shadow: 0 0 10px #FF3333 !important;
+}
+
+ol.multicol {
+    width: 100%;
+ }  /* float & allow room for the widest item */
+li.multicol {
+    float: left;
+    width: 33%;
+}  /* stop the float */
+br.multicol{
+    clear: left;
+}  /* separate the list from subsequent markup */
+div.multicol {
+    margin-bottom: 1em;
+}

@@ -56,7 +56,7 @@ module.exports = function(app,logger,opts,passport){
 		if(req.isAuthenticated())
 			res.redirect('/');
 		else 
-			utils.render(req,res,{scripts:'authentication.js'});
+			utils.render(req,res,{loginT:true,signup:opts.signup,recover:opts.recover,oauth:opts.oauth,login:true,scripts:'authentication.js'});
 	});
 	//urlencodedParser
 	app.post('/login',passport.authenticate('local-login',{
@@ -74,7 +74,7 @@ module.exports = function(app,logger,opts,passport){
 			if (req.isAuthenticated())
 				res.redirect('/');
 			else
-				utils.render(req,res,{scripts:'authentication.js'});
+				utils.render(req,res,{signupT:true,signup:opts.signup,recover:opts.recover,oauth:opts.oauth,login:true,scripts:'authentication.js'});
 		});
 		//urlencodedParser
 		//parse signup information
@@ -95,7 +95,7 @@ module.exports = function(app,logger,opts,passport){
 			if (req.isAuthenticated())
 				res.redirect('/');
 			else
-				utils.render(req,res,{scripts:'authentication.js'});
+				utils.render(req,res,{recoverT:true,signup:opts.signup,recover:opts.recover,oauth:opts.oauth,login:true,scripts:'authentication.js'});
 		});
 
 		app.post('/recover',function(req,res){
@@ -140,7 +140,7 @@ module.exports = function(app,logger,opts,passport){
 
 	//Route to render a user's password
 	app.get('/setpassword',utils.isLoggedIn, function(req,res){
-		utils.render(req,res,{scripts:'authentication.js'});
+		utils.render(req,res,{'set-passwordT':true,signup:opts.signup,recover:opts.recover,oauth:opts.oauth,login:true,scripts:'authentication.js'});
 	});
 
 	//Route to verify and update a users password 

@@ -12,6 +12,8 @@ associated with the current gene. Additionally, it enables the user to add new e
 		<div class="row">
 			<div class="large-10 small-12 medium-8 columns">
 				<h1><i class="fa fa-medkit"></i>&nbsp{{gene}}</h1>
+				<p class="subheader">Enzymatic Class: {{lookUpIdInfo @root.allClasses type 'fullname'}}</p>
+				<p><a href="/definitions">More information on Enzymatic Classes and Predictors of Effect</a></p>
 			</div>
 			<div class="large-2 small-12 medium-4 columns">
 				<a href="#" class="button radius large-12 small-12 medium-12" id="delete-all" data-id="{{_id}}">Delete</a>
@@ -89,7 +91,13 @@ a new recommendation, future, haplotype. Deleting the page etc
 											<span class="prefix">Drug Name</span>
 										</div>
 										<div class="large-8 small-8 medium-8 columns">
-											<input type="text" name="drug" required>
+											<input type="text" name="drug" required id="drugname" class="suggestion-input" data-col="drugs" data-num="10">
+											<div class="suggestion-wrapper">
+												<div class="suggestions" for="#drugname" style="z-index:100">
+													<ul class="suggestion-list">
+													</ul>
+												</div>
+											</div>
 											<small class="error">Required</small>
 										</div>
 									</div>
@@ -126,19 +134,14 @@ a new recommendation, future, haplotype. Deleting the page etc
 						<br>
 						<div class="row">
 							<div class="large-6 small-12 medium-6 columns">
-								<div class="row collapse prefix-radius">
-									<div class="large-4 small-4 medium-4 columns">
-										<span class="prefix">Risk</span>
+								<div class="row">
+									<div class="large-3 small-3 medium-3 columns">
+										<h4>Flag?</h4>
 									</div>
-									<div class="large-8 small-8 medium-8 columns left">
-										<select name="risk" id="new_risk">
-											<option>Low</option>
-											<option>Medium</option>
-											<option>High</option>
-										</select>
-										<small class="error">Required</small>
+									<div class="large-9 small-9 medium-9 columns left">
+										<a href="#" data-originavalue="false"class="button editfixed flag secondary tiny radius"><i class="fa fa-flag"></i></a>
 									</div>
-								</div>
+								</div>	
 							</div>
 						</div>
 						<div class="row">
@@ -268,18 +271,12 @@ a new recommendation, future, haplotype. Deleting the page etc
 								<br>
 								<div class="row">
 									<div class="large-6 small-12 medium-6 columns">
-										<div class="row collapse prefix-radius">
-											<div class="large-4 small-4 medium-4 columns">
-												<span class="prefix">Risk</span>
+										<div class="row">
+											<div class="large-3 small-3 medium-3 columns">
+												<h4>Flag?</h4>
 											</div>
-											<div class="large-8 small-8 medium-8 columns left">
-												<select name="risk" disabled="disabled" data-originalvalue="{{risk}}" value="{{risk}}">
-													<option></option>
-													<option>Low</option>
-													<option>Medium</option>
-													<option>High</option>
-												</select>
-												<small class="error">Required</small>
+											<div class="large-9 small-9 medium-9 columns left">
+												<a href="#" data-originavalue="{{#unless flagged}}false{{/unless}}" class="button flag {{#unless flagged}}secondary{{/unless}} tiny radius"><i class="fa fa-flag"></i></a>
 											</div>
 										</div>
 									</div>
@@ -367,25 +364,37 @@ a new recommendation, future, haplotype. Deleting the page etc
 				<!-- Start new consideration -->
 				<form data-abide="ajax" id="new-future-form" style="display:none">
 					<fieldset>
-					<div class="large-6 small-12 medium-6 columns">
-						<div class="row collapse prefix-radius">
-							<div class="large-4 small-4 medium-4 columns">
-								<span class="prefix">Predicted Effect</span>
-							</div>
-							<div class="large-8 small-8 medium-8 columns">
-								<select name="class" required>
-									{{#each classes}}
-									<option>{{this}}</option>
-									{{/each}}
-								</select>
-								<small class="error">Required</small>
+					<div class="row">
+						<div class="large-6 small-12 medium-6 columns">
+							<div class="row collapse prefix-radius">
+								<div class="large-4 small-4 medium-4 columns">
+									<span class="prefix">Predicted Effect</span>
+								</div>
+								<div class="large-8 small-8 medium-8 columns">
+									<select name="class" required>
+										{{#each classes}}
+										<option>{{this}}</option>
+										{{/each}}
+									</select>
+									<small class="error">Required</small>
+								</div>
 							</div>
 						</div>
 					</div>
-					<div class="large-12 small-12 medium-12 columns">
-						<label>Recommendation</label>
-						<textarea name="rec" rows=3 required></textarea>
-						<small class="error">Required</small>
+					<div class="row">
+						<div class="large-3 small-3 medium-3 columns">
+							<h4>Flag?</h4>
+						</div>
+						<div class="large-9 small-9 medium-9 columns left">
+							<a href="#" data-originavalue="false"class="button editfixed flag secondary tiny radius"><i class="fa fa-flag"></i></a>
+						</div>
+					</div>
+					<div class="row">
+						<div class="large-12 small-12 medium-12 columns">
+							<label>Recommendation</label>
+							<textarea name="rec" rows=3 required></textarea>
+							<small class="error">Required</small>
+						</div>
 					</div>
 					</fieldset>
 				</form>
@@ -470,7 +479,13 @@ a new recommendation, future, haplotype. Deleting the page etc
 										<span class="prefix">First Haplotype</span>
 									</div>
 									<div class="large-8 small-8 medium-8 columns">
-										<input type="text" placeholder='ex *1' name="allele_1" required>
+										<input type="text" placeholder='ex *1' name="allele_1" required id="allele_1" data-col="haplotype" data-num="10" class="suggestion-input" data-gene="{{@root.gene}}">
+										<div class="suggestion-wrapper">
+											<div class="suggestions" for="#allele_1" style="z-index:100">
+												<ul class="suggestion-list">
+												</ul>
+											</div>
+										</div>
 										<small class="error">Required</small>
 									</div>
 								</div>
@@ -481,7 +496,13 @@ a new recommendation, future, haplotype. Deleting the page etc
 										<span class="prefix">Second Haplotype</span>
 									</div>
 									<div class="large-8 small-8 medium-8 columns">
-										<input type="text" placeholder='ex *3' name="allele_2" required>
+										<input type="text" placeholder='ex *3' name="allele_2" required id="allele_2" data-col="haplotype" data-num="10" data-gene="{{@root.gene}}" class="suggestion-input">
+										<div class="suggestion-wrapper">
+											<div class="suggestions" for="#allele_2" style="z-index:100">
+												<ul class="suggestion-list">
+												</ul>
+											</div>
+										</div>
 										<small class="error">Required</small>
 									</div>
 								</div>

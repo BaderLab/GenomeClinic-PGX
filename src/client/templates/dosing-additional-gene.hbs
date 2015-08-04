@@ -6,7 +6,14 @@
 				<span class="prefix">Gene Name</span>
 			</div>
 			<div class="large-8 small-8 medium-8 columns">
-				<input class="gene-name"type="text" data-abide-validator="uniqueGene" id="gene-name-{{num}}" data-requiredIf="class-name-{{num}}" data-abide-validator="requiredIf">
+				<input class="gene-name suggestion-input" type="text" data-abide-validator="uniqueGene" id="gene-name-{{num}}" data-requiredIf="class-name-{{num}}" data-abide-validator="requiredIf" data-col="genes" data-num="10">
+				
+				<div class="suggestion-wrapper">
+					<div class="suggestions" for="#gene-name-{{num}}" style="z-index:100">
+						<ul class="suggestion-list">
+						</ul>
+					</div>
+				</div>
 				<small class="error">Gene Name required</small>
 
 			</div>

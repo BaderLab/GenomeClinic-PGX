@@ -2,11 +2,14 @@
 	<fieldset class="future-field" data-id="{{_id}}">
 		<legend class="gene-name">{{gene}}</legend>
 		<div class="row">
-			<div class="large-12 small-12 medium-12 columns">
+			<div class="large-10 small-8 medium-8 columns">
 				<label><h6><b>Predicted Effect:</b>&nbsp&nbsp<span class='class-name'>{{class}}</span></h6><label>
 			</div>
-			<div class="large-2 small-2 medium-2 columns">
-				<a href="#" class="button tiny radius right"><i class="fi-x"></i></a>
+			<div class="large-1 small-2 medium-2 columns">
+				<a href="#" class="button tiny flag {{#unless flagged}}secondary{{/unless}} radius right"><i class="fa fa-flag"></i></a>
+			</div>
+			<div class="large-1 small-2 medium-2 columns">
+				<a href="#" class="button tiny radius right remove"><i class="fi-x"></i></a>
 			</div>
 		</div>	
 		<div class="row">

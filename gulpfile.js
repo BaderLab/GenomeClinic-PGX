@@ -58,7 +58,7 @@ gulp.task('client-upload-vendor',function(){
 	
 })
 //precompile templates into a single packages
-gulp.task('client-templates',function(){
+gulp.task('client-templates',['client-partials'], function(){
 	return Browserify(paths.client.templates.src)
 	.bundle()
 	.pipe( source(paths.client.templates.name))
@@ -67,7 +67,10 @@ gulp.task('client-templates',function(){
 	.pipe( gulp.dest(paths.client.templates.dest))
 });
 
-
+gulp.task('client-partials',function(){
+	return gulp.src(paths.client.partials.src)
+	.pipe( gulp.dest(paths.client.partials.dest) );
+});
 
 gulp.task('client-vendor',function(){
 	return gulp.src(paths.client.vendorBundle.src)

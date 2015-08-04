@@ -62,6 +62,7 @@
               <li class="has-dropdown">
                 <a href="#" id="webapp-user-icon"><i class="fi-torso size-14"></i>&nbsp&nbsp{{user}}</a>
                 <ul class="dropdown">
+                  <li><a href="/definitions"><i class="fa fa-book" style="size:16"></i>&nbsp&nbspDefinitions</a></li>
                   <li><label>Account Actions</li></label>
                   <li><a href="/setpassword"><i class="fi-lock size-16"></i>&nbsp&nbsp Change Password</a></li>
                   <li><a href="/logout"><i class="fa fa-sign-out" style="size:16;"></i>&nbsp&nbspLog Out</a></li>
@@ -93,6 +94,7 @@
               <li><a href="/haplotypes" id="webapp-haplotypes">Manage Haplotypes</a></li>
               <li><a href="/markers" id="webapp-markers">Manage Markers</a></li>
               <li><a href="/dosing" id="webapp-dosing">Manage Dosing Tables</a></li>
+              <li><a href="/definitions">Definitions</a></li>
               <li><label>Account Actions</li>
               <li><label>{{user}}</li>
               <li><a href="/setpassword">Change Password</a></li>
@@ -106,35 +108,35 @@
         </nav>
     </div>
     <div id="main" style="min-height:100%">
+      {{#if default}}
+        {{> index}}
+      {{/if}}
+      {{#if loginT}}
+        {{> login}}
+      {{/if}}
+      {{#if recoverT}}
+        {{> recover}}
+      {{/if}}
+      {{#if set-passwordT}}
+        {{> set-password}}
+      {{/if}}
+      {{#if signupT}}
+        {{> signup}}
+      {{/if}}
       {{#if notfound}}
-        <div class="row" style="padding-top: 200px;">
-          <div class="large-6 small-12 medium-6 large-centered small-centererd medium-centered columns">
-            <div class="row">
-              <div class="large-4 small-6 medium-4 columns">
-                <i class="fa fa-gears" style="font-size: 6em;"></i>
-              </div>
-              <div class="large-8 small-6 medium-8 columns">
-                <h2><em>404 Not Found!</em></h2>
-                <h4 class="subheader">There's nothing here!</h4>
-              </div>
-            </div>
-          </div>
-        </div>
+        {{> notfound}}
       {{/if}}
       {{#if construction}}
-        <div class="row" style="padding-top: 200px;">
-          <div class="large-6 small-12 medium-6 large-centered small-centererd medium-centered columns">
-            <div class="row">
-              <div class="large-4 small-6 medium-4 columns">
-                <i class="fa fa-wrench" style="font-size: 6em;"></i>
-              </div>
-              <div class="large-8 small-8 medium-4 columns">
-                <h2><em>In development</em></h2>
-                <h4 class="subheader">Come back soon!</h4>
-              </div>
-            </div>
-          </div>
-        </div>
+        {{> construction}}
+      {{/if}}
+      {{#if definitions}}
+        {{> definitions}}
+      {{/if}}
+      {{#if upload}}
+        {{> upload}}
+      {{/if}}
+      {{#if markers}}
+        {{> marker-page}}
       {{/if}}
     </div>
     <!-- Footer - modified from the Foundation website -->

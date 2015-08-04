@@ -55,7 +55,7 @@ module.exports = function(app,logger,opts){
 			'vendor/upload.vendor.min.js',
 			'uploader.js'
 		];
-		utils.render(req,res,{scripts:scripts});
+		utils.render(req,res,{scripts:scripts,upload:true});
 	});
 
 	app.use("/upload/vcf", utils.isLoggedIn, uploader.fileHandler());

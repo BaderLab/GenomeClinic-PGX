@@ -3,6 +3,8 @@
   	<head>
     	<meta charset="utf-8"/>
     	<link rel="stylesheet" type="text/css" href="../public/css/pgx-report.css" />
+    	<link rel="stylesheet" href="../public/icons/foundation-icons.css" />
+    	<link rel="stylesheet" href="../public/icons/font-awesome-4.2.0/css/font-awesome.min.css" />
   	</head>
   	<body>
 	  	<div class="row" style="margin-top:0px;margin-bottom:0px;">
@@ -11,6 +13,14 @@
 	  		</div>
 	  	</div>
 	  	<hr color="#B0B0B0" style="height:2px;margin-top:0px">
+	  	{{#if flagged}}
+	  	<div class="row">
+	  		<div class="col-12 columns grey-border" style="background-color:#FF7676">
+	  			<p class="lspacer-2"><i class="fa fa-warning"></i> Warning! Some information has been flagged.</p>
+	  		</div>
+	  	</div>
+	  	<br>
+	  	{{/if}}
 	  	<!-- Start Patient and Physician Information -->
 	  	<section>
 		  	<div class="row">
@@ -230,7 +240,7 @@
 			  		<thead class="rec">
 						<tr class="rec">
 							<th class="size-10  col-2 rec" style="padding:1%">Drug</th>
-							<th class="size-10  col-1 rec" style="padding:1%">Risk</th>
+							<th class="size-10  col-1 rec" style="padding:1%">Flagged</th>
 							<th class="size-10  col-6 rec" style="padding:1%">Comments</th>
 						</tr>
 					</thead>
@@ -239,7 +249,7 @@
 			  		{{#each recommendations}}
 			  			<tr class="rec">
 							<td class="size-8" style="padding:1%">{{drug}}</td>
-							<td><div class="circle risk-{{risk}}"></div></td>
+							<td>{{#if flagged}}<i class="fa fa-warning"></i>{{/if}}</td>
 							<td class="size-8" style="padding:1%">{{rec}}<sup>{{pubmedString}}</i></sup></td>
 						</tr>
 					{{/each}}
