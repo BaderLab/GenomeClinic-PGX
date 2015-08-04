@@ -726,7 +726,7 @@ var dbFunctions = function(){
 		});
 	};
 
-	//get the owner of a field
+	//get the owner of a specified field
 	this.getOwner = function(collection,field){
 		assert.notStrictEqual(db, undefined);
 		assert(Object.prototype.toString.call(collection) == "[object String]",
@@ -754,7 +754,7 @@ var dbFunctions = function(){
 	//Project functions
 	//=======================================================================================
 
-	/* Find all projects for a specific user */
+	/* Find all projects for a specific user and return the project within an array */
 	this.findProjects = function(projectName, username){
 		assert.notStrictEqual(db, undefined);
 		var query = {$or:[]};
@@ -785,7 +785,9 @@ var dbFunctions = function(){
 
 	};
 
-	/* Add a new project */
+	/* Add a new project to the database under the passed user. the The options
+	 * must contain the Project name, as well as the patients that are included 
+	 * in the new project */
 	this.addProject = function(options,user){
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(options) == '[object Object]',"Invalid options");
@@ -805,8 +807,8 @@ var dbFunctions = function(){
 		});
 	};
 
-	/*remove project from collection */
-
+	/*remove project from the collection, and remove the patient associations
+	 * from all the patients in that project */
 	this.removeProject = function(project,user){
 		var _this = this;
 		var query = {};
@@ -818,6 +820,7 @@ var dbFunctions = function(){
 	};
 
 
+	/* Add a new project to a patient by adding the project name to the tags field */
 	this.addProjectToPatient = function(project,patient,user){
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(project) == "[object String]", "Invalid Project Name");
@@ -917,7 +920,8 @@ var dbFunctions = function(){
 		return promise;
 	};
 
-	/*remove patient from patient collection */
+	/* remove patient from the patient collection. Takes two arguments, the first is the
+	 * patient name, and the second is the suer adding the patient. */
 	this.removePatient = function(patient,user){
 		assert.notStrictEqual(db, undefined);
 		assert(Object.prototype.toString.call(patient) == "[object String]", "Invalid Patient Name");
@@ -1142,7 +1146,12 @@ var dbFunctions = function(){
 		return promise;
 	};
 
-
+	/* Retrieve markers and coordinates from the server. Convert the data returned into an
+	 * Object with the marker names as the key. If no parameters are passed, return all 
+	 * markers from the databse. if the marker name is provided only return information
+	 * for the specified marker. Two marker types are stored in the database, 'custom'
+	 * and 'dbsnp'. If the type parameter is passed return only the type of marker
+	 */ 
 	this.getPGXCoords = function(rsID,username,type) {
 		assert.notStrictEqual(db,undefined);
 		var query = {};
@@ -1211,7 +1220,11 @@ var dbFunctions = function(){
 		});
 	};
 
-
+	/* Each gene has an array of markers associated with it that links these markers
+	 * with the respective gene haplotype page. When a marker is present in the array
+	 * it will show up in the haplotype table for that gene. The function accepts a string
+	 * or an array of markers.  
+	 */
 	this.addMarkerToGene = function(markers,gene,user){
 		assert.notStrictEqual(db,undefined);
 		var _this = this;
@@ -1236,7 +1249,8 @@ var dbFunctions = function(){
 		});
 	};
 
-
+	/* Remove the associated markers from a gene by pulling the specified marking
+	 * or array from the gene marker array */
 	this.removeMarkerFromGene = function(markers,gene,user){
 		assert.notStrictEqual(db,undefined);
 		var _this = this;
@@ -1259,6 +1273,7 @@ var dbFunctions = function(){
 			});
 		});
 	};
+
 	//remove the selected marker
 	this.removePGXCoords = function(rsID,user){
 		assert.notStrictEqual(db,undefined);

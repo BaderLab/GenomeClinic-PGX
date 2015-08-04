@@ -138,10 +138,12 @@ module.exports = function(app,logger,opts,passport){
 		});
 	}
 
+	//Route to render a user's password
 	app.get('/setpassword',utils.isLoggedIn, function(req,res){
 		utils.render(req,res,{scripts:'authentication.js'});
 	});
 
+	//Route to verify and update a users password 
 	app.post('/setpassword',utils.isLoggedIn,function(req,res){
 		var data = req.body;
 		var username = req.user[dbConstants.USERS.ID_FIELD].toString();
