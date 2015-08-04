@@ -342,6 +342,7 @@ Every gene has a specified type, each document in this collection contains a sin
 | definition | String | A summary definition of the type | no |
 | fullname | String | Thee name that will appear to the user | no |
 
+```js
 {
 	"_id" : String,
 	"classes" : [
@@ -350,6 +351,7 @@ Every gene has a specified type, each document in this collection contains a sin
 	"definition" : String,
 	fullname : String
 }
+```
 
 
 ### Drugs
@@ -359,9 +361,12 @@ A large number of drugs has been included in the default data with very little r
 | **Field**  | **Type** | **Definition** | **Indexed** |
 | _id | String | A unique drug name | no |
 
+
+```js
 {
 	_id : String
 }
+```
 
 
 
