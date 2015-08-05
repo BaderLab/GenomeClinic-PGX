@@ -76,8 +76,8 @@ module.exports = {
 		if (!_o.title)
 			_o.title = 'PGX webapp';
 		if(_o.cache == undefined)
-			//_o.cache = true;
-			_o.cache = false;
+			_o.cache = true;
+			//_o.cache = false;
 		//if a type is given this indicates taht the
 		if (_o.type == "construction")
 			_o.construction = true;

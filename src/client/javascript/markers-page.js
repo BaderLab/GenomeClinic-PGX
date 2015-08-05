@@ -51,13 +51,14 @@ var utility = require('./utility'),
 							if (context.find('input[name=' + item + ']').hasClass('error')){
 								context.find('input[name=' + item + ']').removeClass('error').siblings('small').text("").hide();
 							}
-							if (item == 'chr' && utility.chrRegex.exec(form[item]) === null )
+							if (item == 'chr' && utility.chrRegex.exec(form[item]) === null ){
 								context.find('input[name=' + item + ']').addClass('error').siblings('small').text("Valid Chromosome Required").show();
-							if ((item == 'ref' || item == 'alt') && utility.allelesRegex.exec(form[item]) === null)
+							} else if ((item == 'ref' || item == 'alt') && utility.allelesRegex.exec(form[item]) === null){
 								context.find('input[name=' + item + ']').addClass('error').siblings('small').text("Valid Allele Required").show();
-							if (item=='asgene')// && /^[0-9]+/.exec(form[item]) === null)
+							} else if (item=='asgene'){// && /^[0-9]+/.exec(form[item]) === null)
 								form[item] = form[item].toUpperCase().split(',');
 								context.find('input[name=' + item + ']').addClass('error').siblings('small').text("A valid number is required").show();
+							}
 						}
 					}
 				}
@@ -129,7 +130,7 @@ var utility = require('./utility'),
 				var alt = form.data('alt');
 
 				e.preventDefault();
-				confirmUpdate(marker,chr,pos,ref,alt).then(function(result){
+				confirmUpdate(marker,chr,genes,ref,alt).then(function(result){
 					if (result){
 						Promise.resolve($.ajax({
 							url:'/database/markers/update?id=' + marker + '&type=custom',
@@ -455,6 +456,7 @@ var utility = require('./utility'),
 			statichandlers();
 			markerRowHandler();
 		}).then(function(){
+			utility.suggestionHandlers();
 			utility.refresh();
 		});
 	}

@@ -255,7 +255,14 @@ module.exports = {
 		var clickRow = function(){
 			$('.suggestion').on('click.suggestion',function(){
 				var input = $($(this).closest('.suggestions').attr('for'));
-				input.val($(this).text());
+				var multi = input.data('multi')
+				if (multi) {
+					var current = input.val().split(',').slice(0,-1).join(',')
+					var spacer = ""
+					if (current !== "")
+						spacer = ',';
+					input.val(current + spacer + $(this).text());
+				} else input.val($(this).text());
 				input.trigger('change');
 				$('.suggestion-list').html('').closest('.suggestions').slideUp();
 			});
@@ -277,7 +284,9 @@ module.exports = {
 			var col = $(this).data('col');
 			var num = $(this).data('num');
 			var gene = $(this).data('gene');
-			var v = $(this).val();
+			var multi = $(this).data('multi');
+			if (multi) v = $(this).val().split(',').splice(-1)[0];
+			else v = $(this).val();
 			if (v.length  > 0 ){
 				//get the suggestion from the server
 
