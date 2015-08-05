@@ -218,7 +218,7 @@ module.exports = {
 		output = [];
 		var temp;
 		var fields = $('.future-field:visible')
-		if ($('#drug-recommendations').is(':visible')){
+		if ($('#future-recommendations').is(':visible')){
 			for (var i = 0; i < fields.length; i++ ){
 				temp = {};
 				temp.rec = $(fields[i]).find(".rec").val();
@@ -476,7 +476,7 @@ module.exports = {
 		//prevent form from being submitted prematurely
 		$('form').on("keyup keypress", function(e) {
 		  var code = e.keyCode || e.which; 
-		  if (code  == 13) {               
+		  if (code  == 13 && document.activeElement.type !== 'textarea') {               
 		    e.preventDefault();
 		    return false;
 		  }
