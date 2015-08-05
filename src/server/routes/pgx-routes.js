@@ -83,7 +83,7 @@ module.exports = function(app,logger,opts){
 	
 	/* Generate a pdf report of the PGx Analaysis for a specific patient. The req body contains all the information from the
 	 * PGx analysis that was conducted on the server side */
-	app.post("/browsepatients/id/:patientID/report", utils.isLoggedIn, function(req,res){
+	app.post("/browsepatients/id/:patientID/pgx", utils.isLoggedIn, function(req,res){
 		var options = {
 			top:'1cm',
 			bottom:'1cm',

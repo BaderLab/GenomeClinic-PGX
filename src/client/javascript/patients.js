@@ -71,7 +71,7 @@ var utility = require('./utility'),
 			}).then(function(){
 				addEventListeners();
 			});
-		} else if (location.match(/^\/browsepatients\/id\/.*\/dosing/) !== null){
+		} else if (location.match(/^\/browsepatients\/id\/.*\/report/) !== null){
 			dosing.render();
 
 		} else if (location.match(/^\/browsepatients\/id\/.*$/) !== null){

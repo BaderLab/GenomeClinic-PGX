@@ -562,7 +562,7 @@ var pgx =  {
 			e.preventDefault();
 			$(this).text("Generating...")
 			Promise.resolve($.ajax({
-				url: window.location.pathname + '/report',
+				url: window.location.pathname + '/pgx',
 				type: "POST",
 				dataType: 'json',
 				contentType:'application/json',

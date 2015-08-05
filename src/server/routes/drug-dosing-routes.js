@@ -80,7 +80,7 @@ module.exports = function(app,logger,opts){
 		utils.render(req,res,{scripts:'dosing-page.js'});
 	});
 
-	app.get('/browsepatients/id/:patientID/dosing',utils.isLoggedIn,function(req,res){
+	app.get('/browsepatients/id/:patientID/report',utils.isLoggedIn,function(req,res){
 		utils.render(req,res,{scripts:'patients.js'})
 	})
 	//==========================================================
