@@ -70,7 +70,13 @@
 					  						<span class="prefix">Associated Genes</span>
 					  					</div>
 					  					<div class="large-9 small-8 medium-8 columns">
-					  						<input type="text" name="asgenes">
+					  						<input type="text" name="asgenes" id="asgenes-new" data-multi="true"  data-col="genes" data-num="10" class="suggestion-input">
+					  						<div class="suggestion-wrapper">
+												<div class="suggestions" for="#asgenes-new" style="z-index:100">
+													<ul class="suggestion-list">
+													</ul>
+												</div>
+											</div>
 					  						<small class="error" style="display:none">Required</small>
 					  					</div>
 					  				</div>
@@ -138,11 +144,16 @@
 				</div>
 				<div class="row collapse prefix-radius">
 					<div class="large-3 small-4 medium-4 columns">
-						<span class="prefix">Position</span>
+						<span class="prefix">Associated Genes</span>
 					</div>
-					<div class="large-9 small-8 medium-8 columns">
-						<input type="text" name="pos">
-						<small class="error" style="display:none">Required</small>
+					<div class="large-9 small-8 medium-8 columns" style="margin-bottom:16px">
+						<input type="text" name="asgenes" id="asgenes-update" data-multi="true"  data-col="genes" data-num="10" class="suggestion-input">
+  						<div class="suggestion-wrapper">
+							<div class="suggestions" for="#asgenes-update" style="z-index:100">
+								<ul class="suggestion-list">
+								</ul>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>

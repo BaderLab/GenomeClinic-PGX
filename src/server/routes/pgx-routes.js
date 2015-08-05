@@ -290,18 +290,18 @@ module.exports = function(app,logger,opts){
 			return dbFunctions.find(constants.dbConstants.PGX.GENES.COLLECTION,{_id:{$in:ids}},undefined,undefined,req.user.username)
 		}).then(function(result){
 			out.haplotypes = result;
-			var query = {$or:[{_id:{$in:incMarkers}},{asgenes:gene},{asgenes:{$size:0}}]};
+			var query = {$or:[{_id:{$in:incMarkers}},{asgenes:gene}]};
 			return dbFunctions.find(constants.dbConstants.PGX.COORDS.COLLECTION,query,undefined,undefined,req.user.username)
 		}).then(function(result){
 			out.amarkers = [] // all associated markers
 			out.markers = incMarkers; // unique markers
-			out.allMarkers = {}
-			out.unMarkers =  []// unassociated markers
+			out.allMarkers = {}// unassociated markers
 			for (var i = 0; i < result.length; i++){
-				if (result[i].asgenes.length > 0 )
-					out.amarkers.push(result[i]._id)
-				else
-					out.unMarkers.push(result[i]._id);
+				out.amarkers.push(result[i]._id)
+				//if (result[i].asgenes.length > 0 )
+					
+				//else
+				//	out.unMarkers.push(result[i]._id);
 
 				out.allMarkers[result[i]._id] = result[i];
 			}
@@ -348,12 +348,6 @@ module.exports = function(app,logger,opts){
 					out.haplotypes[i].markers = temp;
 				}
 				
-			}
-
-
-			if (out.unMarkers.length == 0 ){
-				delete out.umMarkers
-			} else {
 			}
 
 			if (out.amarkers == 0 ){
