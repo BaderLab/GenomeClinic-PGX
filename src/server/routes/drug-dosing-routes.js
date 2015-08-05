@@ -538,11 +538,11 @@ module.exports = function(app,logger,opts){
 			left:'20px',
 			rigth:'20px'
 		};
-
 		//get disclaimer
+		var template = opts.report ? opts.report : constants.dbConstants.DRUGS.REPORT.DEFAULT;
 		dbFunctions.findOne(constants.dbConstants.DB.ADMIN_COLLECTION,{}).then(function(result){
 			req.body.disclaimer = result.disclaimer;
-			return genReport(req,res,req.params.patientID,constants.dbConstants.DRUGS.REPORT.DEFAULT,options,logger)
+			return genReport(req,res,req.params.patientID,template,logger)
 		});
 	});
 

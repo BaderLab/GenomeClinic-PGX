@@ -97,7 +97,7 @@ node webapp.js --https --crt ../path/to/cert.crt --key ../path/to/key.key
 
 ## Generating Reports
 
-GenomeClinic-PGX uses [Handlebars.js](www.handlebarsjs.com) to dynamically generate downloadable reports for the users. CA data Object from the report page  is passed to handlebars containing all fo the patient information as well as the data inputed by the user. A generic report is included with the app by default, however it can easily be changed and updated to have a custom report by creating a new template by following the parameters listed [here](). To direct the app to use a new template you can pass the path of the template via an argument on the commandline. The file must be a handlebars template with the extension `.hbs`. We suggest that all resources referenced in the hbs file are referenced with an absolute path.
+GenomeClinic-PGX uses [Handlebars.js](www.handlebarsjs.com) to dynamically generate downloadable reports for the users. CA data Object from the report page  is passed to handlebars containing all fo the patient information as well as the data inputed by the user. A generic report is included with the app by default, however it can easily be changed and updated to have a custom report by creating a new template by following the parameters listed [here](docs/report_reference.md). To direct the app to use a new template you can pass the path of the template via an argument on the commandline. The file must be a handlebars template with the extension `.hbs`. We suggest that all resources referenced in the hbs file are referenced with an absolute path.
 
 - Change report : `--report [ report name ]`
 
@@ -109,7 +109,7 @@ node webapp.js --report ../path/to/report.hbs
 
 ## Default Data
 
-The first time the server starts, it will search in the build directory for the default JSON data to add to the database. The user can provide a path to new default data that can be uploaded during the first time the server is started. The data must follow a specific format that is documented [here](). The data can only be uploaded the first time the server is started, otherwise in order to perform any sort of bulk operation the user must use the [bulkops.js]() application to perform the action.
+The first time the server starts, it will search in the build directory for the default JSON data to add to the database. The user can provide a path to new default data that can be uploaded during the first time the server is started. The data must follow a specific format that is documented [here](docs/default_data.md). The data can only be uploaded the first time the server is started, otherwise in order to perform any sort of bulk operation the user must use the [bulkops.js](docs/bulkops.md) application to perform the action.
 
 - Change default data : `--def-data [data Default: lib/conf/default_rec_data.json]`
 

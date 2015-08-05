@@ -126,7 +126,7 @@ var opts= require("nomnom")
 	})
 	.option('defaultData',{
 		full:"def-data",
-		help:"Define a path to default data other then that specificed by the constants folder"
+		help:"Define a path to default data other then that specificed by the constants folder",
 		callback: function(defaultData){
 			dbConstants.DRUGS.DEFAULT = defaultData;
 		}
