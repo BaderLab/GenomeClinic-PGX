@@ -134,36 +134,6 @@
 			</tbody>
 		</table>
 		{{/if}}
-		{{#if unMarkers}}
-		<h3>Unassociated Markers</h3>
-		<table class="large-12 medium-12 small-12" id="umarkers">
-			<thead>
-				<tr>
-					<th class="large-3 small-3 medium-3">Identifier</th>
-					<th class="text-center large-2 small-2 medium-2">Chromosome</th>
-					<th class="text-center large-2 small-2 medium-2">Reference</th>
-					<th class="text-center large-3 small-3 medium-3">Alt</th>
-					<th class="text-center large-2 small-2 medium-2">Add/Remove</th>
-				</tr>
-			</thead>
-			<tbody>
-				{{#each unMarkers}}
-				<tr id="{{this}}">
-					<td>{{this}}</td>
-					<td class="text-center chr">{{lookUpIdInfo @root.allMarkers this 'chr'}}</td>
-					<td class="text-center ref">{{lookUpIdInfo @root.allMarkers this 'ref'}}</td>
-					<td class="text-center alt">{{lookUpIdInfo @root.allMarkers this 'alt'}}</td>
-					{{#ifIdAdded @root.allMarkers this}}
-					<td class="text-center"><a href="#" class="marker-status added button tiny radius" style="margin-bottom:0px">Remove</a></td>
-					{{else}}
-					<td class="text-center"><a href="#" class="marker-status unadded button tiny radius" style="margin-bottom:0px">Add</a></td>
-					{{/ifIdAdded}}
-				</tr>
-				{{/each}}
-			</tbody>
-		</table>
-
-		{{/if}}
 	</div>
 </div<
 <div class="row">

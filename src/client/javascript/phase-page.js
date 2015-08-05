@@ -506,7 +506,7 @@ var utility = require('./utility');
 				})).then(function(response){
 					if (response.statusCode == 200 ){
 						var html = generateRowHtml(response);
-						$("#haplotypes").find('tbody').append(html);
+						$("#haplotypes").find('tbody').append(html).show();
 						var row = $("#haplotypes").find('tbody').find('tr').last();
 						haploCellHandlers($(row).find('.haplotype-cell'));
 						$(row).find('.marker').each(function(ind,item){markerCellHandlers($(item));});
@@ -629,7 +629,7 @@ var utility = require('./utility');
 				})).then(function(result){
 					if (result[val]){
 						var html = generateMarkerHtml(result[val])
-						$('#umarkers').find("tbody").append(html);
+						$('#amarkers').find("tbody").append(html);
 						markerHandlers('#' + val);
 					} else {
 						$('#suggestion-input').addClass('glowing-error').attr('placeholder','No markers found');
