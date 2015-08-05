@@ -1275,11 +1275,24 @@ var dbFunctions = function(){
 	};
 	//remove the selected marker
 	this.removePGXCoords = function(rsID,user){
+		var _this = this;
 		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(rsID) == "[object String]");
 		var query = {};
 		query[dbConstants.PGX.COORDS.ID_FIELD] = rsID;
-		return removeDocument(dbConstants.PGX.COORDS.COLLECTION,query,user);
+		return removeDocument(dbConstants.PGX.COORDS.COLLECTION,query,user).then(function(){
+			var update = {$pull:{}};
+			update.$pull[dbConstants.DRUGS.ALL.MARKERS] = rsID;
+			var query = {};
+			query[dbConstants.DRUGS.ALL.MARKERS] = rsID;
+			return _this.update(dbConstants.DRUGS.ALL.COLLECTION,{},update,{multi:true});
+		}).then(function(result){
+			var query = {};
+			query[dbConstants.PGX.GENES.MARKERS] = rsID;
+			var update = {$pull:{}};
+			update.$pull[dbConstants.PGX.GENES.MARKERS] = rsID;
+			return _this.update(dbConstants.PGX.GENES.COLLECTION,query,update,{multi:true});
+		});
 
 	};
 	/*retrieve the selected Haplotype Gene(s). Accepts an array or string, or no
