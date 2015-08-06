@@ -108,7 +108,7 @@ function getRsIds(ids){
 							temp._id = 'rs' + o.$.rsId;
 							if (ids[i] !== o.$.rsId) {
 								temp.merged = {
-									from : ids[i]
+									from : 'rs'+ids[i]
 								}
 								merged.push(o.$.rsId)
 							}

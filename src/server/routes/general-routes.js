@@ -188,15 +188,28 @@ module.exports = function(app,logger,opts){
 		var agg = [];
 		var query = {};
 		term = term.replace(/\*/g,'\\*').replace(/\+/g,'\\+')
-		query[mapper[collection].field] = {$regex:term}
-		if (strict !== '') query[mapper[collection].field].$options = strict;
-		if (multiple !== '') query[mapper[collection].field].$options = multiple;
+		if (collection == "marker" ){
+			var temp1 = {};
+			var temp2 = {};
+			temp1[mapper[collection].field] = {$regex:term}
+			temp2['merged.from'] = {$regex:term};
+			if (strict !== '') {
+				temp1[mapper[collection].field].$options = strict;
+				temp2['merged.from'].$options = strict;
+			}
+			query.$or = [temp1, temp2];
+		} else {
+			query[mapper[collection].field] = {$regex:term}
+			if (strict !== '') query[mapper[collection].field].$options = strict;
+			if (multiple !== '') query[mapper[collection].field].$options = multiple;
+		}
 		if (mapper[collection].gene) query[mapper[collection].gene] = gene;
+		//Search for merged genes as well
 		agg.push({$match:query})
 		agg.push({$limit:num});
-		agg.push({$group:{_id:null,matches:{$addToSet:'$' + mapper[collection].field}}});
+		agg.push({$group:{_id:null,matches:{$addToSet:'$' + mapper[collection].field},from:{$addToSet:'$merged.from'}}});
 		return dbFunctions.aggregate(mapper[collection].col,agg).then(function(result){
-			if (result.length > 0) res.send(result[0].matches);
+			if (result.length > 0) res.send(result[0].matches.concat(result[0].from));
 			else res.send([]);
 		});
 
