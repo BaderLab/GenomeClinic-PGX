@@ -564,7 +564,7 @@ module.exports = {
 			})
 		});
 
-		$('.flag').on('click',function(e){
+		$(context).find('.flag').on('click',function(e){
 			e.preventDefault();
 			if ($(this).hasClass('secondary')) $(this).removeClass('secondary');
 			else $(this).addClass('secondary');

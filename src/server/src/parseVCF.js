@@ -105,7 +105,7 @@ var read = function(){
 			ops.bufferArray.push(data);
 			if (!ops.reading){
 				ops.reading = true;
-				readAndParse()
+				return readAndParse()
 				.then(function(){
 					stream.resume();
 					ops.reading = false;
@@ -128,7 +128,7 @@ var read = function(){
 				promise = Promise.resolve(Object.keys(ops.patientObj));
 			}
 
-			promise.each(function(patient){
+			return promise.each(function(patient){
 				return checkAndInsertDoc(patient);
 			}).then(function(){
 				logger("info","file read successful, documents inserted into database",{user:ops.user,target:ops.file,action:'parseVCF'});
@@ -315,37 +315,40 @@ var parseChunk = function(stringArray){
 						}
 
 						//Add the format fields now, these are additional information including the genotype
-						var formatMapper = [];
-						var formatField = line[ops.mapper.format].split(':');
-						var formatRegex = new RegExp(line[ops.mapper.format].replace(/[a-z0-9]+/gi,".*"),'i');
-						var formatLine;
+						if (cont){
+							var formatMapper = [];
+							var formatField = line[ops.mapper.format].split(':');
+							var formatRegex = new RegExp(line[ops.mapper.format].replace(/[a-z0-9]+/gi,".*"),'i');
+							var formatLine;
 
-						try {
-							formatLine = line[ops.patientObj[patient].id].split(':');
-						} catch (err) {
-							reject("An error occured while parsing " + ops.file + ". Format line does not appear to be formed correctly")
-						}
 
-						if (line[ops.patientObj[patient].id].match(formatRegex) === null){
-							reject("Invalid Genotype field found");
-						}
+							try {
+								formatLine = line[ops.patientObj[patient].id].split(':');
+							} catch (err) {
+								reject("An error occured while parsing " + ops.file + ". Format line does not appear to be formed correctly")
+							}
 
-						for (var j = 0; j < formatField.length; j++ ){
-							var info = formatLine[j].split(/[\/|,]/);
-							info = info.map(convertNum);
+							if (line[ops.patientObj[patient].id].match(formatRegex) === null){
+								reject("Invalid Genotype field found");
+							}
 
-							if (formatField[j].toLowerCase() == 'gt'){
-								if (info.indexOf('.') != -1){
-									ops.patientObj[patient].ignored++;
-									cont = false;
-								} else {
-									currDoc[dbConstants.VARIANTS.ZYGOSITY] = zygosity(info);
-									currDoc[dbConstants.VARIANTS.RAW_GENOTYPE] = formatLine[j];
-									currDoc[formatField[j].toLowerCase()] = info;
-									currDoc[dbConstants.VARIANTS.PHASING] = (formatLine[j].indexOf('|') != -1 || false);
+							for (var j = 0; j < formatField.length; j++ ){
+								var info = formatLine[j].split(/[\/|,]/);
+								info = info.map(convertNum);
+
+								if (formatField[j].toLowerCase() == 'gt'){
+									if (info.indexOf('.') != -1){
+										ops.patientObj[patient].ignored++;
+										cont = false;
+									} else {
+										currDoc[dbConstants.VARIANTS.ZYGOSITY] = zygosity(info);
+										currDoc[dbConstants.VARIANTS.RAW_GENOTYPE] = formatLine[j];
+										currDoc[formatField[j].toLowerCase()] = info;
+										currDoc[dbConstants.VARIANTS.PHASING] = (formatLine[j].indexOf('|') != -1 || false);
+									}
+								} else if (cont){
+									currDoc[formatField[j]] = (info.length == 1 ? info[0]:info);
 								}
-							} else if (cont){
-								currDoc[formatField[j]] = (info.length == 1 ? info[0]:info);
 							}
 						}
 						if (cont){
@@ -428,16 +431,16 @@ var removeFile = function(){
  */
 var checkAndInsertDoc = function(patient){
 	var promise = new Promise(function(resolve,reject){
-		var docsToInsert = ops.patientObj[patient].documents;
-		var options = {documents: docsToInsert,
-				   collectionName:ops.patientObj[patient].collection};
-		
-		dbFunctions.insertMany(options,ops.user)
+		var options = {
+			documents: ops.patientObj[patient].documents,
+			collectionName:ops.patientObj[patient].collection
+		};
+		return dbFunctions.insertMany(options,ops.user)
 		.then(function(){
 			ops.patientObj[patient].documents = [];
 			ops.patientObj[patient].insertCache = [];
 			resolve(ops.patientObj[patient].documents.length);
-		})
+		});
 	});
 	return promise;
 };
@@ -612,7 +615,7 @@ var run = function(file, patients, user,remove){
 	}).then(function(){
 		return setComplete();
 	}).catch(function(err){
-		fail(err)
+		return fail(err)
 	}).then(function(){
 		if (remove){
 			return removeFile();

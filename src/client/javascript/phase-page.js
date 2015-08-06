@@ -21,17 +21,20 @@ var utility = require('./utility');
 			var rows = $('.haplotype-row:visible');
 
 			//Retrieve the marker names from the table header
-			var markers = $('#haplotypes').find('th[id^=marker-rs]').map(function(ind,item){
+			var markers = $('#haplotypes').find('th[id^=marker-rs]:visible').map(function(ind,item){
 				return  { marker:$(item).text(), ind: ind + 1};
 			});
 			var markerComb = [];
 			//If the marker is of length 0 reject the page.
 			if (markers.length === 0){
+				$('#delete').trigger('click')
 				reject('You need at least one marker to save the haplotype');
 				return;
 			}
 			if (rows.length === 0) {
-				//reject("Need at least one")
+				$('#delete').trigger('click')
+				reject("Need at least one row")
+				return
 			}
 			for (var i = 0; i < rows.length; i ++ ){
 				temp = {};
@@ -458,7 +461,7 @@ var utility = require('./utility');
 					var index = $('#marker-' + id).index();
 					var rows =  $('.haplotype-row');
 					for (var i = 0; i < rows.length; i++ ){
-						$(rows).find('td').eq(index).show();
+						$(rows[i]).find('td').eq(index).show();
 					}
 				} else {
 					Promise.resolve().then(function(){
