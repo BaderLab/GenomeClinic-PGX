@@ -280,6 +280,8 @@ var parseChunk = function(stringArray){
 									toString = true;
 									var itemToInsert = line[ops.mapper.static[field]].split(',');
 									if (field.search('chr') === -1){ // we want to keep chr as a string so dont convert it
+										// For whatever reason, the files have a space at this location occasionally
+										if (field == 'id')  itemToInsert.replace(/\s/,'');
 										itemToInsert = itemToInsert.map(convertNum);
 									} else {
 										field = 'chr';
