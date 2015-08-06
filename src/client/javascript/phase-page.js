@@ -61,7 +61,8 @@ var utility = require('./utility');
 				if (markerComb.indexOf(temp.markers.join('')) === -1 ){
 					markerComb.push(temp.markers.join(''));
 				} else {
-					reject('Each Haplotype must have a unique Marker combination. Please make the appropriate correction before submitting');
+					var hap2 = $(rows[markerComb.indexOf(temp.markers.join(''))]).find('input').val()
+					reject('Each Haplotype must have a unique Marker combination. Haplotypes:' + temp.haplotype + ' and ' +hap2 +' have identical entries. Please make the appropriate correction before submitting');
 					return false;
 				}
 
@@ -574,70 +575,28 @@ var utility = require('./utility');
 
 	var suggestionBox = function(){
 		utility.suggestionHandlers();
-		/*var clickRow = function(){
-			$('.suggestion').on('click',function(){
-				$('#suggestion-input').val($(this).text());
-				$('.suggestion-list').html('').closest('.suggestions').slideUp();
-			});
-		}
-
-		$(document).on('mouseup.suggestion',function(e){
-			var targ1 = $('#suggestion-input');
-			var targ2 = $('.suggestion-list,.suggestion');
-			var target = e.target;
-			if (!targ1.is(target) && !targ2.is(target)){
-				$('.suggestion-list').html('').closest('.suggestions').slideUp();
-			}
-
-		});
-
-		$('#suggestion-input').on('keyup',function(e){
-			$(this).removeClass('glowing-error').attr('placeholder','');
-			var val = $(this).val();
-			if (val.length > 2){
-				//get the suggestion from the server
-				utility.getSuggestions(val,'marker',10).then(function(result){
-					var html = "";
-					if (result.length > 0){
-						for (var i = 0; i < result.length; i++ ){
-							var searchIndex = result[i].search(val);
-							html += '<li class="suggestion">'
-							for (var j = 0; j < result[i].length; j++ ){
-								if (j == searchIndex) html += '<b class=suggetion-match>'
-								html += result[i][j];
-								if (j - searchIndex == val.length -1) html += '</b>'
-							}
-							html += '</li>'
-						}
-					} else {
-						html += '<li><i>No Suggestions</i></li>'
-					}
-					return $('.suggestion-list').html(html).closest('.suggestions').slideDown();
-				}).then(function(){
-					clickRow();
-				});
-			} else {
-				$('.suggestion-list').html('').closest('.suggestions').slideUp();	
-			}
-		});*/
 		$('#search-new-marker').on('click',function(e){
 			e.preventDefault();
 			var val = $('#suggestion-input').val()
 			$('#suggestion-input').val('');
 			if (val != '' && $(val).length == 0){
-				Promise.resolve($.ajax({
-					url:'/database/markers/getmarkers/' + val,
-					type:'GET',
-					dataType:'json'
-				})).then(function(result){
-					if (result[val]){
-						var html = generateMarkerHtml(result[val])
-						$('#amarkers').find("tbody").append(html);
-						markerHandlers('#' + val);
-					} else {
-						$('#suggestion-input').addClass('glowing-error').attr('placeholder','No markers found');
-					}
-				});
+				if ($('#' + val).length > 0){
+					$('#suggestion-input').addClass('glowing-error').attr('placeholder','Marker already on page');
+				} else {
+					Promise.resolve($.ajax({
+						url:'/database/markers/getmarkers/' + val,
+						type:'GET',
+						dataType:'json'
+					})).then(function(result){
+						if (result[val]){
+							var html = generateMarkerHtml(result[val])
+							$('#amarkers').find("tbody").append(html);
+							markerHandlers('#' + val);
+						} else {
+							$('#suggestion-input').addClass('glowing-error').attr('placeholder','No markers found');
+						}
+					});
+				}
 			} else {
 				$('#suggestion-input').addClass('glowing-error').attr('placeholder','No markers found');
 			}

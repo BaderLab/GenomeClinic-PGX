@@ -248,7 +248,7 @@ var utility = require('./utility'),
 					input[item.name] = item.value.toUpperCase().split(/[\,\s]/g);
 				else if (item.name == 'asgenes')
 					input[item.name] = item.value.toUpperCase().split(',');
-				else if (item.name == 'dbsnp-id')
+				else if (item.name == 'new-marker' || item.name == 'dbsnp-id')
 					input[item.name] = item.value;
 				else
 					input[item.name] = item.value.toUpperCase();

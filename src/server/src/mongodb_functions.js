@@ -1296,7 +1296,10 @@ var dbFunctions = function(){
 		assert(Object.prototype.toString.call(rsID) == "[object String]");
 		var query = {};
 		query[dbConstants.PGX.COORDS.ID_FIELD] = rsID;
+		var removed;
 		return removeDocument(dbConstants.PGX.COORDS.COLLECTION,query,user).then(function(){
+			//it has successfully removed the doc
+			removed = true;
 			var update = {$pull:{}};
 			update.$pull[dbConstants.DRUGS.ALL.MARKERS] = rsID;
 			var query = {};
@@ -1308,7 +1311,9 @@ var dbFunctions = function(){
 			var update = {$pull:{}};
 			update.$pull[dbConstants.PGX.GENES.MARKERS] = rsID;
 			return _this.update(dbConstants.PGX.GENES.COLLECTION,query,update,{multi:true});
-		});
+		}).then(function(){
+			return removed
+		})
 
 	};
 	/*retrieve the selected Haplotype Gene(s). Accepts an array or string, or no
