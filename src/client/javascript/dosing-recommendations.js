@@ -537,7 +537,7 @@ module.exports = {
 			var formInfo = _this.serializeForm();
 			$(this).find('button').text('Generating...');
 			Promise.resolve($.ajax({
-				url:window.location.pathname + '/report',
+				url:window.location.pathname + '/generate',
 				type:"POST",
 				dataType:'json',
 				contentType:'application/json',
@@ -580,7 +580,6 @@ module.exports = {
 		//load information on patient and generate pgx info.
 		var location = window.location.pathname;
 		var patientID = location.split('/').splice(-2)[0];
-		console.log(patientID);
 		//Generate pgx results and convert them into a usable format;
 		pgx.generatePgxResults(patientID).then(function(result){
 			return pgx.convertTotemplateData(result);
