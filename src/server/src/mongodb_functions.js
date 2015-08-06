@@ -1722,7 +1722,7 @@ var dbFunctions = function(){
 				//Get all the genes to act upon.
 					newPromise = self.findOne(item.collection,{_id:{$in:item.ids}},user).then(function(result){
 						genes  = result.genes || [result.gene]
-						return removeDocument(item.collection,{_id:ids},user);
+						return removeDocument(item.collection,{_id:result._id},user)
 						//Item has now been found, so get the genes
 					});
 				} else {
