@@ -167,7 +167,9 @@ module.exports = function(app,logger,opts){
 		var query = {_id:id};
 		update = {$set:doc};
 		dbFunctions.update(collection,query,update,undefined,user)
-		.then(function(){
+		.then(function(result){
+			console.log(result);
+
 			req.flash('message','entry updated successfully');
 			req.flash('statusCode','200');
 			res.redirect('/success');

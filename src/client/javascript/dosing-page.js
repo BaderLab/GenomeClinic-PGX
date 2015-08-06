@@ -763,9 +763,10 @@ var utility = require('./utility');
 						dataType:'json',
 						data:JSON.stringify(o)
 					})).then(function(result){
+						console.log(result);
 						if (result.statusCode == 200 ){
-							$(_this).find('input[name=allele_1]').data('originalvalue',result.haplotypes[0]);
-							$(_this).find('input[name=allele_2]').data('originalvalue',result.haplotypes[1]);
+							$(_this).find('input[name=allele_1]').data('originalvalue',$(_this).find('input[name=allele_1]').val());
+							$(_this).find('input[name=allele_2]').data('originalvalue',$(_this).find('input[name=allele_2]').val());
 							$(_this).find('.cancel-changes').trigger('click');
 							$(_this).find('.alert-message').text(result.message).closest('.alert-box').slideDown();
 						} else {

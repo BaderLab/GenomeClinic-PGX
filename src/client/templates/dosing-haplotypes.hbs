@@ -35,7 +35,13 @@
 							<span class="prefix">First Haplotype</span>
 						</div>
 						<div class="large-8 small-8 medium-8 columns">
-							<input name="allele_1" type="text" placeholder="ex *1" value="{{haplotypes.[0]}}" data-originalValue="{{haplotypes.[0]}}" disabled="disabled" required>
+							<input name="allele_1" type="text" placeholder="ex *1" value="{{haplotypes.[0]}}" data-originalValue="{{haplotypes.[0]}}" disabled="disabled" required class="suggestion-input" id="{{_id}}-1" data-col="haplotype" data-num="10" data-gene="{{gene}}">
+							<div class="suggestion-wrapper">
+								<div class="suggestions" for="#{{_id}}-1" style="z-index:100">
+									<ul class="suggestion-list">
+									</ul>
+								</div>
+							</div>
 							<small class="error">Required</small>
 						</div>
 					</div>
@@ -46,7 +52,13 @@
 							<span class="prefix">Second Haplotype</span>
 						</div>
 						<div class="large-8 small-8 medium-8 columns">
-							<input name="allele_2" type="text" placeholder="ex *2" value="{{haplotypes.[1]}}" data-originalValue="{{haplotypes.[1]}}" disabled="disabled" required>
+							<input name="allele_2" type="text" placeholder="ex *2" value="{{haplotypes.[1]}}" data-originalValue="{{haplotypes.[1]}}" disabled="disabled" required class="suggestion-input" id="{{_id}}-2" data-col="haplotype" data-num="10" data-gene="{{gene}}">
+							<div class="suggestion-wrapper">
+								<div class="suggestions" for="#{{_id}}-2" style="z-index:100">
+									<ul class="suggestion-list">
+									</ul>
+								</div>
+							</div>
 							<small class="error">Required</small>
 						</div>
 					</div
