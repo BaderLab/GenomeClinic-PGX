@@ -369,6 +369,7 @@ var utility = require('./utility'),
 				}
 			}
 			if (!$('#new-marker-form').find('input').hasClass('error')){
+				var finalResult;
 				Promise.resolve($.ajax({
 					url:'/markers/new?type='+type,
 					type:'POST',
@@ -376,6 +377,7 @@ var utility = require('./utility'),
 					dataType:"json",
 					data:JSON.stringify(doc)
 				})).then(function(result){
+					finalResult =result;
 					if (result.status == 'failed')
 						throw new Error(result.message)
 					return templates.markers.row({markers:[result]})
@@ -385,6 +387,9 @@ var utility = require('./utility'),
 					else
 						return $('#custom-markers').prepend(renderedHtml).parent('table').show();
 				}).then(function(){
+					if (finalResult.merged) {
+						doc._id = finalResult._id
+					}
 					var marker = '#' + doc._id;
 					markerRowHandler($(marker).closest('tr'));
 					var background = $(marker).closest('tr').css('background-color');
@@ -395,6 +400,7 @@ var utility = require('./utility'),
 					setTimeout(function(){
 						$(marker).closest('tr').css('background-color',background)
 					},3000);
+					if(finalResult.merged) $(marker).find('.alert-message').text('rs' + finalResult.merged.from.toString() + " has merged into " + doc._id +". The marker is being stored under its new name").closest('.alert-box').slideDown();
 					$('#cancel-new-marker').trigger('click');
 				}).catch(function(err){
 					$('#new-marker-form').find('.alert-message').text(err.message).closest('.alert-box').slideDown();

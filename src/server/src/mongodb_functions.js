@@ -1198,6 +1198,7 @@ var dbFunctions = function(){
 			var markerNames = Object.keys(markers);
 			return getRS(markerNames).then(function(result){
 				foundMarkers = [];
+
 				//Check to see if any of the genes have changed.
 				for (var i = 0; i < result.dbSnp.length; i++ ){
 					//check version

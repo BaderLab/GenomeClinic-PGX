@@ -92,7 +92,7 @@ function getRsIds(ids){
 				//Parse the xml into a js objct
 				parseString(xml,function(err,result){
 					var o,strand,point,alleles,allele,maxLength,i,j,m,ind,ind2,temp;
-					var seen = [],out=[];
+					var seen = [],out=[],merged=[];
 					var rs = result.ExchangeSet.Rs;
 
 					// No entries were returned
@@ -106,6 +106,12 @@ function getRsIds(ids){
 							temp = {};
 							o = rs[i];
 							temp._id = 'rs' + o.$.rsId;
+							if (ids[i] !== o.$.rsId) {
+								temp.merged = {
+									from : ids[i]
+								}
+								merged.push(o.$.rsId)
+							}
 							seen.push(o.$.rsId);
 							temp.variants = o.Sequence[0].Observed[0].split('/');
 							// not enough information on the assemblhy of the dbSnp entry
@@ -161,11 +167,12 @@ function getRsIds(ids){
 						if (out.length !== ids.length ){
 							var missing = [];
 							for (i =0; i < ids.length; i++){
-								if (seen.indexOf(ids[i].toString()) == -1) missing.push(ids[i]);
+								if (seen.indexOf(ids[i].toString()) == -1 || merged.indexOf(ids[i].toString()) ==-1) missing.push(ids[i]);
 							}
 							output.ids = ids;
 							output.dbSnp = out;
 							output.missing = missing;
+							output.merged = merged
 
 						} else {
 							output.ids = ids;
