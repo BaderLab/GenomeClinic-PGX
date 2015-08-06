@@ -1174,14 +1174,35 @@ var dbFunctions = function(){
 			query.type = type;
 		return find(dbConstants.PGX.COORDS.COLLECTION,query,undefined,null,username)
 		.then(function(result){
-			var out = {};
+			//Check to see if the marker has been merged at all
+			if (result.length === 0){
+				var query = {};
+				if (Object.prototype.toString.call(rsID) == "[object Array]")
+					query['merged.from'] = {$in:rsID}
+				else if (rsID)
+					query['merged.from'] = rsID;
+				if (type)
+					query.type = type
+				return find(dbConstants.PGX.COORDS.COLLECTION,query,undefined,null,username)
+			} else {
+				return result
+			}
+		}).then(function(result){
+			var out = {}
 			for (var i = 0; i < result.length; i++ ){
 				out[result[i]._id] = {};
+				if (result[i].merged){
+					out[result[i].merged.from] = {};
+				}
 				for (var key in result[i]){
 					if (result[i].hasOwnProperty(key)){
+						if (result[i].merged)
+							out[result[i].merged.from][key] = result[i][key]
 						out[result[i]._id][key] = result[i][key];
 					}
 				}
+				if (result[i].merged)out[result[i].merged.from]._id = result[i].merged.from;
+
 			}
 			return out;	
 		});
@@ -1411,6 +1432,7 @@ var dbFunctions = function(){
 			for (i = 0; i< pgxGenesRemoved.length; i++){
 				delete pgxGenes[pgxGenesRemoved[i]];
 			}
+
 			return pgxCoords;
 		}).then(function(result){
 			// build search query
