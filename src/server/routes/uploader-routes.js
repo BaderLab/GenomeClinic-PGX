@@ -9,9 +9,10 @@ var dbFunctions = require('../models/mongodb_functions');
 var dbConstants = constants.dbConstants,
 	nodeConstants = constants.nodeConstants;
 
-var Queue = require('../lib/queue');
-var queue = new Queue();
+
 module.exports = function(app,logger,opts){
+	var Queue = require('../lib/queue');
+	var queue = new Queue(logger);
 	//==================================================================
 	//UPLOADER
 	//==================================================================

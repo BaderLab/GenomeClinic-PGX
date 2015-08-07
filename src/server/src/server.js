@@ -6,6 +6,131 @@
  */
 var express= require("express"),
 	Promise= require("bluebird"),
+	constants = require('./lib/conf/constants.json'),
+	opts= require("nomnom")
+	.option('version',{
+		flag: true,
+		abbr:'v',
+      	help: 'print version and exit',
+      	callback: function() {
+        	return "v1.0";
+      	}
+	})
+	.option('https',{
+		flag:true,
+		help:"Use secure https connection, requires the user to specify SSL certificate and key"
+	})
+	.option("httpsPortNumber", {
+		abbr: "S",
+		metavar: "PORT",
+		full: "httpsport",
+		default: 443,
+		help: "User-specifed port number for https connection"
+	})
+	.option('httpPortNumber',{
+		abbr:'p',
+		metavar: "PORT",
+		full:"httpport",
+		default:80,
+		help:'specify the default port for incoming http connection'
+	})
+	.option('crt',{
+		abbr:'c',
+		full:'crt',
+		metavar:"PATH",
+		help:'Path to the ssl certificate file for https usage. Required if -https is used',
+		default:undefined
+	})
+	.option('key',{
+		abbr:'k',
+		full:'key',
+		metavar:"PATH",
+		help:'Pass in the ssl key file for https usage. Required if -https is used',
+		default:undefined
+	})
+	.option("mongodbHost", {
+		full: "mongodb-host",
+		metavar:"URL",
+		default: constants.dbConstants.DB.HOST,
+		help: "User-specifed MongoDB hostname",
+		callback : function(mongodbHost){
+			constants.dbConstants.DB.HOST = mongodbHost;
+		}
+	})
+	.option("mongodbPortNumber", {
+		full: "mongodb-port",
+		metavar: "PORT",
+		default: constants.dbConstants.DB.PORT,
+		help: "User-specifed MongoDB port number",
+		callback: function(mongodbPortNumber) {
+			constants.dbConstants.DB.PORT= parseInt(mongodbPortNumber);
+		}
+	})
+	.option('mongoDatabase',{
+		full:"mongodb-db",
+		metavar:"STRING",
+		default:constants.dbConstants.DB.NAME,
+		help: "User specificed Mongodb databse",
+		callback: function(mongoDatabase){
+			constants.dbConstants.DB.NAME = mongoDatabase;
+		}
+	})
+	.option('logdir',{
+		abbr:'l',
+		full:'logdir',
+		metavar:"PATH",
+		default:constants.nodeConstants.LOG_DIR,
+		help:"change the default log directory",
+		
+	})
+	.option('nosignup',{
+		flag:true,
+		help:'Use signup form'
+	})
+	.option('norecover',{
+		flag:true,
+		help:'Use recover form'
+	})
+	.option('development',{
+		abbr:'d',
+		full:'dev',
+		flag:true,
+		help:'Set development environment to true and use localhost ports'
+	})
+	.option('report',{
+		abbr:'r',
+		full:'report',
+		metavar:"PATH",
+		help:'Path to a user defined output report',
+		default:constants.dbConstants.DRUGS.REPORT.DEFAULT
+	})
+	.option('defaultData',{
+		full:"def-data",
+		metavar:"PATH",
+		help:"Define a path to default data other then that specificed by the constants folder",
+		callback: function(defaultData){
+			constants.dbConstants.DRUGS.DEFAULT = path.resolve(defaultData);
+		}
+	})
+	.option("gmail",{
+		full: "gmail-account",
+		metavar:"STRING",
+		default:undefined,
+		help:"gmail account name to use for sending password recoveries. This will not be permanately stored",
+	})
+	.option('password',{
+		metavar:"STRING",
+		full:'gmail-password',	
+		default:undefined,
+		help:'please eneter gmail account password. This will not be permanately stored',
+
+	})
+	.option('oauth',{
+		flag:true,
+		abr:'O',
+		help:'Use Google Oauth for authentication',
+	})
+	.parse(),
 	dbFunctions = require("./models/mongodb_functions"),
 	path = require("path"),
 	fs = Promise.promisifyAll(require('fs')),
@@ -17,13 +142,9 @@ var express= require("express"),
 	mongoStore = require('connect-mongo')(session),
 	https = require('https'),
 	http = require('http'),
-	morgan = require('morgan'),
-	constants = require('./lib/conf/constants.json'),
+	morgan = require('morgan')
 	cons = require('consolidate'),
-	//handlebars = require('handlebars'),
-	//exphbs  = require('express-handlebars');
-	logger = require('./lib/logger');
-	
+	logger = require('./lib/logger')(opts.logdir);
 
 var dbConstants = constants.dbConstants;
 var nodeConstants = constants.nodeConstants;
@@ -33,105 +154,7 @@ var nodeConstants = constants.nodeConstants;
 /* Control the behaviour of the server by modifying the defaul
  * value of these command line options. They can be passed when
  * the server is initially started */
-var opts= require("nomnom")
-	.option("httpsPortNumber", {
-		abbr: "S",
-		full: "httpsport",
-		default: 443,
-		help: "User-specifed port number for https connection"
-	})
-	.option('httpPortNumber',{
-		abbr:'p',
-		full:"httpport",
-		default:80,
-		help:'specify the default port for incoming http connection'
-	})
-	.option("mongodbHost", {
-		full: "mongodb-host",
-		default: dbConstants.DB.HOST,
-		help: "User-specifed MongoDB hostname",
-		callback: function(mongodbHost) {
-			dbConstants.DB.HOST= mongodbHost;
-		}
-	})
-	.option("mongodbPortNumber", {
-		full: "mongodb-port",
-		default: dbConstants.DB.PORT,
-		help: "User-specifed MongoDB port number",
-		callback: function(mongodbPortNumber) {
-			dbConstants.DB.PORT= parseInt(mongodbPortNumber);
-		}
-	})
-	.option('mongoDatabase',{
-		full:"mongodb-db",
-		default:dbConstants.DB.NAME,
-		help: "User specificed Mongodb databse",
-		callback: function(mongoDatabase){
-			dbConstants.DB.NAME = mongoDatabase;
-		}
-	})
-	.option("gmail",{
-		abr:'g',
-		full: "gmail-account",
-		default:undefined,
-		help:"gmail account name to use for sending password recoveries. This will not be permanately stored",
-	})
-	.option('password',{
-		abr:'W',
-		full:'gmail-password',	
-		default:undefined,
-		help:'please eneter gmail account password. This will not be permanately stored',
 
-	})
-	.option('oauth',{
-		flag:true,
-		abr:'O',
-		help:'Use Google Oauth for authentication',
-	})
-	.option('nosignup',{
-		flag:true,
-		help:'Use signup form'
-	})
-	.option('norecover',{
-		flag:true,
-		help:'Use recover form'
-	})
-	.option('https',{
-		flag:true,
-		help:"Use secure https connection"
-	})
-	.option('development',{
-		abbr:'d',
-		full:'dev',
-		flag:true,
-		help:'Set development environment to true and use localhost ports'
-	})
-	.option('crt',{
-		abbr:'c',
-		full:'crt',
-		help:'Path to the crt file for https usage. Required if -https is used',
-		default:undefined
-	})
-	.option('key',{
-		abbr:'k',
-		full:'key',
-		help:'Pass in the key file for https usage. Required if -https is used',
-		default:undefined
-	})
-	.option('report',{
-		abbr:'r',
-		full:'report',
-		help:'Path to a user defined output report',
-		default:undefined
-	})
-	.option('defaultData',{
-		full:"def-data",
-		help:"Define a path to default data other then that specificed by the constants folder",
-		callback: function(defaultData){
-			dbConstants.DRUGS.DEFAULT = defaultData;
-		}
-	})
-	.parse();
 opts.signup =  !opts.nosignup;
 opts.recover = !opts.norecover;
 if (opts.https && (! opts.crt || !opts.key)){
@@ -141,6 +164,9 @@ if (opts.https && (! opts.crt || !opts.key)){
 	console.log("--password and --gmail must both be provided");
 	process.exit(1);
 }
+
+
+//LOAD LOGG
 
 logger('info','Starting server',{arguments:opts});
 //=======================================================================
@@ -177,7 +203,7 @@ morgan.token('user',function getUser(req){
 //=======================================================================
 //Open write stream for log files
 //=======================================================================
-var comLog = fs.createWriteStream(nodeConstants.LOG_DIR + "/" + nodeConstants.COM_LOG_PATH);
+var comLog = fs.createWriteStream(nodeConstants.LOG_DIR + "/" + nodeConstants.COM_LOG_PATH,{flags:'a'});
 var app = express();
 
 //With morgan, store entries in JSON format
@@ -261,7 +287,7 @@ require('./controllers/routes')(app,logger,opts,passport);
 //=======================================================================
 // Connect and Initialzie the storage Database
 //=======================================================================
-dbFunctions.connectAndInitializeDB()
+dbFunctions.connectAndInitializeDB(logger)
 
 //=======================================================================
 // Start Listening on the set port

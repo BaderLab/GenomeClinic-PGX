@@ -4,9 +4,7 @@ var constants = require("../lib/conf/constants.json");
 var ObjectID = require("mongodb").ObjectID;
 var genReport = require('../lib/genReport');
 var dbFunctions = require("../models/mongodb_functions");
-
 var dbConstants = constants.dbConstants;
-
 
 /* Collection of routes associated with drug dosing recommendations
  * the report generation, and the ui modification of the recommendations

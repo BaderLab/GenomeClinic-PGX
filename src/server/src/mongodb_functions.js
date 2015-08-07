@@ -12,10 +12,9 @@ var nodeConstants = require('../lib/conf/constants.json').nodeConstants;
 var bcrypt = require("bcrypt-nodejs");
 var randomstring = require("just.randomstring");
 var fs = Promise.promisifyAll(require('fs'));
-var logger = require('../lib/logger');
+//var logger = require('../lib/logger');
 var getRS = require('../lib/getDbSnp');
 var _ = require('underscore');
-
 var dbFunctions = function(){
 //=======================================================================================
 // Private properties
@@ -23,6 +22,14 @@ var dbFunctions = function(){
 /* Default DB parameters. */
 	var dbURL,db,
 		self = this;
+	var logger;
+
+
+	this.setlogger = function(log){
+		if (log) logger = log;
+		else logger = require('../lib/logger')(nodeConstants.LOG_DIR)
+		return;
+	}
 	/* Connect to the DB using default parameters.
 	 * If connection has already been initialized, but closed, it is opened.
 	 * If connection is already open, the connection pool is refereshed.
@@ -33,7 +40,6 @@ var dbFunctions = function(){
 			db.open();
 			return null;
 		}
-
 		dbURL= "mongodb://" + dbConstants.DB.HOST + ":" + dbConstants.DB.PORT + "/" + dbConstants.DB.NAME;
 
 		var promise= new Promise(function(resolve, reject) {
@@ -442,8 +448,9 @@ var dbFunctions = function(){
 
 	/* Connect to the DB and initialize it using defaults if the DB has not been
 	 * initialized already. if silent exists, will not print to console.*/
-	this.connectAndInitializeDB= function() {
+	this.connectAndInitializeDB= function(log){
 		var _this = this;
+		if (!logger) this.setlogger(log);
 		var promise= new Promise(function(resolve, reject) {
 			// Connect to MongoDB
 			connect().then(function(result) {

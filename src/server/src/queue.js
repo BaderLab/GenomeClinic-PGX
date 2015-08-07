@@ -11,16 +11,19 @@ var constants= require("./conf/constants.json");
 //var annotateFile = require('./annotateAndAddVariants');
 var fs = Promise.promisifyAll(require('fs'));
 var dbFunctions = require('../models/mongodb_functions');
-var logger = require('./logger');
+
 var child_process=Promise.promisifyAll(require('child_process'));
-var parser = require('./parseVCF');
+
 
 var dbConstants = constants.dbConstants,
 	nodeConstants = constants.nodeConstants;
+var parser = require('./parseVCF')
+var logger;
 
-function queue(){
+function queue(log){
 	this.isRunning = false;
 	this.queue = [];
+	logger = log || require("./logger")(nodeConstants.LOG_DIR);
 }
 
 //=======================================================================================
@@ -152,9 +155,11 @@ queue.prototype.run = function(){
 		//var collectionName = patient[dbConstants.PATIENTS.COLLECTION_ID];
 		//return dbFunctions.createCollection(collectionName,user);
 	}).then(function(){
-		return parser(nodeConstants.VCF_UPLOAD_DIR +'/' + fileInfo.name, fields, user,true).then(function(result){
+		return parser(nodeConstants.VCF_UPLOAD_DIR +'/' + fileInfo.name, fields, user,true, logger).then(function(result){
+
 		});
 	}).catch(function(err){
+		console.log(err.stack);
 		logger('error',err,{user:req.user.username,target:fileInfo.name,action:'run'});
 	}).done(function(){
 		if (self.queue.length > 0){
