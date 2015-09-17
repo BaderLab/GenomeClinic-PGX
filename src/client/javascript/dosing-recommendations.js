@@ -180,7 +180,7 @@ module.exports = {
 				temp.classes = [];
 				temp.pubmed = [];
 				temp.rec = $(fields[i]).find(".rec").val();
-				if( !$(fields[i]).find('.flag').hasClass('secondary') ){
+				if( $(fields[i]).find('.flag').hasClass('warning') ){
 					temp.flagged = true;
 				}
 
@@ -222,9 +222,15 @@ module.exports = {
 			for (var i = 0; i < fields.length; i++ ){
 				temp = {};
 				temp.rec = $(fields[i]).find(".rec").val();
-				temp.class = $(fields[i]).find(".class-name").text();
-				temp.gene = $(fields[i]).find(".gene-name").text();
-				if( !$(fields[i]).find('.flag').hasClass('secondary') ){
+				temp.genes = [];
+				temp.classes = [];
+				$(fields[i]).find('.gene-name').each(function(ind,gene){
+					temp.genes.push($(gene).text());
+				})
+				$(fields[i]).find(".class-name").each(function(ind,className){
+					temp.classes.push($(className).text());
+				});
+				if($(fields[i]).find('.flag').hasClass('warning') ){
 					temp.flagged = true;
 				}
 				output.push(temp);
@@ -248,7 +254,7 @@ module.exports = {
 		output.future = this.serializeFuture();
 		var flags = $('.flag:visible');
 		for (var i = 0; i < flags.length; i++ ){
-			if(!$(flags[i]).hasClass('secondary')) output.flagged = true;
+			if($(flags[i]).hasClass('warning')) output.flagged = true;
 		}
 		return output;
 	},
@@ -330,7 +336,7 @@ module.exports = {
 	 * all the informationr regarding the recommendations, future, and haplotypes. Once this has been 
 	 * loaded, set the set the therapeutic classes of the haplotypes, then render the recommendations
 	 */
-	getFutureRecommendations : function(){
+	/*getFutureRecommendations : function(){
 		var _this = this;
 		var tableValues = this.serializeTable();
 		var otherValues = tableValues.filter(function(item){
@@ -360,7 +366,7 @@ module.exports = {
 				});
 			}
 		});
-	},
+	},*/
 
 	/* based on the current status of the therapeutic classes on the PGX table, get and render the current
 	 * drug recomednations. Look in the global geneData and find any and all recommendations taht are associated
@@ -390,16 +396,20 @@ module.exports = {
 			data:JSON.stringify(tableValues)
 		})).then(function(result){
 			var pubMedIDs = [];
-			for (var i=0; i < result.length; i++ ){	
-				pubMedIDs = pubMedIDs.concat(result[i].pubmed);
+			var doseRes = result.dosing;
+			var futureRes = result.future;
+
+			//Add Drug recommendations for drug dosing
+			for (var i=0; i < doseRes.length; i++ ){	
+				pubMedIDs = pubMedIDs.concat(doseRes[i].pubmed);
 			}
-			if ( result.length === 0 && otherValues.length == 0){
-				return $('#drug-recommendations').html(emptyFieldhtml.replace(/\{\{message\}\}/,'There are no recommendations to report'))
+			if ( doseRes.length === 0 && otherValues.length == 0){
+				$('#drug-recommendations').html(emptyFieldhtml.replace(/\{\{message\}\}/,'There are no recommendations to report'))
 
 			} else {
-				return utility.pubMedParser(pubMedIDs).then(function(citations){
-					result = result.concat(otherValues);
-					return templates.drugs.rec.recs({recommendation:result,citations:citations})
+				utility.pubMedParser(pubMedIDs).then(function(citations){
+					doseRes = doseRes.concat(otherValues);
+					return templates.drugs.rec.recs({recommendation:doseRes,citations:citations})
 				}).then(function(renderedHtml){
 					$('#drug-recommendations').html(renderedHtml);
 				}).then(function(){
@@ -407,6 +417,19 @@ module.exports = {
 				}).catch(function(err){
 					console.error(err);
 				})
+			}
+
+			if (futureRes.length === 0 && otherValues.length == 0) {
+				$('#future-recommendations').html(emptyFieldhtml.replace(/\{\{message\}\}/,'There are no future considerations to report'))
+			} else {
+				futureRes = futureRes.concat(otherValues);
+			 	templates.drugs.rec.future({future:futureRes}).then(function(renderedHtml){
+					$('#future-recommendations').html(renderedHtml);
+				}).then(function(){
+					return _this.recommendationHandlers("#future-recommendations");
+				}).catch(function(err){
+					console.error(err);
+				});
 			}
 		});
 	},
@@ -451,7 +474,7 @@ module.exports = {
 		 * there are any new recommendations and re-render the contents */
 		$('.therapeutic-class').on('change',function(){
 			_this.getRecommendations();
-			_this.getFutureRecommendations();
+			//_this.getFutureRecommendations();
 		});
 
 		/* If on, recomednations are included, however if the user selects off, then no recomendations are included */
@@ -566,8 +589,8 @@ module.exports = {
 
 		$(context).find('.flag').on('click',function(e){
 			e.preventDefault();
-			if ($(this).hasClass('secondary')) $(this).removeClass('secondary');
-			else $(this).addClass('secondary');
+			if ($(this).hasClass('secondary')) $(this).removeClass('secondary').addClass('warning');
+			else $(this).addClass('secondary').removeClass('warning');
 			
 		});
 	},
@@ -650,8 +673,6 @@ module.exports = {
 			// get information from each gene
 		}).then(function(){
 			return _this.getRecommendations();
-		}).then(function(){
-			return _this.getFutureRecommendations();
 		}).then(function(){
 			// refresh foundation
 			return utility.refresh(abideOptions);

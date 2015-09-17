@@ -18,22 +18,35 @@
 				</div>
 			</div>
 			<div class="row">
-				<div class="large-3 small-4 medium-3 columns">
-						<h5><b>Predicted Effect:</b></h5>
-				</div>	
-				<div class="large-8 small-6 medium-8 columns">
-					 	<h5><i>{{class}}</i></h5>
+				<div class="small-10 large-10 medium-10 columns left">
+						<label><h6><b>Dependant Genes</b></h6></label>
 				</div>
 				<div class="large-1 small-2 medium-1 columns">
 					<a href="#" class="edit-table right button tiny secondary radius"><i class="fi-pencil size-16" style="color:#A2A2A2"></i></a>
 				</div>
 			</div>
+			{{#each genes}}
+			<div class="row">
+				<div class="small-4 large-2 medium-3 columns">
+					<h6>Gene:</h6>
+				</div>
+				<div class="small-8 large-3 medium-3 columns">
+					<h6 class='left'><i>{{this}}</i></h6>
+				</div>
+				<div class="small-4 large-3 medium-3 columns">
+					<h6>Predicted Effect:</h6>
+				</div>
+				<div class="small-8 large-4 medium-3 columns">
+					<h6 class='left class-name'><i>{{lookup ../classes @index}}</i></h6>
+				</div>
+			</div>
+			{{/each}}
 			<div class="row">
 				<div class="large-3 small-3 medium-3 columns">
 					<h4>Flag?</h4>
 				</div>
 				<div class="large-9 small-9 medium-9 columns left">
-					<a href="#" data-originavalue="{{#unless flagged}}false{{/unless}}"class="button flag {{#unless flagged}}secondary{{/unless}} tiny radius"><i class="fa fa-flag"></i></a>
+					<a href="#" data-originavalue="{{#unless flagged}}false{{/unless}}"class="button flag {{#unless flagged}}secondary{{else}}warning{{/unless}} tiny radius"><i class="fa fa-flag"></i></a>
 				</div>
 			</div>
 			<div class="row">

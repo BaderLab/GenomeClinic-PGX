@@ -87,34 +87,36 @@ var utility = require('./utility');
 				doc[fields[i].name] = fields[i].value;
 			}
 		}
-		if ( type == 'recommendation' ){
+		if ( type != 'haplotype' ){
 			doc.genes = [pageOptions.gene];
-			doc.classes = [$(context).find("#class-name-original").val()]
+			doc.classes = [$(context).find(".class-name-original").val()]
 			var addGenes = $(context).find('.additional-gene-row');
 			for (var i = 0; i< addGenes.length; i++ ){
 				doc.genes.push($(addGenes[i]).find(".gene-name").val())
 				doc.classes.push($(addGenes[i]).find(".class-name").val())
 			}
-			var linksArr = $(context).find('.pubmed-link-combo');
-			var links = [];
-			for (var i = 0; i < linksArr.length; i++ ){
-				if (!$(linksArr[i]).hasClass('temp-remove')){
-					links.push($(linksArr[i]).data('id'));
+
+			if (type == 'recommendation'){
+				var linksArr = $(context).find('.pubmed-link-combo');
+				var links = [];
+				for (var i = 0; i < linksArr.length; i++ ){
+					if (!$(linksArr[i]).hasClass('temp-remove')){
+						links.push($(linksArr[i]).data('id'));
+					}
 				}
+				doc.pubmed = links;
 			}
-			doc.pubmed = links;
-			doc.flagged = !$(context).find(".flag").hasClass('secondary');
-		} else if ( type == 'future' ){
-			doc.gene = pageOptions.gene;
-			doc.flagged = !$(context).find(".flag").hasClass('secondary');
+			doc.flagged = $(context).find(".flag").hasClass('warning');
 		} else if ( type == 'haplotype' ){
 			doc.gene = pageOptions.gene;
 			doc.haplotypes = [doc.allele_1,doc.allele_2];
 			delete doc.allele_1;
 			delete doc.allele_2;
 		}
+
 		return doc;
 	}
+
 	/* Serialize an existing field and return the mutable fields. These are the fields that
 	 * have been updated by the user.
 	 */
@@ -138,13 +140,12 @@ var utility = require('./utility');
 				}
 			}
 			doc.pubmed = links;
-			doc.flagged = !$(context).find(".flag").hasClass('secondary');
+			doc.flagged = $(context).find(".flag").hasClass('warning');
 		} else if ( type == 'haplotype' ){
 			doc.haplotypes = [doc.allele_1,doc.allele_2];
 		} else if ( type == 'future' ){
-			doc.flagged = !$(context).find(".flag").hasClass('secondary');
+			doc.flagged = $(context).find(".flag").hasClass('warning');
 		}
-
 		return doc;
 	};
 
@@ -252,8 +253,8 @@ var utility = require('./utility');
 				$('.flag').on('click',function(e){
 					e.preventDefault();
 					if ($(this).hasClass('editfixed') ){
-						if ($(this).hasClass('secondary')) $(this).removeClass('secondary')
-						else $(this).addClass('secondary');
+						if ($(this).hasClass('secondary')) $(this).removeClass('secondary').addClass('warning')
+						else $(this).addClass('secondary').removeClass('warning');
 					}
 					return;
 				});
@@ -346,14 +347,15 @@ var utility = require('./utility');
 				});
 
 				/* Add a new dependant  gene recommendation to the current recommendation */
-				$('#add-additional-gene').on('click',function(e){
+				$('.add-additional-gene').on('click',function(e){
 					e.preventDefault();
+					var context = this;
 					var opts = {
 						num : pageOptions.counter,
 						classes : pageOptions.classes
 					}
 					templates.drugs.gene(opts).then(function(renderedHtml){
-						$('#additional-genes').append(renderedHtml);
+						$(context).closest('form').	find(".additional-genes").append(renderedHtml);
 					}).then(function(){
 
 						//Handler for retrieving the information on the specific
@@ -383,8 +385,8 @@ var utility = require('./utility');
 								});
 							}
 						});
+						//add remove row handler
 						_this.removeRow('#remove-additional-gene-' + pageOptions.counter);
-
 						utility.refresh(abideOptions,'#additional-gene-row-' + pageOptions.counter);
 						pageOptions.counter++
 					});
@@ -637,8 +639,8 @@ var utility = require('./utility');
 					$(this).closest('form').find('.form-triggers,.edit').hide().closest('form').find('.edit-table,.temp-hide').show();
 					$(this).closest('form').find('.temp-remove').remove();
 					var flag = $(this).closest('form').find('.flag').data('originalvalue');
-					if (flag) $(this).closest('form').find('.flag').removeClass('secondary');
-					else $(this).closest('form').find('.flag').addClass('secondary');
+					if (flag) $(this).closest('form').find('.flag').removeClass('secondary').addClass('warning');
+					else $(this).closest('form').find('.flag').addClass('secondary').removeClass('warning');
 					$(this).closest('form').find('.flag').removeClass('editfixed');
 				});
 
@@ -763,7 +765,6 @@ var utility = require('./utility');
 						dataType:'json',
 						data:JSON.stringify(o)
 					})).then(function(result){
-						console.log(result);
 						if (result.statusCode == 200 ){
 							$(_this).find('input[name=allele_1]').data('originalvalue',$(_this).find('input[name=allele_1]').val());
 							$(_this).find('input[name=allele_2]').data('originalvalue',$(_this).find('input[name=allele_2]').val());

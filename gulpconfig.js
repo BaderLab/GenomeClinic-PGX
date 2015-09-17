@@ -82,6 +82,7 @@ module.exports = {
 		},
 	},
 	server:{
+		dbVersion:'1.1',
 		app:{
 			src:'src/server/src/server.js',
 			name:'webapp.js',

@@ -21,9 +21,11 @@ var utility = require('./utility');
 			var rows = $('.haplotype-row:visible');
 
 			//Retrieve the marker names from the table header
-			var markers = $('#haplotypes').find('th[id^=marker-rs]:visible').map(function(ind,item){
-				return  { marker:$(item).text(), ind: ind + 1};
+			var markers = $('#haplotypes').find('th[id^=marker-rs]').map(function(ind,item){
+				if ($(item).is(':visible'))
+					return  { marker:$(item).text(), ind: ind + 1};
 			});
+			console.log(markers);
 			var markerComb = [];
 			//If the marker is of length 0 reject the page.
 			if (markers.length === 0){
@@ -347,7 +349,8 @@ var utility = require('./utility');
 
 					//Once all of the promises have been fulfilled continue on
 					return Promise.all(promises).then(function(result){
-						var ok = true,o;
+						var ok = true;
+						console.log(result);
 						for (var i = 0; i < result.length; i++ ){
 							o = JSON.parse(result[i])
 							if (o.status != 'ok')
@@ -503,12 +506,16 @@ var utility = require('./utility');
 				input.addClass('error').siblings('small').text('Haplotype already exists').show();
 				return false;
 			} else {
+
 				Promise.resolve($.ajax({
 					url:'/database/haplotypes/new?id='+val+'&gene=' + gene,
 					type:'POST',
 					dataType:'json'
 				})).then(function(response){
+					input.val("");
 					if (response.statusCode == 200 ){
+						
+						$('#add-marker-status').html('<i class="fi-check size-16" style="color:green;border-left:5px;font-size:24px"></i>')
 						var html = generateRowHtml(response);
 						$("#haplotypes").find('tbody').append(html).show();
 						var row = $("#haplotypes").find('tbody').find('tr').last();
@@ -516,6 +523,7 @@ var utility = require('./utility');
 						$(row).find('.marker').each(function(ind,item){markerCellHandlers($(item));});
 						removeHandler($(row).find('.remove'));
 					} else {
+						$('#add-marker-status').html('<i class="fi-x" style="color:red;border-left:5px;font-size:24px></i>')
 						input.addClass('error').siblings('small').text(response.message).show();
 					}
 				});
@@ -525,6 +533,7 @@ var utility = require('./utility');
 
 		$('#new-haplotype').on('keyup',function(e){
 			if ($(this).hasClass('error'))
+				$('#add-marker-status').html("")
 				$(this).removeClass('error').siblings('small').hide()
 		});		
 	};

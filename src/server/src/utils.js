@@ -1,4 +1,4 @@
-var constants = require('../lib/conf/constants.json')
+var constants = require('../lib/conf/constants.json');
 var dbFunctions = require(constants.nodeConstants.SERVER_DIR + "/models/mongodb_functions"),
 	_ = require('underscore');
 	glob = require('glob');

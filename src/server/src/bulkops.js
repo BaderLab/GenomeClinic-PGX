@@ -1,4 +1,3 @@
-
 /* Bulk Operations for the database
  * Perform bulk import and export operations on the database
  * allowing the user to input or export files in the JSON
@@ -15,6 +14,7 @@ var constants = require('./lib/conf/constants.json');
 var dbFunctions = require("./models/mongodb_functions");
 var utils = require('./lib/utils');
 var getRS = require("./lib/getDbSnp");
+var readline = require("readline-sync");
 
 
 /* ops object with the command line options, arguments and helptexts at each level. Additionally it containes information on
@@ -150,13 +150,13 @@ var ops = {
 			dosing_field:constants.dbConstants.DRUGS.ALL.FUTURE,
 			fields : [
 				{
-					field:'class',
-					type:'[object String]',
+					field:'classes',
+					type:'[object Array]',
 					query : true
 				},
 				{
-					field:'gene',
-					type:'[object String]',
+					field:'genes',
+					type:'[object Array]',
 					query : true
 				},
 				{
@@ -435,8 +435,14 @@ if (ops[op][collection].opts){
 }
 
 
+var user = undefined;
+var pwd = undefined;
+if (readline.keyInYN("Use authenticated sign on?")){
+	user = readline.question("USERNAME: ");
+	pwd = readline.question("PASSWORD: ",{hideEchoBack:true});
+}
 /* Connect to the database */
-dbFunctions.connectAndInitializeDB().then(function(){
+dbFunctions.connectAndInitializeDB(undefined,user,pwd).then(function(){
 	var colParams = ops.collections[collection];
 	var descriptors;
 	console.log("\nJOB: " + op.toUpperCase() )
@@ -580,7 +586,7 @@ dbFunctions.connectAndInitializeDB().then(function(){
 					 		assert(objects.indexOf(colParams.fields[j].field) !== -1,'Missing required parameter: ' + colParams.fields[j].field + ', in json file at document ' + (i + 1) +". Please review the documentation on file format.");
 					 		assert(Object.prototype.toString.call(docs[i][colParams.fields[j].field]) == colParams.fields[j].type, "Invalid data type for " + colParams.fields[j].field + " at document " + (i + 1)+ ". Expecting " + colParams.fields[j].type + " but found " + Object.prototype.toString.call(docs[i][colParams.fields[j].field]) +". Please review the documentation on file format.");
 					 		objects.splice(objects.indexOf(colParams.fields[j].field),1);
-					 		if (collection == 'recommendation') assert(docs[i].classes.length == docs[i].genes.length, "Genes and Predictor of effects are different lengths at document " + (i + 1) + ". Must be of equal length");	
+					 		if (collection == 'recommendation' || collection == 'future') assert(docs[i].classes.length == docs[i].genes.length, "Genes and Predictor of effects are different lengths at document " + (i + 1) + ". Must be of equal length");	
 					 	}
 					} else {
 						assert(Object.prototype.toString.call(docs[i]) == '[object String]');
@@ -686,7 +692,7 @@ dbFunctions.connectAndInitializeDB().then(function(){
 						 if (collection !== 'genes' && collection !== 'custommarkers' && collection !== 'dbsnp'){
 							var query = {};
 							var genes;
-							if (collection != 'recommendation')	genes = [doc.gene];
+							if (collection != 'recommendation' || collection == 'future' )	genes = [doc.gene];
 							else genes = doc.genes;
 							query[constants.dbConstants.DRUGS.ALL.ID_FIELD] = {$in:genes};
 							return dbFunctions.find(constants.dbConstants.DRUGS.ALL.COLLECTION,query).then(function(result){
@@ -700,8 +706,10 @@ dbFunctions.connectAndInitializeDB().then(function(){
 								});
 								var types = result.map(function(item){
 									return item[constants.dbConstants.DRUGS.ALL.TYPE];
-								})
-								var resClasses = collection == 'recommendation' ? doc.classes : [doc.class];
+								});
+								var resClasses;
+								if (collection == 'recommendation' || collection == 'future') resClasses = doc.classes;
+								else resClasses = [doc.class]
 								for (var i = 0; i < genes.length; i++ ){
 									assert(resGenes.indexOf(genes[i]) !== -1,"Gene: " + genes[i] + " missing, and there is no 'type' set. Please add genes separately")
 								}
@@ -764,9 +772,10 @@ dbFunctions.connectAndInitializeDB().then(function(){
 										update.$push[colParams.dosing_field] = idoc._id;
 										var from = collection == 'custommarkers' || collection == 'haplotype' ? 'useHaplotype' : 'useDosing';
 										update.$set[from] = true;
-
-
-										var genes = collection == 'recommendation' ? idoc.genes : [idoc.gene];
+										
+										var genes;
+										if (collection == 'recommendation' || collection == 'future' ) genes = idoc.genes;
+										else genes = [idoc.gene];
 										return Promise.resolve(genes).each(function(gene){
 											var query = {};
 											query[constants.dbConstants.DRUGS.ALL.ID_FIELD] = gene;
@@ -909,8 +918,7 @@ dbFunctions.connectAndInitializeDB().then(function(){
 	dbFunctions.closeConnection(process.exit);
 }).catch(function(err){
 	console.error('\nERROR: ' + err.message);
-	//console.log(err.stack);
-	dbFunctions.closeConnection();
+	if (dbFunctions.connected()) dbFunctions.closeConnection();
 	usage(op,collection);
 });
 

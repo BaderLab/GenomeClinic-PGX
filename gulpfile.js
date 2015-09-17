@@ -145,6 +145,7 @@ gulp.task('server-lib',function(){
 
 gulp.task('server-models',function(){
 	return gulp.src(paths.server.model.src)
+	.pipe(plugins.replace(/\{\{DBVERSION\}\}/g,paths.server.dbVersion))
 	.pipe( gulp.dest(paths.server.model.dest) );
 });
 

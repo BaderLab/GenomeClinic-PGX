@@ -79,8 +79,8 @@ module.exports = function(app,logger,opts){
 	});
 
 	app.get('/browsepatients/id/:patientID/report',utils.isLoggedIn,function(req,res){
-		utils.render(req,res,{scripts:'patients.js'})
-	})
+		utils.render(req,res,{scripts:'patients.js'});
+	});
 	//==========================================================
 	//Dosing main page routes 
 	//==========================================================
@@ -92,9 +92,9 @@ module.exports = function(app,logger,opts){
 			dbFunctions.find(constants.dbConstants.DRUGS.ALL.COLLECTION,query,undefined,undefined,req.user.username)
 			.then(function(result){
 				if (result.length > 0) {
-					res.send(result[0][constants.dbConstants.DRUGS.ALL.TYPE])
+					res.send(result[0][constants.dbConstants.DRUGS.ALL.TYPE]);
 				} else{
-					res.send(null)
+					res.send(null);
 				}
 			});
 		} else {
@@ -123,16 +123,16 @@ module.exports = function(app,logger,opts){
 
 	/* Get the Predicted Effect  currently in the database */
 	app.get('/database/dosing/classes', utils.isLoggedIn, function(req,res){
-		req.user = {}
+		req.user = {};
 		req.user.username = 'me';
 		query = {};
 		//if no query pasesd this will return ALL the classes for every type
 		if (req.query.id){
-			query['_id'] = {$in:req.query.id.split(',')};
+			query._id = {$in:req.query.id.split(',')};
 		}
 		
 		dbFunctions.find(constants.dbConstants.DRUGS.CLASSES.COLLECTION,query,undefined,undefined,req.user.username).then(function(result){
-			var o = {}
+			var o = {};
 			if (result){
 				for (var i = 0; i < result.length; i++ ){
 					o[result[i]._id] = result[i];
@@ -153,16 +153,22 @@ module.exports = function(app,logger,opts){
 		var type = req.query.type;
 		var id = ObjectID(req.query.id);
 		var user = req.user.username;
+		var sortedOutput;
 
-		if (type == 'recommendation') {
-			collection = dbConstants.DRUGS.DOSING.COLLECTION;
-		} else if (type == 'future'){ 
-			collection = dbConstants.DRUGS.FUTURE.COLLECTION;
-		} else if (type == 'haplotype') {
+		if (type != 'haplotype') {
+			if (doc.genes && doc.classes) { 
+				sortedOutput = utils.sortWithIndeces(doc.genes, doc.classes);
+				doc.genes = sortedOutput.first;
+				doc.classes = sortedOutput.second;
+			}
+
+			collection = type = 'recommendation' ? dbConstants.DRUGS.DOSING.COLLECTION:dbConstants.DRUGS.FUTURE.COLLECTION;
+		} else {
 			if (doc.haplotypes) doc.haplotypes = doc.haplotypes.sort();
 			collection = dbConstants.DRUGS.HAPLO.COLLECTION;
 		}
-		var query = {_id:id};
+		
+		query = {_id:id};
 		update = {$set:doc};
 		dbFunctions.update(collection,query,update,undefined,user)
 		.then(function(result){
@@ -203,8 +209,11 @@ module.exports = function(app,logger,opts){
 		} else if (type == 'future') {
 			collection = dbConstants.DRUGS.FUTURE.COLLECTION;
 			field = dbConstants.DRUGS.ALL.FUTURE;
+			var sortedOutput = utils.sortWithIndeces(gene,doc.classes);
+			gene = sortedOutput.first;
+			doc.classes = sortedOutput.second;
 			query[dbConstants.DRUGS.FUTURE.ID_FIELD] = gene;
-			query[dbConstants.DRUGS.FUTURE.CLASS] = doc.class;
+			query[dbConstants.DRUGS.FUTURE.CLASSES] = doc.classes;
 		} else if (type == 'haplotype') {
 			collection = dbConstants.DRUGS.HAPLO.COLLECTION;
 			field = dbConstants.DRUGS.ALL.HAPLO;
@@ -223,13 +232,14 @@ module.exports = function(app,logger,opts){
 					//now update the array of object ids in the ALL field
 					var update = {$push:{}};
 					var query = {};
+					//Leave this in just in case
 					if (Object.prototype.toString.call(gene) == '[object String]') gene = [gene];
 					query[dbConstants.DRUGS.ALL.ID_FIELD] = {$in:gene};
 					update.$push[field] = ObjectID(result._id);
-					return dbFunctions.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,{multi:true},user)
+					return dbFunctions.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,{multi:true},user);
 				}).then(function(result){
 					newDoc.statusCode = '200';
-					newDoc.message = 'Successfully inserted document'
+					newDoc.message = 'Successfully inserted document';
 					res.send(newDoc);
 				}).catch(function(err){
 					logger('error',err,{user:user});
@@ -238,16 +248,14 @@ module.exports = function(app,logger,opts){
 					req.flash('statusCode','500');
 					res.redirect('/failure');
 
-				})
+				});
 			} else {
 				req.flash('message','Duplicate entry already exists');
 				req.flash('statusCode','500');
 				res.redirect('/failure');
 			}
 		});
-
-
-	})
+	});
 	
 
 	/* Delete the entry corresponding to the type specified in the url. There are 4 defined 'Types'.
@@ -258,10 +266,10 @@ module.exports = function(app,logger,opts){
 	 * Since
 	 */
 	app.post('/database/dosing/genes/:geneID/delete',utils.isLoggedIn,function(req,res){
-		var collection,user,query
+		var collection,user,query;
 		var type = req.query.type;
 		var id = ObjectID(req.query.id);
-		
+	
 
 		dbFunctions.drugs.removeEntry(id,type,'Dosing',user).then(function(result){
 			req.flash('message','Entry Successfully removed from database');
@@ -276,7 +284,7 @@ module.exports = function(app,logger,opts){
 			res.redirect('/failure');
 
 		});
-	})
+	});
 	
 
 	/* Initialize a new drug recommendation document. first checks to ensure there already is not
@@ -285,7 +293,7 @@ module.exports = function(app,logger,opts){
 	app.post('/database/dosing/new',utils.isLoggedIn,function(req,res){
 		var newGene = req.query.gene;
 		var type = req.query.type;
-		var user = req.user.username
+		var user = req.user.username;
 		var from = req.query.from;
 		var opposite = from == 'Haplotype' ?  "Dosing" : "Haplotype";
 		var query = {};
@@ -299,7 +307,7 @@ module.exports = function(app,logger,opts){
 						req.flash('message','Gene successfully inserted to dosing tables');
 						res.redirect('/success');
 					} else {
-						var err = new Error("Unable to create new document")
+						var err = new Error("Unable to create new document");
 						logger('error',err,{user:user});
 						req.flash('statusCode','501');
 						req.flash('error',"Unable to insert new document");
@@ -335,8 +343,8 @@ module.exports = function(app,logger,opts){
 						});
 					}
 				} else {
-					var err = new Error("Unable to create new document,document already exists")
-					logger('error',err,{user:user})
+					var err = new Error("Unable to create new document,document already exists");
+					logger('error',err,{user:user});
 					req.flash('statusCode', '500');
 					req.flash('message',"The Gene you supplied already exists, please provide another");
 					req.flash('error','Gene already exists');
@@ -361,7 +369,7 @@ module.exports = function(app,logger,opts){
 			.then(function(result){
 				if (result){
 					if (result[constants.dbConstants.DRUGS.ALL.HAPLO].length > 0){
-						var query = {'_id':{$in:result[constants.dbConstants.DRUGS.ALL.HAPLO]}}
+						var query = {'_id':{$in:result[constants.dbConstants.DRUGS.ALL.HAPLO]}};
 						query[constants.dbConstants.DRUGS.HAPLO.HAPLOTYPES] = item.haplotypes.sort();
 						return dbFunctions.findOne(constants.dbConstants.DRUGS.HAPLO.COLLECTION,query,user)
 						.then(function(hapDoc){
@@ -392,7 +400,7 @@ module.exports = function(app,logger,opts){
 	 * for that haplotype if there is one */
 	app.post('/database/recommendations/haplotypes/set',utils.isLoggedIn, function(req,res){
 		var doc = req.body;
-		var user = req.user.username
+		var user = req.user.username;
 		var query = {};
 		
 		var collection = dbConstants.DRUGS.HAPLO.COLLECTION;
@@ -446,37 +454,54 @@ module.exports = function(app,logger,opts){
 	 * As well as the Metabolic status for the patient. return  all recommendations in a drug wise manner.
 	 * Ideally, return only a single recommendation per drug. */
 	app.post('/database/recommendations/recommendations/get',utils.isLoggedIn, function(req,res){
-		var toGet = req.body; //(should be gene / clas object);
+		var toGet = req.body; 
 		var recIDS = [];
+		var futureIDs = [];
 		var geneComb={};
 		var recByDrug = {};
-		var finalRecommendations = [];
+		var recByGenes = {};
+		var futureInds = [];
+		var finalRecommendations = {};
 		var user = req.user.username;
+		var futureResult, recResult;
 
 		for (var i = 0; i < toGet.length; i++ ){
 			geneComb[toGet[i].gene] = toGet[i].class;
 		}
+
+		//Find all of the relevant genes
 		Promise.resolve(toGet).each(function(item){
 			var query = {}
-			query[constants.dbConstants.DRUGS.ALL.ID_FIELD] = item.gene;
-			return dbFunctions.findOne(constants.dbConstants.DRUGS.ALL.COLLECTION,query,user)
-			.then(function(result){
-				if (result){
-					recIDS = recIDS.concat(result[constants.dbConstants.DRUGS.ALL.RECOMMENDATIONS])
-				}
-			})
+			if (item.class != 'Other' ){
+				query[constants.dbConstants.DRUGS.ALL.ID_FIELD] = item.gene;
+				return dbFunctions.findOne(constants.dbConstants.DRUGS.ALL.COLLECTION,query,user)
+				.then(function(result){
+					if (result){
+						recIDS = recIDS.concat(result[constants.dbConstants.DRUGS.ALL.RECOMMENDATIONS]);
+						futureIDs = futureIDs.concat(result[constants.dbConstants.DRUGS.ALL.FUTURE]);
+					}
+				});
+			}
+			return
 		}).then(function(){
+			//get all future recommendation documents for the current gene sets
+			var query = {"_id":{$in:futureIDs}};
+			return dbFunctions.find(constants.dbConstants.DRUGS.FUTURE.COLLECTION,query,undefined,undefined,user);
+		}).then(function(result){
+			futureResult = result;
 			//get all recommendation documents for the current gene sets//
 			var query = {'_id':{$in:recIDS}};
 			return dbFunctions.find(constants.dbConstants.DRUGS.DOSING.COLLECTION,query,undefined,undefined,user);
 		}).then(function(result){
+			recResult = result;
 			var set;
-			//Cycle through the results and genereate a list of prospective candidates. always take the potential 
-			//Recommendation that is reliant on more genes.
-			for (var i = 0; i < result.length; i++ ){
+			/*Cycle through the results and genereate a list of prospective candidates. always take the potential 
+			 *Recommendation that is reliant on more genes. */
+			for (var i = 0; i < recResult.length; i++ ){
 				set = true;
-				for (var j = 0; j < result[i][constants.dbConstants.DRUGS.DOSING.GENES].length; j++ ){
-					if (geneComb[result[i][constants.dbConstants.DRUGS.DOSING.GENES][j]] != result[i][constants.dbConstants.DRUGS.DOSING.CLASSES][j]){
+				for (var j = 0; j < recResult[i][constants.dbConstants.DRUGS.DOSING.GENES].length; j++ ){
+					//If the gene we arey cycling over is not present in the possible combination list
+					if (geneComb[recResult[i][constants.dbConstants.DRUGS.DOSING.GENES][j]] != recResult[i][constants.dbConstants.DRUGS.DOSING.CLASSES][j]){
 						set = false;
 					}
 				}
@@ -492,41 +517,54 @@ module.exports = function(app,logger,opts){
 
 			}
 			var keys = Object.keys(recByDrug);
+			finalRecommendations.dosing = []
 			for ( i = 0; i < keys.length; i++ ){
-				finalRecommendations.push(recByDrug[keys[i]]);
+				finalRecommendations.dosing.push(recByDrug[keys[i]]);
+			}
+			var count;
+			for (var i = 0; i < futureResult.length ; i++ ){
+				set = true;
+				for (var j = 0; j < futureResult[i][constants.dbConstants.DRUGS.FUTURE.ID_FIELD].length; j++){
+					if (geneComb[futureResult[i][constants.dbConstants.DRUGS.FUTURE.ID_FIELD][j]] != futureResult[i][constants.dbConstants.DRUGS.FUTURE.CLASSES][j]){
+						set = false;
+					}
+				}
+				if (set){
+					if (futureInds.length === 0) {
+						//these fields are not populated yet.
+						futureInds.push(futureResult[i][constants.dbConstants.DRUGS.FUTURE.ID_FIELD]);
+						recByGenes[futureInds.length -1] = futureResult[i];
+					} else {
+						//first cycle through the current futurenInds to see if there already exists a shorter version of the genes present
+						var updated = false
+						for (var k = 0; k < futureInds.length; k++ ){
+							count = 0;
+							for (var l = 0; l < futureInds[k].length; l++ ){
+								if (futureResult[i][constants.dbConstants.DRUGS.FUTURE.ID_FIELD].indexOf(futureInds[k][l]) !== -1 ) count++
+							}
+							//This is a more specific recommendation therefore it should replace the previous one;
+							if (count > futureInds[k].length) {
+								updated = true;
+								recByGenes[k] = futureResult[i];
+								futureInds[k] = futureResult[i][constants.dbConstants.DRUGS.FUTURE.ID_FIELD];
+							}
+						}
+						if (!updated){
+							futureInds.push(futureResult[i][constants.dbConstants.DRUGS.FUTURE.ID_FIELD]);
+							recByGenes[futureInds.length -1] = futureResult[i];
+						}
+					}
+				}
+			}
+			var keys = Object.keys(recByGenes);
+			finalRecommendations.future = [];
+			for (var i = 0; i < keys.length; i++ ){
+				finalRecommendations.future.push(recByGenes[keys[i]])
 			}
 		}).then(function(){
 			res.send(finalRecommendations);
 		});
 	});
-	
-	/* Get all of the future recommendations */
-	app.post('/database/recommendations/future/get',utils.isLoggedIn,function(req,res){
-		var toGet = req.body;
-		var user = req.user.username;
-		var finalFuture = [];
-		var genes = [];
-		var query = {};
-		for (var i = 0; i < toGet.length; i++ ){
-			genes.push(toGet[i].gene);
-		}
-		query[constants.dbConstants.DRUGS.ALL.ID_FIELD] = {$in:genes};
-		dbFunctions.find(constants.dbConstants.DRUGS.ALL.COLLECTION,query,undefined,undefined,user)
-		.each(function(item){
-			if (item[constants.dbConstants.DRUGS.ALL.FUTURE].length > 0){
-				var futureIDs = item[constants.dbConstants.DRUGS.ALL.FUTURE];
-				var mClass = toGet[genes.indexOf(item[constants.dbConstants.DRUGS.ALL.ID_FIELD])].class;
-				var query = {'_id':{$in:futureIDs}};
-				query[constants.dbConstants.DRUGS.FUTURE.CLASS] = mClass;
-				return dbFunctions.findOne(constants.dbConstants.DRUGS.FUTURE.COLLECTION,query,user).then(function(result){
-					if(result)
-						finalFuture.push(result);
-				});
-			}
-		}).then(function(result){
-			res.send(finalFuture);
-		});
-	})
 	
 	/* Generate the dosing recommendation report */
 	app.post('/browsepatients/id/:patientID/report/generate', utils.isLoggedIn,function(req,res){

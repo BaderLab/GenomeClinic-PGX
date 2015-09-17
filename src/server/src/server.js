@@ -130,6 +130,13 @@ var express= require("express"),
 		abr:'O',
 		help:'Use Google Oauth for authentication',
 	})
+	.option('authdb',{
+		abbr:'A',
+		full:"authdb",
+		metavar:"USER",
+		help:"Provide a username to use for connecting to a authenticated mongo server",
+		default:undefined
+	})
 	.parse(),
 	dbFunctions = require("./models/mongodb_functions"),
 	path = require("path"),
@@ -144,7 +151,8 @@ var express= require("express"),
 	http = require('http'),
 	morgan = require('morgan')
 	cons = require('consolidate'),
-	logger = require('./lib/logger')(opts.logdir);
+	logger = require('./lib/logger')(opts.logdir),
+	readline = require('readline-sync');
 
 var dbConstants = constants.dbConstants;
 var nodeConstants = constants.nodeConstants;
@@ -165,6 +173,13 @@ if (opts.https && (! opts.crt || !opts.key)){
 	process.exit(1);
 }
 
+if (opts.authdb){
+	logger('info','Using authenticated db loging',{User:opts.authdb});
+	console.log("Using authenticated MongoDB login");
+	console.log("USERNAME: " + opts.authdb);
+	var dbPassword = readline.question('PASSWORD: ',{hideEchoBack:true});
+	console.log('\033[2J');
+}
 
 //LOAD LOGG
 
@@ -287,7 +302,10 @@ require('./controllers/routes')(app,logger,opts,passport);
 //=======================================================================
 // Connect and Initialzie the storage Database
 //=======================================================================
-dbFunctions.connectAndInitializeDB(logger)
+dbFunctions.connectAndInitializeDB(logger,opts.authdb,dbPassword).catch(function(err){
+	console.log("ERROR could not connect to DB: " + err.message);
+	process.exit(1)
+});
 
 //=======================================================================
 // Start Listening on the set port

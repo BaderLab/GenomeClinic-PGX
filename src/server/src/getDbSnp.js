@@ -80,7 +80,7 @@ function getRsIds(ids){
 				xml += chunk;
 			});
 
-			response.setTimeout(20000);
+			response.setTimeout(50000);
 			//Error Occured, Reject the infromation.
 			response.on('error',function(err){
 				reject(err);

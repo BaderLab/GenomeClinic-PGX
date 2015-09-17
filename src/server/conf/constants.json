@@ -126,8 +126,8 @@
 			},
 			"FUTURE":{
 				"COLLECTION":"future",
-				"ID_FIELD":"gene",
-				"CLASS" : "class",
+				"ID_FIELD":"genes",
+				"CLASSES" : "classes",
 				"RECOMMENDATIONS":"rec"
 			},
 			"CLASSES":{

@@ -16,6 +16,8 @@ var fs = Promise.promisifyAll(require('fs'));
 var getRS = require('../lib/getDbSnp');
 var _ = require('underscore');
 var dbFunctions = function(){
+
+	var TARGET_VERSION = {{DBVERSION}};
 //=======================================================================================
 // Private properties
 //=======================================================================================
@@ -34,13 +36,18 @@ var dbFunctions = function(){
 	 * If connection has already been initialized, but closed, it is opened.
 	 * If connection is already open, the connection pool is refereshed.
 	 * Returns a promise if connection does not exist, null otherwise. */
-	var connect= function() {
+	var connect= function(user,pwd) {
 		// if DB exists and is open/closed, refresh/open the connection pool
 		if (db) {
 			db.open();
 			return null;
 		}
-		dbURL= "mongodb://" + dbConstants.DB.HOST + ":" + dbConstants.DB.PORT + "/" + dbConstants.DB.NAME;
+		dbURL= "mongodb://";
+		if (user){ 
+			assert.notStrictEqual(pwd,undefined);
+			dbURL += user + ":" + pwd + "@"
+		}
+		dbURL += dbConstants.DB.HOST + ":" + dbConstants.DB.PORT + "/" + dbConstants.DB.NAME;
 
 		var promise= new Promise(function(resolve, reject) {
 			MongoClient.connect(dbURL, function(err, DB) {
@@ -69,6 +76,7 @@ var dbFunctions = function(){
 			currentDocument[dbConstants.PANELS.CURRENT_INDEX_FIELD]= 1;
 			// when the DB is first initialized, the server is not configured
 			currentDocument[dbConstants.DB.SERVER_CONFIGURED_FIELD]= false;
+			currentDocument.version = TARGET_VERSION.toString();
 
 			// Create a patient collection and index by unique identifiers.
 			// Do the same for panel collections.
@@ -167,19 +175,20 @@ var dbFunctions = function(){
 					//Same as previously except for the future collections;
 					return Promise.resolve(data.Future).each(function(item){
 						return self.insert(dbConstants.DRUGS.FUTURE.COLLECTION,item).then(function(result){
-							var gene = result[dbConstants.DRUGS.FUTURE.ID_FIELD]
-								// check to see if it exists already
-							return self.checkInDatabase(dbConstants.DRUGS.ALL.COLLECTION,dbConstants.DRUGS.ALL.ID_FIELD,gene)
-							.then(function(exists){
-								if (!exists){
-									return self.drugs.createNewDoc(gene,data.Genes[gene],'Dosing');
-								}
-							}).then(function(){
-								var query = {};
-								query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
-								var update = {$addToSet:{},$set:{useDosing:true}};
-								update.$addToSet[dbConstants.DRUGS.ALL.FUTURE] = result._id;
-								return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update);
+							return Promise.resolve(result.genes).each(function(gene){
+							// check to see if it exists already
+								return self.checkInDatabase(dbConstants.DRUGS.ALL.COLLECTION,dbConstants.DRUGS.ALL.ID_FIELD,gene)
+								.then(function(exists){
+									if (!exists){
+										return self.drugs.createNewDoc(gene,data.Genes[gene],'Dosing');
+									}
+								}).then(function(){
+									var query = {};
+									query[dbConstants.DRUGS.ALL.ID_FIELD] = gene;
+									var update = {$addToSet:{},$set:{useDosing:true}};
+									update.$addToSet[dbConstants.DRUGS.ALL.FUTURE] = result._id;
+									return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update);
+								});
 							});
 						});
 					}).catch(function(err){
@@ -363,6 +372,11 @@ var dbFunctions = function(){
 
 	this.find = find;
 	this.aggregate = aggregate;
+
+	this.connected = function(){
+		if (db == undefined) return false;
+		return true;
+	}
 	
 	this.checkDefaultMarkers = function(){
 		var coords,toAdd=[];
@@ -448,12 +462,12 @@ var dbFunctions = function(){
 
 	/* Connect to the DB and initialize it using defaults if the DB has not been
 	 * initialized already. if silent exists, will not print to console.*/
-	this.connectAndInitializeDB= function(log){
+	this.connectAndInitializeDB= function(log,user,pwd){
 		var _this = this;
 		if (!logger) this.setlogger(log);
 		var promise= new Promise(function(resolve, reject) {
 			// Connect to MongoDB
-			connect().then(function(result) {
+			connect(user,pwd).then(function(result) {
 				/* Check if the "FrangipaniDB" DB already exists. If it doesn't, 
 				 * we need to intialize the DB. */
 				self.count(dbConstants.DB.SYSTEM_NAMESPACES).then(function(result) {
@@ -510,6 +524,116 @@ var dbFunctions = function(){
 		return promise;
 	};
 
+	//=======================================================================================
+	//Login functions
+	//=======================================================================================
+
+	//Add a user to the database, encrypting the provided password and storing them in the users db
+	this.addUser = function(user){
+		assert.notStrictEqual(db, undefined);
+		assert(Object.prototype.toString.call(user[dbConstants.USERS.ID_FIELD]) == "[object String]",
+			"Invalid Options");
+		assert(Object.prototype.toString.call(user[dbConstants.USERS.PASSWORD_FIELD]) == "[object String]",
+			"Invalid Options");
+		//encrypt the password
+		logger('info','adding new user to databse', {'user':user[dbConstants.USER_ID_FIELD]});
+		user[dbConstants.USERS.PASSWORD_FIELD] = bcrypt.hashSync(user[dbConstants.USERS.PASSWORD_FIELD], bcrypt.genSaltSync(8), null);
+		return this.insert(dbConstants.USERS.COLLECTION,user);
+
+	};
+
+	//Find a user by the provided ID and return all information related to them
+	this.findUserById = function(id){
+		assert.notStrictEqual(db, undefined);
+		assert(Object.prototype.toString.call(id) == "[object String]",
+			"Invalid Options");
+		var query = {};
+		query[dbConstants.USERS.ID_FIELD] = id;
+
+		return this.findOne(dbConstants.USERS.COLLECTION,query);
+
+	};
+
+
+	//Validate the password during signon in a secure manner.
+	this.validatePassword = function(username,password){
+		assert.notStrictEqual(db, undefined);
+		assert(Object.prototype.toString.call(username) == "[object String]",
+			"Invalid Options");
+		assert(Object.prototype.toString.call(password) == "[object String]",
+			"Invalid Options");
+
+		return this.findUserById(username).then(function(result){
+			 return bcrypt.compareSync(password, result[dbConstants.USERS.PASSWORD_FIELD]);
+		});
+
+	};
+
+
+	//Find the user by the google id
+	this.findUserByGoogleId = function(id){
+		assert.notStrictEqual(db, undefined);
+		assert(Object.prototype.toString.call(id) == "[object String]",
+			"Invalid Options");
+		var query = {};
+		query[dbConstants.USERS.GOOGLE.ID_FIELD] = id;
+		return this.findOne(dbConstants.USERS.COLLECTION,query);
+	};
+
+	//Add a google user, only used for Google OAUTH
+	this.addUserGoogle = function(user){
+		assert.notStrictEqual(db, undefined);
+		assert(Object.prototype.toString.call(user[dbConstants.USERS.GOOGLE.ID_FIELD]) == "[object String]",
+			"Invalid Options");
+		assert(Object.prototype.toString.call(user[dbConstants.USERS.GOOGLE.TOKEN_FIELD]) == "[object String]",
+			"Invalid Options");
+		assert(Object.prototype.toString.call(user[dbConstants.USERS.GOOGLE.NAME_FIELD]) == "[object String]",
+			"Invalid Options");
+		assert(Object.prototype.toString.call(user[dbConstants.USERS.GOOGLE.EMAIL_FIELD]) == "[object String]",
+			"Invalid Options");
+		assert(Object.prototype.toString.call(user[dbConstants.USERS.ID_FIELD]) == "[object String]",
+			"Invalid Options");
+		return this.insert(dbConstants.USERS.COLLECTION,user);
+	};
+
+
+	//When the password is lost and needs to be recovered, generate a random password, bcrypt it
+	//And return the new password in an non-encrypted format
+	this.generatePassword = function(user){
+		assert.notStrictEqual(db, undefined);
+		assert(Object.prototype.toString.call(user) == "[object String]",
+			"Invalid Options");
+
+		var newPassowrd = randomstring(10);
+		var encryptPassword = bcrypt.hashSync(newPassowrd,bcrypt.genSaltSync(8),null);
+		var query = {};
+		query[dbConstants.USERS.ID_FIELD] = user;
+		newPass = {};
+		newPass[dbConstants.USERS.PASSWORD_FIELD] = encryptPassword;
+		var doc = {$set:newPass};
+		return this.update(dbConstants.USERS.COLLECTION,query,doc,undefined,user).then(function(result){
+			return newPassowrd;
+		});
+	};
+
+
+	//Change the current users password
+	this.changePassword = function(user, password){
+		assert.notStrictEqual(db, undefined);
+		assert(Object.prototype.toString.call(user) == "[object String]",
+			"Invalid Options");
+		assert(Object.prototype.toString.call(password) == "[object String]",
+			"Invalid Options");
+
+		var encryptPassword = bcrypt.hashSync(password,bcrypt.genSaltSync(8),null);
+		var doc = {};
+		var query = {};
+		query[dbConstants.USERS.ID_FIELD] = user;
+		doc[dbConstants.USERS.PASSWORD_FIELD] = encryptPassword;
+		doc = {$set:doc};
+		logger('info','changing password for' + user,{action:'changePassword'});
+		return this.update(dbConstants.USERS.COLLECTION,query,doc,undefined,user);
+	};
 
 	//=======================================================================================
 	//Generic collection and document control
@@ -1106,7 +1230,9 @@ var dbFunctions = function(){
 	 * If specifying a coordinate panel, pass a list of objects (note chromosome
 	 * must be passed in as a string, coordinate as an integer):
 	 * [{"chr": "22", "coord": 4253023}, {"chr": "22", "coord": 4253028}]
-	 * Returns a promise which resolves to the new panel's collection ID. */
+	 * Returns a promise which resolves to the new panel's collection ID. 
+
+	 ****** DEPRECATED AND NO LONGER USED *****
 	this.addPanel= function(panelName, panel) {
 		assert.notStrictEqual(db, undefined); // ensure we're connected first
 		
@@ -1120,7 +1246,7 @@ var dbFunctions = function(){
 
 		var promise= new Promise(function(resolve, reject) {
 			/* Get most recent panel collection ID integer from the admin table
-			 * and increment it. */
+			 * and increment it. 
 			logInfo('adding pannel: %s to databse',panelName);
 			self.findOne(dbConstants.DB.ADMIN_COLLECTION, {})
 				.then(function(doc) {
@@ -1163,6 +1289,7 @@ var dbFunctions = function(){
 		});
 		return promise;
 	};
+	*/
 
 	/* Retrieve markers and coordinates from the server. Convert the data returned into an
 	 * Object with the marker names as the key. If no parameters are passed, return all 
@@ -1442,17 +1569,9 @@ var dbFunctions = function(){
 
 			return pgxCoords;
 		}).then(function(result){
-			// build search query
-			//query = {'$or' : []};
 			
 			var tempCoords;
 			var keys = Object.keys(result);
-			/*for ( var i = 0; i < keys.length; i++){
-				tempCoords = {};
-				tempCoords[dbConstants.VARIANTS.CHROMOSOME] = result[keys[i]].chr;
-				tempCoords[dbConstants.VARIANTS.START] = result[keys[i]].pos;
-				query.$or.push(tempCoords);
-			}*/
 			query = {};
 			query[dbConstants.VARIANTS.IDENTIFIER] = {$in:keys};
 			return find(currentPatientCollectionID, query, {"_id": 0},undefined,user); // don't send internal _id field
@@ -1482,116 +1601,7 @@ var dbFunctions = function(){
 		return promise;
 	};
 
-	//=======================================================================================
-	//Login functions
-	//=======================================================================================
-
-	//Add a user to the database, encrypting the provided password and storing them in the users db
-	this.addUser = function(user){
-		assert.notStrictEqual(db, undefined);
-		assert(Object.prototype.toString.call(user[dbConstants.USERS.ID_FIELD]) == "[object String]",
-			"Invalid Options");
-		assert(Object.prototype.toString.call(user[dbConstants.USERS.PASSWORD_FIELD]) == "[object String]",
-			"Invalid Options");
-		//encrypt the password
-		logger('info','adding new user to databse', {'user':user[dbConstants.USER_ID_FIELD]});
-		user[dbConstants.USERS.PASSWORD_FIELD] = bcrypt.hashSync(user[dbConstants.USERS.PASSWORD_FIELD], bcrypt.genSaltSync(8), null);
-		return this.insert(dbConstants.USERS.COLLECTION,user);
-
-	};
-
-	//Find a user by the provided ID and return all information related to them
-	this.findUserById = function(id){
-		assert.notStrictEqual(db, undefined);
-		assert(Object.prototype.toString.call(id) == "[object String]",
-			"Invalid Options");
-		var query = {};
-		query[dbConstants.USERS.ID_FIELD] = id;
-
-		return this.findOne(dbConstants.USERS.COLLECTION,query);
-
-	};
-
-
-	//Validate the password during signon in a secure manner.
-	this.validatePassword = function(username,password){
-		assert.notStrictEqual(db, undefined);
-		assert(Object.prototype.toString.call(username) == "[object String]",
-			"Invalid Options");
-		assert(Object.prototype.toString.call(password) == "[object String]",
-			"Invalid Options");
-
-		return this.findUserById(username).then(function(result){
-			 return bcrypt.compareSync(password, result[dbConstants.USERS.PASSWORD_FIELD]);
-		});
-
-	};
-
-
-	//Find the user by the google id
-	this.findUserByGoogleId = function(id){
-		assert.notStrictEqual(db, undefined);
-		assert(Object.prototype.toString.call(id) == "[object String]",
-			"Invalid Options");
-		var query = {};
-		query[dbConstants.USERS.GOOGLE.ID_FIELD] = id;
-		return this.findOne(dbConstants.USERS.COLLECTION,query);
-	};
-
-	//Add a google user, only used for Google OAUTH
-	this.addUserGoogle = function(user){
-		assert.notStrictEqual(db, undefined);
-		assert(Object.prototype.toString.call(user[dbConstants.USERS.GOOGLE.ID_FIELD]) == "[object String]",
-			"Invalid Options");
-		assert(Object.prototype.toString.call(user[dbConstants.USERS.GOOGLE.TOKEN_FIELD]) == "[object String]",
-			"Invalid Options");
-		assert(Object.prototype.toString.call(user[dbConstants.USERS.GOOGLE.NAME_FIELD]) == "[object String]",
-			"Invalid Options");
-		assert(Object.prototype.toString.call(user[dbConstants.USERS.GOOGLE.EMAIL_FIELD]) == "[object String]",
-			"Invalid Options");
-		assert(Object.prototype.toString.call(user[dbConstants.USERS.ID_FIELD]) == "[object String]",
-			"Invalid Options");
-		return this.insert(dbConstants.USERS.COLLECTION,user);
-	};
-
-
-	//When the password is lost and needs to be recovered, generate a random password, bcrypt it
-	//And return the new password in an non-encrypted format
-	this.generatePassword = function(user){
-		assert.notStrictEqual(db, undefined);
-		assert(Object.prototype.toString.call(user) == "[object String]",
-			"Invalid Options");
-
-		var newPassowrd = randomstring(10);
-		var encryptPassword = bcrypt.hashSync(newPassowrd,bcrypt.genSaltSync(8),null);
-		var query = {};
-		query[dbConstants.USERS.ID_FIELD] = user;
-		newPass = {};
-		newPass[dbConstants.USERS.PASSWORD_FIELD] = encryptPassword;
-		var doc = {$set:newPass};
-		return this.update(dbConstants.USERS.COLLECTION,query,doc,undefined,user).then(function(result){
-			return newPassowrd;
-		});
-	};
-
-
-	//Change the current users password
-	this.changePassword = function(user, password){
-		assert.notStrictEqual(db, undefined);
-		assert(Object.prototype.toString.call(user) == "[object String]",
-			"Invalid Options");
-		assert(Object.prototype.toString.call(password) == "[object String]",
-			"Invalid Options");
-
-		var encryptPassword = bcrypt.hashSync(password,bcrypt.genSaltSync(8),null);
-		var doc = {};
-		var query = {};
-		query[dbConstants.USERS.ID_FIELD] = user;
-		doc[dbConstants.USERS.PASSWORD_FIELD] = encryptPassword;
-		doc = {$set:doc};
-		logger('info','changing password for' + user,{action:'changePassword'});
-		return this.update(dbConstants.USERS.COLLECTION,query,doc,undefined,user);
-	};
+	
 
 	//Functions related to dealing with drug dosing and drugs
 	this.drugs = {
@@ -1653,7 +1663,7 @@ var dbFunctions = function(){
 			});
 		},
 
-		/* Remove a specific entry. This function will remove an entry based on the objectID and the type of entry that. It will
+		/* Remove a specific entry. This function will remove an entry based on the objectID and the type of entry. It will
 		 * accept four different 'Types':
 		 * all - removes All the recommendations and associations linked to a specific gene. it also removes the dosing document itself
 		 *		 and removes the recommendations from other genes that are depending upon the current gene being removed.
@@ -1667,7 +1677,7 @@ var dbFunctions = function(){
 			assert.notStrictEqual(db,undefined);
 			var collection, query, ids;
 			var toRemove = [];
-			var genes;
+			var genes = [];
 
 			var promise;
 			/* Remove the entire document and all entries relating to it. This will remove all
@@ -1754,17 +1764,20 @@ var dbFunctions = function(){
 				var newPromise;
 				var update = {};
 				if (item.collection && item.ids.length > 0){
-				//Get all the genes to act upon.
-					newPromise = self.findOne(item.collection,{_id:{$in:item.ids}},user).then(function(result){
-						genes  = result.genes || [result.gene]
+					newPromise = find(item.collection,{_id:{$in:item.ids}}).each(function(result){
+						var temp;
+						if (result.genes && Object.prototype.toString.call(result.genes) == '[object Array]') temp = result.genes;
+						else if (result.gene && Object.prototype.toString.call(result.gene) == '[object String]') temp = [result.gene];
+						for (var i = 0 ; i < temp.length; i++ ){
+							if (genes.indexOf(temp[i]) == -1) genes.push(temp[i]);
+						}
 						return removeDocument(item.collection,{_id:result._id},user)
-						//Item has now been found, so get the genes
 					});
+
 				} else {
-					//Perform the pull here 
+					//If there is not collection, or associated IDs then do nothing
 					newPromise = Promise.resolve()
 				}
-
 				return newPromise.then(function(){
 					update.$pull = {};
 					if (item.genes) genes = item.genes;
@@ -1773,7 +1786,12 @@ var dbFunctions = function(){
 					query[dbConstants.DRUGS.ALL.ID_FIELD] = {$in:genes}
 					return self.update(dbConstants.DRUGS.ALL.COLLECTION,query,update,{mulit:true},user)
 				});
+
 			}).then(function(){
+				/* For each gene there are two internal flags that determine whether it is being displayed to the user for
+				 * editing purposes. Once you have removed an item, this block will check to see if the several fields are of lenght 0,
+				 * if they are, then the internal flags will be set to false and they user will no longer see dosing or haplotypes. This
+				 * additionally changes the behaviour of this */
 				var query = {};
 				var update = {$set:{}};
 				query[dbConstants.DRUGS.ALL.ID_FIELD] = {$in:genes}

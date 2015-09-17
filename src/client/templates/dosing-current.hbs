@@ -108,7 +108,7 @@ a new recommendation, future, haplotype. Deleting the page etc
 											<span class="prefix">Predicted Effect</span>
 										</div>
 										<div class="large-8 small-8 medium-8 columns">
-											<select id="class-name-original" required>
+											<select class="class-name-original" required>
 												{{#each classes}}
 												<option>{{this}}</option>
 												{{/each}}
@@ -120,18 +120,18 @@ a new recommendation, future, haplotype. Deleting the page etc
 							</div>
 						</section>
 						<br>
-						<div class="row">
-							<div class="large-8 small-12 medium-8 columns">
-								<label><h6><b>Additional Genes</b></h6></label>
+							<div class="row">
+								<div class="large-8 small-12 medium-8 columns">
+									<label><h6><b>Additional Genes</b></h6></label>
+								</div>
+								<div class="large-4 small-12 medium-4 columns">
+									<!-- Link triggers dosing-additional-gene to be rendered and appened to #additional-genes -->
+									<a class="right add-additional-gene" href="#">Add additional gene</a>
+								</div>
 							</div>
-							<div class="large-4 small-12 medium-4 columns">
-								<!-- Link triggers dosing-additional-gene to be rendered and appened to #additional-genes -->
-								<a class="right" href="#" id="add-additional-gene">Add additional gene</a>
-							</div>
-						</div>
-						<section id="additional-genes">
-						</section>
-						<br>
+							<section class="additional-genes">
+							</section>
+							<br>
 						<div class="row">
 							<div class="large-6 small-12 medium-6 columns">
 								<div class="row">
@@ -139,7 +139,7 @@ a new recommendation, future, haplotype. Deleting the page etc
 										<h4>Flag?</h4>
 									</div>
 									<div class="large-9 small-9 medium-9 columns left">
-										<a href="#" data-originavalue="false"class="button editfixed flag secondary tiny radius"><i class="fa fa-flag"></i></a>
+										<a href="#" data-originavalue="false"class="button editfixed flagged secondary tiny radius"><i class="fa fa-flag"></i></a>
 									</div>
 								</div>	
 							</div>
@@ -276,7 +276,7 @@ a new recommendation, future, haplotype. Deleting the page etc
 												<h4>Flag?</h4>
 											</div>
 											<div class="large-9 small-9 medium-9 columns left">
-												<a href="#" data-originavalue="{{#unless flagged}}false{{/unless}}" class="button flag {{#unless flagged}}secondary{{/unless}} tiny radius"><i class="fa fa-flag"></i></a>
+												<a href="#" data-originavalue="{{#unless flagged}}false{{else}}warning{{/unless}}" class="button flag {{#unless flagged}}secondary{{/unless}} tiny radius"><i class="fa fa-flag"></i></a>
 											</div>
 										</div>
 									</div>
@@ -371,7 +371,7 @@ a new recommendation, future, haplotype. Deleting the page etc
 									<span class="prefix">Predicted Effect</span>
 								</div>
 								<div class="large-8 small-8 medium-8 columns">
-									<select name="class" required>
+									<select class="class-name-original" required>
 										{{#each classes}}
 										<option>{{this}}</option>
 										{{/each}}
@@ -381,6 +381,18 @@ a new recommendation, future, haplotype. Deleting the page etc
 							</div>
 						</div>
 					</div>
+					<div class="row">
+						<div class="large-8 small-12 medium-8 columns">
+							<label><h6><b>Additional Genes</b></h6></label>
+						</div>
+						<div class="large-4 small-12 medium-4 columns">
+							<!-- Link triggers dosing-additional-gene to be rendered and appened to #additional-genes -->
+							<a class="right add-additional-gene" href="#">Add additional gene</a>
+						</div>
+					</div>
+					<section class="additional-genes">
+					</section>
+					<br>
 					<div class="row">
 						<div class="large-3 small-3 medium-3 columns">
 							<h4>Flag?</h4>
