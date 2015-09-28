@@ -9,7 +9,10 @@
 			"SERVER_CONFIGURED_FIELD": "config",
 			"OWNER_ID":"owner",
 			"REPORT_FOOTER":"report-footer",
-			"REPORT_DISCLAIMER":"disclaimer"
+			"REPORT_DISCLAIMER":"disclaimer",
+			"AUTH_USER":null,
+			"AUTH_PASSWD":null
+
 		},
 		"ANNO":{
 			"DBS":"annovar-dbs",

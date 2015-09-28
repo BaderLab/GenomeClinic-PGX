@@ -43,10 +43,11 @@ var dbFunctions = function(){
 			return null;
 		}
 		dbURL= "mongodb://";
-		if (user){ 
-			assert.notStrictEqual(pwd,undefined);
-			dbURL += user + ":" + pwd + "@"
-		}
+		if (user && pwd)
+			dbURL += user + ":" + pwd + "@";
+		else if (dbConstants.DB.AUTH_USER !== null && dbConstants.DB.AUTH_PASSWD !== null)
+			dbURL += user + ":" + pwd + "@";
+
 		dbURL += dbConstants.DB.HOST + ":" + dbConstants.DB.PORT + "/" + dbConstants.DB.NAME;
 
 		var promise= new Promise(function(resolve, reject) {
