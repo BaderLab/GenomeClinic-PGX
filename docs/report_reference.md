@@ -54,8 +54,8 @@ node webapp.js --report ./path/to/report.hbs
 	- `Obj.recommendations[n].pubmedString` : String consisting of reference to the citaitons included in the recommendation
 - `Obj.future` : Array consisting of Future considerations
 	- `Obj.future[n].rec` : String of the recommendation
-	- `Obj.future[n].class` : String of the class associated with the future recommendation
-	- `Obj.future[n].gene` : String of the gene associated with the future recommmendation
+	- `Obj.future[n].classes` : Array of classes associated with the future recommendation
+	- `Obj.future[n].genes` : Array genes associated with the future recommmendation
 - `Obj.genes` : Array of genes
 	- `Obj.genes[n].gene` : String of the gene name
 	- `Obj.genes[n].haplotype` : Array of the haplotyes that were used for the recommendations

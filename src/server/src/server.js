@@ -255,15 +255,20 @@ if (opts.authdb){
 	url += dbConstants.DB.AUTH_USER + ':' + dbConstants.DB.AUTH_PASSWD  + '@';
 }
 url += dbConstants.DB.HOST + ":" + dbConstants.DB.PORT + '/' + dbConstants.DB.NAME;
-app.use(session({secret:'webb_app_server',
-	store: new mongoStore({
-		url:url
-	}),
-	resave:false,
-	secure:true,
-	saveUninitialized:false
-}));
-logger('info','Session information being stored in mongoStore',{target:'mongodb://' + dbConstants.DB.HOST + ':' + dbConstants.DB.PORT + '/' + dbConstants.DB.NAME});
+try { 
+	app.use(session({secret:'webb_app_server',
+		store: new mongoStore({
+			url:url
+		}),
+		resave:false,
+		secure:true,
+		saveUninitialized:false
+	}));
+	logger('info','Session information being stored in mongoStore',{target:'mongodb://' + dbConstants.DB.HOST + ':' + dbConstants.DB.PORT + '/' + dbConstants.DB.NAME});
+} catch (err) {
+	console.log("ERROR could not connect to DB: " + err.message);
+	process.exit(1);
+}
 //=======================================================================
 // Initialize Passport and session
 //=======================================================================

@@ -76,7 +76,17 @@ example :
 
 ```js
 node webapp.js --mongodb-host [remote host address] --mongodb-port [ remote port address ]
+
 ```
+
+##### Using Database Authentication
+
+MongoDB by default does not employ user authentication when you first set it up, however it may be advisable to request user credentials each time they log in to protect sensitive data. The people at mongo have extensively documented the methods to do this [here](http://docs.mongodb.org/manual/administration/security-access-control/). Once you have set up client access control on your mongo server, you can now connect with the webapp by passing credentials via one of two methods:
+
+- Command line option : `-A [username]`
+- by adding the login credentials to the lib/conf/constants.js file. change `dbConstants.DB.AUTH_USER=null` and `dbConstants.DB.AUTH_PASSWD=null` to `dbConstants.DB.AUTH_USER=[username]` and `dbConstants.DB.AUTH_PASSWD=[password]`
+
+The server will first check to see if a command line argument has been passed prior to looking in the constants.js file for a default credentials. If no argument has been passed it then will look to see if the defaults are not null, if not the server will attempt to connect without authentication.
 
 ##### Setting up HTTPS
 
