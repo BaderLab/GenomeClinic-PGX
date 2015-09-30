@@ -46,10 +46,8 @@ var dbFunctions = function(){
 		if (user && pwd)
 			dbURL += user + ":" + pwd + "@";
 		else if (dbConstants.DB.AUTH_USER !== null && dbConstants.DB.AUTH_PASSWD !== null)
-			dbURL += user + ":" + pwd + "@";
-
+			dbURL += dbConstants.DB.AUTH_USER + ":" + dbConstants.DB.AUTH_PASSWD + "@";
 		dbURL += dbConstants.DB.HOST + ":" + dbConstants.DB.PORT + "/" + dbConstants.DB.NAME;
-
 		var promise= new Promise(function(resolve, reject) {
 			MongoClient.connect(dbURL, function(err, DB) {
 				if (err) {

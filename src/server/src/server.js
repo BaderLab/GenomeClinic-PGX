@@ -162,7 +162,6 @@ var nodeConstants = constants.nodeConstants;
 /* Control the behaviour of the server by modifying the defaul
  * value of these command line options. They can be passed when
  * the server is initially started */
-
 opts.signup =  !opts.nosignup;
 opts.recover = !opts.norecover;
 if (opts.https && (! opts.crt || !opts.key)){
@@ -172,7 +171,6 @@ if (opts.https && (! opts.crt || !opts.key)){
 	console.log("--password and --gmail must both be provided");
 	process.exit(1);
 }
-
 if (opts.authdb){
 	logger('info','Using authenticated db loging',{User:opts.authdb});
 	console.log("Using authenticated MongoDB login");
@@ -180,9 +178,7 @@ if (opts.authdb){
 	var dbPassword = readline.question('PASSWORD: ',{hideEchoBack:true});
 	console.log('\033[2J');
 }
-
 //LOAD LOGG
-
 logger('info','Starting server',{arguments:opts});
 //=======================================================================
 //Make log Directories
@@ -200,14 +196,9 @@ for (var i=0; i < prerequisiteDirectories.length; i++ ){
 		}
 	}
 }
-
-
-
-
 //=======================================================================
 // Initialize Express Server And Initialize Loggers
 //=======================================================================
-
 //configure morgan to add the user to the logged file info:
 morgan.token('user',function getUser(req){
 	if (req.user)
@@ -220,16 +211,13 @@ morgan.token('user',function getUser(req){
 //=======================================================================
 var comLog = fs.createWriteStream(nodeConstants.LOG_DIR + "/" + nodeConstants.COM_LOG_PATH,{flags:'a'});
 var app = express();
-
 //With morgan, store entries in JSON format
 app.use(morgan('{"ip"\:":remote-addr","user"\:":user","timestamp"\:":date[clf]","method"\:":method","baseurl"\:":url","http_version"\:":http-version","status"\:":status","res"\:":res[content-length]","referrer"\:":referrer","agent"\:":user-agent"}', {stream:comLog}));
 logger('info','Logging HTTP traffic to: ' + nodeConstants.LOG_DIR + "/" + nodeConstants.COM_LOG_PATH);
-
 //=======================================================================
 // Serve Static Public Content (ie, dont need to be logged in to access)
 //=======================================================================
 app.use("/static", express.static(path.join(nodeConstants.SERVER_DIR + "/public")));
-
 //=======================================================================
 //If using https then add redirect callback for all incoming http calls.
 //=======================================================================
@@ -246,43 +234,45 @@ if (opts.https){
 		}
 	});
 }
-
 //=======================================================================
 // Add Parsers
 //=======================================================================
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));
-
 //=======================================================================	
 // Set up Passport to use Authentication
 //=======================================================================
 require('./controllers/passport-config')(app,logger,opts,passport);
-
 //=======================================================================
 // Initialize the session Session
 //=======================================================================
 var host = opts.mongodbHost
+var url = 'mongodb://'
+if (opts.authdb){
+	url += opts.authdb + ':' + dbPassword + '@';
+} else if (dbConstants.DB.AUTH_USER !== null && dbConstants.DB.AUTH_PASSWD !== null){
+	url += dbConstants.DB.AUTH_USER + ':' + dbConstants.DB.AUTH_PASSWD  + '@';
+}
+url += dbConstants.DB.HOST + ":" + dbConstants.DB.PORT + '/' + dbConstants.DB.NAME;
 app.use(session({secret:'webb_app_server',
 	store: new mongoStore({
-		url:'mongodb://' + dbConstants.DB.HOST + ':' + dbConstants.DB.PORT + '/sessionInfo'
+		url:url
 	}),
 	resave:false,
 	secure:true,
 	saveUninitialized:false
 }));
-logger('info','Session information being stored in mongoStore',{target:'mongodb://' + dbConstants.DB.HOST + ':' + dbConstants.DB.PORT + '/sessionInfo'});
+logger('info','Session information being stored in mongoStore',{target:'mongodb://' + dbConstants.DB.HOST + ':' + dbConstants.DB.PORT + '/' + dbConstants.DB.NAME});
 //=======================================================================
 // Initialize Passport and session
 //=======================================================================
 app.use(passport.initialize());
 app.use(passport.session());
-
 //=======================================================================
 // Add flash storage to the app 
 //=======================================================================
 app.use(flash());
-
 //=======================================================================
 // Add routes and add the rendering engine
 //=======================================================================
@@ -290,15 +280,8 @@ app.set('views',nodeConstants.SERVER_DIR + '/views');
 app.engine('hbs',cons.handlebars);
 app.set('view engine', 'hbs');
 app.set('partialsDir', 'views/partials/');
-
-//var hbs = exphbs.create({
-//	patrialsDir:"views/partials/",
-//	extname:'.hbs'
-//})
-//app.engine('.hbs', hbs.engine);
 app.set('view engine', '.hbs');
 require('./controllers/routes')(app,logger,opts,passport);
-
 //=======================================================================
 // Connect and Initialzie the storage Database
 //=======================================================================
@@ -306,7 +289,6 @@ dbFunctions.connectAndInitializeDB(logger,opts.authdb,dbPassword).catch(function
 	console.log("ERROR could not connect to DB: " + err.message);
 	process.exit(1)
 });
-
 //=======================================================================
 // Start Listening on the set port
 //=======================================================================
