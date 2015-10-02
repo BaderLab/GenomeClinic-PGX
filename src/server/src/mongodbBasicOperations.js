@@ -2,12 +2,14 @@ var Promise = require("bluebird");
 var assert= require("assert");
 var dbConstants = require("../conf/constants.json").dbConstants;
 var nodeConstants = require('../conf/constants.json').nodeConstants;
+var dbConnect = require("./mongodbConnect");
 //var dbConstants = require("../lib/conf/constants.json").dbConstants;
 //var nodeConstants = require('../lib/conf/constants.json').nodeConstants;
 
 
 function mongoBasicOperations(db,logger){
 	assert.notStrictEqual(db,undefined);
+	assert(db instanceof dbConnect);
 	this.db = db;
 	if (!logger) logger = require('../lib/logger')(nodeConstants.LOG_DIR)//require('./logger')(nodeConstants.LOG_DIR)
 	this.logger = logger; //Accepts a logger instance
