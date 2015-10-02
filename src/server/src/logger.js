@@ -6,7 +6,8 @@
 var callsite = require('callsite');
 
 var winston = require("winston"),
-	constants = require('./conf/constants.json'),
+	//constants = require('./conf/constants.json'),
+	constants = require('../conf/constants.json'),
 	fs = require('fs');
 	traceback = require('traceback');
 var nodeConstants = constants.nodeConstants
