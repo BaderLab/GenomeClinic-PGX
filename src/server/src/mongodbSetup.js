@@ -13,8 +13,8 @@ var DESCENDING_INDEX = -1;
 var MISSING = -1;
 
 
-function mongodbSetup (db,logger){
-	basicOperations.call(this, db, logger);
+function mongodbSetup (db,_this.logger){
+	basicOperations.call(this, db, _this.logger);
 };
 
 //inherit methods of basic operation
@@ -50,7 +50,7 @@ mongodbSetup.prototype.checkInit = function(){
 		 }).then(function(){
 		 	resolve(true); // nothing bad happend
 		 }).catch(function(err) {
-		 	logger("error",err,{action:'connectAndInitializeDB'});
+		 	_this.logger("error",err,{action:'connectAndInitializeDB'});
 		 	reject(err);
 		 });
 	});
@@ -61,7 +61,7 @@ mongodbSetup.prototype.checkInit = function(){
 /* Create the collections required for an initialized DB.
  * Returns a promise. */
 mongodbSetup.prototype.initializeDB = function() {
-	logger("info","Creating and initializing database",{action:"initializeDB"});
+	this.logger("info","Creating and initializing database",{action:"initializeDB"});
 	var _this = this;
 	var promise= new Promise(function(resolve, reject){
 		var currentDocument = {};
@@ -128,11 +128,11 @@ mongodbSetup.prototype.initializeDB = function() {
 			return _this.createCollection(dbConstants.DRUGS.CLASSES.COLLECTION);
 		})
 		.then(function(){
-			logger("info","Database collections initialize", {action:"initializeDB"});
+			_this.logger("info","Database collections initialize", {action:"initializeDB"});
 			resolve();
 		})
 		.catch(function(err){
-			logger("error",err,{action:'createInitCollections'});
+			_this.logger("error",err,{action:'createInitCollections'});
 			reject(err);
 		});
 	});
@@ -152,7 +152,7 @@ mongodbSetup.prototype.initializeDB = function() {
 * main recommendaiton document.
 */
 mongodbSetup.prototype.insertDefaultData = function(){
-	logger("info","Creating and initializing database",{action:"initializeDB"});
+	this.logger("info","Creating and initializing database",{action:"initializeDB"});
 	var _this = this;
 	var data;
 	var promise= new Promise(function(resolve, reject){
@@ -173,7 +173,7 @@ mongodbSetup.prototype.insertDefaultData = function(){
 				}
 				return _this.insertMany(options)
 					.catch(function(err){
-						logger("error",err,{action:'createInitCollections'});
+						_this.logger("error",err,{action:'createInitCollections'});
 					});
 			}
 		}).then(function(){
@@ -204,7 +204,7 @@ mongodbSetup.prototype.insertDefaultData = function(){
 				});
 			})
 			.catch(function(err){
-				logger("error",err,{action:'createInitCollections'});
+				_this.logger("error",err,{action:'createInitCollections'});
 			});
 		})
 		.then(function(){
@@ -232,7 +232,7 @@ mongodbSetup.prototype.insertDefaultData = function(){
 					});
 				});
 			}).catch(function(err){
-				logger("error",err,{action:'createInitCollections'});
+				_this.logger("error",err,{action:'createInitCollections'});
 			});
 		}).then(function(){
 			/* Assignment of the recommendation centre around the concept of attributing classes
@@ -244,10 +244,10 @@ mongodbSetup.prototype.insertDefaultData = function(){
 			};
 			return _this.insertMany(o)
 			.catch(function(err){
-				logger("err",err,{action:'createInitCollections'});
+				_this.logger("err",err,{action:'createInitCollections'});
 			});
 		}).catch(function(err){
-			logger("info",dbConstants.DRUGS.DEFAULT + " was not found and could not be added to the databse",{action:'createInitCollections'});
+			_this.logger("info",dbConstants.DRUGS.DEFAULT + " was not found and could not be added to the databse",{action:'createInitCollections'});
 		}).then(function(){
 			//Chech to ensure the default haplotypes are located within direcetoryh
 			fs.statAsync(dbConstants.PGX.GENES.DEFAULT)
@@ -265,7 +265,7 @@ mongodbSetup.prototype.insertDefaultData = function(){
 				return getRS(markers)
 				.then(function(result){
 					if (result.missing.length > 0 ){
-						logger('info','could not retrieve information from NCBI dbSNP for several markers', {action:'getRS',missing:result.missing.length});
+						_this.logger('info','could not retrieve information from NCBI dbSNP for several markers', {action:'getRS',missing:result.missing.length});
 					}
 					if (result.dbSnp.length > 0 ){
 						var options = {
@@ -304,18 +304,18 @@ mongodbSetup.prototype.insertDefaultData = function(){
 					});
 				})
 				.catch(function(err){
-					logger('error',err,{action:'createInitCollections'});
+					_this.logger('error',err,{action:'createInitCollections'});
 					reject(err);
 				});
 
 			})
 			.catch(function(err){
-				logger('info','No Defualt PGx Data detected, skipping step',{action:'createInitCollections'});
+				_this.logger('info','No Defualt PGx Data detected, skipping step',{action:'createInitCollections'});
 			});
 		}).then(function(result) {
 			resolve();
 		}).catch(function(err) {
-			logger('error',err);
+			_this.logger('error',err);
 			reject(err);
 		}); 
 	});
