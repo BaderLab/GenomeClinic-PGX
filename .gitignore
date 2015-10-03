@@ -12,3 +12,7 @@ build/
 test/
 Private/
 GenomeClinic/
+*.sln
+*.njsproj
+.vs/
+.ntvs_analysis.dat
