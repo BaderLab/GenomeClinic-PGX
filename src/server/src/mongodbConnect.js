@@ -33,6 +33,9 @@ function createDBConnection () {
 				//logger("info","Connected to mongoDatabase",{target:dbURL,action:'connect'});
 				dbConnection = DB;
 				_this.ops = new
+
+				/// RETURN NEW INSTANCE OF DBFUNCTIONS BY PASSSING _THIS IN AS THE DATABSE OBJECT
+				// resolve(new mongodbAdvandedOperations(_this));
 				resolve(true);
 			});
 		});

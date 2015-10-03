@@ -313,5 +313,26 @@ mongoBasicOperations.prototype.checkInDatabase = function(collection,field,value
 	});
 };
 
+//get the owner of a specified field
+mongodbBasicOperations.prototype.getOwner = function(collection,field){
+	assert(Object.prototype.toString.call(collection) == "[object String]",
+		"Invalid collection");
+	assert(Object.prototype.toString.call(field) == "[object String]",
+		"Invalid collection");
+	var query = {};
+	if (collection === dbConstants.PROJECTS.COLLECTION){
+		query[dbConstants.PROJECTS.ID_FIELD]=field;
+	} else if (collection === dbConstants.PATIENTS.COLLECTION){
+		query[dbConstants.PATIENTS.ID_FIELD]=field;
+	}
+	return this.findOne(collection,query).then(function(result){
+		if (result){
+			return result[dbConstants.DB.OWNER_ID];
+		} else {
+			return undefined;
+		}
+	});
+};
+
 
 module.exports = mongoBasicOperations;
