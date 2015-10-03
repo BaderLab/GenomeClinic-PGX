@@ -114,9 +114,6 @@ gulp.task('client',function(next){
 });
 
 
-
-
-
 /* Server tasks to set up the server */
 gulp.task('server-routes',function(){
 	return gulp.src(paths.server.routes.src)
