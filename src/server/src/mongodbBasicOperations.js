@@ -1,21 +1,19 @@
 var Promise = require("bluebird");
 var assert= require("assert");
-var dbConstants = require("../conf/constants.json").dbConstants;
-var nodeConstants = require('../conf/constants.json').nodeConstants;
-var dbConnect = require("./mongodbConnect");
-//var dbConstants = require("../lib/conf/constants.json").dbConstants;
-//var nodeConstants = require('../lib/conf/constants.json').nodeConstants;
+//var dbConstants = require("../conf/constants.json").dbConstants;
+//var nodeConstants = require('../conf/constants.json').nodeConstants;
+var dbConstants = require("../lib/conf/constants.json").dbConstants;
+var nodeConstants = require('../lib/conf/constants.json').nodeConstants;
 
 
-function mongoBasicOperations(db,logger){
+function mongodbBasicOperations(db,logger){
 	assert.notStrictEqual(db,undefined);
-	assert(db instanceof dbConnect);
 	this.db = db;
-	if (!logger) logger = require('../lib/logger')(nodeConstants.LOG_DIR)//require('./logger')(nodeConstants.LOG_DIR)
+	if (!logger) logger = require('../lib/logger')(nodeConstants.LOG_DIR)//require('./logger')(nodeConstants.LOG_DIR)//
 	this.logger = logger; //Accepts a logger instance
 }
 
-mongoBasicOperations.prototype.find= function(collectionName, query, fields, options,user) {
+mongodbBasicOperations.prototype.find= function(collectionName, query, fields, options,user) {
 	var args = arguments;
 	var _this = this;
 	// validate input
@@ -50,7 +48,7 @@ mongoBasicOperations.prototype.find= function(collectionName, query, fields, opt
 
 	/* find and remove a patient where options are the query to submit
  	* returns a promise */
-mongoBasicOperations.prototype.removeDocument = function(collectionName,options,user){
+mongodbBasicOperations.prototype.removeDocument = function(collectionName,options,user){
 	var args = arguments;
 	var _this = this;
 
@@ -74,7 +72,7 @@ mongoBasicOperations.prototype.removeDocument = function(collectionName,options,
 	return promise;
 };
 
-mongoBasicOperations.prototype.aggregate = function(collectionName,aggArray,user){
+mongodbBasicOperations.prototype.aggregate = function(collectionName,aggArray,user){
 		var args = arguments;
 		var _this = this;
 		assert(Object.prototype.toString.call(aggArray) == "[object Array]",
@@ -95,7 +93,7 @@ mongoBasicOperations.prototype.aggregate = function(collectionName,aggArray,user
 		return promise;
 	};
 
-mongoBasicOperations.prototype.insert= function(collectionName, doc, user) {
+mongodbBasicOperations.prototype.insert= function(collectionName, doc, user) {
 		var args = arguments;
 		var _this = this;
 		// validate input
@@ -122,7 +120,7 @@ mongoBasicOperations.prototype.insert= function(collectionName, doc, user) {
  * tablename: tablename
  * documents: {object to insert}
  * Returns a promise. */
-mongoBasicOperations.prototype.insertMany = function(options,user){
+mongodbBasicOperations.prototype.insertMany = function(options,user){
 	var _this = this;
 	assert(Object.prototype.toString.call(options) == "[object Object]",
 		"Invalid Options");
@@ -153,7 +151,7 @@ mongoBasicOperations.prototype.insertMany = function(options,user){
 	/* Update documents based on the query selector with the doc specifying which 
 	 * fields to update.
 	 * Returns a promise. */
-mongoBasicOperations.prototype.update= function(collectionName, query, doc, options,user) {
+mongodbBasicOperations.prototype.update= function(collectionName, query, doc, options,user) {
 	var args = arguments;
 	var _this = this;
 
@@ -184,7 +182,7 @@ mongoBasicOperations.prototype.update= function(collectionName, query, doc, opti
  * spec format example: {a:1, b:-1}, a in ascending index order, b in descending
  * options format example: {unique: true} to ensure that the index is unique
  * Returns a promise. */
-mongoBasicOperations.prototype.createIndex= function(collectionName, spec, options,user) {
+mongodbBasicOperations.prototype.createIndex= function(collectionName, spec, options,user) {
 	var args = arguments;
 	var _this = this;
 	// validate input
@@ -208,7 +206,7 @@ mongoBasicOperations.prototype.createIndex= function(collectionName, spec, optio
 
 /* Find a single document based on the query. 
  * Returns a promise. */
-mongoBasicOperations.prototype.findOne= function(collectionName,query,user) {
+mongodbBasicOperations.prototype.findOne= function(collectionName,query,user) {
 	var args = arguments;
 	var _this = this;
 	// validate input
@@ -236,7 +234,7 @@ mongoBasicOperations.prototype.findOne= function(collectionName,query,user) {
 
 /* Return the count of documents matching the query.
  * Returns a promise. */
-mongoBasicOperations.prototype.count= function(collectionName, query) {
+mongodbBasicOperations.prototype.count= function(collectionName, query) {
 	var _this = this;
 	var promise= new Promise(function(resolve, reject) {
 		_this.db.getDB().collection(collectionName).count(query, function(err, count){
@@ -252,7 +250,7 @@ mongoBasicOperations.prototype.count= function(collectionName, query) {
 
 /* Create a new collection, raising an error if it already exists
  * returns a promise */
-mongoBasicOperations.prototype.createCollection = function(name,user){
+mongodbBasicOperations.prototype.createCollection = function(name,user){
 	var _this = this;
 	var promise = new Promise(function(resolve,reject){
 		if (name){
@@ -277,7 +275,7 @@ mongoBasicOperations.prototype.createCollection = function(name,user){
 
 /* Drop a currently existing collection
  * returns a promise */
-mongoBasicOperations.prototype.dropCollection = function(collectionName,user){
+mongodbBasicOperations.prototype.dropCollection = function(collectionName,user){
 	var _this = this;
 	assert(Object.prototype.toString.call(collectionName) == "[object String]",
 		"Invalid Options");
@@ -297,7 +295,7 @@ mongoBasicOperations.prototype.dropCollection = function(collectionName,user){
 };
 
 /* Check within the specified database to determine whether or not an item exists*/
-mongoBasicOperations.prototype.checkInDatabase = function(collection,field,value,user){
+mongodbBasicOperations.prototype.checkInDatabase = function(collection,field,value,user){
 	assert(Object.prototype.toString.call(collection) == "[object String]",
 		"Invalid collection");
 	assert(Object.prototype.toString.call(field) == "[object String]",
@@ -335,4 +333,4 @@ mongodbBasicOperations.prototype.getOwner = function(collection,field){
 };
 
 
-module.exports = mongoBasicOperations;
+module.exports = mongodbBasicOperations;

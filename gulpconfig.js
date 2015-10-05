@@ -122,7 +122,7 @@ module.exports = {
 			dest:'build/lib/conf'
 		},
 		model:{
-			src:'src/server/src/mongodb_functions.js',
+			src:'src/server/src/mongodb*.js',
 			dest:'build/models'
 		}
 	},

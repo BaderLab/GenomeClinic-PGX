@@ -1,8 +1,8 @@
 var MongoClient= require("mongodb").MongoClient;
 var Promise = require("bluebird");
-var dbConstants = require("../conf/constants.json").dbConstants;
-var nodeConstants = require('../conf/constants.json').nodeConstants;
-var bcrypt = require("bcrypt-nodejs");
+var dbConstants = require("../lib/conf/constants.json").dbConstants;
+var nodeConstants = require('../lib/conf/constants.json').nodeConstants;
+var mongodbAdvancedOperations = require("./mongodbAdvancedOperations");
 
 function createDBConnection () {
 	var dbConnection;
@@ -32,11 +32,11 @@ function createDBConnection () {
 				}
 				//logger("info","Connected to mongoDatabase",{target:dbURL,action:'connect'});
 				dbConnection = DB;
-				_this.ops = new
+				
 
 				/// RETURN NEW INSTANCE OF DBFUNCTIONS BY PASSSING _THIS IN AS THE DATABSE OBJECT
-				// resolve(new mongodbAdvandedOperations(_this));
-				resolve(true);
+				// resolve(new mongodbAdvancedOperations(_this));
+				resolve(new mongodbAdvancedOperations(_this));
 			});
 		});
 		return promise;

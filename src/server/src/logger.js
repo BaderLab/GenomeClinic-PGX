@@ -4,7 +4,6 @@
  * @author Patrick Magee
  */
 var callsite = require('callsite');
-
 var winston = require("winston"),
 	constants = require('./conf/constants.json'),
 	//constants = require('../conf/constants.json'),
