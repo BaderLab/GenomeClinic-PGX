@@ -2,7 +2,7 @@
  * the addition of routes.
  * @author Patrick Magee
  */
-var dbFunctions = require('../models/mongodb_functions');
+//var dbFunctions = require('../models/mongodb_functions');
 module.exports = function(app,logger,opts,passport){
 	//=======================================================================
 	// Set the app to use handlebars as the rendering engine for rendering 
@@ -13,6 +13,7 @@ module.exports = function(app,logger,opts,passport){
 	//initialize the queing system for incoming file uploads
 	//=======================================================================
 	//each routes should have app,logger,opts,....
+
 	require('./special-redirect-routes')(app,logger,opts);
 	require('./auth-routes')(app,logger,opts,passport);
 	require('./uploader-routes')(app,logger,opts);
