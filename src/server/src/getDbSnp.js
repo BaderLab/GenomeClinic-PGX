@@ -116,7 +116,7 @@ function getRsIds(ids){
 							temp.variants = o.Sequence[0].Observed[0].split('/');
 							// not enough information on the assemblhy of the dbSnp entry
 							// cannot automatically parse this information, it must be manually entered
-							if (o.Assembly){
+							if (o.Assembly){ // we are using the stable assembly information to produce the file.
 								temp.build = o.Assembly[0].$.dbSnpBuild;
 								temp.assembly = o.Assembly[0].$.genomeBuild;
 								temp.assemblyLabel = o.Assembly[0].$.groupLabel;

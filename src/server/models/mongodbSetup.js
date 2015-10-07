@@ -91,6 +91,7 @@ module.exports = function(dbOperations){
 				return _this.createIndex(dbConstants.PATIENTS.COLLECTION, currentDocument, {unique: true});
 			})
 			.then(function(result){
+				//Create user Collection
 				var currentDocument = {};
 				currentDocument[dbConstants.USERS.ID_FIELD]= ASCENDING_INDEX;
 				return _this.createIndex(dbConstants.USERS.COLLECTION,currentDocument,{unique:true});
@@ -124,9 +125,6 @@ module.exports = function(dbOperations){
 			})
 			.then(function(){
 				return _this.createCollection(dbConstants.PGX.COORDS.COLLECTION);
-			})
-			.then(function(){
-				return _this.createCollection(dbConstants.PGX.GENES.COLLECTION);
 			})
 			.then(function(){
 				return _this.createCollection(dbConstants.DRUGS.CLASSES.COLLECTION);
@@ -192,7 +190,7 @@ module.exports = function(dbOperations){
 							.then(function(exists){
 								if (!exists){
 							//If this is a new gene, create a new document
-								return _this.drugs.createNewDoc(gene,data.Genes[gene],'Dosing')
+								return _this.createNewDoc(gene,data.Genes[gene],'Dosing')
 								}
 							})
 							.then(function(){
@@ -222,7 +220,7 @@ module.exports = function(dbOperations){
 							return _this.checkInDatabase(dbConstants.DRUGS.ALL.COLLECTION,dbConstants.DRUGS.ALL.ID_FIELD,gene)
 							.then(function(exists){
 								if (!exists){
-									return _this.drugs.createNewDoc(gene,data.Genes[gene],'Dosing');
+									return _this.createNewDoc(gene,data.Genes[gene],'Dosing');
 								}
 							})
 							.then(function(){
@@ -279,7 +277,7 @@ module.exports = function(dbOperations){
 						}
 					//Add the Haplotypes to the database
 					})
-					.then(function(){
+					.then(function(r){
 						return Promise.resolve(pgxGenes)
 						.each(function(item){
 							delete item._id;
@@ -290,7 +288,7 @@ module.exports = function(dbOperations){
 								return _this.checkInDatabase(dbConstants.DRUGS.ALL.COLLECTION,dbConstants.DRUGS.ALL.ID_FIELD,gene)
 								.then(function(exists){
 									if (!exists){
-										return _this.drugs.createNewDoc(gene,undefined,"Haplotype");
+										return _this.createNewDoc(gene,undefined,"Haplotype");
 									}
 								})
 								.then(function(){

@@ -6,7 +6,7 @@ var mongodbAdvancedOperations = require("./mongodbAdvancedOperations");
 
 function createDBConnection (logger) {
 	var dbConnection;
-	if (logger) this.logger = log;
+	if (logger) this.logger = logger;
 	else this.logger = require('../lib/logger')(nodeConstants.LOG_DIR)
 	this.ops; // operations once db is loaded
 	//Return promise

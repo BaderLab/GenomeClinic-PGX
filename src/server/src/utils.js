@@ -1,6 +1,8 @@
-var constants = require('../lib/conf/constants.json');
-	_ = require('underscore');
-	glob = require('glob');
+var constants = require('../lib/conf/constants.json'),
+	_ = require('underscore'),
+	glob = require('glob'),
+	Promise = require('bluebird'),
+	fs = Promise.promisifyAll(require('fs'));
 /* utility functions available for all routes
  * @author Patrick Magee */
 
@@ -128,5 +130,18 @@ module.exports = {
 
 	  return {first:toSort,second:output};
 	},
-	dbFunctions : null
+	dbFunctions : null,
+	mkdirAsync:function(file,logger){
+		fs.statAsync(file)
+		.catch(function(e){
+			//no directories present
+			logger('info','Adding prequisite directory',{target:file,action:'mkdir'});
+			return fs.mkdirAsync(file);
+		})
+		.catch(function(e){
+			logger('error',e,{target:file,action:'mkdir'})
+			process.exit(1)
+		});
+
+	}
 };

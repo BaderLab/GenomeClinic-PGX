@@ -156,6 +156,7 @@ var express= require("express"),
 	morgan = require('morgan')
 	cons = require('consolidate'),
 	logger = require('./lib/logger')(opts.logdir),
+	utils = require('./lib/utils');
 	readline = require('readline-sync');
 
 
@@ -191,17 +192,7 @@ if (opts.authdb){
 var prerequisiteDirectories = [nodeConstants.TMP_UPLOAD_DIR, nodeConstants.UPLOAD_DIR];
 for (var i=0; i < prerequisiteDirectories.length; i++ ){
 	//Try to do this asyncrhonously, (no code relies on it);
-	fs.statAsync(prerequisiteDirectories[i])
-	.catch(function(e){
-		//no directories present
-		logger('info','Adding prequisite directory',{target:prerequisiteDirectories[i],action:'mkdir'});
-		return fs.mkdirAsync(prerequisiteDirectories[i]);
-	})
-	.catch(function(e){
-		logger('error',e,{target:prerequisiteDirectories[i],action:'mkdir'})
-		console.log(e);
-		process.exit(1)
-	});
+	utils.mkdirAsync(prerequisiteDirectories[i],logger);
 }
 
 //Set up variables for morgan the http traffic logger.
