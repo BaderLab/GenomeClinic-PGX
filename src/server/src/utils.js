@@ -1,5 +1,4 @@
 var constants = require('../lib/conf/constants.json');
-var dbFunctions = require(constants.nodeConstants.SERVER_DIR + "/models/mongodb_functions"),
 	_ = require('underscore');
 	glob = require('glob');
 /* utility functions available for all routes
@@ -95,7 +94,7 @@ module.exports = {
 				'_id':0
 			};
 			//Retrieve the admin email content
-			dbFunctions.getAdminEmail(constants.dbConstants.DB.ADMIN_COLLECTION,{},options).then(function(result){
+			this.dbFunctions.getAdminEmail(constants.dbConstants.DB.ADMIN_COLLECTION,{},options).then(function(result){
 				//is this user the admin?
 				_o.admin = result === _o.user;
 
@@ -128,5 +127,6 @@ module.exports = {
 
 
 	  return {first:toSort,second:output};
-	}
+	},
+	dbFunctions : null
 };

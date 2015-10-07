@@ -8,13 +8,8 @@
  */
 var Promise = require('bluebird');
 var constants= require("./conf/constants.json");
-//var annotateFile = require('./annotateAndAddVariants');
 var fs = Promise.promisifyAll(require('fs'));
-var dbFunctions = require('../models/mongodb_functions');
-
 var child_process=Promise.promisifyAll(require('child_process'));
-
-
 var dbConstants = constants.dbConstants,
 	nodeConstants = constants.nodeConstants;
 var parser = require('./parseVCF')
@@ -28,6 +23,10 @@ function queue(log){
 
 //=======================================================================================
 //variables
+queue.prototype.addDBInstance = function(databse){
+	if (databse)
+		this.dbFunctions = databse;
+};
 
 /* Add the incoming file with patientInformation to the queue
  * to await processing additionally, when it adds a file to the queue.
@@ -56,9 +55,9 @@ queue.prototype.addToQueue = function(fileParams,req){
 			tempArr.push(options);
 		}).then(function(){
 			return Promise.each(tempArr,function(item){
-				return dbFunctions.addPatient(item,req.user[dbConstants.USERS.ID_FIELD]).catch(function(err){
+				return self.dbFunctions.addPatient(item,req.user[dbConstants.USERS.ID_FIELD]).catch(function(err){
 					logger('error',err,{action:'addPatient',user:req.user.username});
-					dbFunctions.removePatient(item[dbConstants.PATIENTS.ID_FIELD],req.user[dbConstants.USERS.ID_FIELD]);
+					self.dbFunctions.removePatient(item[dbConstants.PATIENTS.ID_FIELD],req.user[dbConstants.USERS.ID_FIELD]);
 				});
 			});
 		}).then(function(result){
@@ -150,14 +149,8 @@ queue.prototype.run = function(){
 		self.removeFirst();
 	}).then(function(){
 		return fields
-	}).each(function(patient){
-		//logger('info','creating patient collection',{user:user,target:patient[dbConstants.PATIENTS.ID_FIELD],action:'createCollection'});
-		//var collectionName = patient[dbConstants.PATIENTS.COLLECTION_ID];
-		//return dbFunctions.createCollection(collectionName,user);
 	}).then(function(){
-		return parser(nodeConstants.VCF_UPLOAD_DIR +'/' + fileInfo.name, fields, user,true, logger).then(function(result){
-
-		});
+		return parser(nodeConstants.VCF_UPLOAD_DIR +'/' + fileInfo.name, fields, user,true, logger,self.dbFunctions);
 	}).catch(function(err){
 		console.log(err.stack);
 		logger('error',err,{user:req.user.username,target:fileInfo.name,action:'run'});

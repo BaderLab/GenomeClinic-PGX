@@ -8,12 +8,12 @@ var Promise= require("bluebird");
 var nodemailer = require('nodemailer');
 var constants = require("../lib/conf/constants.json");
 var utils = require('../lib/utils');
-var dbFunctions = require('../models/mongodb_functions');
 
 var nodeConstant = constants.nodeConstants,
 	dbConstants = constants.dbConstants;
 
 module.exports = function(app,logger,opts,passport){
+	utils.dbFunctions = app.dbFunctions;
 	//==================================================================
 	//initialize the transporter for sending mail via gmail
 	//==================================================================
@@ -101,7 +101,7 @@ module.exports = function(app,logger,opts,passport){
 		app.post('/recover',function(req,res){
 			var body = req.body;
 			//check if user is valid
-			dbFunctions.findUserById(body[dbConstants.USERS.ID_FIELD])
+			app.dbFunctions.findUserById(body[dbConstants.USERS.ID_FIELD])
 			.then(function(user){
 				if (user) {
 					if (user[dbConstants.USERS.GOOGLE.ID_FIELD]){
@@ -109,7 +109,7 @@ module.exports = function(app,logger,opts,passport){
 						req.flash('statusCode','400');
 						res.redirect('/failure');
 					} else {
-						dbFunctions.generatePassword(body[dbConstants.USERS.ID_FIELD])
+						app.dbFunctions.generatePassword(body[dbConstants.USERS.ID_FIELD])
 						.then(function(result){
 							var mailOptions = {
 								from:'patrickmageee@gmail.com',
@@ -152,11 +152,11 @@ module.exports = function(app,logger,opts,passport){
 			req.flash('statusCode','400');
 			res.redirect('/failure');
 		} else {
-			dbFunctions.findUserById(username).then(function(user){
+			app.dbFunctions.findUserById(username).then(function(user){
 				if (user){
-					dbFunctions.validatePassword(username,data[dbConstants.USERS.PASSWORD_FIELD].toString()).then(function(result){
+					app.dbFunctions.validatePassword(username,data[dbConstants.USERS.PASSWORD_FIELD].toString()).then(function(result){
 						if (result){
-							dbFunctions.changePassword(username, data.newpassword.toString()).then(function(){
+							app.dbFunctions.changePassword(username, data.newpassword.toString()).then(function(){
 								req.flash('alert',true);
 								req.flash('message',"Password changed successfully");
 								req.flash('statusCode','200');

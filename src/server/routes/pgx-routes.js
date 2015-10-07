@@ -6,13 +6,13 @@ var Promise = require('bluebird');
 var fs = require('fs');
 var constants = require("../lib/conf/constants.json");
 var genReport  = require('../lib/genReport');
-var dbFunctions = require('../models/mongodb_functions');
 var getRS = require('../lib/getDbSnp');
 var ObjectId = require('mongodb').ObjectID;
 
 
 
 module.exports = function(app,logger,opts){
+	utils.dbFunctions = app.dbFunctions;
 	//==================================================================
 	//PGX routes
 	//==================================================================
@@ -47,7 +47,7 @@ module.exports = function(app,logger,opts){
 
 	//Parameter Handlers. When these parameters are within the URL, use the callback they defined
 	app.param('patientID',function(req,res,next,patientID){
-		dbFunctions.checkInDatabase(constants.dbConstants.PATIENTS.COLLECTION,constants.dbConstants.PATIENTS.ID_FIELD,patientID)
+		app.dbFunctions.checkInDatabase(constants.dbConstants.PATIENTS.COLLECTION,constants.dbConstants.PATIENTS.ID_FIELD,patientID)
 		.then(function(result){
 			if (result)
 				next();
@@ -62,7 +62,7 @@ module.exports = function(app,logger,opts){
 		var query = {};
 		query[constants.dbConstants.DRUGS.ALL.ID_FIELD] = hapid
 		query.useHaplotype = true;
-		dbFunctions.findOne(constants.dbConstants.DRUGS.ALL.COLLECTION,query)
+		app.dbFunctions.findOne(constants.dbConstants.DRUGS.ALL.COLLECTION,query)
 		.then(function(result){
 			if (result)
 				next();
@@ -75,7 +75,7 @@ module.exports = function(app,logger,opts){
 	/* For the given patient, retieve all the PGx Variants from the server that relate
 	 * to that patient */
 	app.get("/database/pgx/:patientID", utils.isLoggedIn, function(req,res){
-		dbFunctions.getPGXVariants(req.params.patientID,req.user.username)
+		app.dbFunctions.getPGXVariants(req.params.patientID,req.user.username)
 		.then(function(result){
 			res.send(result);
 		});
@@ -123,7 +123,7 @@ module.exports = function(app,logger,opts){
 	 * will update the specific entry with the contents of the req.body
 	 */
 	app.post('/haplotypes/current/:hapid',utils.isLoggedIn,function(req,res){
-		dbFunctions.updatePGXGene(req.params.hapid,req.body,req.user.username)
+		app.dbFunctions.updatePGXGene(req.params.hapid,req.body,req.user.username)
 		.then(function(result){
 			//Flash Data
 			res.redirect("/success");
@@ -141,7 +141,7 @@ module.exports = function(app,logger,opts){
 		var type = req.query.type;
 
 		if (type == 'all'){
-			dbFunctions.drugs.removeEntry(gene,'all','Haplotype',req.user.username)
+			app.dbFunctions.removeEntry(gene,'all','Haplotype',req.user.username)
 			.then(function(result){
 				if (result){
 					res.redirect('/success');
@@ -153,7 +153,7 @@ module.exports = function(app,logger,opts){
 			});
 		} else {
 			var id = ObjectId(req.query.id);
-			dbFunctions.drugs.removeEntry(id,'haplotype','Haplotype',req.user.username)
+			app.dbFunctions.removeEntry(id,'haplotype','Haplotype',req.user.username)
 			.then(function(result){
 				if (result)
 					res.redirect('/success');
@@ -178,7 +178,7 @@ module.exports = function(app,logger,opts){
 		var query = {}
 		query[constants.dbConstants.PGX.GENES.ID_FIELD] = name;
 		query[constants.dbConstants.PGX.GENES.GENE] = gene;
-		dbFunctions.findOne(constants.dbConstants.PGX.GENES.COLLECTION,query,req.user.username)
+		app.dbFunctions.findOne(constants.dbConstants.PGX.GENES.COLLECTION,query,req.user.username)
 		.then(function(exists){
 			if (exists){
 				req.flash('message','Haplotype already exists');
@@ -190,7 +190,7 @@ module.exports = function(app,logger,opts){
 				doc[constants.dbConstants.PGX.GENES.ID_FIELD] = name;
 				doc[constants.dbConstants.PGX.GENES.GENE] = gene;
 				doc[constants.dbConstants.PGX.GENES.MARKERS] = []
-				dbFunctions.insert(constants.dbConstants.PGX.GENES.COLLECTION,doc,req.user.username).then(function(result){
+				app.dbFunctions.insert(constants.dbConstants.PGX.GENES.COLLECTION,doc,req.user.username).then(function(result){
 					if (result){
 						result.status = 'ok';
 						result.statusCode ='200';
@@ -201,7 +201,7 @@ module.exports = function(app,logger,opts){
 						var query = {};
 						query[constants.dbConstants.DRUGS.ALL.ID_FIELD] = gene;
 
-						dbFunctions.update(constants.dbConstants.DRUGS.ALL.COLLECTION,query,update,undefined,req.user.username)
+						app.dbFunctions.update(constants.dbConstants.DRUGS.ALL.COLLECTION,query,update,undefined,req.user.username)
 						.then(function(updated){
 							if (updated){
 								res.send(result);
@@ -232,12 +232,12 @@ module.exports = function(app,logger,opts){
 
 		Promise.resolve().then(function(){
 			if (added.length > 0){
-				return dbFunctions.addMarkerToGene(added,gene,req.user.username);
+				return app.dbFunctions.addMarkerToGene(added,gene,req.user.username);
 			}
 			return true;
 		}).then(function(result){
 			if (removed.length){
-				return dbFunctions.removeMarkerFromGene(removed,gene,req.user.username);
+				return app.dbFunctions.removeMarkerFromGene(removed,gene,req.user.username);
 			}
 			return true;
 		}).then(function(){
@@ -255,7 +255,7 @@ module.exports = function(app,logger,opts){
 		var doc = req.body;
 		var query = {_id:ObjectId(doc._id)};
 		delete doc._id;
-		dbFunctions.update(constants.dbConstants.PGX.GENES.COLLECTION,query,doc,undefined,req.user.username)
+		app.dbFunctions.update(constants.dbConstants.PGX.GENES.COLLECTION,query,doc,undefined,req.user.username)
 		.then(function(result){
 			if (result){
 				res.redirect('/success')
@@ -271,7 +271,7 @@ module.exports = function(app,logger,opts){
 
 	//Get a list of all the current haploytpes and genes
 	app.get('/database/haplotypes/getgenes',utils.isLoggedIn,function(req,res){
-		dbFunctions.drugs.getGenes(req.user.username,'Haplotype').then(function(result){	
+		app.dbFunctions.getGenes(req.user.username,'Haplotype').then(function(result){	
 			res.send(result);
 		});
 	})
@@ -283,29 +283,25 @@ module.exports = function(app,logger,opts){
 		var out = {};
 		var incMarkers;
 		query[constants.dbConstants.DRUGS.ALL.ID_FIELD] = gene
-		dbFunctions.find(constants.dbConstants.DRUGS.ALL.COLLECTION,query,undefined,undefined,req.user.username)
+		app.dbFunctions.find(constants.dbConstants.DRUGS.ALL.COLLECTION,query,undefined,undefined,req.user.username)
 		.then(function(result){
 			var ids = result[0][constants.dbConstants.DRUGS.ALL.CURRENT_HAPLO];
 			incMarkers = result[0][constants.dbConstants.DRUGS.ALL.MARKERS];
-			return dbFunctions.find(constants.dbConstants.PGX.GENES.COLLECTION,{_id:{$in:ids}},undefined,undefined,req.user.username)
-		}).then(function(result){
+			return app.dbFunctions.find(constants.dbConstants.PGX.GENES.COLLECTION,{_id:{$in:ids}},undefined,undefined,req.user.username)
+		})
+		.then(function(result){
 			out.haplotypes = result;
 			var query = {$or:[{_id:{$in:incMarkers}},{asgenes:gene}]};
-			return dbFunctions.find(constants.dbConstants.PGX.COORDS.COLLECTION,query,undefined,undefined,req.user.username)
-		}).then(function(result){
+			return app.dbFunctions.find(constants.dbConstants.PGX.COORDS.COLLECTION,query,undefined,undefined,req.user.username)
+		})
+		.then(function(result){
 			out.amarkers = [] // all associated markers
 			out.markers = incMarkers; // unique markers
 			out.allMarkers = {}// unassociated markers
 			for (var i = 0; i < result.length; i++){
 				out.amarkers.push(result[i]._id)
-				//if (result[i].asgenes.length > 0 )
-					
-				//else
-				//	out.unMarkers.push(result[i]._id);
-
 				out.allMarkers[result[i]._id] = result[i];
 			}
-
 			out.gene = gene;
 			var marker;
 			var temp = [];
@@ -366,7 +362,7 @@ module.exports = function(app,logger,opts){
 		var info = req.body;
 		var query = {};
 		if (type == 'dbsnp'){
-			dbFunctions.updatedbSnpPGXCoords(marker).then(function(result){
+			app.dbFunctions.updatedbSnpPGXCoords(marker).then(function(result){
 				res.send(result);
 			}).catch(function(err){
 				req.flash('error',err);
@@ -376,7 +372,7 @@ module.exports = function(app,logger,opts){
 		} else if (type == 'custom'){
 
 			query[constants.dbConstants.PGX.COORDS.ID_FIELD] = marker;
-			dbFunctions.updatePGXCoord(marker,{$set:info},req.user.username)
+			app.dbFunctions.updatePGXCoord(marker,{$set:info},req.user.username)
 			.then(function(result){
 				if (result){
 
@@ -393,7 +389,7 @@ module.exports = function(app,logger,opts){
 	//Delete the seleceted marker
 	app.post('/database/markers/delete',utils.isLoggedIn,function(req,res){
 		var marker = req.query.id;
-		dbFunctions.removePGXCoords(marker,req.user.username)
+		app.dbFunctions.removePGXCoords(marker,req.user.username)
 		.then(function(result){
 			if (result){
 				res.redirect('/success');
@@ -405,7 +401,7 @@ module.exports = function(app,logger,opts){
 	//add a new marker
 	app.post('/markers/new',utils.isLoggedIn,function(req,res){
 		var type = req.query.type;
-		dbFunctions.checkInDatabase(constants.dbConstants.PGX.COORDS.COLLECTION,'_id',req.body._id)
+		app.dbFunctions.checkInDatabase(constants.dbConstants.PGX.COORDS.COLLECTION,'_id',req.body._id)
 		.then(function(inDB){
 			if (inDB){
 				req.flash('error','duplicate entry');
@@ -413,7 +409,7 @@ module.exports = function(app,logger,opts){
 				res.redirect('/failure');	
 			} else {
 				if(type == 'custom'){
-					dbFunctions.insert(constants.dbConstants.PGX.COORDS.COLLECTION,req.body,req.user.username)
+					app.dbFunctions.insert(constants.dbConstants.PGX.COORDS.COLLECTION,req.body,req.user.username)
 					.then(function(result){
 						if (result){
 							result.statusCode = 200;
@@ -432,7 +428,7 @@ module.exports = function(app,logger,opts){
 							req.flash('message','could not retrieve information from NCBI dbSNP for marker: ' + req.body._id);
 							res.redirect('/failure');
 						} else {
-							return dbFunctions.insert(constants.dbConstants.PGX.COORDS.COLLECTION,result.dbSnp[0],req.username)
+							return app.dbFunctions.insert(constants.dbConstants.PGX.COORDS.COLLECTION,result.dbSnp[0],req.username)
 							.then(function(insertedDoc){
 								result.statusCode = 200;
 								result.message = "Successfully entered new marker"
@@ -457,7 +453,7 @@ module.exports = function(app,logger,opts){
 	
 	//Get ALL the markers
 	app.get('/database/markers/getmarkers',utils.isLoggedIn,function(req,res){
-		dbFunctions.getPGXCoords(undefined,req.user.username).then(function(result){
+		app.dbFunctions.getPGXCoords(undefined,req.user.username).then(function(result){
 			if (result)
 				res.send(result);
 			else
@@ -468,7 +464,7 @@ module.exports = function(app,logger,opts){
 	//get the specific marker
 	app.get('/database/markers/getmarkers/:marker',utils.isLoggedIn,function(req,res){
 		var marker = req.params.marker;
-		dbFunctions.getPGXCoords(marker,req.user.username).then(function(result){
+		app.dbFunctions.getPGXCoords(marker,req.user.username).then(function(result){
 			var keys = Object.keys(result);
 			if (keys.length > 0)
 				res.send(result);

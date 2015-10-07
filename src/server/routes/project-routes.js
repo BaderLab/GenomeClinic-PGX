@@ -1,13 +1,13 @@
 var utils = require('../lib/utils');
 var Promise= require("bluebird");
 var constants = require('../lib/conf/constants.json');
-var dbFunctions = require('../models/mongodb_functions');
 
 var nodeConstant = constants.nodeConstants,
 	dbConstants = constants.dbConstants;
 
 
 module.exports = function(app,logger,opts){
+	utils.dbFunctions = app.dbFunctions;
 	var renderPages = [
 		'/projects',
 		'/projects/new',
@@ -22,7 +22,7 @@ module.exports = function(app,logger,opts){
 	//req param handlers
 	//==================================================================
 	app.param('projectID',function(req,res,next,projectID){
-		dbFunctions.checkInDatabase(constants.dbConstants.PROJECTS.COLLECTION,constants.dbConstants.PROJECTS.ID_FIELD,projectID)
+		app.dbFunctions.checkInDatabase(constants.dbConstants.PROJECTS.COLLECTION,constants.dbConstants.PROJECTS.ID_FIELD,projectID)
 		.then(function(result){
 			if (result)
 				next();
@@ -36,7 +36,7 @@ module.exports = function(app,logger,opts){
 	/* retrieve ALl projects for a given user */
 	app.get('/database/projects',utils.isLoggedIn, function(req,res){
 		var username = req.user[dbConstants.USERS.ID_FIELD];
-		dbFunctions.findProjects(undefined,username)
+		app.dbFunctions.findProjects(undefined,username)
 		.then(function(result){
 			res.send(result);
 		});
@@ -45,7 +45,7 @@ module.exports = function(app,logger,opts){
 	/* find information on a specific project */
 	app.get('/database/projects/:projectID',utils.isLoggedIn,function(req,res){
 		var username = req.user[dbConstants.USERS.ID_FIELD];
-		dbFunctions.findProjects(req.params.projectID,username)
+		app.dbFunctions.findProjects(req.params.projectID,username)
 		.then(function(result){
 			res.send(result);
 		});
@@ -60,9 +60,9 @@ module.exports = function(app,logger,opts){
 		exclude = ('true' === req.query.exclude);
 		project = req.params.projectID;
 		if (exclude){
-			promise =  dbFunctions.findAllPatientsNinProject(project,username,{sort:{'completed':-1}});
+			promise =  app.dbFunctions.findAllPatientsNinProject(project,username,{sort:{'completed':-1}});
 		} else {
-			promise = dbFunctions.findAllPatientsInProject(project,{sort:{'completed':-1}},req.user.username);
+			promise = app.dbFunctions.findAllPatientsInProject(project,{sort:{'completed':-1}},req.user.username);
 		}
 		promise.then(function(result){
 			res.send(result);
@@ -74,7 +74,7 @@ module.exports = function(app,logger,opts){
 	app.post('/database/projects/:projectID/removepatients',utils.isLoggedIn,function(req,res){
 		var project = req.params.projectID
 		var patients = req.body.patients;
-		dbFunctions.removePatientsFromProject(project,patients,req.user.username)
+		app.dbFunctions.removePatientsFromProject(project,patients,req.user.username)
 		.then(function(success){
 			if (success){
 				req.flash('statusCode','200');
@@ -93,7 +93,7 @@ module.exports = function(app,logger,opts){
 	app.post('/database/projects/:projectID/addpatients',utils.isLoggedIn,function(req,res){
 		var project = req.params.projectID;
 		var patients = req.body.patients;
-		dbFunctions.addPatientsToProject(project,patients,req.user.username)
+		app.dbFunctions.addPatientsToProject(project,patients,req.user.username)
 		.then(function(success){
 			if (success){
 				req.flash('statusCode','200');
@@ -111,7 +111,7 @@ module.exports = function(app,logger,opts){
 	 */
 	app.post('/projects/new',utils.isLoggedIn,function(req,res){
 		req.body.project[dbConstants.DB.OWNER_ID] = req.user[dbConstants.USERS.ID_FIELD];
-			dbFunctions.addProject(req.body,req.user.username)
+			app.dbFunctions.addProject(req.body,req.user.username)
 			.then(function(){
 				req.flash('redirectURL','/projects');
 				req.flash('statusCode','200');
@@ -128,14 +128,14 @@ module.exports = function(app,logger,opts){
 	app.post('/database/projects/:projectID/delete',utils.isLoggedIn,function(req,res){
 		var query = {};
 		query[dbConstants.PROJECTS.ID_FIELD] = req.params.projectID;
-		dbFunctions.findOne(dbConstants.PROJECTS.COLLECTION,query,req.user.username)
+		app.dbFunctions.findOne(dbConstants.PROJECTS.COLLECTION,query,req.user.username)
 		.then(function(result){
 			/*This line essentailly gives any user the ability to modify the current project so long as they are
 			 *Listed as an authorized user for that project. However once they remove a patient, if they are not
 			 *The original owner, once they remove that patient they will not have access to it  This is a temp
 			 *Fix until we come up with a better Idea for how the permissions should work. */
 			if (result.owner == req.user[dbConstants.USERS.ID_FIELD] || result.users.indexOf(req.user[dbConstants.USERS.ID_FIELD]) !== -1){
-				dbFunctions.removeProject(req.params.projectID,req.user.username).then(function(result){
+				app.dbFunctions.removeProject(req.params.projectID,req.user.username).then(function(result){
 					req.flash('redirectURL','/projects');
 					req.flash('statusCode','200');
 					res.redirect('/success');
@@ -155,14 +155,14 @@ module.exports = function(app,logger,opts){
 	app.post('/projects/current/:projectID',utils.isLoggedIn,function(req,res){
 		var query = {};
 		query[dbConstants.PROJECTS.ID_FIELD] = req.params.projectID;
-		dbFunctions.findOne(dbConstants.PROJECTS.COLLECTION,query,req.user.username)
+		app.dbFunctions.findOne(dbConstants.PROJECTS.COLLECTION,query,req.user.username)
 		.then(function(result){
 			/*This line essentailly gives any user the ability to modify the current project so long as they are
 			 *Listed as an authorized user for that project. However once they remove a patient, if they are not
 			 *The original owner, once they remove that patient they will not have access to it  This is a temp
 			 *Fix until we come up with a better Idea for how the permissions should work. */
 			if (result.owner == req.user[dbConstants.USERS.ID_FIELD] || result.users.indexOf(req.user[dbConstants.USERS.ID_FIELD]) !== -1){
-				dbFunctions.update(dbConstants.PROJECTS.COLLECTION,query,{$set:req.body.update},undefined,req.user.username)
+				app.dbFunctions.update(dbConstants.PROJECTS.COLLECTION,query,{$set:req.body.update},undefined,req.user.username)
 				.then(function(result){
 					req.flash('redirectURL','/projects');
 					req.flash('statusCode','200');

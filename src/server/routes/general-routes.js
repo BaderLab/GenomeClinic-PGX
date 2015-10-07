@@ -7,12 +7,11 @@
 var Promise = require('bluebird');
 var constants = require('../lib/conf/constants.json');
 var utils = require('../lib/utils');
-var dbFunctions = require("../models/mongodb_functions");
-
 var dbConstants = constants.dbConstants,
 	nodeConstants = constants.nodeConstants;
 
 module.exports = function(app,logger,opts){
+	utils.dbFunctions = app.dbFunctions;
 	var configured;
 	//==================================================================
 	//Route to the home page, or the config page if it is not set
@@ -23,7 +22,7 @@ module.exports = function(app,logger,opts){
 		* when configured !== true, so as to reduce DB interactions. */	
 		var promise= new Promise.resolve(configured);
 		if (!configured) {
-			promise= dbFunctions.isConfigured();
+			promise= app.dbFunctions.isConfigured();
 		}
 
 		/* If server is not configured redirect to the config page. Use a boolean
@@ -51,13 +50,13 @@ module.exports = function(app,logger,opts){
 	//config form
 	//==================================================================
 	app.get("/config", utils.isLoggedIn, function(req,res){
-		dbFunctions.getAdminEmail()
+		app.dbFunctions.getAdminEmail()
 		.then(function(result){
 			if (result === req.user.username)
 				utils.render(req,res,{scripts:'config.js'});	
 			else {
 				if (configured === undefined){
-					dbFunctions.isConfigured()
+					app.dbFunctions.isConfigured()
 					.then(function(result){
 						if ( result )
 							utils.render(req,res,'notfound');
@@ -73,16 +72,16 @@ module.exports = function(app,logger,opts){
 
 	app.post("/config", utils.isLoggedIn, function(req,res){
 		var configSettings= req.body;
-		dbFunctions.update(dbConstants.DB.ADMIN_COLLECTION, {}, {$set: configSettings},undefined,req.user.username)
+		app.dbFunctions.update(dbConstants.DB.ADMIN_COLLECTION, {}, {$set: configSettings},undefined,req.user.username)
 		.then(function(result){
-			dbFunctions.isConfigured(true);
+			app.dbFunctions.isConfigured(true);
 		}).then(function(result){
 			res.send(JSON.stringify(true));
 		});
 	});
 
 	app.get('/config/current', utils.isLoggedIn, function(req,res){
-		dbFunctions.findOne(dbConstants.DB.ADMIN_COLLECTION,{},req.user.username).then(function(result){
+		app.dbFunctions.findOne(dbConstants.DB.ADMIN_COLLECTION,{},req.user.username).then(function(result){
 			res.send(result);
 		})
 	})
@@ -104,7 +103,7 @@ module.exports = function(app,logger,opts){
 	//==================================================================
 	app.get("/database/patients/completed", utils.isLoggedIn, function(req,res){
 		var username = req.user[dbConstants.USERS.ID_FIELD];
-		dbFunctions.findAllPatients(username,true,{sort: {"completed": -1}})
+		app.dbFunctions.findAllPatients(username,true,{sort: {"completed": -1}})
 		.then(function(result){
 			res.send(result);
 		});
@@ -114,7 +113,7 @@ module.exports = function(app,logger,opts){
 	/* Find ALL patients including those in the queue and failure db */
 	app.use('/database/patients/all',utils.isLoggedIn, function(req,res){
 		var username = req.user[dbConstants.USERS.ID_FIELD];
-		dbFunctions.findAllPatients(username, false, {sort:{'added':-1}})
+		app.dbFunctions.findAllPatients(username, false, {sort:{'added':-1}})
 		.then(function(result){
 			res.send(result);
 		});
@@ -124,7 +123,7 @@ module.exports = function(app,logger,opts){
 		var user = req.user[dbConstants.USERS.ID_FIELD];
 		var collection = req.body.collection;
 		var query = req.body.query;
-		dbFunctions.getOwner(collection,query)
+		app.dbFunctions.getOwner(collection,query)
 		.then(function(result){
 			if (result);
 				var _o = {
@@ -142,11 +141,19 @@ module.exports = function(app,logger,opts){
 	 *  returns true/false */
 	app.post('/database/checkInDatabase',utils.isLoggedIn,function(req,res){
 		var options = req.body;
-		dbFunctions.checkInDatabase(options.collection,options.field,options.value)
+		app.dbFunctions.checkInDatabase(options.collection,options.field,options.value)
 		.then(function(result){
 			res.send(result);
 		});
 	});
+
+	/* Suggestion engine
+	 * takes a query term, a collection type, a max number of arguments
+	 * and the gene then attempts to map them to the mapper object. Once it
+	 * has successfully mapped it then attempts to build an intelligent
+	 * search term of that will query the databse based on the passed criteria
+	 * It returns a single array of the data that matches
+	 */
 	app.get('/database/suggestions',utils.isLoggedIn,function(req,res){
 		var mapper = {
 			marker : {
@@ -208,7 +215,7 @@ module.exports = function(app,logger,opts){
 		agg.push({$match:query})
 		agg.push({$limit:num});
 		agg.push({$group:{_id:null,matches:{$addToSet:'$' + mapper[collection].field},from:{$addToSet:'$merged.from'}}});
-		return dbFunctions.aggregate(mapper[collection].col,agg).then(function(result){
+		return app.dbFunctions.aggregate(mapper[collection].col,agg).then(function(result){
 			if (result.length > 0) res.send(result[0].matches.concat(result[0].from));
 			else res.send([]);
 		});

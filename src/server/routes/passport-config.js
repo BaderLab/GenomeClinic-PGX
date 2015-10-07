@@ -7,7 +7,6 @@
 var LocalStrategy = require('passport-local').Strategy;
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 var dbConstants = require('../lib/conf/constants.json').dbConstants;
-var dbFunctions = require('../models/mongodb_functions');
 
 
 module.exports = function(app,logger,opts,passport){
@@ -17,7 +16,7 @@ module.exports = function(app,logger,opts,passport){
 	});
 	/* Method to deserialize new user */
 	passport.deserializeUser(function(id,done){
-		dbFunctions.findUserById(id).then(function(user){
+		app.dbFunctions.findUserById(id).then(function(user){
 			done(null,user);
 		}).catch(function(err){
 			done(err);
@@ -35,7 +34,7 @@ module.exports = function(app,logger,opts,passport){
 			//Adds a new user to the usre database is if there is  not already one that exists
 			function(req,username,password,done){
 				process.nextTick(function(){
-					dbFunctions.findUserById(username)
+					app.dbFunctions.findUserById(username)
 					.then(function(user){
 						if (user) {
 							logger('info','Cannot add new user, user name already exists',{arguments:[username],action:'signup',status:'failed',ip:req.ip});
@@ -44,7 +43,7 @@ module.exports = function(app,logger,opts,passport){
 							user = {};
 							user[dbConstants.USERS.ID_FIELD] = username.toString();
 							user[dbConstants.USERS.PASSWORD_FIELD] = password.toString();
-							dbFunctions.addUser(user).then(function(){
+							app.dbFunctions.addUser(user).then(function(){
 								logger('info',"New user successfully created",{user:user,action:'signup',status:'success',ip:req.ip})
 								return done(null,user,req.flash('statusCode','200'),req.flash('alert',true),req.flash('message','Account successfully created'));
 							}).catch(function(err){
@@ -66,10 +65,10 @@ module.exports = function(app,logger,opts,passport){
 
 		function(req,username,password,done){
 			process.nextTick(function(){
-				dbFunctions.findUserById(username)
+				app.dbFunctions.findUserById(username)
 				.then(function(user){
 					if (user) { 
-						dbFunctions.validatePassword(username.toString(),password.toString()).then(function(result){
+						app.dbFunctions.validatePassword(username.toString(),password.toString()).then(function(result){
 							if (result){
 								logger('info',"login successful",{user:username,action:'login',ip:req.ip,status:'succes'})
 								return done(null,user,req.flash("statusCode",'200'));
@@ -105,7 +104,7 @@ module.exports = function(app,logger,opts,passport){
 				process.nextTick(function(){
 					var query = {};
 					query[dbConstants.USERS.GOOGLE.ID_FIELD] = profile.id;
-					dbFunctions.findUserByGoogleId(profile.id)
+					app.dbFunctions.findUserByGoogleId(profile.id)
 					.then(function(user){
 						if (user) {
 							return done(null,user);
@@ -116,7 +115,7 @@ module.exports = function(app,logger,opts,passport){
 							user[dbConstants.USERS.GOOGLE.TOKEN_FIELD]=token;
 							user[dbConstants.USERS.GOOGLE.NAME_FIELD]=profile.displayName;
 							user[dbConstants.USERS.GOOGLE.EMAIL_FIELD]=profile.emails[0].value;
-							dbFunctions.addUserGoogle(user).then(function(){
+							app.dbFunctions.addUserGoogle(user).then(function(){
 								return done(null,user);
 							}).catch(function(err){
 								done(err);

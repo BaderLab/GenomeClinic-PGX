@@ -20,7 +20,6 @@ module.exports = function(app,logger,opts,passport){
 	require('./pgx-routes')(app,logger,opts)
 	require('./project-routes')(app,logger,opts);
 	require('./drug-dosing-routes')(app,logger,opts)
-
 	// General routes contains the path to the 404routes
 	require('./general-routes.js')(app,logger,opts);
 };

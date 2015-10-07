@@ -65,7 +65,7 @@ module.exports = function(dbOperations){
 		var _this = this;
 		var query = {};
 		query[dbConstants.PROJECTS.ID_FIELD] = project;
-		return removeDocument(dbConstants.PROJECTS.COLLECTION,query,user)
+		return this.removeDocument(dbConstants.PROJECTS.COLLECTION,query,user)
 		.then(function(){
 			return _this.removePatientsFromProject(project,undefined,user);
 		});
@@ -90,7 +90,6 @@ module.exports = function(dbOperations){
 	 * screen. */
 	dbOperations.prototype.removePatientsFromProject = function(project, patients,user){
 		var query = {};
-		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(project) == "[object String]", "Invalid Project Name");
 		if (patients){
 			assert(Object.prototype.toString.call(patients) == "[object Array]", "Patients must be an array");
@@ -110,7 +109,6 @@ module.exports = function(dbOperations){
 	/* When a  new patient is added to a project add the project to their 'tags' field, so that this patient
 	 * will then be associated with the new project */
 	dbOperations.prototype.addPatientsToProject = function(project, patients, user){
-		assert.notStrictEqual(db,undefined);
 		assert(Object.prototype.toString.call(project) == "[object String]", "Invalid Project Name");
 		assert(Object.prototype.toString.call(patients) == "[object Array]", "Patients must be an array");
 		var query = {};

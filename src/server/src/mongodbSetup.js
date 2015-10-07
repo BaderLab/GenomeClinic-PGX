@@ -24,11 +24,16 @@ module.exports = function(dbOperations){
 	dbOperations.prototype.getNameSpace = function(){
 		_this = this;
 		var promise = new Promise(function(resolve,reject){
-			_this.db.listCollections().toArray(function(err,items){				
+			_this.db.getDB().listCollections().toArray(function(err,items){				
 				if (err) reject(err);
-				else resolve(items);
+				else {
+					resolve(items.map(function(collectionName){
+						return collectionName.name;
+					}));
+				}
 			});
 		});
+		return promise;
 	};
 
 
@@ -39,7 +44,7 @@ module.exports = function(dbOperations){
 			//check to see what
 			/* Check if the "webapp" DB already exists. If it doesn't, 
 			 * we need to intialize the DB. */
-			_this.getNameSpace.then(function(collections) {
+			_this.getNameSpace().then(function(collections) {
 				//assumes that the db is setup if admin is in namesapces
 				if (collections.indexOf(dbConstants.DB.ADMIN_COLLECTION) == MISSING)
 					return _this.initializeDB().then(function(){
@@ -135,6 +140,7 @@ module.exports = function(dbOperations){
 				reject(err);
 			});
 		});
+		return promise;
 	};
 
 

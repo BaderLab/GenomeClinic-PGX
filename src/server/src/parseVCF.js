@@ -21,12 +21,10 @@
 */
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs'));
-var dbFunctions = require('../models/mongodb_functions');
 var path = require('path');
 var dbConstants = require('./conf/constants.json').dbConstants;
 var nodeConstants = require('./conf/constants.json').nodeConstants;
-
-var logger;
+var logger,dbFunctions;
 
 
 
@@ -610,8 +608,9 @@ var resetOps = function(){
 //==============================================================================================================
 
 
-var run = function(file, patients, user, remove,log){
+var run = function(file, patients, user, remove,log,dbfuncs){
 	logger = log || require('./logger')(nodeConstants.LOG_DIR);
+	dbFunctions = dbfuncs;
 	ops.file = file;
 	ops.user = user;
 	ops.patients = patients;

@@ -1,11 +1,10 @@
 /* Routes associated with uploading files to the server then initializing
  * their annotation 
  * @auhtor Patrick Magee */
-var utils = require('../lib/utils');
 var uploader = require("jquery-file-upload-middleware");
 var Promise = require('bluebird');
 var constants = require('../lib/conf/constants.json');
-var dbFunctions = require('../models/mongodb_functions');
+var utils = require('../lib/utils');
 var dbConstants = constants.dbConstants,
 	nodeConstants = constants.nodeConstants;
 
@@ -13,6 +12,8 @@ var dbConstants = constants.dbConstants,
 module.exports = function(app,logger,opts){
 	var Queue = require('../lib/queue');
 	var queue = new Queue(logger);
+	queue.addDBInstance(app.dbFunctions);
+	utils.dbFunctions = app.dbFunctions;
 	//==================================================================
 	//UPLOADER
 	//==================================================================

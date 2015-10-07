@@ -4,8 +4,10 @@ var dbConstants = require("../lib/conf/constants.json").dbConstants;
 var nodeConstants = require('../lib/conf/constants.json').nodeConstants;
 var mongodbAdvancedOperations = require("./mongodbAdvancedOperations");
 
-function createDBConnection () {
+function createDBConnection (logger) {
 	var dbConnection;
+	if (logger) this.logger = log;
+	else this.logger = require('../lib/logger')(nodeConstants.LOG_DIR)
 	this.ops; // operations once db is loaded
 	//Return promise
 	var _this = this;
@@ -36,7 +38,7 @@ function createDBConnection () {
 
 				/// RETURN NEW INSTANCE OF DBFUNCTIONS BY PASSSING _THIS IN AS THE DATABSE OBJECT
 				// resolve(new mongodbAdvancedOperations(_this));
-				resolve(new mongodbAdvancedOperations(_this));
+				resolve(new mongodbAdvancedOperations(_this,logger));
 			});
 		});
 		return promise;

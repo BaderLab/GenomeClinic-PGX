@@ -162,7 +162,7 @@ var express= require("express"),
 var dbConstants = constants.dbConstants;
 var nodeConstants = constants.nodeConstants;
 var app = express();
-var dbConnection = new DBConnect();
+var dbConnection = new DBConnect(logger);
 var dbPassword;
 //=======================================================================
 // Command Line Options
@@ -187,55 +187,69 @@ if (opts.authdb){
 	console.log('\033[2J');
 }
 
+//Create Prequisite directories for the app
+var prerequisiteDirectories = [nodeConstants.TMP_UPLOAD_DIR, nodeConstants.UPLOAD_DIR];
+for (var i=0; i < prerequisiteDirectories.length; i++ ){
+	//Try to do this asyncrhonously, (no code relies on it);
+	fs.statAsync(prerequisiteDirectories[i])
+	.catch(function(e){
+		//no directories present
+		logger('info','Adding prequisite directory',{target:prerequisiteDirectories[i],action:'mkdir'});
+		return fs.mkdirAsync(prerequisiteDirectories[i]);
+	})
+	.catch(function(e){
+		logger('error',e,{target:prerequisiteDirectories[i],action:'mkdir'})
+		console.log(e);
+		process.exit(1)
+	});
+}
+
+//Set up variables for morgan the http traffic logger.
+var comLog = fs.createWriteStream(nodeConstants.LOG_DIR + "/" + nodeConstants.COM_LOG_PATH,{flags:'a'});
+var morganEntry = '{"ip"\:":remote-addr","user"\:":user","timestamp"\:":date[clf]","method"\:":method",\
+		"baseurl"\:":url","http_version"\:":http-version","status"\:":status","res"\:":res[content-length]",\
+		"referrer"\:":referrer","agent"\:":user-agent"}'
+//With morgan, store entries in JSON format
+morgan.token('user',function getUser(req){
+	if (req.user)
+		return req.user[dbConstants.USERS.ID_FIELD];
+	else
+		return "";
+});
+//Set 
+//intiailize persistant session storage in mongodb
+var url = 'mongodb://'
+if (opts.authdb){
+	url += opts.authdb + ':' + dbPassword + '@';
+} else if (dbConstants.DB.AUTH_USER !== null && dbConstants.DB.AUTH_PASSWD !== null){
+	url += dbConstants.DB.AUTH_USER + ':' + dbConstants.DB.AUTH_PASSWD  + '@';
+}
+url += dbConstants.DB.HOST + ":" + dbConstants.DB.PORT + '/' + dbConstants.DB.NAME;
+try { 
+	//try to connect to databse
+	app.use(session({secret:'webb_app_server',
+		store: new mongoStore({
+			url:url
+		}),
+		resave:false,
+		secure:true,
+		saveUninitialized:false
+	}));
+	logger('info','Session information being stored in mongoStore',{target:'mongodb://' + dbConstants.DB.HOST + ':' + dbConstants.DB.PORT + '/' + dbConstants.DB.NAME});
+} catch (err) {
+	console.log("ERROR could not connect to DB: " + err.message);
+	process.exit(1);
+}
+
 //Connect to the database, if this is unnsuccessful, do not continue.
 dbConnection.connect(opts.authdb,dbPassword).then(function(dbFunctions){
 	//Bind dbfunctions to app
 	app.dbFunctions = dbFunctions;
-
+	app.dbFunctions.checkInit() // async call to checkwhether database is currently initialized;
 	logger('info','Starting server',{arguments:opts});
-	//=======================================================================
-	//Make log Directories
-	//=======================================================================
-	var prerequisiteDirectories = [nodeConstants.TMP_UPLOAD_DIR, nodeConstants.UPLOAD_DIR];
-	for (var i=0; i < prerequisiteDirectories.length; i++ ){
-		try {
-			fs.statSync(prerequisiteDirectories[i]);
-
-		} catch (err) {
-			try {
-				logger('info','Adding prequisite directory',{target:prerequisiteDirectories[i],action:'mkdir'});
-				fs.mkdirSync(prerequisiteDirectories[i]);
-			} catch (err2){ 
-			}
-		}
-	}
-
-
-
-	//configure morgan to add the user to the logged file info:
 	logger('info','Logging HTTP traffic to: ' + nodeConstants.LOG_DIR + "/" + nodeConstants.COM_LOG_PATH);
-	var comLog = fs.createWriteStream(nodeConstants.LOG_DIR + "/" + nodeConstants.COM_LOG_PATH,{flags:'a'});
-	var morganEntry = '{"ip"\:":remote-addr","user"\:":user","timestamp"\:":date[clf]","method"\:":method",\
-			"baseurl"\:":url","http_version"\:":http-version","status"\:":status","res"\:":res[content-length]",\
-			"referrer"\:":referrer","agent"\:":user-agent"}'
-	//With morgan, store entries in JSON format
-	morgan.token('user',function getUser(req){
-		if (req.user)
-			return req.user[dbConstants.USERS.ID_FIELD];
-		else
-			return "";
-	});
-	app.use(morgan(, {stream:comLog}));
-
-
-	//=======================================================================
-	// Serve Static Public Content (ie, dont need to be logged in to access)
-	//=======================================================================
-	app.use("/static", express.static(path.join(nodeConstants.SERVER_DIR + "/public")));
-	//=======================================================================
-	//If using https then add redirect callback for all incoming http calls. //should be done with ip tables
-	//=======================================================================
-	if (opts.https){
+	app.use(morgan(morganEntry, {stream:comLog})); // Use morgan to log http traffic
+	if (opts.https){ //If the user has set the https flag, redirect all http traffic to the secure route.
 		app.use(function (req, res, next) {
 			if (req.secure) {
 				// request was via https, so do no special handling
@@ -248,62 +262,20 @@ dbConnection.connect(opts.authdb,dbPassword).then(function(dbFunctions){
 			}
 		});
 	}
-	//=======================================================================
-	// Add Parsers
-	//=======================================================================
+	app.use("/static", express.static(path.join(nodeConstants.SERVER_DIR + "/public"))); //Publicly served content
 	app.use(cookieParser());
-	app.use(bodyParser.json());
-	app.use(bodyParser.urlencoded({extended:false}));
+	app.use(bodyParser.json()); //parse incoming json data
+	app.use(bodyParser.urlencoded({extended:false})); //parse incoming urlencoded data to receive query, etc
 	require('./controllers/passport-config')(app,logger,opts,passport); //Set up passport 
-
-
-	//=======================================================================	
-	// Set up Passport to use Authentication
-	//=======================================================================
-
-	//=======================================================================
-	// Initialize the session storage
-	//=======================================================================
-	var host = opts.mongodbHost
-	var url = 'mongodb://'
-	if (opts.authdb){
-		url += opts.authdb + ':' + dbPassword + '@';
-	} else if (dbConstants.DB.AUTH_USER !== null && dbConstants.DB.AUTH_PASSWD !== null){
-		url += dbConstants.DB.AUTH_USER + ':' + dbConstants.DB.AUTH_PASSWD  + '@';
-	}
-	url += dbConstants.DB.HOST + ":" + dbConstants.DB.PORT + '/' + dbConstants.DB.NAME;
-	try { 
-		app.use(session({secret:'webb_app_server',
-			store: new mongoStore({
-				url:url
-			}),
-			resave:false,
-			secure:true,
-			saveUninitialized:false
-		}));
-		logger('info','Session information being stored in mongoStore',{target:'mongodb://' + dbConstants.DB.HOST + ':' + dbConstants.DB.PORT + '/' + dbConstants.DB.NAME});
-	} catch (err) {
-		console.log("ERROR could not connect to DB: " + err.message);
-		process.exit(1);
-	}
-
-
 	app.use(passport.initialize());//initialize passport
 	app.use(passport.session()); // initialize passport session storage
 	app.use(flash()); // add flash storage
 	app.set('views',nodeConstants.SERVER_DIR + '/views'); // add routes for the views
-	app.engine('hbs',cons.handlebars); //Add the default rendering agent
+	app.engine('hbs',cons.handlebars); //Add the default rendering agent, in this case consolidate.
 	app.set('view engine', 'hbs');
 	app.set('partialsDir', 'views/partials/');
 	app.set('view engine', '.hbs');
-	require('./controllers/routes')(app,logger,opts,passport);
-	//=======================================================================
-	// Connect and Initialzie the storage Database
-	//=======================================================================
-	dbFunctions.connectAndInitializeDB(logger,opts.authdb,dbPassword).catch(function(err){
-		console.log("ERROR could not connect to DB: " + err.message);
-		process.exit(1)
-	});
+	require('./controllers/routes')(app,logger,opts,passport); //Finall add the routes
 	//=======================================================================
 	// Start Listening on the set port
 	//=======================================================================

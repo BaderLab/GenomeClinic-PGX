@@ -11,7 +11,7 @@ var fs = Promise.promisifyAll(require('fs'));
 var path = require('path');
 var assert= require("assert");
 var constants = require('./lib/conf/constants.json');
-var dbFunctions = require("./models/mongodb_functions");
+var dbConnect = require("./models/mongodbConnect");
 var utils = require('./lib/utils');
 var getRS = require("./lib/getDbSnp");
 var readline = require("readline-sync");
@@ -442,7 +442,8 @@ if (readline.keyInYN("Use authenticated sign on?")){
 	pwd = readline.question("PASSWORD: ",{hideEchoBack:true});
 }
 /* Connect to the database */
-dbFunctions.connectAndInitializeDB(undefined,user,pwd).then(function(){
+var dbConnection = new dbConnect();
+dbConnection.connect(user,pwd).then(function(dbFunctions){
 	var colParams = ops.collections[collection];
 	var descriptors;
 	console.log("\nJOB: " + op.toUpperCase() )
@@ -789,7 +790,7 @@ dbFunctions.connectAndInitializeDB(undefined,user,pwd).then(function(){
 								});
 							} else if (collection == 'genes'){
 								assert(descriptors[doc.type] !== undefined, "Invalid Gene Type for doc " + (index + 1));
-								return dbFunctions.drugs.createNewDoc(doc.gene,doc.type);
+								return dbFunctions.createNewDoc(doc.gene,doc.type);
 							} else if (collection == 'dbsnp'){
 								if (include){
 									return getRS(doc).then(function(result){

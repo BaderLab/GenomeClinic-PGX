@@ -3,7 +3,6 @@
  * about the status of a request, along wiht any relevant information that goes 
  * along with the status 
  * @author Patrick Magee */
-var dbFunctions = require('../models/mongodb_functions');
 module.exports = function(app,logger,opts){
 	//route to send information in the event of a login failure
 	app.get('/failure',function(req,res){
