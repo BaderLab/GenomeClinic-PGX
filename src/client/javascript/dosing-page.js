@@ -178,721 +178,716 @@ var utility = require('./utility');
 
 
 	/* all page handlers for working with dosing tables and drug recommendations */
-	var staticHanlders = {
-		/* main page hanlders, contains a list of all the genes that are that have dosing
-		 * information  and the number of interactions tehre are recommendations for*/
-		index:function(){
-			/* Close the error display box */
-			$('.close-box').on('click',function(e){
-				e.preventDefault();
-				$(this).closest('#error-display-box').slideUp();
-			});
-				
-			/* whenever a key is pressed within the serach box search through the current
-			 * rows for genes that match the value present in the search box. Hide those that
-			 * do not match */
-			$('#search-box').on('keyup',function(){
-				var currentRows = $('.dose-row');
-				for (var i=0; i < currentRows.length; i++ ){
-					if (!utility.matchSearch([$(currentRows[i]).data('gene'),$(currentRows[i]).data('enzymaticclass')]))
-						$(currentRows[i]).hide();
-					else 
-						$(currentRows[i]).show();
-				}
-			});
+
+	/* main page hanlders, contains a list of all the genes that are that have dosing
+	 * information  and the number of interactions tehre are recommendations for*/
+	var indexHandlers = function(){
+		/* Close the error display box */
+		$('.close-box').on('click',function(e){
+			e.preventDefault();
+			$(this).closest('#error-display-box').slideUp();
+		});
 			
-			/* Handler to show the form to add a new gene */
-			$('#add-new-gene').on('click',function(e){
-				e.preventDefault();
-				$(this).hide().siblings('ul').show()
-				$("#submit-new-gene-form").show();
-			});
+		/* whenever a key is pressed within the serach box search through the current
+		 * rows for genes that match the value present in the search box. Hide those that
+		 * do not match */
+		$('#search-box').on('keyup',function(){
+			var currentRows = $('.dose-row');
+			for (var i=0; i < currentRows.length; i++ ){
+				if (!utility.matchSearch([$(currentRows[i]).data('gene'),$(currentRows[i]).data('enzymaticclass')]))
+					$(currentRows[i]).hide();
+				else 
+					$(currentRows[i]).show();
+			}
+		});
+		
+		/* Handler to show the form to add a new gene */
+		$('#add-new-gene').on('click',function(e){
+			e.preventDefault();
+			$(this).hide().siblings('ul').show()
+			$("#submit-new-gene-form").show();
+		});
 
-			/* Once the Gene form has been validated send the form information
-			 * to the server to be added to the databse. Upon a succesful entry
-			 * navigate to the new gene's drug recommendation page */
-			$('#submit-new-gene-form').on('valid.fndtn.abide',function(e){
-				var val = $('#new-gene-name').val().replace('/');
-				var type = $('#new-gene-type').find('option:selected').data('id');
+		/* Once the Gene form has been validated send the form information
+		 * to the server to be added to the databse. Upon a succesful entry
+		 * navigate to the new gene's drug recommendation page */
+		$('#submit-new-gene-form').on('valid.fndtn.abide',function(e){
+			var val = $('#new-gene-name').val().replace('/');
+			var type = $('#new-gene-type').find('option:selected').data('id');
 
-				Promise.resolve($.ajax({
-					url:'/database/dosing/new?gene=' + val+ "&type="+ type + '&from=Dosing',
-					type:"POST",
-					contentType:'application/json',
-					dataType:'json'
-				})).then(function(result){
-					if (result.statusCode == 200){
-						window.location.replace('/dosing/current/' + val);
-					} else {
-						$('#error-display-message').text(result.message);
-						$('#error-display-box').slideDown();
-					}
-				});
-			});
-
-			$("#submit-new-gene").on('click',function(e){
-				e.preventDefault();
-				$('#submit-new-gene-form').submit();
-			});
-
-			$('#cancel-new-gene').on('click',function(e){
-				e.preventDefault();
-				$('#submit-new-gene-form')[0].reset();
-				$('#submit-new-gene-form').hide();
-				$(this).closest('ul').hide().siblings('#add-new-gene').show();
-			})
-		},
-		/* Handlers for currently existsing dose tables. This function contains both the handlers
-		 * for each dosing form, as well as the entire page. You can define the elemetts of the page
-		 * to apply to function to byh passing in el as the only argument */
-		current: {
-			page: function(){
-				_this = this;
-
-
-				$('.flag').on('click',function(e){
-					e.preventDefault();
-					if ($(this).hasClass('editfixed') ){
-						if ($(this).hasClass('secondary')) $(this).removeClass('secondary').addClass('warning')
-						else $(this).addClass('secondary').removeClass('warning');
-					}
-					return;
-				});
-				// If future recomednations is not empty show it;
-				if ( $('#future-recommendations').find('tbody').find('tr').length > 0 ){
-					$('#future-recommendations').show();
+			Promise.resolve($.ajax({
+				url:'/database/dosing/new?gene=' + val+ "&type="+ type + '&from=Dosing',
+				type:"POST",
+				contentType:'application/json',
+				dataType:'json'
+			})).then(function(result){
+				if (result.statusCode == 200){
+					window.location.replace('/dosing/current/' + val);
+				} else {
+					$('#error-display-message').text(result.message);
+					$('#error-display-box').slideDown();
 				}
+			});
+		});
 
-				// If haplotypes are not empty show them
-				if ( $('#haplotypes').find('tbody').find('tr').length > 0 ){
-					$('#haplotypes').show();
+		$("#submit-new-gene").on('click',function(e){
+			e.preventDefault();
+			$('#submit-new-gene-form').submit();
+		});
+
+		$('#cancel-new-gene').on('click',function(e){
+			e.preventDefault();
+			$('#submit-new-gene-form')[0].reset();
+			$('#submit-new-gene-form').hide();
+			$(this).closest('ul').hide().siblings('#add-new-gene').show();
+		})
+	};
+	/* Handlers for currently existsing dose tables. This function contains both the handlers
+	 * for each dosing form, as well as the entire page. You can define the elemetts of the page
+	 * to apply to function to byh passing in el as the only argument */
+	var recommendationPageHandlers = function(){
+		// If future recomednations is not empty show it;
+		if ( $('#future-recommendations').find('tbody').find('tr').length > 0 ){
+			$('#future-recommendations').show();
+		}
+
+		// If haplotypes are not empty show them
+		if ( $('#haplotypes').find('tbody').find('tr').length > 0 ){
+			$('#haplotypes').show();
+		}
+
+
+		/* Scroll functions for navigating to points on the page */
+
+
+		$('.scroll-to-future').on('click',function(e){
+			e.preventDefault();
+			$('body').animate({
+				scrollTop: $("#future-recommendations-header").offset().top},
+				'slow');
+		});
+
+		$('.scroll-to-haplo').on('click',function(e){
+			e.preventDefault();
+			$('body').animate({
+				scrollTop: $("#haplotypes-header").offset().top},
+				'slow');
+		});
+
+		$('.scroll-to-top').on('click',function(e){
+			e.preventDefault();
+			$('body').animate({
+				scrollTop: $("#recommendation-header").offset().top},
+				'slow');
+		});
+
+
+		/* Simple search box for searching through drug names */
+		$('#search-box').on('keyup',function(){
+			var values = $('.drug-cont');
+			for (var i =0; i<values.length; i++){
+				if (utility.matchSearch($(values[i]).data('drug'))){
+					$(values[i]).show();
+				} else {
+					$(values[i]).hide();
 				}
+			}
+		});
+		//Show or hide all drug tabs and set the state / text of the button
+		$('#toggle-all').on('click',function(e){
+			e.preventDefault();
+			var tables = $('.drug-cont-header');
+			var state = $(this).data('state')
+			for (var i=0; i<tables.length; i++ ){
+				if (state == 'less' && $(tables[i]).data('state') == 'open')
+					$(tables[i]).trigger('click');
+				else if (state == 'more' && $(tables[i]).data('state') == 'closed')
+					$(tables[i]).trigger('click');
+			}	
+			if (state == 'less') $(this).text('Show more').data('state','more');
+			else $(this).text('Show less').data('state','less');
+		});
+
+		//=====================================================
+		//new recommendation;
+		//Button to set new recommendation
+		$('#new-recommendation').on('click',function(e){
+			e.preventDefault();
+			$(this).hide().siblings('#new-recommendation-triggers').show();
+			$('#new-recommendation-form').slideDown();
+		});
+
+		//submit the new recommendation field
+		$('#new-recommendation-trigger-submit').on('click',function(e){
+			e.preventDefault();
+			$('#new-recommendation-form').submit();//submit').trigger('click');
+		});
 
 
-				/* Scroll functions for navigating to points on the page */
+		//cancel the new recommendation form reseting and hiding it
+		$('#new-recommendation-cancel-trigger').on('click',function(e){
+			e.preventDefault();
+			$(this).closest("#new-recommendation-triggers").hide().siblings('#new-recommendation').show();
+			$('#additional-genes').empty();
+			document.getElementById('new-recommendation-form').reset();//.trigger('click');
+			$('#new-recommendation-form').find('.pubmed-links').empty();
+			$('#new-recommendation-form').slideUp();
+		});
 
+		/* Add a new dependant  gene recommendation to the current recommendation */
+		$('.add-additional-gene').on('click',function(e){
+			e.preventDefault();
+			var context = this;
+			var opts = {
+				num : pageOptions.counter,
+				classes : pageOptions.classes
+			}
+			templates.drugs.gene(opts).then(function(renderedHtml){
+				$(context).closest('form').	find(".additional-genes").append(renderedHtml);
+			}).then(function(){
 
-				$('.scroll-to-future').on('click',function(e){
-					e.preventDefault();
-					$('body').animate({
-        				scrollTop: $("#future-recommendations-header").offset().top},
-        				'slow');
-				});
-
-				$('.scroll-to-haplo').on('click',function(e){
-					e.preventDefault();
-					$('body').animate({
-        				scrollTop: $("#haplotypes-header").offset().top},
-        				'slow');
-				});
-
-				$('.scroll-to-top').on('click',function(e){
-					e.preventDefault();
-					$('body').animate({
-        				scrollTop: $("#recommendation-header").offset().top},
-        				'slow');
-				});
-
-
-				/* Simple search box for searching through drug names */
-				$('#search-box').on('keyup',function(){
-					var values = $('.drug-cont');
-					for (var i =0; i<values.length; i++){
-						if (utility.matchSearch($(values[i]).data('drug'))){
-							$(values[i]).show();
-						} else {
-							$(values[i]).hide();
-						}
-					}
-				});
-				//Show or hide all drug tabs and set the state / text of the button
-				$('#toggle-all').on('click',function(e){
-					e.preventDefault();
-					var tables = $('.drug-cont-header');
-					var state = $(this).data('state')
-					for (var i=0; i<tables.length; i++ ){
-						if (state == 'less' && $(tables[i]).data('state') == 'open')
-							$(tables[i]).trigger('click');
-						else if (state == 'more' && $(tables[i]).data('state') == 'closed')
-							$(tables[i]).trigger('click');
-					}	
-					if (state == 'less') $(this).text('Show more').data('state','more');
-					else $(this).text('Show less').data('state','less');
-				});
-
-				//=====================================================
-				//new recommendation;
-				//Button to set new recommendation
-				$('#new-recommendation').on('click',function(e){
-					e.preventDefault();
-					$(this).hide().siblings('#new-recommendation-triggers').show();
-					$('#new-recommendation-form').slideDown();
-				});
-
-				//submit the new recommendation field
-				$('#new-recommendation-trigger-submit').on('click',function(e){
-					e.preventDefault();
-					$('#new-recommendation-form').submit();//submit').trigger('click');
-				});
-
-
-				//cancel the new recommendation form reseting and hiding it
-				$('#new-recommendation-cancel-trigger').on('click',function(e){
-					e.preventDefault();
-					$(this).closest("#new-recommendation-triggers").hide().siblings('#new-recommendation').show();
-					$('#additional-genes').empty();
-					document.getElementById('new-recommendation-form').reset();//.trigger('click');
-					$('#new-recommendation-form').find('.pubmed-links').empty();
-					$('#new-recommendation-form').slideUp();
-				});
-
-				/* Add a new dependant  gene recommendation to the current recommendation */
-				$('.add-additional-gene').on('click',function(e){
-					e.preventDefault();
-					var context = this;
-					var opts = {
-						num : pageOptions.counter,
-						classes : pageOptions.classes
-					}
-					templates.drugs.gene(opts).then(function(renderedHtml){
-						$(context).closest('form').	find(".additional-genes").append(renderedHtml);
-					}).then(function(){
-
-						//Handler for retrieving the information on the specific
-						//Predicted result for the specific enyzme catefory fo the
-						//New Gene
-						utility.suggestionHandlers();
-						$('#gene-name-'+pageOptions.counter).on('change',function(){
-							var _this = this;
-							var val = $(this).val();
-							if (val !== ""){
-								getGeneInfo(val)
-								.then(function(type){
-									if (type){
-										var html = "";
-										for (var i = 0; i<pageOptions.classes[type].classes.length; i++ ){
-											html += "<option>" + pageOptions.classes[type].classes[i] + "</option>"
-										}
-										$(_this).closest('.additional-gene-row').find('.class-name').removeAttr('disabled')
-										.html(html)
-									} else {
-										$(_this).closest('.additional-gene-row').find('.class-name').val('');
-										$(_this).closest('.additional-gene-row').find('.class-name').attr('disabled','disabled')
-									}
-								}).catch(function(err){
-									$(_this).closest('.additional-gene-row').find('.class-name').val('');
-									$(_this).closest('.additional-gene-row').find('.class-name').attr('disabled','disabled')
-								});
+				//Handler for retrieving the information on the specific
+				//Predicted result for the specific enyzme catefory fo the
+				//New Gene
+				utility.suggestionHandlers();
+				$('#gene-name-'+pageOptions.counter).on('change',function(){
+					var _this = this;
+					var val = $(this).val();
+					if (val !== ""){
+						getGeneInfo(val)
+						.then(function(type){
+							if (type){
+								var html = "";
+								for (var i = 0; i<pageOptions.classes[type].classes.length; i++ ){
+									html += "<option>" + pageOptions.classes[type].classes[i] + "</option>"
+								}
+								$(_this).closest('.additional-gene-row').find('.class-name').removeAttr('disabled')
+								.html(html)
+							} else {
+								$(_this).closest('.additional-gene-row').find('.class-name').val('');
+								$(_this).closest('.additional-gene-row').find('.class-name').attr('disabled','disabled')
 							}
+						}).catch(function(err){
+							$(_this).closest('.additional-gene-row').find('.class-name').val('');
+							$(_this).closest('.additional-gene-row').find('.class-name').attr('disabled','disabled')
 						});
-						//add remove row handler
-						_this.removeRow('#remove-additional-gene-' + pageOptions.counter);
-						utility.refresh(abideOptions,'#additional-gene-row-' + pageOptions.counter);
-						pageOptions.counter++
-					});
-				})
+					}
+				});
+				//add remove row handler
+				removeRow('#remove-additional-gene-' + pageOptions.counter);
+				utility.refresh(abideOptions,'#additional-gene-row-' + pageOptions.counter);
+				pageOptions.counter++
+			});
+		});
 
-				/* When the form is considered valid, trigger this event handler
-				 * submitting the serialized data to the server for entry. The
-				 * server will additionally check to see if there are any identical
-				 * entires already in existence. If there are, it will return false
-				 * and data will not be entered but inform the user an entry similar
-				 * to that already exists */
-				$('#new-recommendation-form').on('valid.fndtn.abide', function (){
-					var doc = serializeNewField(this,'recommendation');
-					var context;
+		/* When the form is considered valid, trigger this event handler
+		 * submitting the serialized data to the server for entry. The
+		 * server will additionally check to see if there are any identical
+		 * entires already in existence. If there are, it will return false
+		 * and data will not be entered but inform the user an entry similar
+		 * to that already exists */
+		$('#new-recommendation-form').on('valid.fndtn.abide', function (){
+			var doc = serializeNewField(this,'recommendation');
+			var context;
+			Promise.resolve($.ajax({
+				url:'/database/dosing/genes/' + pageOptions.gene + '/new?type=recommendation',
+				type:"POST",
+		 		contentType:"application/json",
+		 		dataType:"json",
+				data:JSON.stringify(doc)
+			})).then(function(result){
+				if (result.statusCode == 200 ){
+					return utility.pubMedParser(result.pubmed).then(function(citations){
+						result.citations = citations;
+						var currentDrugCont = $('.drug-cont');
+						var currentDrugs=[];
+						var num = $('#main_content').find('form').length;
+						result.num = num;
+						//GET NAMES OF CURRENT DRUGS
+						for (var i=0; i < currentDrugCont.length; i++ ){
+							currentDrugs.push($(currentDrugCont[i]).data('drug'));
+						}
+						//If this is a new drug, add a new drug table
+						if (currentDrugs.indexOf(result.drug) === -1 ){
+							result.new = true;
+						}
+						promise = templates.drugs.new(result).then(function(renderedHtml){
+							if (result.new){
+								return $('#main_content').append(renderedHtml)
+							} else {
+								return $('.drug-cont[data-drug=' + result.drugs + ']').find('.recommendations').append(renderedHtml);
+							}
+						}).then(function(){
+							if (result.new) context = $('.drug-cont[data-drug=' + result.drug + ']');
+							else context = $('.drug-cont[data-drug=' + result.drug + ']').last('tr').find('form');
+							context.foundation(abideOptions);
+							recommendationHandlers(context);
+							genericHandlers(context);
+							setSelects(context);
+						});
+					});
+				} else {
+					$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();
+				}
+			}).then(function(){
+				$('#new-recommendation-cancel-trigger').trigger('click');					
+			}).catch(function(err){
+				$('#error-display-message').text(err.toString()).closest('#error-display-box').slideDown();
+			});
+		});
+		
+		//*============================
+		// New Future Form
+
+		//button to drop down the new interaciton
+		$('#new-future').on('click',function(e){
+			e.preventDefault();
+			$(this).hide().siblings('#new-future-triggers').show();
+			$('#new-future-form').slideDown();
+		});
+
+		//submit the new recommendation field
+		$('#new-future-trigger-submit').on('click',function(e){
+			e.preventDefault();
+			$('#new-future-form').submit();//submit').trigger('click');
+		});
+
+
+		//cancel the new interaction form reseting and hiding it
+		$('#new-future-cancel-trigger').on('click',function(e){
+			e.preventDefault();
+			$(this).closest("#new-future-triggers").hide().siblings('#new-future').show();
+			document.getElementById('new-future-form').reset();
+			$('#new-future-form').slideUp();
+
+		});
+
+		/* When the form is considered valid, trigger this event handler
+		 * submitting the serialized data to the server for entry. The
+		 * server will additionally check to see if there are any identical
+		 * entires already in existence. If there are, it will return false
+		 * and data will not be entered but inform the user an entry similar
+		 * to that already exists */
+		$("#new-future-form").on('valid.fndtn.abide',function(){
+			var o = serializeNewField(this,'future');
+			Promise.resolve($.ajax({
+				url:'/database/dosing/genes/' + pageOptions.gene + '/new?type=future',
+				type:"POST",
+				contentType:'application/json',
+				dataType:'json',
+				data:JSON.stringify(o)
+			})).then(function(result){
+				if (result.statusCode == 200){
+					templates.drugs.future({future:[result]}).then(function(renderedHtml){
+						return $('#future-recommendations').find('tbody').append(renderedHtml);
+					}).then(function(){
+						var context = $('#future-recommendations').find('tbody').last('tr')
+						context.foundation(abideOptions);
+						genericHanlders(context);
+						futureHandlers(context);
+						$('#future-recommendations').show();
+						$('#error-display-message-2').text(result.message).closest('#error-display-box-2').slideDown()
+						$('#new-future-cancel-trigger').trigger('click');
+					});
+				} else {
+					$('#error-display-message-2').text(result.message).closest('#error-display-box-2').slideDown();
+				}
+			}).catch(function(err){
+				$('#error-display-message-2').text(err.message).closest('#error-display-box-2').slideDown();
+			});
+		});	
+		
+		//*=================================
+		//New Haplotypes Form
+
+		$('#new-haplotype').on('click',function(e){
+			e.preventDefault();
+			$(this).hide().siblings('#new-haplotype-triggers').show();
+			$('#new-haplotype-form').slideDown();
+		});
+
+		//trigger the submission of the form
+		$('#new-haplotype-trigger-submit').on('click',function(e){
+			e.preventDefault();
+			$('#new-haplotype-form').submit();
+		});
+
+		//cancel the new interaction form reseting and hiding it
+		$('#new-haplotype-cancel-trigger').on('click',function(e){
+			e.preventDefault();
+			$(this).closest("#new-haplotype-triggers").hide().siblings('#new-haplotype').show();
+			document.getElementById('new-haplotype-form').reset();//.trigger('click');
+			$('#new-haplotype-form').slideUp();
+		});
+
+		/* When the form is considered valid, trigger this event handler
+		 * submitting the serialized data to the server for entry. The
+		 * server will additionally check to see if there are any identical
+		 * entires already in existence. If there are, it will return false
+		 * and data will not be entered but inform the user an entry similar
+		 * to that already exists */
+		$('#new-haplotype-form').on('valid.fndtn.abide',function(){
+			var o = serializeNewField(this,'haplotype');
+			Promise.resolve($.ajax({
+				url:'/database/dosing/genes/' + pageOptions.gene + '/new?type=haplotype',
+				type:'POST',
+				contentType:'application/json',
+				dataType:'json',
+				data:JSON.stringify(o)
+			})).then(function(result){
+				if (result.statusCode == 200 ){
+					templates.drugs.haplo({ haplotypes : [result] }).then(function(renderedHtml){
+						return $("#haplotypes").find('tbody').append(renderedHtml)
+					}).then(function(){
+						var context = $('#haplotypes').find('tbody').last('tr');
+						genericHanlders(context);
+						haplotypeHandlers(context);
+						setSelects(context);
+						utility.refresh(abideOptions,context);
+					}).then(function(){
+						$('#haplotypes').show();
+						$('#error-display-message-3').text(result.message).closest('#error-display-box-3').slideDown();
+						$('#new-haplotype-cancel-trigger').trigger('click');
+					});
+				} else {
+					$('#error-display-message-3').text(result.message).closest('#error-display-box-3').slideDown();
+				}
+			});
+		});
+
+		/* Delete all the interactions related to the Primary Gene. Submits a POST request to the database
+		 * after the deletion is confirmed by revealing a modal */
+		$('#delete-all').on('click',function(e){
+			e.preventDefault();
+			var id = $(this).data('id');
+			confirmAction("Are you sure you want to delete all dosing recommendations for " + pageOptions.gene,"This will permanately delete all entries and they will no longer be available for report generation")
+			.then(function(result){
+				if (result){
 					Promise.resolve($.ajax({
-						url:'/database/dosing/genes/' + pageOptions.gene + '/new?type=recommendation',
+						url:'/database/dosing/genes/' + pageOptions.gene + '/delete?type=all&id=' + id, 
+						type:'POST',
+						contentType:'application/json',
+						dataType:'json'
+					})).then(function(result){
+						if (result.statusCode == 200){
+							window.location.replace('/dosing');
+						} else {
+							$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();
+						}
+					}).catch(function(err){
+						$('#error-display-message').text(err.message).closest('#error-display-box').slideDown();
+					});
+				}
+			});
+		});
+
+	};
+		
+	var removeRow = function(el){
+		$(el).on('click',function(e){
+			e.preventDefault();
+			var num = $(this).data('num');
+			$('#additional-gene-row-' + num).remove();
+		});
+	};
+
+	//Functions and hanlders that are used by all types of interacitons
+	var genericHandlers = function(el){
+		_this = this;
+		var context;
+		/* set the context of the function, if el exists the hanlders will only be applied to
+		 * a certain context and not the whole documetn. This speeds up the process */
+
+		if (!el) context = $(document);
+		else context = $(el);
+
+		$('.flag').on('click',function(e){
+			e.preventDefault();
+			if ($(this).hasClass('editfixed') ){
+				if ($(this).hasClass('secondary')) $(this).removeClass('secondary').addClass('warning')
+				else $(this).addClass('secondary').removeClass('warning');
+			}
+			return;
+		});
+		/* close an alert box */
+		context.find('.close-box').on('click',function(e){
+				e.preventDefault();
+				$(this).closest('.alert-box').slideUp();
+		});
+
+		// Make an entry editable, revealing the submission buttons as well as enabling the text fileds
+		context.find(".edit-table").on('click',function(e){
+			e.preventDefault();
+			$(this).hide();
+			$(this).closest('form').find('input,select,textarea').prop('disabled',false);
+			$(this).closest('form').find('.form-triggers,.edit').show();
+			$(this).closest('form').find('.flag').addClass('editfixed');
+		});
+
+		//cancel the chagens, restoring the original values to each field
+		context.find('.cancel-changes').on('click',function(e){
+			var newVal;
+			e.preventDefault();
+			$(this).closest('form').find('input,select,textarea').prop('disabled',true);
+			var inputFields = $(this).closest('form').find('input,textarea,select');
+			for (var i=0; i < inputFields.length; i++ ){
+				newVal = $(inputFields[i]).data('originalvalue');
+				$(inputFields[i]).val(newVal);
+			}
+			$(this).closest('form').find('.form-triggers,.edit').hide().closest('form').find('.edit-table,.temp-hide').show();
+			$(this).closest('form').find('.temp-remove').remove();
+			var flag = $(this).closest('form').find('.flag').data('originalvalue');
+			if (flag) $(this).closest('form').find('.flag').removeClass('secondary').addClass('warning');
+			else $(this).closest('form').find('.flag').addClass('secondary').removeClass('warning');
+			$(this).closest('form').find('.flag').removeClass('editfixed');
+		});
+
+		//Remove a pubmed link from an entry
+		context.find('.pubmed-remove-link').on('click',function(e){
+			e.preventDefault();
+			$(this).closest('.pubmed-link-combo').addClass('temp-hide').hide();
+		})
+
+
+		// add a new pubmed link
+		context.find('.add-new-pubmed-button').on('click', function(e){
+			var __this = this;
+			e.preventDefault();
+			var val = $(this).closest('.row').find(".add-new-pubmed-input").val();
+			if (val !== ""){
+				utility.pubMedParser(val).then(function(citations){
+					if (citations[val]){
+						var html= "<li class='pubmed-link-combo' data-id=" + val + ">" + citations[val] +"\
+						&nbsp&nbsp <a href='#' class='edit pubmed-remove-link ' data-link=" + val + "><i class='fi-x'></i></a></li>"
+						var context = $(__this).closest('.citations').find('.pubmed-links');
+						context.append(html);
+						utility.refresh(context);
+						genericHandlers(context);
+					}
+				})
+			};
+			$(this).closest('.row').find(".add-new-pubmed-input").val('');
+		});
+
+	}
+	//Handler for specifically dealing with future interacitons
+	var futureHandlers = function(el){
+		_this = this;
+		var context;
+		//set the context either to a speciofic interaciton or ALL future recomednations
+		if (!el) context = $('#future-recommendations');
+		else context = $(el);
+
+		/* when the form is submitted and valid, serialize the recomednation 
+		 * and send it to the server. If the update is successful, then the form will be disabled
+		 * once again, and the data-originavalue attribute will be updated to reflect the new vlaues.
+		 * Additionally, display a message when the update is complete. */
+		context.find("form").on("valid.fndtn.abide",function(){
+			var _this =this;
+			var id = $(this).data('id');
+			var o = serializeField(this,'future');
+			Promise.resolve($.ajax({
+				url:"/database/dosing/genes/" + pageOptions.gene + "/update?type=future&id=" + id,
+				type:"POST",
+				contentType:"application/json",
+				dataType:'json',
+				data:JSON.stringify(o)
+			})).then(function(result){
+				if (result.statusCode == 200 ){
+					$(_this).find('[name=rec]').data('originalvalue',o.rec);
+					$(_this).find('.flag').data('originalvalue',o.flagged)
+					$(_this).find('.cancel-changes').trigger('click');
+					$(_this).find('.alert-message').text(result.message).closest('.alert-box').slideDown();
+				} else {
+					$(_this).find('.alert-message').text(result.message).closest('.alert-box').slideDown();
+
+				}
+			}).catch(function(err){
+				$(_this).find('.alert-message').text(err.message).closest('.alert-box').slideDown();
+			});
+		});
+		
+
+		/* WHen the delete button is selected, confirm the action and then submit a reqyest to the server.
+		 * if the request is successful, remove the entry and its HTML entirely from the apge */
+		context.find(".delete-table").on('click',function(e){
+			e.preventDefault();
+			var row = $(this).closest('tr');
+			var id = $(this).closest('form').data('id');
+			confirmAction("Are you sure you want to delete the selected recommendation table?","Once deleted it will no longer show up on any subsequent reports")
+			.then(function(result){
+				if (result){
+					Promise.resolve($.ajax({
+						url:"/database/dosing/genes/" + pageOptions.gene + "/delete?type=future&id=" + id,
 						type:"POST",
-				 		contentType:"application/json",
-				 		dataType:"json",
-						data:JSON.stringify(doc)
+						dataType:'json'
 					})).then(function(result){
 						if (result.statusCode == 200 ){
-							return utility.pubMedParser(result.pubmed).then(function(citations){
-								result.citations = citations;
-								var currentDrugCont = $('.drug-cont');
-								var currentDrugs=[];
-								var num = $('#main_content').find('form').length;
-								result.num = num;
-								//GET NAMES OF CURRENT DRUGS
-								for (var i=0; i < currentDrugCont.length; i++ ){
-									currentDrugs.push($(currentDrugCont[i]).data('drug'));
-								}
-								//If this is a new drug, add a new drug table
-								if (currentDrugs.indexOf(result.drug) === -1 ){
-									result.new = true;
-								}
-								promise = templates.drugs.new(result).then(function(renderedHtml){
-									if (result.new){
-										return $('#main_content').append(renderedHtml)
-									} else {
-										return $('.drug-cont[data-drug=' + result.drugs + ']').find('.recommendations').append(renderedHtml);
-									}
-								}).then(function(){
-									if (result.new) context = $('.drug-cont[data-drug=' + result.drug + ']');
-									else context = $('.drug-cont[data-drug=' + result.drug + ']').last('tr').find('form');
-									context.foundation(abideOptions);
-									_this.recommendation(context);
-									_this.generic(context);
-									setSelects(context);
-								});
+							row.remove();
+							if ($('#future-recommendations').find('tbody').find('tr').length === 0){
+								$('#future-recommendations').hide();
+							}
+							$('#error-display-message-2').text(result.message).closest('#error-display-box-2').slideDown()
+
+						} else {
+							$('#error-display-message-2').text(result.message).closest('#error-display-box-2').slideDown()
+						}
+					}).catch(function(err){
+						$('#error-display-message-2').text(err.message).closest('#error-display-box-2').slideDown()
+					});
+				}
+			});
+		});
+
+	};
+
+	//handlers dealing with the haplotype section
+	haplotypeHandlers = function(el){
+		_this = this;
+		var context;
+		//apply to the entire section or an single association
+		if (!el) context = $('#haplotypes');
+		else context = $(el);
+
+		/* when the form is validated submit an ajax request to the server. If the request
+		 * returns with a success resoonse then set the data-originalvalue for each field to
+		 * the new values, diable all inout fields and hide the edit buttons. */
+		context.find('form').on('valid.fndtn.abide',function(e){
+			var id = $(this).data('id');
+			var o = serializeField(this,'haplotype');
+			var _this = this;
+			Promise.resolve($.ajax({
+				url:'/database/dosing/genes/'+ pageOptions.gene + '/update?type=haplotype&id=' + id,
+				type:'POST',
+				contentType:'application/json',
+				dataType:'json',
+				data:JSON.stringify(o)
+			})).then(function(result){
+				if (result.statusCode == 200 ){
+					$(_this).find('input[name=allele_1]').data('originalvalue',$(_this).find('input[name=allele_1]').val());
+					$(_this).find('input[name=allele_2]').data('originalvalue',$(_this).find('input[name=allele_2]').val());
+					$(_this).find('.cancel-changes').trigger('click');
+					$(_this).find('.alert-message').text(result.message).closest('.alert-box').slideDown();
+				} else {
+					$(_this).find('.alert-box').find('p').text(result.message).closest('.alert-box').slideDown();
+				}
+			});
+		});
+
+		/* When selected prompt the user if they really want to delete the haplotype, if yes, then send an ajax request to teh server.
+		 * If successful entirely remove all html for the entry */
+		context.find('.delete-table').on('click',function(){
+			var form = $(this).closest('form');
+			var row = $(this).closest('tr');
+			var id = form.data('id');
+			confirmAction("Are you sure you want to delete the selected haplotype association?","Once deleted it will no longer show up on any subsequent reports")
+			.then(function(result){
+				if (result){
+					Promise.resolve($.ajax({
+						url:"/database/dosing/genes/" + pageOptions.gene + "/delete?type=haplotype&id=" + id,
+						type:"POST",
+						dataType:'json'
+					})).then(function(result){
+						if (result.statusCode == 200 ){
+							row.remove();
+							if ($('#haplotypes').find('tbody').find('tr').length === 0){
+								$('#haplotypes').hide();
+							}
+							$('#error-display-message-3').text(result.message).closest('#error-display-box-3').slideDown()
+
+						} else {
+							$('#error-display-message-3').text(result.message).closest('#error-display-box-3').slideDown()
+						}
+					}).catch(function(err){
+						$('#error-display-message-3').text(err.message).closest('#error-display-box-3').slideDown()
+					});
+				}
+			});
+		});
+	}
+
+	// handlers related to specific interacitons
+	recommendationHandlers = function(el){
+		_this = this;
+		var context;
+		if (!el) context = $('#main_content');
+		else context = $(el);
+
+		// If the handlers are being applied to a new row open the drug container ti is being appended to
+		if (!context.is('tr')){
+			context.find('.drug-cont-header').on('click',function(){
+				var state = $(this).data('state');
+				if (state === "open"){
+					$(this).closest('.drug-cont').find('.recommendations').hide().closest('.drug-cont').find('.minimize').hide().siblings('.expand').show()
+					$(this).data('state','closed');
+				} else {
+					$(this).closest('.drug-cont').find('.recommendations').show().closest('.drug-cont').find('.expand').hide().siblings('.minimize').show()
+					$(this).data('state','open');
+				}
+			});
+		}
+		
+		
+		/* Submit the chagnes to the current dose table to the server. If the request is successful set the data-originalvalue to the 
+		 * new current value and then disable the input fields */
+		context.find('form').on('valid.fndtn.abide',function(e){
+			var _this = $(this);
+			var doc = serializeField(this,'recommendation');
+			var id = $(this).data('id');
+			Promise.resolve($.ajax({
+				url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=recommendation&id=' + id,
+				type:"POST",
+				contentType:'application/json',
+				dataType:'json',
+				data:JSON.stringify(doc)
+			})).then(function(result){
+				if (result.statusCode == 200){
+					$(_this).find('[name=risk]').data('originalvalue',doc.risk);
+					$(_this).find('[name=rec]').data('originalvalue',doc.rec);
+					$(_this).find('.flag').data('originalvalue',doc.flagged)
+					$(_this).find('.pubmed-link-combo').removeClass('temp-remove');
+					$(_this).find('.temp-hide').remove();
+					$(_this).find('.cancel-changes').trigger('click');
+					$(_this).find('.alert-message').text(result.message).closest('.alert-box').slideDown();
+				} else {
+					$(_this).find('.alert-box').find('p').text(result.message).closest('.alert-box').slideDown();
+				}
+			});
+
+		});
+		
+		
+
+		//delet the specified dose table after confirming its removal
+		context.find(".delete-table").on('click',function(e){
+			var form = $(this).closest('form');
+			var id = form.data('id');
+			confirmAction("Are you sure you want to delete the selected dosing table?","Once deleted it will no longer show up on any subsequent reports")
+			.then(function(result){
+				if (result){
+					Promise.resolve($.ajax({
+						url:"/database/dosing/genes/" + pageOptions.gene +"/delete?type=recommendation&id="+ id,
+						type:"POST",
+						dataType:'json'
+					})).then(function(result){
+						if (result.statusCode == 200){	
+							$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();
+							form.slideUp('slow',function(){
+								var remainingFormCount = form.closest('.drug-cont').find('form').length;
+								if ( remainingFormCount == 1 )
+									form.closest('.drug-cont').remove();
+								else
+									form.closest('tr').remove();
 							});
 						} else {
 							$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();
 						}
-					}).then(function(){
-						$('#new-recommendation-cancel-trigger').trigger('click');					
 					}).catch(function(err){
-						$('#error-display-message').text(err.toString()).closest('#error-display-box').slideDown();
-					});
-				});
-				
-				//*============================
-				// New Future Form
-
-				//button to drop down the new interaciton
-				$('#new-future').on('click',function(e){
-					e.preventDefault();
-					$(this).hide().siblings('#new-future-triggers').show();
-					$('#new-future-form').slideDown();
-				});
-
-				//submit the new recommendation field
-				$('#new-future-trigger-submit').on('click',function(e){
-					e.preventDefault();
-					$('#new-future-form').submit();//submit').trigger('click');
-				});
-
-
-				//cancel the new interaction form reseting and hiding it
-				$('#new-future-cancel-trigger').on('click',function(e){
-					e.preventDefault();
-					$(this).closest("#new-future-triggers").hide().siblings('#new-future').show();
-					document.getElementById('new-future-form').reset();
-					$('#new-future-form').slideUp();
-
-				});
-
-				/* When the form is considered valid, trigger this event handler
-				 * submitting the serialized data to the server for entry. The
-				 * server will additionally check to see if there are any identical
-				 * entires already in existence. If there are, it will return false
-				 * and data will not be entered but inform the user an entry similar
-				 * to that already exists */
-				$("#new-future-form").on('valid.fndtn.abide',function(){
-					var o = serializeNewField(this,'future');
-					Promise.resolve($.ajax({
-						url:'/database/dosing/genes/' + pageOptions.gene + '/new?type=future',
-						type:"POST",
-						contentType:'application/json',
-						dataType:'json',
-						data:JSON.stringify(o)
-					})).then(function(result){
-						if (result.statusCode == 200){
-							templates.drugs.future({future:[result]}).then(function(renderedHtml){
-								return $('#future-recommendations').find('tbody').append(renderedHtml);
-							}).then(function(){
-								var context = $('#future-recommendations').find('tbody').last('tr')
-								_this.generic(context);
-								_this.future(context);
-								utility.refresh(abideOptions,context);
-								$('#future-recommendations').show();
-								$('#error-display-message-2').text(result.message).closest('#error-display-box-2').slideDown()
-								$('#new-future-cancel-trigger').trigger('click');
-							});
-						} else {
-							$('#error-display-message-2').text(result.message).closest('#error-display-box-2').slideDown();
-						}
-					}).catch(function(err){
-						$('#error-display-message-2').text(err.message).closest('#error-display-box-2').slideDown();
-					});
-				});	
-				
-				//*=================================
-				//New Haplotypes Form
-
-				$('#new-haplotype').on('click',function(e){
-					e.preventDefault();
-					$(this).hide().siblings('#new-haplotype-triggers').show();
-					$('#new-haplotype-form').slideDown();
-				});
-
-				//trigger the submission of the form
-				$('#new-haplotype-trigger-submit').on('click',function(e){
-					e.preventDefault();
-					$('#new-haplotype-form').submit();
-				});
-
-				//cancel the new interaction form reseting and hiding it
-				$('#new-haplotype-cancel-trigger').on('click',function(e){
-					e.preventDefault();
-					$(this).closest("#new-haplotype-triggers").hide().siblings('#new-haplotype').show();
-					document.getElementById('new-haplotype-form').reset();//.trigger('click');
-					$('#new-haplotype-form').slideUp();
-				});
-
-				/* When the form is considered valid, trigger this event handler
-				 * submitting the serialized data to the server for entry. The
-				 * server will additionally check to see if there are any identical
-				 * entires already in existence. If there are, it will return false
-				 * and data will not be entered but inform the user an entry similar
-				 * to that already exists */
-				$('#new-haplotype-form').on('valid.fndtn.abide',function(){
-					var o = serializeNewField(this,'haplotype');
-					Promise.resolve($.ajax({
-						url:'/database/dosing/genes/' + pageOptions.gene + '/new?type=haplotype',
-						type:'POST',
-						contentType:'application/json',
-						dataType:'json',
-						data:JSON.stringify(o)
-					})).then(function(result){
-						if (result.statusCode == 200 ){
-							templates.drugs.haplo({ haplotypes : [result] }).then(function(renderedHtml){
-								return $("#haplotypes").find('tbody').append(renderedHtml)
-							}).then(function(){
-								var context = $('#haplotypes').find('tbody').last('tr');
-								_this.generic(context);
-								_this.haplotypes(context);
-								setSelects(context);
-								utility.refresh(abideOptions,context);
-							}).then(function(){
-								$('#haplotypes').show();
-								$('#error-display-message-3').text(result.message).closest('#error-display-box-3').slideDown();
-								$('#new-haplotype-cancel-trigger').trigger('click');
-							});
-						} else {
-							$('#error-display-message-3').text(result.message).closest('#error-display-box-3').slideDown();
-						}
-					});
-				});
-
-				/* Delete all the interactions related to the Primary Gene. Submits a POST request to the database
-				 * after the deletion is confirmed by revealing a modal */
-				$('#delete-all').on('click',function(e){
-					e.preventDefault();
-					var id = $(this).data('id');
-					confirmAction("Are you sure you want to delete all dosing recommendations for " + pageOptions.gene,"This will permanately delete all entries and they will no longer be available for report generation")
-					.then(function(result){
-						if (result){
-							Promise.resolve($.ajax({
-								url:'/database/dosing/genes/' + pageOptions.gene + '/delete?type=all&id=' + id, 
-								type:'POST',
-								contentType:'application/json',
-								dataType:'json'
-							})).then(function(result){
-								if (result.statusCode == 200){
-									window.location.replace('/dosing');
-								} else {
-									$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();
-								}
-							}).catch(function(err){
-								$('#error-display-message').text(err.message).closest('#error-display-box').slideDown();
-							});
-						}
-					});
-				});
-
-			},
-			removeRow:function(el){
-				$(el).on('click',function(e){
-					e.preventDefault();
-					var num = $(this).data('num');
-					$('#additional-gene-row-' + num).remove();
-				});
-			},
-			//Functions and hanlders that are used by all types of interacitons
-			generic:function(el){
-				_this = this;
-				var context;
-				/* set the context of the function, if el exists the hanlders will only be applied to
-				 * a certain context and not the whole documetn. This speeds up the process */
-
-				if (!el) context = $(document);
-				else context = $(el);
-
-				/* close an alert box */
-				context.find('.close-box').on('click',function(e){
-						e.preventDefault();
-						$(this).closest('.alert-box').slideUp();
-				});
-
-				// Make an entry editable, revealing the submission buttons as well as enabling the text fileds
-				context.find(".edit-table").on('click',function(e){
-					e.preventDefault();
-					$(this).hide();
-					$(this).closest('form').find('input,select,textarea').prop('disabled',false);
-					$(this).closest('form').find('.form-triggers,.edit').show();
-					$(this).closest('form').find('.flag').addClass('editfixed');
-				});
-
-				//cancel the chagens, restoring the original values to each field
-				context.find('.cancel-changes').on('click',function(e){
-					var newVal;
-					e.preventDefault();
-					$(this).closest('form').find('input,select,textarea').prop('disabled',true);
-					var inputFields = $(this).closest('form').find('input,textarea,select');
-					for (var i=0; i < inputFields.length; i++ ){
-						newVal = $(inputFields[i]).data('originalvalue');
-						$(inputFields[i]).val(newVal);
-					}
-					$(this).closest('form').find('.form-triggers,.edit').hide().closest('form').find('.edit-table,.temp-hide').show();
-					$(this).closest('form').find('.temp-remove').remove();
-					var flag = $(this).closest('form').find('.flag').data('originalvalue');
-					if (flag) $(this).closest('form').find('.flag').removeClass('secondary').addClass('warning');
-					else $(this).closest('form').find('.flag').addClass('secondary').removeClass('warning');
-					$(this).closest('form').find('.flag').removeClass('editfixed');
-				});
-
-				//Remove a pubmed link from an entry
-				context.find('.pubmed-remove-link').on('click',function(e){
-					e.preventDefault();
-					$(this).closest('.pubmed-link-combo').addClass('temp-hide').hide();
-				})
-
-
-				// add a new pubmed link
-				context.find('.add-new-pubmed-button').on('click', function(e){
-					var __this = this;
-					e.preventDefault();
-					var val = $(this).closest('.row').find(".add-new-pubmed-input").val();
-					if (val !== ""){
-						utility.pubMedParser(val).then(function(citations){
-							if (citations[val]){
-								var html= "<li class='pubmed-link-combo' data-id=" + val + ">" + citations[val] +"\
-								&nbsp&nbsp <a href='#' class='edit pubmed-remove-link ' data-link=" + val + "><i class='fi-x'></i></a></li>"
-								var context = $(__this).closest('.citations').find('.pubmed-links');
-								context.append(html);
-								utility.refresh(context);
-								_this.generic(context);
-							}
-						})
-					};
-					$(this).closest('.row').find(".add-new-pubmed-input").val('');
-				});
-
-			},
-			//Handler for specifically dealing with future interacitons
-			future : function(el){
-				_this = this;
-				var context;
-				//set the context either to a speciofic interaciton or ALL future recomednations
-				if (!el) context = $('#future-recommendations');
-				else context = $(el);
-
-				/* when the form is submitted and valid, serialize the recomednation 
-				 * and send it to the server. If the update is successful, then the form will be disabled
-				 * once again, and the data-originavalue attribute will be updated to reflect the new vlaues.
-				 * Additionally, display a message when the update is complete. */
-				context.find("form").on("valid.fndtn.abide",function(){
-					var _this =this;
-					var id = $(this).data('id');
-					var o = serializeField(this,'future');
-					Promise.resolve($.ajax({
-						url:"/database/dosing/genes/" + pageOptions.gene + "/update?type=future&id=" + id,
-						type:"POST",
-						contentType:"application/json",
-						dataType:'json',
-						data:JSON.stringify(o)
-					})).then(function(result){
-						if (result.statusCode == 200 ){
-							$(_this).find('[name=rec]').data('originalvalue',o.rec);
-							$(_this).find('.flag').data('originalvalue',o.flagged)
-							$(_this).find('.cancel-changes').trigger('click');
-							$(_this).find('.alert-message').text(result.message).closest('.alert-box').slideDown();
-						} else {
-							$(_this).find('.alert-message').text(result.message).closest('.alert-box').slideDown();
-
-						}
-					}).catch(function(err){
-						$(_this).find('.alert-message').text(err.message).closest('.alert-box').slideDown();
-					});
-				});
-				
-
-				/* WHen the delete button is selected, confirm the action and then submit a reqyest to the server.
-				 * if the request is successful, remove the entry and its HTML entirely from the apge */
-				context.find(".delete-table").on('click',function(e){
-					e.preventDefault();
-					var row = $(this).closest('tr');
-					var id = $(this).closest('form').data('id');
-					confirmAction("Are you sure you want to delete the selected recommendation table?","Once deleted it will no longer show up on any subsequent reports")
-					.then(function(result){
-						if (result){
-							Promise.resolve($.ajax({
-								url:"/database/dosing/genes/" + pageOptions.gene + "/delete?type=future&id=" + id,
-								type:"POST",
-								dataType:'json'
-							})).then(function(result){
-								if (result.statusCode == 200 ){
-									row.remove();
-									if ($('#future-recommendations').find('tbody').find('tr').length === 0){
-										$('#future-recommendations').hide();
-									}
-									$('#error-display-message-2').text(result.message).closest('#error-display-box-2').slideDown()
-
-								} else {
-									$('#error-display-message-2').text(result.message).closest('#error-display-box-2').slideDown()
-								}
-							}).catch(function(err){
-								$('#error-display-message-2').text(err.message).closest('#error-display-box-2').slideDown()
-							});
-						}
-					});
-				});
-
-			},
-
-			//handlers dealing with the haplotype section
-			haplotypes : function(el){
-				_this = this;
-				var context;
-				//apply to the entire section or an single association
-				if (!el) context = $('#haplotypes');
-				else context = $(el);
-
-				/* when the form is validated submit an ajax request to the server. If the request
-				 * returns with a success resoonse then set the data-originalvalue for each field to
-				 * the new values, diable all inout fields and hide the edit buttons. */
-				context.find('form').on('valid.fndtn.abide',function(e){
-					var id = $(this).data('id');
-					var o = serializeField(this,'haplotype');
-					var _this = this;
-					Promise.resolve($.ajax({
-						url:'/database/dosing/genes/'+ pageOptions.gene + '/update?type=haplotype&id=' + id,
-						type:'POST',
-						contentType:'application/json',
-						dataType:'json',
-						data:JSON.stringify(o)
-					})).then(function(result){
-						if (result.statusCode == 200 ){
-							$(_this).find('input[name=allele_1]').data('originalvalue',$(_this).find('input[name=allele_1]').val());
-							$(_this).find('input[name=allele_2]').data('originalvalue',$(_this).find('input[name=allele_2]').val());
-							$(_this).find('.cancel-changes').trigger('click');
-							$(_this).find('.alert-message').text(result.message).closest('.alert-box').slideDown();
-						} else {
-							$(_this).find('.alert-box').find('p').text(result.message).closest('.alert-box').slideDown();
-						}
-					});
-				});
-
-				/* When selected prompt the user if they really want to delete the haplotype, if yes, then send an ajax request to teh server.
-				 * If successful entirely remove all html for the entry */
-				context.find('.delete-table').on('click',function(){
-					var form = $(this).closest('form');
-					var row = $(this).closest('tr');
-					var id = form.data('id');
-					confirmAction("Are you sure you want to delete the selected haplotype association?","Once deleted it will no longer show up on any subsequent reports")
-					.then(function(result){
-						if (result){
-							Promise.resolve($.ajax({
-								url:"/database/dosing/genes/" + pageOptions.gene + "/delete?type=haplotype&id=" + id,
-								type:"POST",
-								dataType:'json'
-							})).then(function(result){
-								if (result.statusCode == 200 ){
-									row.remove();
-									if ($('#haplotypes').find('tbody').find('tr').length === 0){
-										$('#haplotypes').hide();
-									}
-									$('#error-display-message-3').text(result.message).closest('#error-display-box-3').slideDown()
-
-								} else {
-									$('#error-display-message-3').text(result.message).closest('#error-display-box-3').slideDown()
-								}
-							}).catch(function(err){
-								$('#error-display-message-3').text(err.message).closest('#error-display-box-3').slideDown()
-							});
-						}
-					});
-				});
-
-			},
-
-			// handlers related to specific interacitons
-			recommendation : function(el){
-				_this = this;
-				var context;
-				if (!el) context = $('#main_content');
-				else context = $(el);
-
-				// If the handlers are being applied to a new row open the drug container ti is being appended to
-				if (!context.is('tr')){
-					context.find('.drug-cont-header').on('click',function(){
-						var state = $(this).data('state');
-						if (state === "open"){
-							$(this).closest('.drug-cont').find('.recommendations').hide().closest('.drug-cont').find('.minimize').hide().siblings('.expand').show()
-							$(this).data('state','closed');
-						} else {
-							$(this).closest('.drug-cont').find('.recommendations').show().closest('.drug-cont').find('.expand').hide().siblings('.minimize').show()
-							$(this).data('state','open');
-						}
+						$('#error-display-message').text(err.message).closest('#error-display-box').slideDown();
 					});
 				}
-				
-				
-				/* Submit the chagnes to the current dose table to the server. If the request is successful set the data-originalvalue to the 
-				 * new current value and then disable the input fields */
-				context.find('form').on('valid.fndtn.abide',function(e){
-					var _this = $(this);
-					var doc = serializeField(this,'recommendation');
-					var id = $(this).data('id');
-					Promise.resolve($.ajax({
-						url:'/database/dosing/genes/' + pageOptions.gene + '/update?type=recommendation&id=' + id,
-						type:"POST",
-						contentType:'application/json',
-						dataType:'json',
-						data:JSON.stringify(doc)
-					})).then(function(result){
-						if (result.statusCode == 200){
-							$(_this).find('[name=risk]').data('originalvalue',doc.risk);
-							$(_this).find('[name=rec]').data('originalvalue',doc.rec);
-							$(_this).find('.flag').data('originalvalue',doc.flagged)
-							$(_this).find('.pubmed-link-combo').removeClass('temp-remove');
-							$(_this).find('.temp-hide').remove();
-							$(_this).find('.cancel-changes').trigger('click');
-							$(_this).find('.alert-message').text(result.message).closest('.alert-box').slideDown();
-						} else {
-							$(_this).find('.alert-box').find('p').text(result.message).closest('.alert-box').slideDown();
-						}
-					});
-
-				});
-				
-				
-
-				//delet the specified dose table after confirming its removal
-				context.find(".delete-table").on('click',function(e){
-					var form = $(this).closest('form');
-					var id = form.data('id');
-					confirmAction("Are you sure you want to delete the selected dosing table?","Once deleted it will no longer show up on any subsequent reports")
-					.then(function(result){
-						if (result){
-							Promise.resolve($.ajax({
-								url:"/database/dosing/genes/" + pageOptions.gene +"/delete?type=recommendation&id="+ id,
-								type:"POST",
-								dataType:'json'
-							})).then(function(result){
-								if (result.statusCode == 200){	
-									$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();
-									form.slideUp('slow',function(){
-										var remainingFormCount = form.closest('.drug-cont').find('form').length;
-										if ( remainingFormCount == 1 )
-											form.closest('.drug-cont').remove();
-										else
-											form.closest('tr').remove();
-									});
-								} else {
-									$('#error-display-message').text(result.message).closest('#error-display-box').slideDown();
-								}
-							}).catch(function(err){
-								$('#error-display-message').text(err.message).closest('#error-display-box').slideDown();
-							});
-						}
-					});
-				});
-			}
-		}
+			});
+		});
 	}
 	
 	//arrangeRecommendations by drug		
@@ -946,7 +941,7 @@ var utility = require('./utility');
 			}).then(function(){
 				utility.refresh();
 			}).then(function(){
-				staticHanlders.index();
+				indexHandlers();
 				
 			});
 		//Shows a currently existing dosing table
@@ -1006,11 +1001,11 @@ var utility = require('./utility');
 				return utility.refresh(abideOptions);
 			}).then(function(){
 				//add all handlers
-				staticHanlders.current.page();
-				staticHanlders.current.recommendation();
-				staticHanlders.current.future();
-				staticHanlders.current.haplotypes();
-				staticHanlders.current.generic();
+				recommendationPageHandlers();
+				recommendationHandlers();
+				futureHandlers();
+				haplotypeHandlers();
+				genericHandlers();
 				utility.suggestionHandlers();
 
 			}).then(function(){
