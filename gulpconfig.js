@@ -98,8 +98,6 @@ module.exports = {
 		},
 		lib:{
 			src:[
-				'src/server/src/anno_logger.js',
-				'src/server/src/annotateAndAddVariants.js',
 				'src/server/src/logger.js',
 				'src/server/src/parseVCF.js',
 				'src/server/src/queue.js',
@@ -122,7 +120,7 @@ module.exports = {
 			dest:'build/lib/conf'
 		},
 		model:{
-			src:'src/server/src/mongodb*.js',
+			src:'src/server/models/mongodb*.js',
 			dest:'build/models'
 		}
 	},
