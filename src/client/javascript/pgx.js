@@ -5,7 +5,7 @@
 
 var utility = require('./utility');
 //Handlebars = require('hbsfy/runtime');
-
+var MISSING = -1
 ///// main object to be returned
 var pgx =  {
 	//dumo for pgx data
@@ -82,7 +82,7 @@ var pgx =  {
 				var haplotypeMarkers= pgxData.pgxGenes[geneName][haplotypeName];
 				for (var k= 0; k < haplotypeMarkers.length; ++k) {
 					// Make sure marker is not already in list (unique list)
-					if (geneMarkers.indexOf(haplotypeMarkers[k]) === -1) {
+					if (geneMarkers.indexOf(haplotypeMarkers[k]) === MISSING) {
 						geneMarkers.push(haplotypeMarkers[k]);
 					}
 				}
@@ -144,55 +144,47 @@ var pgx =  {
 		}
 		return uniqueHaplotypes;
 	},
+	
 	/* Return all possible haplotypes by combining already defined haplotypes
 	 * (based on phased genotypes and unphased homozygous calls) with unphased
-	 * heterozygous calls. */
+	 * heterozygous calls. Return an array consisting of ONLY unique entries */
 	getPossibleHaplotypes: function(definedDiplotype, unphasedHets) {
 		var self = this;
 		var possibleHaplotypes= [];
-		if (definedDiplotype !== null) {
-			possibleHaplotypes= definedDiplotype.slice();  // copy the array
-		}
 		var alreadyObservedHaplotypes= {};
 		var unphasedHetKeys= Object.keys(unphasedHets);
-		for (var i= 0; i < unphasedHetKeys.length; ++i) {
-			// If we are entering this loop, we have unphased hets. This means we
-			// are going to have more than 2 possible haplotypes. I allow duplicate
-			// haplotypes if they are phased. But if unphased, I remove duplicates 
-			// because they have no biological significance. Therefore in the first
-			// iteration, remove duplicates from defined diplotype.
-			if (i === 0) {
-				possibleHaplotypes= self.removeDuplicates(possibleHaplotypes);
+		if (definedDiplotype !== null) {
+			possibleHaplotypes= definedDiplotype.slice();  // copy the array
+		} else {
+			//If there are no already defined diplotypes, we will have a total 
+			//of 2^n (non unique) combinations of heterozygous variants possible
+			//Therefore we need to initialize the basecases for each unphasedHet
+			for (var i = 0; i < unphasedHetKeys.length; i++){
+				possibleHaplotypes.push([]);
+				possibleHaplotypes.push([unphasedHetKeys[i]]);
 			}
-
-			// For each defined haplotype, create a version with the het ref call
-			// and a version with the het alt call. 
-			// NOTE: potential source of inefficiency here - duplicate haplotypes
-			// can occur. By removing these, we shorten our computation. Not urgent.
-			var newPossibleHaplotypes= [];
-			for (var j= 0; j < possibleHaplotypes.length; ++j) {
-				var hetRefCall= possibleHaplotypes[j];
-				var hetAltCall= possibleHaplotypes[j].concat(unphasedHetKeys[i]);
-
-				// Ensure list of computed/derived possible haplotypes is unique.
-				// Don't include duplicates.
-				var hetRefCallKey= hetRefCall.sort().toString();
-				if (alreadyObservedHaplotypes[hetRefCallKey] === undefined ){
-					alreadyObservedHaplotypes[hetRefCallKey]= true;
-					newPossibleHaplotypes.push(hetRefCall);
-				}
-
-				//alreadyObservedHaplotypes[hetRefCallKey]= true;
-				var hetAltCallKey= hetAltCall.sort().toString();
-				if (alreadyObservedHaplotypes[hetAltCallKey] === undefined) {
-					alreadyObservedHaplotypes[hetAltCallKey]= true;
-					newPossibleHaplotypes.push(hetAltCall);
-				}
-			}
-			possibleHaplotypes= self.removeDuplicates(possibleHaplotypes.concat(newPossibleHaplotypes));
-
 		}
-		return possibleHaplotypes
+		var count = 0;
+		/* Unphased Heterozygous variants present a problem, namely that they can be
+		 * either ref or alt and we have no idea where they fit into the greater picture
+		 * Therefore we need to compute a list of all possible combinations, remove
+		 * the duplicates, and then return the list */
+		while ( count < unphasedHetKeys.length ){
+			var temp = [];
+			for (var i = 0; i < possibleHaplotypes.length; i++ ){
+				//Has not already been added
+				temp.push(possibleHaplotypes[i]);
+				if (possibleHaplotypes[i].indexOf(unphasedHetKeys[count]) == MISSING){
+					//add the entry as is
+					temp.push(possibleHaplotypes[i].concat([unphasedHetKeys[count]]));
+				}
+				
+			}
+			possibleHaplotypes = temp;
+			count++
+		}
+		possibleHaplotypes = self.removeDuplicates(possibleHaplotypes);
+		return possibleHaplotypes;
 	},
 	/* Generate all possible haplotypes from the genotype data.
 	 * This takes into account 
@@ -210,6 +202,7 @@ var pgx =  {
 			allVariants, // all the variants
 			currentGeneMarkers, //markers for a given gene
 			overallPhase;
+			
 		pgxData.possibleHaplotypes= {};
 		pgxData.phaseStatus = {};
 		allVariants= pgxData.variants; //All of the patients variants
@@ -245,6 +238,10 @@ var pgx =  {
 					}
 				} 
 			}
+
+			/* error occurs if no phased status and no homo calls were found. ie only heterozygous calls
+			 * This should be computing a list of all possible combinations ie 2nCom */
+			//console.log(definedDiplotype,unphasedHets);
 			// add the possible haplotypes to the main pgx
 			pgxData.possibleHaplotypes[geneNames[i]]= self.getPossibleHaplotypes(definedDiplotype, unphasedHets);
 			pgxData.phaseStatus[geneNames[i]] = overallPhase
@@ -417,8 +414,10 @@ var pgx =  {
 		// helpers, which dynamically render the HTML.
 		self.generatePgxResults(selectedPatientID,selectedPatientAlias)
 		.then(function(){
+			console.log(self.globalPGXData);
 			return self.convertTotemplateData();
 		}).then(function(result){
+			console.log(result);
 			self.templateData = result;
 			templateData = result;
 			if (self.pgxGenesRemoved)
