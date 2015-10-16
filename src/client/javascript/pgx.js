@@ -202,7 +202,7 @@ var pgx =  {
 			allVariants, // all the variants
 			currentGeneMarkers, //markers for a given gene
 			overallPhase;
-			
+
 		pgxData.possibleHaplotypes= {};
 		pgxData.phaseStatus = {};
 		allVariants= pgxData.variants; //All of the patients variants
@@ -414,10 +414,8 @@ var pgx =  {
 		// helpers, which dynamically render the HTML.
 		self.generatePgxResults(selectedPatientID,selectedPatientAlias)
 		.then(function(){
-			console.log(self.globalPGXData);
 			return self.convertTotemplateData();
 		}).then(function(result){
-			console.log(result);
 			self.templateData = result;
 			templateData = result;
 			if (self.pgxGenesRemoved)

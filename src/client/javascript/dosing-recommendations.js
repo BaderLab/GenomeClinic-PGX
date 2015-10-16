@@ -628,11 +628,16 @@ module.exports = {
 					 })
 					 //There are only 2 possible haploptypes and there are only 2 possible matches
 					 //THis means it is a distinct match.
+					 console.log(result.pgxGenes[i])
+					 console.log(keys,closestMatches);
 					 if (keys.length == 2 && closestMatches.length == 2){
+
 					 	geneData.push(result.pgxGenes[i]);
 					 	genes.push(result.pgxGenes[i].gene);
-					 } else {
+					 } else if (keys.length > 2 && closestMatches.length > 2) {
 					 	otherGenes.push(result.pgxGenes[i]);
+					 } else {
+					 	ignoredGenes.push(result.pgxGenes[i]);
 					 }
 				} else {
 					ignoredGenes.push(result.pgxGenes[i]);

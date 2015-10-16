@@ -387,11 +387,20 @@
 											</td>
 										</tr>
 										{{/each}}
+									</tbody>
+									<thead>
+										<tr>
+											<th>Gene</th>
+											<th>Possible haplotypes</th>
+											<th></th>
+											<th>Predicted Effect</th>
+										</tr>
+									</thead>
 										{{#each otherGenes}}
 										<tr class="gene-row other-gene">
 											<td class="gene-name">{{gene}}</td>
-											<td class="allele_1"><i>{{possibleHaplotypes.h1.closestMatch}}</i></td>
-											<td class="allele_2"><i>{{possibleHaplotypes.h2.closestMatch}}</i></td>
+											<td class="allele_1"><i>{{#each possibleHaplotypes}}{{this.closestMatch}} {{!--{{possibleHaplotypes.h1.closestMatch}}--}}{{/each}}</i></td>
+											<td></td>
 											<td>
 												<select class="therapeutic-class">
 													<option>Other</option>
