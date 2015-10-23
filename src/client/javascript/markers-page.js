@@ -30,6 +30,8 @@ var utility = require('./utility'),
 		return promise;
 	};
 
+
+	/* open an update modal and enable the editing of marker information */
 	var confirmUpdate = function(marker, chr, genes, ref, alt){
 		var context = $('#update-modal');
 		var promise = new Promise(function(resolve,reject){

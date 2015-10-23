@@ -397,7 +397,7 @@ var utility = require('./utility');
 				data:JSON.stringify(doc)
 			})).then(function(result){
 				if (result.statusCode == 200 ){
-					return utility.pubMedParser(result.pubmed).then(function(citations){
+					return utility.retrieveCitations(result.pubmed).then(function(citations){
 						result.citations = citations;
 						var currentDrugCont = $('.drug-cont');
 						var currentDrugs=[];
@@ -655,9 +655,9 @@ var utility = require('./utility');
 			e.preventDefault();
 			var val = $(this).closest('.row').find(".add-new-pubmed-input").val();
 			if (val !== ""){
-				utility.pubMedParser(val).then(function(citations){
+				utility.retrieveCitations(val).then(function(citations){
 					if (citations[val]){
-						var html= "<li class='pubmed-link-combo' data-id=" + val + ">" + citations[val] +"\
+						var html= "<li class='pubmed-link-combo temp-remove' data-id=" + val + ">" + citations[val] +"\
 						&nbsp&nbsp <a href='#' class='edit pubmed-remove-link ' data-link=" + val + "><i class='fi-x'></i></a></li>"
 						var context = $(__this).closest('.citations').find('.pubmed-links');
 						context.append(html);
@@ -978,7 +978,7 @@ var utility = require('./utility');
 					}
 					
 				}
-				return utility.pubMedParser(pubmedIds).then(function(citations){
+				return utility.retrieveCitations(pubmedIds).then(function(citations){
 					resultObj.citations = citations;
 
 				})

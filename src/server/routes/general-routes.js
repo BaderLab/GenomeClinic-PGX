@@ -49,6 +49,8 @@ module.exports = function(app,logger,opts){
 	//==================================================================
 	//config form
 	//==================================================================
+	/* When the server is first being set up, redirect the user to the config page
+	 * instead of home if config == false */
 	app.get("/config", utils.isLoggedIn, function(req,res){
 		app.dbFunctions.getAdminEmail()
 		.then(function(result){
@@ -70,6 +72,7 @@ module.exports = function(app,logger,opts){
 		});
 	});
 
+	/* update the config details in the admin collection */
 	app.post("/config", utils.isLoggedIn, function(req,res){
 		var configSettings= req.body;
 		app.dbFunctions.update(dbConstants.DB.ADMIN_COLLECTION, {}, {$set: configSettings},undefined,req.user.username)
@@ -79,7 +82,7 @@ module.exports = function(app,logger,opts){
 			res.send(JSON.stringify(true));
 		});
 	});
-
+	
 	app.get('/config/current', utils.isLoggedIn, function(req,res){
 		app.dbFunctions.findOne(dbConstants.DB.ADMIN_COLLECTION,{},req.user.username).then(function(result){
 			res.send(result);
@@ -90,11 +93,12 @@ module.exports = function(app,logger,opts){
 	//Generic page routers
 	//==================================================================
 
+	//render status page
 	app.get(['/statuspage'], utils.isLoggedIn, function(req,res){
 		utils.render(req,res,{scripts:'status-page.js'});
 	});
 
-
+	/* render definitions page */
 	app.get('/definitions',utils.isLoggedIn,function(req,res){
 		utils.render(req,res,{definitions:true});
 	})
@@ -222,7 +226,99 @@ module.exports = function(app,logger,opts){
 
 		
 
-	})
+	});
+
+	/* Route for looking up stored and formatted pubmed citations
+	 * the pubmed ID is the access key contained in the url string in the form:
+	 * id=[id]&id=[id2]&id=[id3]....
+	 * returns the IDs in the database, or missing if they are not found
+	 */
+	app.get("/database/citations",utils.isLoggedIn,function(req,res){
+		var ids = req.query.id;	
+		var out = {
+			missing:[],
+			citations:{}
+		};
+		if (!ids){ //f no ids were passed, send an empyt object
+			res.send(out);
+			return
+		} else if (Object.prototype.toString.call(ids) == '[object String]') ids = [ids];
+
+		//Filter only unique id's;
+		ids = ids.filter(function(value,index,self){
+			return self.indexOf(value) === index;
+		});
+
+		var query  = {"_id":{$in: ids}}; //build query string
+		app.dbFunctions.find(dbConstants.DRUGS.CITATIONS.COLLECTION,query)
+		.then(function(result){
+			var foundIds = [];
+			if (!result || result.length !== 0 ){
+				//Some results have been found. return which obj of found and missing;
+				for (var i = 0 ; i < result.length; i++ ){
+					out.citations[result[i]._id] = result[i].citation;
+					foundIds.push(result[i]._id);
+				}
+				//Find out which ID's 
+				if (foundIds.length !== ids.length){
+					for (var i = 0; i < ids.length; i++ ){
+						if (foundIds.indexOf(ids[i]) == -1){
+							out.missing.push(ids[i]);
+						}
+					}
+				}
+			} else {
+				out.missing = ids;
+			}
+			res.send(out);
+			return;
+		}).catch(function(err){
+			req.flash('error', err);
+			req.flash('message', err.message);
+			res.redirect('/failure');
+		});
+	});
+
+	/* Add a new citation to the databse for easier storage.
+	 * citaitons are already retrieved and stored in the body content in the form
+	 * {_id:pubmedID,citation:"citation string"}
+	 * if the id already exists in the database it is not aded */
+	app.post("/database/citations",utils.isLoggedIn,function(req,res){
+		var citations = req.body;
+		if (citations.length == 0) res.send(false);
+		else {
+			var ids = citations.map(function(cite){return cite._id});
+			var query = {_id:{$in:ids}};
+			app.dbFunctions.find(dbConstants.DRUGS.CITATIONS.COLLECTION,query)
+			.then(function(result){
+				//A result was found, need to remove the entry that it refers to
+				if (result && result.length > 0){
+					//Loop over each result and filter out the required 
+					for (var i = 0; i < result.length; i++){
+						citations = citations.filter(function(item){
+							if (item._id != result[i]._id) return item
+						});
+					}
+				}
+				var toInsert = {
+					collectionName : dbConstants.DRUGS.CITATIONS.COLLECTION,
+					documents: citations
+				};
+				return app.dbFunctions.insertMany(toInsert).then(function(result){
+					if (result)
+						res.send(true);
+					else
+						res.send(false);
+					return
+				})
+			}).catch(function(err){
+				req.flash('error', err);
+				req.flash('message', err.message);
+				res.redirect('/failure');
+			});
+		}
+
+	});
 
 
 

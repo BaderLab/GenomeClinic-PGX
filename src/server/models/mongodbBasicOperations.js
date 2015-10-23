@@ -34,6 +34,7 @@ mongodbBasicOperations.prototype.find= function(collectionName, query, fields, o
 		_this.db.getDB().collection(collectionName)
 		.find(query, fields, options)
 		.toArray(function(err, doc) {
+			if (doc === null ) doc == [];
 			if (err) {
 				_this.logger('err',err,{action:'find',arguments:args});
 				reject(err);

@@ -141,6 +141,10 @@
 			"DRUGS":{
 				"COLLECTION":"drugs",
 				"ID_FIELD":"_id"
+			},
+			"CITATIONS":{
+				"COLLECTION":"citations",
+				"ID_FIELD":"_id"
 			}
 		}
 	},
