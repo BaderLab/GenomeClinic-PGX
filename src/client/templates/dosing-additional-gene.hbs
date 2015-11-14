@@ -1,6 +1,6 @@
 {{!-- HTML for the adding a gene to a new recommendation form on the dosing-page --}}
 <div class="row additional-gene-row" id="additional-gene-row-{{num}}">
-	<div class="large-6 medium-12 small-12 columns">
+	<div class="large-4 medium-12 small-12 columns">
 		<div class="row collapse prefix-radius">
 			<div class="large-4 small-4 medium-4 columns">
 				<span class="prefix">Gene Name</span>
@@ -32,6 +32,17 @@
 					{{/each}}-->
 				</select>
 				<small class="error">Predicted Effect Required</small>
+			</div>
+		</div>
+	</div>
+	<div class="large-2 small-10 medium-10 columns">
+		<div class="row collapse prefix-radius">
+			<div class="large-6 small-4 medium-4 columns">
+				<a href="#" data-originalvalue="false" class="button editfixed secondary tiny radius cnv"><b>CNV</b></a>
+			</div>
+			<div class="large-6 small-8 medium-8 columns">
+				<input class="cnv-repeat-num" type="number" placeholder="#" style="display:none" required data-abide-validator="greaterThan">
+				<small class="error">Required</small>
 			</div>
 		</div>
 	</div>

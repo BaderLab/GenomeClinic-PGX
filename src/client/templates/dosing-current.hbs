@@ -120,18 +120,35 @@ a new recommendation, future, haplotype. Deleting the page etc
 							</div>
 						</section>
 						<br>
-							<div class="row">
-								<div class="large-8 small-12 medium-8 columns">
-									<label><h6><b>Additional Genes</b></h6></label>
-								</div>
-								<div class="large-4 small-12 medium-4 columns">
-									<!-- Link triggers dosing-additional-gene to be rendered and appened to #additional-genes -->
-									<a class="right add-additional-gene" href="#">Add additional gene</a>
+						<div class="row">
+							<div class="large-8 small-12 medium-8 columns">
+								<label><h6><b>Additional Genes</b></h6></label>
+							</div>
+							<div class="large-4 small-12 medium-4 columns">
+								<!-- Link triggers dosing-additional-gene to be rendered and appened to #additional-genes -->
+								<a class="right add-additional-gene" href="#">Add additional gene</a>
+							</div>
+						</div>
+						<section class="additional-genes">
+						</section>
+						<br>
+						<div class="row">
+							<div class="large-6 small-12 medium-6 columns">
+								<small>*Currently only supports CNV repeats</small>
+								<div class="row">	
+									<div class="large-3 small-3 medium-3 columns">
+										<h4>CNV?</h4>
+									</div>
+									<div class="large-3 small-3 medium-3 columns left">
+										<a href="#" data-originalvalue="false" class="button editfixed secondary tiny radius cnv new-cnv"><b>CNV</b></a>
+									</div>
+									<div class="large-6 small-6 medium-6 columns">
+										<input class="cnv-repeat-num new-cnv-repeat-num" type="number" placeholder="Number of repeats" style="display:none" required data-abide-validator="greaterThan">
+										<small class="error">Required</small>
+									</div>
 								</div>
 							</div>
-							<section class="additional-genes">
-							</section>
-							<br>
+						</div>
 						<div class="row">
 							<div class="large-6 small-12 medium-6 columns">
 								<div class="row">
@@ -254,18 +271,26 @@ a new recommendation, future, haplotype. Deleting the page etc
 								{{!-- There could be multiple dependant genes, cycle over them and add each new gene as a div row --}}
 								{{#each genes}}
 								<div class="row">
-									<div class="small-4 large-2 medium-3 columns">
-										<h6>Gene:</h6>
+									<div class="small-4 large-1 medium-2 columns">
+										<h6><b>Gene:</b></h6>
 									</div>
-									<div class="small-8 large-3 medium-3 columns">
+									<div class="small-8 large-2 medium-2 columns">
 										<h6 class='left'><i>{{this}}</i></h6>
 									</div>
-									<div class="small-4 large-3 medium-3 columns">
-										<h6>Predicted Effect:</h6>
+									<div class="small-4 large-3 medium-2 columns">
+										<h6><b>Predicted Effect:</b></h6>
 									</div>
-									<div class="small-8 large-4 medium-3 columns">
+									<div class="small-8 large-3 medium-2 columns left">
 										<h6 class='left class-name'><i>{{lookup ../classes @index}}</i></h6>
 									</div>
+									{{#ifCnv ../cnv @index}}
+										<div class="small-4 large-1 medium-2 columns">
+											<h6><b>CNV:</b></h6>
+										</div>
+										<div class="small-4 large-2 medium-2 columns">
+											<h6>{{this}}</i></h6>
+										</div>
+									{{/ifCnv}}
 								</div>
 								{{/each}}
 								<br>
@@ -394,11 +419,32 @@ a new recommendation, future, haplotype. Deleting the page etc
 					</section>
 					<br>
 					<div class="row">
-						<div class="large-3 small-3 medium-3 columns">
-							<h4>Flag?</h4>
+						<div class="large-6 small-12 medium-6 columns">
+							<small>*Currently only supports CNV repeats</small>
+							<div class="row">	
+								<div class="large-3 small-3 medium-3 columns">
+									<h4>CNV?</h4>
+								</div>
+								<div class="large-3 small-3 medium-3 columns left">
+									<a href="#" class="button editfixed secondary tiny radius cnv new-cnv"><b>CNV</b></a>
+								</div>
+								<div class="large-6 small-6 medium-6 columns">
+									<input class="cnv-repeat-num new-cnv-repeat-num" type="number" placeholder="Number of repeats" style="display:none" required data-abide-validator="greaterThan">
+									<small class="error">Required</small>
+								</div>
+							</div>
 						</div>
-						<div class="large-9 small-9 medium-9 columns left">
-							<a href="#" data-originavalue="false"class="button editfixed flag secondary tiny radius"><i class="fa fa-flag"></i></a>
+					</div>
+					<div class="row">
+						<div class="large-6 small-12 medium-6 columns">
+							<div class="row">	
+								<div class="large-3 small-3 medium-3 columns">
+									<h4>Flag?</h4>
+								</div>
+								<div class="large-9 small-9 medium-9 columns left">
+									<a href="#" data-originavalue="false"class="button editfixed flag secondary tiny radius"><i class="fa fa-flag"></i></a>
+								</div>
+							</div>
 						</div>
 					</div>
 					<div class="row">

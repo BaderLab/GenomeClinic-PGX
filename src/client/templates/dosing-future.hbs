@@ -27,26 +27,38 @@
 			</div>
 			{{#each genes}}
 			<div class="row">
-				<div class="small-4 large-2 medium-3 columns">
-					<h6>Gene:</h6>
+				<div class="small-4 large-1 medium-2 columns">
+					<h6><b>Gene:</b></h6>
 				</div>
-				<div class="small-8 large-3 medium-3 columns">
+				<div class="small-8 large-2 medium-2 columns">
 					<h6 class='left'><i>{{this}}</i></h6>
 				</div>
-				<div class="small-4 large-3 medium-3 columns">
-					<h6>Predicted Effect:</h6>
+				<div class="small-4 large-3 medium-2 columns">
+					<h6><b>Predicted Effect:</b></h6>
 				</div>
-				<div class="small-8 large-4 medium-3 columns">
+				<div class="small-8 large-3 medium-2 columns left">
 					<h6 class='left class-name'><i>{{lookup ../classes @index}}</i></h6>
 				</div>
+				{{#ifCnv ../cnv @index}}
+					<div class="small-4 large-1 medium-2 columns">
+						<h6><b>CNV:</b></h6>
+					</div>
+					<div class="small-4 large-2 medium-2 columns">
+						<h6>{{this}}</i></h6>
+					</div>
+				{{/ifCnv}}
 			</div>
 			{{/each}}
 			<div class="row">
-				<div class="large-3 small-3 medium-3 columns">
-					<h4>Flag?</h4>
-				</div>
-				<div class="large-9 small-9 medium-9 columns left">
-					<a href="#" data-originavalue="{{#unless flagged}}false{{/unless}}"class="button flag {{#unless flagged}}secondary{{else}}warning{{/unless}} tiny radius"><i class="fa fa-flag"></i></a>
+				<div class="large-6 small-12 medium-12 columns">
+					<div class="row">	
+						<div class="large-3 small-3 medium-3 columns">
+							<h4>Flag?</h4>
+						</div>
+						<div class="large-9 small-9 medium-9 columns left">
+							<a href="#" data-originavalue="{{#unless flagged}}false{{/unless}}"class="button flag {{#unless flagged}}secondary{{else}}warning{{/unless}} tiny radius"><i class="fa fa-flag"></i></a>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="row">

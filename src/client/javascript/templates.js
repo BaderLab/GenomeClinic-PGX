@@ -58,7 +58,7 @@ var _t = function(t){
 	 * of html text 
 	 */
 	Handlebars.registerHelper("classIter",function(classObj,type,gene, block){
-		accum = ";"
+		accum = "";
 		var list = classObj[type];
 		for (var i=0; i < list.classes.length; i++ ){
 			accum+= block.fn(list.classes[i]);
@@ -77,6 +77,14 @@ var _t = function(t){
 	Handlebars.registerHelper('ifIdAdded', function(classObj,id,options){
 		var fnTrue = options.fn, fnFalse = options.inverse;
 		return classObj[id].added == true ? fnTrue() : fnFalse();
+	});
+
+	Handlebars.registerHelper('ifCnv',function(cnvArr,index,block){
+		//var fnTrue = options.fn, fnFalse = options.inverse;
+		accum = "";
+		if (cnvArr && cnvArr[index] != 0)
+			accum+= block.fn(cnvArr[index]);
+		return accum;
 	});
 
 	//bind the templates object to the global window 

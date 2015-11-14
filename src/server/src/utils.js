@@ -110,8 +110,9 @@ module.exports = {
 	},
 	/* Sort two lists based on the first list, return an object containing the first
 	 * and the seocnd sorted lists */
-	sortWithIndeces:function(toSort, toSort2) {
+	sortWithIndeces:function(toSort, toSort2, toSort3) {
 	  var output = [];
+	  var output2;
 	  for (var i = 0; i < toSort.length; i++) {
 	    toSort[i] = [toSort[i], i];
 	  }
@@ -126,9 +127,12 @@ module.exports = {
 	  for (var i = 0; i < toSort.length; i++ ){
 	  	output[i] = toSort2[sortIndices[i]];
 	  }
-
-
-	  return {first:toSort,second:output};
+	  if (toSort3){
+	  	output2 = [];
+	  	for (var i = 0; i < toSort.length; i++ )
+	  		output2[i] = toSort3[sortIndices[i]];
+	  }
+	  return {first:toSort,second:output,third:output2};
 	},
 	dbFunctions : null,
 	mkdirAsync:function(file,logger){

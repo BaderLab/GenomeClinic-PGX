@@ -201,24 +201,30 @@ module.exports = function(app,logger,opts){
 		var gene = req.body.gene || req.body.genes; //it will either be an array of gene sort a single gene.
 		var type = req.query.type;
 		var user = req.user.username;
+		console.log(doc);
 		
 		if (type == 'recommendation') {
 			collection = dbConstants.DRUGS.DOSING.COLLECTION;
 			field = dbConstants.DRUGS.ALL.RECOMMENDATIONS;
-			var sortedOutput = utils.sortWithIndeces(gene,doc.classes);
+			var sortedOutput = utils.sortWithIndeces(gene,doc.classes,doc.cnv);
 			gene = sortedOutput.first;
 			doc.classes = sortedOutput.second;
+			doc.cnv = sortedOutput.third
 			query[dbConstants.DRUGS.DOSING.GENES] = gene;
 			query[dbConstants.DRUGS.DOSING.CLASSES] = doc.classes;
 			query[dbConstants.DRUGS.DOSING.DRUG] = doc.drug;
+			query.cnv = doc.cnv;
 		} else if (type == 'future') {
 			collection = dbConstants.DRUGS.FUTURE.COLLECTION;
 			field = dbConstants.DRUGS.ALL.FUTURE;
-			var sortedOutput = utils.sortWithIndeces(gene,doc.classes);
+			var sortedOutput = utils.sortWithIndeces(gene,doc.classes,doc.cnv);
 			gene = sortedOutput.first;
 			doc.classes = sortedOutput.second;
+			doc.cnv = sortedOutput.third;
 			query[dbConstants.DRUGS.FUTURE.ID_FIELD] = gene;
 			query[dbConstants.DRUGS.FUTURE.CLASSES] = doc.classes;
+			query.cnv = doc.cnv;
+			//console.log(doc);
 		} else if (type == 'haplotype') {
 			collection = dbConstants.DRUGS.HAPLO.COLLECTION;
 			field = dbConstants.DRUGS.ALL.HAPLO;

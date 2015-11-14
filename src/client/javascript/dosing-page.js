@@ -35,6 +35,11 @@ var utility = require('./utility');
 					}
 				},
 				
+				greaterThan:function(el,required,parent){
+					var val = el.value;
+					if (val == 0 || val == "") return false;
+					return true;
+				},
 				uniqueGene:function(el,required,parent){
 					/* The incoming gene name must be unique */
 					var from = document.getElementsByClassName('gene-name');
@@ -89,11 +94,21 @@ var utility = require('./utility');
 		}
 		if ( type != 'haplotype' ){
 			doc.genes = [pageOptions.gene];
-			doc.classes = [$(context).find(".class-name-original").val()]
+			doc.classes = [$(context).find(".class-name-original").val()];
+			doc.cnv = [];
+			if ($(context).find(".new-cnv").hasClass("warning"))
+				doc.cnv.push($(context).find(".new-cnv-repeat-num").val());
+			else
+				doc.cnv.push(0);
+
 			var addGenes = $(context).find('.additional-gene-row');
 			for (var i = 0; i< addGenes.length; i++ ){
-				doc.genes.push($(addGenes[i]).find(".gene-name").val())
-				doc.classes.push($(addGenes[i]).find(".class-name").val())
+				doc.genes.push($(addGenes[i]).find(".gene-name").val());
+				doc.classes.push($(addGenes[i]).find(".class-name").val());
+				if ($(addGenes[i]).find(".cnv").hasClass("warning"))
+					doc.cnv.push($(addGenes[i]).find(".cnv-repeat-num").val());
+				else
+					doc.cnv.push(0);
 			}
 
 			if (type == 'recommendation'){
@@ -374,6 +389,7 @@ var utility = require('./utility');
 					}
 				});
 				//add remove row handler
+				genericHandlers("#additional-gene-row-" + pageOptions.counter)
 				removeRow('#remove-additional-gene-' + pageOptions.counter);
 				utility.refresh(abideOptions,'#additional-gene-row-' + pageOptions.counter);
 				pageOptions.counter++
@@ -601,14 +617,27 @@ var utility = require('./utility');
 		if (!el) context = $(document);
 		else context = $(el);
 
-		$('.flag').on('click',function(e){
+		context.find('.flag').on('click',function(e){
 			e.preventDefault();
 			if ($(this).hasClass('editfixed') ){
-				if ($(this).hasClass('secondary')) $(this).removeClass('secondary').addClass('warning')
+				if ($(this).hasClass('secondary')) $(this).removeClass('secondary').addClass('warning');
 				else $(this).addClass('secondary').removeClass('warning');
 			}
 			return;
 		});
+
+		context.find('.cnv').on("click",function(e){
+			e.preventDefault();
+			if ($(this).hasClass("editfixed")){
+				if ($(this).hasClass('secondary')){
+					$(this).removeClass('secondary').addClass('warning');
+					$(this).closest(".row").find(".cnv-repeat-num").show();	
+				} else {
+					$(this).addClass('secondary').removeClass('warning');
+					$(this).closest(".row").find(".cnv-repeat-num").hide();
+				}
+			}
+		})
 		/* close an alert box */
 		context.find('.close-box').on('click',function(e){
 				e.preventDefault();
@@ -622,24 +651,36 @@ var utility = require('./utility');
 			$(this).closest('form').find('input,select,textarea').prop('disabled',false);
 			$(this).closest('form').find('.form-triggers,.edit').show();
 			$(this).closest('form').find('.flag').addClass('editfixed');
+			$(this).closest('form').find(".cnv").addClass("editfixed");
 		});
 
 		//cancel the chagens, restoring the original values to each field
 		context.find('.cancel-changes').on('click',function(e){
 			var newVal;
+			var form = $(this).closest("form");
 			e.preventDefault();
-			$(this).closest('form').find('input,select,textarea').prop('disabled',true);
-			var inputFields = $(this).closest('form').find('input,textarea,select');
+			form.find('input,select,textarea').prop('disabled',true);
+			var inputFields = form.find('input,textarea,select');
 			for (var i=0; i < inputFields.length; i++ ){
 				newVal = $(inputFields[i]).data('originalvalue');
 				$(inputFields[i]).val(newVal);
 			}
-			$(this).closest('form').find('.form-triggers,.edit').hide().closest('form').find('.edit-table,.temp-hide').show();
-			$(this).closest('form').find('.temp-remove').remove();
-			var flag = $(this).closest('form').find('.flag').data('originalvalue');
-			if (flag) $(this).closest('form').find('.flag').removeClass('secondary').addClass('warning');
-			else $(this).closest('form').find('.flag').addClass('secondary').removeClass('warning');
-			$(this).closest('form').find('.flag').removeClass('editfixed');
+			form.find('.form-triggers,.edit').hide().closest('form').find('.edit-table,.temp-hide').show();
+			form.find('.temp-remove').remove();
+			var flag = form.find('.flag').data('originalvalue');
+			if (flag) form.find('.flag').removeClass('secondary').addClass('warning');
+			else form.find('.flag').addClass('secondary').removeClass('warning');
+			form.find('.flag').removeClass('editfixed');
+
+			// var cnv = form.find(".cnv").data("originalvalue");
+			// if (cnv) {
+			// 	form.find(".cnv").removeClass("secondary").addClass("warning");
+			// 	form.find(".cnv-repeat-num").val(form.find(".cnv-repeat-num").originalvalue()).show();
+			// } else {
+			// 	form.find(".cnv").addClass("secondary").addClass("secondary").removeClass("warning");
+			// 	form.find(".cnv-repeat-num").val("").hide();
+			// }
+			// form.find(".cnv").removeClass("editfixed");
 		});
 
 		//Remove a pubmed link from an entry
