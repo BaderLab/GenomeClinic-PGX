@@ -499,7 +499,7 @@ var utility = require('./utility');
 					}).then(function(){
 						var context = $('#future-recommendations').find('tbody').last('tr')
 						context.foundation(abideOptions);
-						genericHanlders(context);
+						genericHandlers(context);
 						futureHandlers(context);
 						$('#future-recommendations').show();
 						$('#error-display-message-2').text(result.message).closest('#error-display-box-2').slideDown()
@@ -634,10 +634,10 @@ var utility = require('./utility');
 					$(this).closest(".row").find(".cnv-repeat-num").show();	
 				} else {
 					$(this).addClass('secondary').removeClass('warning');
-					$(this).closest(".row").find(".cnv-repeat-num").hide();
+					$(this).closest(".row").find(".cnv-repeat-num").hide().val("");
 				}
 			}
-		})
+		});
 		/* close an alert box */
 		context.find('.close-box').on('click',function(e){
 				e.preventDefault();

@@ -56,6 +56,11 @@ var abideOptions = {
 				if (val === '') return false;
 				if (val > year || val <= 0 ) return false;
 				return true;
+			},
+			greaterThan:function(el,required,parent){
+				var val = el.value;
+				if (val == 0 || val == "") return false;
+				return true;
 			}
 		}
 	}
@@ -87,6 +92,12 @@ dosingRecommendations.serializeTable = function(geneOnly){
 			];
 			temp.class = $(rows[i]).find('.therapeutic-class').val();
 			temp._id = $(rows[i]).find('select').data('id');
+			//add the cnv
+			if ($(rows[i]).find('.cnv').hasClass('warning'))
+				temp.cnv = $(rows[i]).find(".cnv-repeat-num").val();
+			else
+				temp.cnv = 0;
+
 			output.push(temp);
 		}
 	}
@@ -177,6 +188,7 @@ dosingRecommendations.serializeRecommendations = function(){
 			temp.genes = [];
 			temp.classes = [];
 			temp.pubmed = [];
+			temp.cnv = [];
 			temp.rec = $(fields[i]).find(".rec").val();
 			if( $(fields[i]).find('.flag').hasClass('warning') ){
 				temp.flagged = true;
@@ -184,10 +196,16 @@ dosingRecommendations.serializeRecommendations = function(){
 
 			$(fields[i]).find('.gene-name').each(function(ind,gene){
 				temp.genes.push($(gene).text());
-			})
+				if ($(gene).closest(".row").find(".cnv-count").length > 0)
+					temp.cnv.push($(gene).closest(".row").find(".cnv-count").val());
+				else
+					temp.cnv.push(0);
+			});
+
 			$(fields[i]).find(".class-name").each(function(ind,className){
 				temp.classes.push($(className).text());
-			});			
+			});
+
 			pubmed = $(fields[i]).find(".pubmed");
 			//add the associated citations
 			for(var j=0; j < pubmed.length; j++ ){
@@ -221,8 +239,13 @@ dosingRecommendations.serializeFuture = function (){
 			temp.rec = $(fields[i]).find(".rec").val();
 			temp.genes = [];
 			temp.classes = [];
+			temp.cnv = [];
 			$(fields[i]).find('.gene-name').each(function(ind,gene){
 				temp.genes.push($(gene).text());
+				if ($(gene).closest(".row").find(".cnv-count").length > 0)
+					temp.cnv.push($(gene).closest(".row").find(".cnv-count").val());
+				else
+					temp.cnv.push(0);
 			});
 			$(fields[i]).find(".class-name").each(function(ind,className){
 				temp.classes.push($(className).text());
@@ -433,6 +456,19 @@ dosingRecommendations.staticHandlers = function(){
 		});
 	};
 
+	$('.cnv').on("click",function(e){
+		e.preventDefault();
+		if ($(this).hasClass("editfixed")){
+			if ($(this).hasClass('secondary')){
+				$(this).removeClass('secondary').addClass('warning');
+				$(this).closest(".row").find(".cnv-repeat-num").show();	
+			} else {
+				$(this).addClass('secondary').removeClass('warning');
+				$(this).closest(".row").find(".cnv-repeat-num").hide().val("");
+			}
+		}
+	});
+
 
 	$('#add-drug-of-interest').on('click',function(e){
 		e.preventDefault();
@@ -449,7 +485,7 @@ dosingRecommendations.staticHandlers = function(){
 
 	/* anytime the user changes any of therapeutic classes in the PGX analyisis table, check to see if
 	 * there are any new recommendations and re-render the contents */
-	$('.therapeutic-class').on('change',function(){
+	$('.therapeutic-class,.cnv-repeat-num').on('change',function(){
 		_this.getRecommendations();
 		//_this.getFutureRecommendations();
 	});

@@ -365,10 +365,11 @@
 								<table class="large-12 small-12 medium-12" id="pgx-result-table">
 									<thead>
 										<tr>
-											<th>Gene</th>
-											<th>First Haplotype</th>
-											<th>Second Haplotype</th>
-											<th>Predicted Effect</th>
+											<th class="large-2 small-2 medium-2">Gene</th>
+											<th class="large-2 small-2 medium-2">First Haplotype</th>
+											<th class="large-2 small-2 medium-2">Second Haplotype</th>
+											<th class="large-4 small-4 medium-4">Predicted Effect</th>
+											<th class="large-2 small-2 medium-2">CNV Repeats</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -385,26 +386,47 @@
 													{{/classIter}}
 												</select>
 											</td>
+											<td>
+												<div class="row collapse prefix-radius">
+													<div class="large-6 small-4 medium-4 columns">
+														<a href="#" data-originalvalue="false" class="button editfixed secondary tiny radius cnv"><b>CNV</b></a>
+													</div>
+													<div class="large-6 small-8 medium-8 columns">
+														<input class="cnv-repeat-num" type="number" placeholder="#" style="display:none" required data-abide-validator="greaterThan">
+														<small class="error">Required</small>
+													</div>
+												</div>
+											</td>
 										</tr>
 										{{/each}}
 									</tbody>
 									<thead>
 										<tr>
-											<th>Gene</th>
-											<th>Possible haplotypes</th>
-											<th></th>
-											<th>Predicted Effect</th>
+											<th class="large-2 small-2 medium-2">Gene</th>
+											<th class="large-4 small-4 medium-4" colspan="2">Possible haplotypes</th>
+											<th class="large-4 small-4 medium-4">Predicted Effect</th>
+											<th class="large-2 small-2 medium-2">CNV Repeats</th>
 										</tr>
 									</thead>
 										{{#each otherGenes}}
 										<tr class="gene-row other-gene">
 											<td class="gene-name">{{gene}}</td>
-											<td class="allele_1"><i>{{#each possibleHaplotypes}}{{this.closestMatch}} {{!--{{possibleHaplotypes.h1.closestMatch}}--}}{{/each}}</i></td>
-											<td></td>
+											<td class="allele_1" colspan="2"><i>{{#each possibleHaplotypes}}{{this.closestMatch}} {{!--{{possibleHaplotypes.h1.closestMatch}}--}}{{/each}}</i></td>
 											<td>
 												<select class="therapeutic-class">
 													<option>Other</option>
 												</select>
+											</td>
+											<td>
+												<div class="row collapse prefix-radius">
+													<div class="large-6 small-4 medium-4 columns">
+														<a href="#" data-originalvalue="false" class="button editfixed secondary tiny radius cnv"><b>CNV</b></a>
+													</div>
+													<div class="large-6 small-8 medium-8 columns">
+														<input class="cnv-repeat-num" type="number" placeholder="#" style="display:none" required data-abide-validator="greaterThan">
+														<small class="error">Required</small>
+													</div>
+												</div>
 											</td>
 										</tr>
 										{{/each}}

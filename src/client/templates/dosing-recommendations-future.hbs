@@ -13,18 +13,26 @@
 		</div>
 		{{#each genes}}
 		<div class="row">
-			<div class="small-4 large-2 medium-3 columns">
+			<div class="small-4 large-2 medium-2 columns">
 				<label><b>Gene:</b></label>
 			</div>
-			<div class="small-8 large-3 medium-3 columns">
+			<div class="small-8 large-2 medium-2 columns">
 				<p class='left gene-name'><i>{{this}}</i></p>
 			</div>
-			<div class="small-4 large-3 medium-3 columns">
+			<div class="small-4 large-2 medium-2 columns">
 				<label><b>Predicted Effect:</b></label>
 			</div>
-			<div class="small-8 large-4 medium-3 columns">
+			<div class="small-8 large-3 medium-2 columns">
 				<p class='left class-name'><i>{{lookup ../classes @index}}</i></p>
 			</div>
+			{{#ifCnv ../cnv @index}}
+				<div class="small-4 large-1 medium-2 columns">
+					<label><b>CNV:</b></label>
+				</div>
+				<div class="small-8 large-2 medium-2 columns">
+					<p class="cnv-count"><i>{{this}}</i></p>
+				</div>
+			{{/ifCnv}}
 		</div>
 		{{/each}}
 		<div class="row">

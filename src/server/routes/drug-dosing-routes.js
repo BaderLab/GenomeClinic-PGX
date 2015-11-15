@@ -201,8 +201,6 @@ module.exports = function(app,logger,opts){
 		var gene = req.body.gene || req.body.genes; //it will either be an array of gene sort a single gene.
 		var type = req.query.type;
 		var user = req.user.username;
-		console.log(doc);
-		
 		if (type == 'recommendation') {
 			collection = dbConstants.DRUGS.DOSING.COLLECTION;
 			field = dbConstants.DRUGS.ALL.RECOMMENDATIONS;
@@ -224,7 +222,6 @@ module.exports = function(app,logger,opts){
 			query[dbConstants.DRUGS.FUTURE.ID_FIELD] = gene;
 			query[dbConstants.DRUGS.FUTURE.CLASSES] = doc.classes;
 			query.cnv = doc.cnv;
-			//console.log(doc);
 		} else if (type == 'haplotype') {
 			collection = dbConstants.DRUGS.HAPLO.COLLECTION;
 			field = dbConstants.DRUGS.ALL.HAPLO;
@@ -477,9 +474,10 @@ module.exports = function(app,logger,opts){
 		var futureResult, recResult;
 
 		for (var i = 0; i < toGet.length; i++ ){
-			geneComb[toGet[i].gene] = toGet[i].class;
+			geneComb[toGet[i].gene] = {};
+			geneComb[toGet[i].gene].class = toGet[i].class;
+			geneComb[toGet[i].gene].cnv = toGet[i].cnv;
 		}
-
 		//Find all of the relevant genes
 		Promise.resolve(toGet).each(function(item){
 			var query = {}
@@ -512,9 +510,14 @@ module.exports = function(app,logger,opts){
 				set = true;
 				for (var j = 0; j < recResult[i][constants.dbConstants.DRUGS.DOSING.GENES].length; j++ ){
 					//If the gene we arey cycling over is not present in the possible combination list
-					if (geneComb[recResult[i][constants.dbConstants.DRUGS.DOSING.GENES][j]] != recResult[i][constants.dbConstants.DRUGS.DOSING.CLASSES][j]){
+					if (geneComb[recResult[i][constants.dbConstants.DRUGS.DOSING.GENES][j]] == undefined)
+						set= false;
+					else if (geneComb[recResult[i][constants.dbConstants.DRUGS.DOSING.GENES][j]].class != recResult[i][constants.dbConstants.DRUGS.DOSING.CLASSES][j])
 						set = false;
-					}
+					else if (!recResult[i].cnv && geneComb[recResult[i][constants.dbConstants.DRUGS.DOSING.GENES][j]].cnv != 0)
+						set = false;
+					else if (recResult[i].cnv && geneComb[recResult[i][constants.dbConstants.DRUGS.DOSING.GENES][j]].cnv != recResult[i].cnv[j])
+						set = false;
 				}
 				if (set){
 					if (recByDrug.hasOwnProperty(result[i][constants.dbConstants.DRUGS.DOSING.DRUG])){
@@ -536,9 +539,14 @@ module.exports = function(app,logger,opts){
 			for (var i = 0; i < futureResult.length ; i++ ){
 				set = true;
 				for (var j = 0; j < futureResult[i][constants.dbConstants.DRUGS.FUTURE.ID_FIELD].length; j++){
-					if (geneComb[futureResult[i][constants.dbConstants.DRUGS.FUTURE.ID_FIELD][j]] != futureResult[i][constants.dbConstants.DRUGS.FUTURE.CLASSES][j]){
+					if (geneComb[futureResult[i][constants.dbConstants.DRUGS.FUTURE.ID_FIELD][j]] == undefined)
+						set= false;
+					else if (geneComb[futureResult[i][constants.dbConstants.DRUGS.FUTURE.ID_FIELD][j]].class != futureResult[i][constants.dbConstants.DRUGS.FUTURE.CLASSES][j])
 						set = false;
-					}
+					else if (!futureResult[i].cnv && geneComb[futureResult[i][constants.dbConstants.DRUGS.FUTURE.ID_FIELD][j]].cnv != 0)
+						set = false;
+					else if (futureResult[i].cnv && geneComb[futureResult[i][constants.dbConstants.DRUGS.FUTURE.ID_FIELD][j]].cnv != futureResult[i].cnv[j])
+						set = false;
 				}
 				if (set){
 					if (futureInds.length === 0) {
