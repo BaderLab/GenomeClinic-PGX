@@ -4,7 +4,7 @@
 
 var pgx = require('./pgx'),
 	utility = require('./utility');
-UTILS = utility;
+
 
 /* jshint multistr:true */
 var emptyFieldhtml = '<div class="row">\
@@ -19,6 +19,8 @@ var emptyFieldhtml = '<div class="row">\
 						    </div>\
 						</div>\
 					</div>';
+
+
 
 var abideOptions = {
 	abide: {
