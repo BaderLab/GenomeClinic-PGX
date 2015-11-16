@@ -2,15 +2,15 @@ var Promise = require("bluebird");
 var assert= require("assert");
 var dbConstants = require("../lib/conf/constants.json").dbConstants;
 var nodeConstants = require('../lib/conf/constants.json').nodeConstants;
-//var dbConstants = require("../conf/constants.json").dbConstants;
-//var nodeConstants = require('../conf/constants.json').nodeConstants;
+var utils = require("../lib/utils");
+
 
 module.exports = function(dbOperations){
 	//=======================================================================================
 	//Project functions
 	//=======================================================================================
 	/* Find all projects for a specific user and return the project within an array */
-	dbOperations.prototype.findProjects = function(projectName, username){
+	utils.checkAndExtend(dbOperations, "findProjects", function(projectName, username){
 		var query = {$or:[]};
 		var _this = this;
 		var fields = [dbConstants.PROJECTS.AUTH_USER_FIELD,dbConstants.DB.OWNER_ID];
@@ -36,12 +36,12 @@ module.exports = function(dbOperations){
 		}).then(function(){
 			return resultArray;
 		});
-	};
+	});
 
 	/* Add a new project to the database under the passed user. the The options
 	 * must contain the Project name, as well as the patients that are included 
 	 * in the new project */
-	dbOperations.prototype.addProject = function(options,user){
+	utils.checkAndExtend(dbOperations, "addProject", function(options,user){
 		assert(Object.prototype.toString.call(options) == '[object Object]',"Invalid options");
 		//project info should have patient_id, details, and for future use, allowed users
 		var projectInfo = options.project;
@@ -57,11 +57,11 @@ module.exports = function(dbOperations){
 				});
 			}	
 		});
-	};
+	});
 
 	/*remove project from the collection, and remove the patient associations
 	 * from all the patients in that project */
-	dbOperations.prototype.removeProject = function(project,user){
+	utils.checkAndExtend(dbOperations, "removeProject", function(project,user){
 		var _this = this;
 		var query = {};
 		query[dbConstants.PROJECTS.ID_FIELD] = project;
@@ -69,11 +69,11 @@ module.exports = function(dbOperations){
 		.then(function(){
 			return _this.removePatientsFromProject(project,undefined,user);
 		});
-	};
+	});
 
 
 	/* Add a new project to a patient by adding the project name to the tags field */
-	dbOperations.prototype.addProjectToPatient = function(project,patient,user){
+	utils.checkAndExtend(dbOperations, "addProjectToPatient", function(project,patient,user){
 		assert(Object.prototype.toString.call(project) == "[object String]", "Invalid Project Name");
 		assert(Object.prototype.toString.call(patient) == "[object String]", "Invalid Patient Name");
 
@@ -83,12 +83,12 @@ module.exports = function(dbOperations){
 		doc[dbConstants.PROJECTS.ARRAY_FIELD] = project;
 		doc = {$addToSet:doc};
 		return this.update(dbConstants.PATIENTS.COLLECTION, query, doc,undefined, user);
-	};
+	});
 
 	/* Remove the Tag for a project from one or more patients. Once the tag is remvoed the patient
 	 * is no longer associated with the previous project in any way and will not show up in the project
 	 * screen. */
-	dbOperations.prototype.removePatientsFromProject = function(project, patients,user){
+	utils.checkAndExtend(dbOperations, "removePatientsFromProject", function(project, patients,user){
 		var query = {};
 		assert(Object.prototype.toString.call(project) == "[object String]", "Invalid Project Name");
 		if (patients){
@@ -104,11 +104,11 @@ module.exports = function(dbOperations){
 		return this.update(dbConstants.PATIENTS.COLLECTION, query, doc, options, user).then(function(result){
 			return true;
 		});
-	};
+	});
 
 	/* When a  new patient is added to a project add the project to their 'tags' field, so that this patient
 	 * will then be associated with the new project */
-	dbOperations.prototype.addPatientsToProject = function(project, patients, user){
+	utils.checkAndExtend(dbOperations, "addPatientsToProject", function(project, patients, user){
 		assert(Object.prototype.toString.call(project) == "[object String]", "Invalid Project Name");
 		assert(Object.prototype.toString.call(patients) == "[object Array]", "Patients must be an array");
 		var query = {};
@@ -120,5 +120,5 @@ module.exports = function(dbOperations){
 		return this.update(dbConstants.PATIENTS.COLLECTION, query, doc, options, user).then(function(result){
 			return true;
 		});
-	};
+	})
 }

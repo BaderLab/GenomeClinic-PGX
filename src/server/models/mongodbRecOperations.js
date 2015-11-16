@@ -2,15 +2,14 @@ var Promise = require("bluebird");
 var assert= require("assert");
 var dbConstants = require("../lib/conf/constants.json").dbConstants;
 var nodeConstants = require('../lib/conf/constants.json').nodeConstants;
-//var dbConstants = require("../conf/constants.json").dbConstants;
-//var nodeConstants = require('../conf/constants.json').nodeConstants;
+var utils = require('../lib/utils');
 
 
 module.exports = function(dbOperations){
 
 
 	//Get the genes associated with drug recomednations and return an array of genes;
-	dbOperations.prototype.getGenes = function(user,from){
+	utils.checkAndExtend(dbOperations, "getGenes", function(user,from){
 		var match = {$match:{}}
 		match.$match['use' + from] = true;
 		var options = {$project:{}};
@@ -25,11 +24,11 @@ module.exports = function(dbOperations){
 		sort.$sort[dbConstants.DRUGS.ALL.ID_FIELD] = 1;
 		var pipeline = [match,options,sort];
 		return this.aggregate(dbConstants.DRUGS.ALL.COLLECTION,pipeline,user);
-	}
+	});
 
 	/* for the given genes, return all the dosing information current in the database. this information
 	 * is returned in the form of an array. The function can accept either a stirng or an array */
-	dbOperations.prototype.getGeneDosing = function(gene,user){
+	utils.checkAndExtend(dbOperations, "getGeneDosing", function(gene,user){
 		var query = {};
 		var out = [];
 		var _this = this;
@@ -64,7 +63,7 @@ module.exports = function(dbOperations){
 			else if (out.length === 1 ) return out[0];
 			else return out;
 		});
-	}
+	});
 
 	/* Remove a specific entry. This function will remove an entry based on the objectID and the type of entry. It will
 	 * accept four different 'Types':
@@ -76,7 +75,7 @@ module.exports = function(dbOperations){
 	 *		  from its collections entirely.
 	 * haplotype -removes the haplotype association from a gene and removes the document entry from the haplotype collection.
 	 */
-	dbOperations.prototype.removeEntry = function(oID,type,from,user){
+	utils.checkAndExtend(dbOperations, "removeEntry", function(oID,type,from,user){
 		var collection, query, ids;
 		var toRemove = [];
 		var genes = [];
@@ -215,10 +214,10 @@ module.exports = function(dbOperations){
 
 			});
 		});
-	}
+	});
 	/* Create an empty dosing document based on the gene name. If the Gene already exists
 	 * reject the process and return an error */
-	dbOperations.prototype.createNewDoc = function(gene,type,from,user){
+	utils.checkAndExtend(dbOperations, "createNewDoc", function(gene,type,from,user){
 		var _this = this;
 		var promise = new Promise(function(resolve,reject){
 			if (from) assert(['Haplotype','Dosing'].indexOf(from)!== -1);
@@ -239,6 +238,6 @@ module.exports = function(dbOperations){
 			})
 		});
 		return promise;
-	}
+	});
 	
 };

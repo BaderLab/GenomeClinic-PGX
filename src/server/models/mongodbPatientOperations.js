@@ -2,6 +2,7 @@ var Promise = require("bluebird");
 var assert= require("assert");
 var dbConstants = require("../lib/conf/constants.json").dbConstants;
 var nodeConstants = require('../lib/conf/constants.json').nodeConstants;
+var utils = require("../lib/utils");
 //var dbConstants = require("../conf/constants.json").dbConstants;
 //var nodeConstants = require('../conf/constants.json').nodeConstants;
 
@@ -20,7 +21,7 @@ module.exports = function(dbOperation){
 
 	/* Create a patient with the input patient ID.
 	 * Returns a promise which resolves to the new patient collection ID. */
-	dbOperation.prototype.addPatient= function(options, user) {
+	utils.checkAndExtend(dbOperation,"addPatient", function(options, user) {
 		var _this = this;
 		var args = arguments;
 		var currentPatientCollectionID;
@@ -57,11 +58,11 @@ module.exports = function(dbOperation){
 				});
 		});
 		return promise;
-	};
+	});
 
 	/* remove patient from the patient collection. Takes two arguments, the first is the
 	 * patient name, and the second is the suer adding the patient. */
-	dbOperation.prototype.removePatient = function(patient,user){
+	utils.checkAndExtend(dbOperation, "removePatient", function(patient,user){
 		assert(Object.prototype.toString.call(patient) == "[object String]", "Invalid Patient Name");
 		var query = {};
 		var _this = this;
@@ -80,14 +81,14 @@ module.exports = function(dbOperation){
 		}).catch(function(err){
 				_this.logger('error',err,{user:user,action:'removePatient'});
 		});
-	};
+	});
 
 	/* Find all the patients in the 'patients' collection.
 	 * Returns a promise that returns an array of elements corresponding to All
 	 * the patient_id's
 	 * *** RELIES ON PROJECT OPERATIONS ****
 	 */
-	dbOperation.prototype.findAllPatientIds=function(username){
+	utils.checkAndExtend(dbOperation, "findAllPatientIds", function(username){
 		var collectionName = dbConstants.PATIENTS.COLLECTION;
 		var options = {'_id':0};
 		var _this = this;
@@ -104,7 +105,7 @@ module.exports = function(dbOperation){
 			query.$or.push(q);
 			return _this.find(collectionName, query, {}, options, username);
 		});
-	};
+	});
 
 
 	/* find all the patients in the patient collection and return an array
@@ -113,19 +114,19 @@ module.exports = function(dbOperation){
 	 * To get output sorted by date and time(newest patient records first), do:
 	 * options == {sort: {"date": -1, "time": -1}} */
 
-	dbOperation.prototype.findAllPatientsInProject = function(project,options,user){
+	utils.checkAndExtend(dbOperation, "findAllPatientsInProject", function(project,options,user){
 		assert(Object.prototype.toString.call(project) == "[object String]", "Invalid Project Name");
 		var field = {'_id':0};
 		query = {};
 		query[dbConstants.PROJECTS.ARRAY_FIELD] = project;
 		return this.find(dbConstants.PATIENTS.COLLECTION,query,field,options,user);
-	};
+	});
 
 
 	/* Given a specific project, return all available patients for a user that are
 	 * not listed in that project. this is used for adding patients to an existing 
 	 * project */
-	dbOperation.prototype.findAllPatientsNinProject = function(project,username,options){
+	utils.checkAndExtend(dbOperation, "findAllPatientsNinProject", function(project,username,options){
 		var _this = this;
 		assert(Object.prototype.toString.call(project) == "[object String]", "Invalid Project Name");
 		//find all the availble projects for this person
@@ -155,7 +156,7 @@ module.exports = function(dbOperation){
 					return patient;
 			});
 		});
-	};
+	});
 
 	/* Find all of the patients for a praticular user. this will find either ALLL
 	 * patients in the the entire database regardless of their status or it will find
@@ -163,7 +164,7 @@ module.exports = function(dbOperation){
 	 * If readyonly is False or undefiend, this function will look for all non-ready,ready,
 	 * And failed vcf files. It will then return a concatenated list of all of them
 	 */
-	dbOperation.prototype.findAllPatients = function(username,readyOnly,options){
+	utils.checkAndExtend(dbOperation, "findAllPatients", function(username,readyOnly,options){
 		assert(Object.prototype.toString.call(username) == "[object String]", "Invalid username Name");
 		var _this = this;
 		return this.findProjects(undefined,username)
@@ -211,5 +212,5 @@ module.exports = function(dbOperation){
 				});
 			}
 		});
-	};
+	});
 }

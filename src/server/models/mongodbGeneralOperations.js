@@ -2,6 +2,7 @@ var Promise = require("bluebird");
 var assert= require("assert");
 var dbConstants = require("../lib/conf/constants.json").dbConstants;
 var nodeConstants = require('../lib/conf/constants.json').nodeConstants;
+var utils = require("../lib/utils");
 //var dbConstants = require("../conf/constants.json").dbConstants;
 //var nodeConstants = require('../conf/constants.json').nodeConstants;
 
@@ -12,7 +13,7 @@ module.exports = function(dbOperations){
 	 * set === true, changes the configured status to true.
 	 * If set is omitted, function returns the status as a boolean.
 	 * Returns a promise. */
-	dbOperations.prototype.isConfigured= function(set) {
+	utils.checkAndExtend(dbOperations,"isConfigured", function(set) {
 		var _this = this;
 		assert(Object.prototype.toString.call(set) == "[object Boolean]" || Object.prototype.toString.call(set) == "[object Undefined]","Invalid config set parameter");
 		var promise= new Promise(function(resolve, reject) {
@@ -37,13 +38,13 @@ module.exports = function(dbOperations){
 			}
 		});
 		return promise;
-	};
+	});
 
 	/* wrapper to retrieve the admin email from the server */
-	dbOperations.prototype.getAdminEmail = function(){
+	utils.checkAndExtend(dbOperations, "getAdminEmail", function(){
 		return this.find(dbConstants.DB.ADMIN_COLLECTION,{})
 		.then(function(result){
 			return result[0]['admin-email'];
 		});
-	};
+	});
 }

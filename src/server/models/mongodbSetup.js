@@ -6,6 +6,7 @@ var nodeConstants = require('../lib/conf/constants.json').nodeConstants;
 //var nodeConstants = require('../conf/constants.json').nodeConstants;
 var fs = Promise.promisifyAll(require('fs'));
 var getRS = require('../lib/getDbSnp');
+var utils = require('../lib/utils');
 //var getRS = require("./getDbSnp");
 
 var TARGET_VERSION = 1 //{{DBVERSION}};
@@ -21,7 +22,7 @@ module.exports = function(dbOperations){
 /* init operations to be performed on server startup including initialization
  * default data insertion */
 	//Retrieve the namsapce for the default database and return the items as an array
-	dbOperations.prototype.getNameSpace = function(){
+	utils.checkAndExtend(dbOperations, "getNameSpace", function(){
 		_this = this;
 		var promise = new Promise(function(resolve,reject){
 			_this.db.getDB().listCollections().toArray(function(err,items){				
@@ -34,11 +35,11 @@ module.exports = function(dbOperations){
 			});
 		});
 		return promise;
-	};
+	});
 
 
 	//Check to see if the databse has been initialzied yet. If it has not, initialize it!
-	dbOperations.prototype.checkInit = function(){
+	utils.checkAndExtend(dbOperations, "checkInit", function(){
 		var _this = this;
 		var promise= new Promise(function(resolve, reject) {
 			//check to see what
@@ -59,12 +60,12 @@ module.exports = function(dbOperations){
 			 });
 		});
 		return promise;
-	}; //end checkInit
+	}); //end checkInit
 
 	/* chech to see if
 	/* Create the collections required for an initialized DB.
 	 * Returns a promise. */
-	dbOperations.prototype.initializeDB = function() {
+	utils.checkAndExtend(dbOperations, "initializeDB", function() {
 		this.logger("info","Creating and initializing database",{action:"initializeDB"});
 		var _this = this;
 		var promise= new Promise(function(resolve, reject){
@@ -139,7 +140,7 @@ module.exports = function(dbOperations){
 			});
 		});
 		return promise;
-	};
+	});
 
 
 	/* Drug recommendation (both future and current recommendations) as well as associated haplotypes
@@ -152,7 +153,7 @@ module.exports = function(dbOperations){
 	* added to the dosing document for each of those drugs. All of the information is contained in the 
 	* main recommendaiton document.
 	*/
-	dbOperations.prototype.insertDefaultData = function(){
+	utils.checkAndExtend(dbOperations, "insertDefaultData", function(){
 		this.logger("info","Creating and initializing database",{action:"initializeDB"});
 		var _this = this;
 		var data;
@@ -320,9 +321,8 @@ module.exports = function(dbOperations){
 				reject(err);
 			}); 
 		});
-
 		return promise;
-	};
+	});
 };
 
 

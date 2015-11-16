@@ -4,6 +4,7 @@ var dbConstants = require("../lib/conf/constants.json").dbConstants;
 var nodeConstants = require('../lib/conf/constants.json').nodeConstants;
 var getRS = require('../lib/getDbSnp');
 var _ = require('underscore');
+var utils = require("../lib/utils");
 //var dbConstants = require("../conf/constants.json").dbConstants;
 //var nodeConstants = require('../conf/constants.json').nodeConstants;
 
@@ -16,7 +17,7 @@ module.exports  = function(dbOperations){
 	 * for the specified marker. Two marker types are stored in the database, 'custom'
 	 * and 'dbsnp'. If the type parameter is passed return only the type of marker
 	 */ 
-	dbOperations.prototype.getPGXCoords = function(rsID,username,type) {
+	utils.checkAndExtend(dbOperations, "getPGXCoords", function(rsID,username,type) {
 		var query = {};
 		var _this = this;
 		if (Object.prototype.toString.call(rsID) == "[object Array]")
@@ -59,13 +60,13 @@ module.exports  = function(dbOperations){
 			}
 			return out;	
 		});
-	};
+	});
 
 	/* Update all the pgxCoordinates
 	 * Query the NCBI's dbsnp to find all minformation on all the markers included in
 	 * our database (can take a minute). THen if there are any changes update the databse
 	 */
-	dbOperations.prototype.updatedbSnpPGXCoords = function(snp){
+	utils.checkAndExtend(dbOperations, "updatedbSnpPGXCoords", function(snp){
 		var record, update, changed = [], notFound = [], notchanged = [], toChange = [];
 		var _this = this;
 		return this.getPGXCoords(snp ,null,'dbsnp').then(function(markers){
@@ -104,14 +105,14 @@ module.exports  = function(dbOperations){
 				return output;
 			});
 		});
-	};
+	});
 
 	/* Each gene has an array of markers associated with it that links these markers
 	 * with the respective gene haplotype page. When a marker is present in the array
 	 * it will show up in the haplotype table for that gene. The function accepts a string
 	 * or an array of markers.  
 	 */
-	dbOperations.prototype.addMarkerToGene = function(markers,gene,user){
+	utils.checkAndExtend(dbOperations, "addMarkerToGene",  function(markers,gene,user){
 		var _this = this;
 		if (Object.prototype.toString.call(markers) == '[object String]')
 			markers = [markers];
@@ -130,11 +131,11 @@ module.exports  = function(dbOperations){
 				}
 			});
 		});
-	};
+	});
 
 	/* Remove the associated markers from a gene by pulling the specified marking
 	 * or array from the gene marker array */
-	dbOperations.prototype.removeMarkerFromGene = function(markers,gene,user){
+	utils.checkAndExtend(dbOperations, "removeMarkerFromGene", function(markers,gene,user){
 		var _this = this;
 		if (Object.prototype.toString.call(markers) == '[object String]')
 			markers = [markers];
@@ -157,10 +158,10 @@ module.exports  = function(dbOperations){
 				}
 			});
 		});
-	};
+	});
 
 	//remove the selected marker
-	dbOperations.prototype.removePGXCoords = function(rsID,user){
+	utils.checkAndExtend(dbOperations, "removePGXCoords", function(rsID,user){
 		var _this = this;
 		assert(Object.prototype.toString.call(rsID) == "[object String]");
 		var query = {};
@@ -184,12 +185,12 @@ module.exports  = function(dbOperations){
 			return removed
 		})
 
-	};
+	});
 	/*retrieve the selected Haplotype Gene(s). Accepts an array or string, or no
 	 * arugment. If an array or string is passed it will search for all of the genes
 	 * in that are named, while if no arguments are passed it will retrieve ALL
 	 * of the genes */
-	dbOperations.prototype.getPGXGenesForAnalysis = function(geneName,user){
+	utils.checkAndExtend(dbOperations, "getPGXGenesForAnalysis",  function(geneName,user){
 		var query = {};
 		var _this = this;
 		if (Object.prototype.toString.call(geneName) == '[object Array]')
@@ -215,31 +216,31 @@ module.exports  = function(dbOperations){
 			}
 			return out;
 		});
-	};
+	});
 
 	//Update the specified gene with the requqired parameter Doc
-	dbOperations.prototype.updatePGXGene = function(id,doc,user){
+	utils.checkAndExtend(dbOperations, "updatePGXGene", function(id,doc,user){
 		assert(Object.prototype.toString.call(geneName) == "[object String]");
 		assert(Object.prototype.toString.call(doc) == "[object Object]");
 
 		var query = {};
 		query[dbConstants.PGX.GENES.ID_FIELD] = geneName;
 		return this.update(dbConstants.PGX.GENES.COLLECTION,query,doc,undefined,user);
-	};
+	});
 
 	//Update the specified marker with the required parameter Doc
-	dbOperations.prototype.updatePGXCoord = function(rsID,doc,user){
+	utils.checkAndExtend(dbOperations, "updatePGXCoord", function(rsID,doc,user){
 		assert(Object.prototype.toString.call(rsID) == "[object String]");
 		assert(Object.prototype.toString.call(doc) == "[object Object]");
 		var query = {};
 		query[dbConstants.PGX.COORDS.ID_FIELD] = rsID;
 		return this.update(dbConstants.PGX.COORDS.COLLECTION,query,doc,undefined,user);
-	};
+	});
 
 	/* Find all PGx variants for a specific patient ID.
 	 * NOTE: patient ID is the user-specified ID, not the internal collection ID.
 	 * Returns a promise. */
-	dbOperations.prototype.getPGXVariants= function(patientID,user) {
+	utils.checkAndExtend(dbOperations, "getPGXVariants", function(patientID,user) {
 		var _this = this;
 		var pgxCoords, pgxGenes,currentPatientCollectionID,pgxGenesRemoved = [];
 		var query= {};
@@ -308,5 +309,5 @@ module.exports  = function(dbOperations){
 			});
 		});
 		return promise;
-	};
+	});
 };
