@@ -157,8 +157,13 @@ gulp.task('server-bulk',function(){
 	.pipe ( gulp.dest( paths.server.bulkops.dest ) );
 });
 
+gulp.task("server-error",function(){
+	return gulp.src(paths.server.error.src)
+	.pipe( gulp.dest(paths.server.error.dest) );
+});
+
 gulp.task('server',function(next){
-	return runSequence('server-routes','server-conf','server-app','server-lib','server-cons','server-models','server-bulk',next);
+	return runSequence('server-routes','server-conf','server-app','server-lib','server-cons','server-models','server-bulk','server-error',next);
 });
 
 /* Generic Tasks */

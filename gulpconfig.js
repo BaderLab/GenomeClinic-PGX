@@ -92,6 +92,10 @@ module.exports = {
 			src:'src/server/src/bulkops.js',
 			dest:'build'
 		},
+		error:{
+			src:"src/server/errors/*",
+			dest:"build/lib/errors"
+		},
 		routes:{
 			src:'src/server/routes/*.js',
 			dest:'build/controllers'
