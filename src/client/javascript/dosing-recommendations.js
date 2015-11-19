@@ -605,10 +605,9 @@ dosingRecommendations.staticHandlers = function(){
 			console.error(err);
 		});
 
-		if (utility.getURLAtrribute('archived') == 'true')
-			$(document).on('change',function(){
-				pagechange = true;
-			});
+		$(document).on('change',function(){
+			pagechange = true;
+		});
 	});
 };
 
