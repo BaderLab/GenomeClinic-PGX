@@ -585,6 +585,41 @@ module.exports = function(app,logger,opts){
 		});
 	});
 	
+
+	/**
+	 * Retrieve an archived report or a list of possible archived reports from the database.
+	 * If a reportID is in the search query, then returnh the specific report that is being
+	 * searched for, otherwise return all of th reports for a specific user / patient, but
+	 * do not send the data attributes of each report.
+	 * query params
+	 * reportID <id>
+	 * patient <id>
+	 */
+	app.get("/database/recommendations/archived",function(req,res){
+		var query = {};
+		var fields = undefined;
+		if ( req.query.reportID ) {
+			query._id = ObjectID(req.query.reportID);
+		} else {
+			query.username = req.user.username;
+			query.patient_id = req.query.patient;
+			fields = {
+				_id:1,
+				username : 1,
+				patient_id:1,
+				date: 1
+			};
+		}
+		app.dbFunctions.find("archivedReports", query, fields).then(function(result){
+			res.send(result);
+		}).catch(function(err){
+			req.flash('message', err.message)
+			res.redirect("/failure");
+		});
+	});
+
+
+
 	/* Generate the dosing recommendation report */
 	app.post('/browsepatients/id/:patientID/report/generate', utils.isLoggedIn,function(req,res){
 		var options = {
@@ -593,8 +628,9 @@ module.exports = function(app,logger,opts){
 			left:LEFT_MARGIN,
 			rigth:RIGHT_MARGIN
 		};
-
-		app.dbFunctions.saveReportData(req.body,req.params.patientID,req.user.username);
+		if (req.body.changed){
+			app.dbFunctions.saveReportData(req.body,req.params.patientID,req.user.username);
+		}
 		//get disclaimer
 		var template = opts.report ? opts.report : constants.dbConstants.DRUGS.REPORT.DEFAULT;
 		app.dbFunctions.findOne(constants.dbConstants.DB.ADMIN_COLLECTION,{}).then(function(result){

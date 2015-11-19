@@ -407,7 +407,32 @@ UtilityFunctions.suggestionHandlers = function (){
 			$('.suggestion-list').html('').closest('.suggestions').slideUp();	
 		}
 	});
+	
 };
+
+/**
+ * Given an attributre, attempt to find the value of the attribute
+ * in the url. this does not support object notation
+ */
+UtilityFunctions.getURLAtrribute = function(attr){
+	var queryString = window.location.search.replace("?","");
+	if (queryString == "") return undefined;
+
+	var pairs = queryString.split("&");
+	var vals = {};
+	var temp;
+	for (var i = 0; i < pairs.length; i++ ){
+		temp = pairs[i].split("=");
+		if (vals[temp[0]])
+			if (Object.prototype.toString.call(vals[temp[0]]) == "[object Array]")
+				vals[temp[0]].push(temp[1]);
+			else
+				vals[temp[0]] = [vals[temp[0]], temp[1]];
+		else
+			vals[temp[0]] = temp[1];
+	}
+	return vals[attr]
+}
 
 //literal variables
 UtilityFunctions.chrRegex = /^(1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|X|Y|M|m|y|x)$/

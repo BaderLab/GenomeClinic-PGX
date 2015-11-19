@@ -354,6 +354,10 @@ li.multicol {
     float: left;
     width: 33%;
 }  /* stop the float */
+li.multicol4 {
+  float:left;
+  width: 25%;
+}
 br.multicol{
     clear: left;
 }  /* separate the list from subsequent markup */

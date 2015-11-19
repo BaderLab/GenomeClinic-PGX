@@ -217,7 +217,7 @@ mongodbBasicOperations.prototype.insertMany = function(documents,user){
 					_this.logger("error",err,{action:'insertMany',target:documents.collectionName,user:user,arguments:documents});
 					reject(err);
 				} else {
-					_this.logger("info","successfully inserted " + documents.documents.length.toString() + "documents",{action:'insertMany',target:options.collectionName,user:user});
+					_this.logger("info","successfully inserted " + documents.documents.length.toString() + "documents",{action:'insertMany',target:documents.collectionName,user:user});
 					resolve(doc);
 				}
 			});

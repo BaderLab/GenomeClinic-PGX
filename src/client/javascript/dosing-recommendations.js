@@ -68,6 +68,58 @@ var abideOptions = {
 	}
 };
 
+var addNewDrugOfInterest = function(drug){
+	var val = drug || $('#patient-drug-of-interest-input').val();
+	if (val !== "" ){
+		var html = "<li class='multicol'><span>" + val + "</span>&nbsp&nbsp<a href='#'><i class='fi-x'></i></a></li>";
+		$('ol.multicol').append(html);
+		removeLink($('ol.multicol').last('li').find('a'));
+		$('#patient-drug-of-interest-input').val('')
+	} else {
+		$('#patient-drug-of-interest-input').addClass("glowing-error");
+	}
+}
+
+var addNewCurrentMedication = function(drug, dose, route, frequency, notes){
+	var val = drug || $('#patient-new-drug').val();
+	var dose = dose || $('#patient-new-dose').val();
+	var freq = route || $('#patient-new-frequency').val();
+	var route = frequency || $('#patient-new-route').val();
+	var notes = notes || $('#patient-new-notes').val();
+	if (val !== "" && dose !== "" && freq !== "" && route !== ""){
+		var html = "<tr><td class='patient-drug-name'>" + val + "</td><td class='patient-drug-dose text-center'>" + dose + "</td>"
+		html += '<td class="patient-drug-route text-center">' + route + '</td><td class="patient-drug-frequency text-center">' + freq + '</td>';
+		html += '<td class="patient-drug-notes">'+notes+"</td><td class='text-center'><a href='#'><i class='fi-x'></i></a></td></tr>";
+		$('#patient-drug-table').find('tbody').append(html);
+		removeRow($('#patient-drug-table').find('tbody').last('tr').find('a'));
+		if (!$('#patient-drug-table').is(":visible")){
+			$('#patient-drug-table').show();
+		}
+
+		$('#patient-new-drug,#patient-new-dose,#patient-new-notes,#patient-new-frequency,#patient-new-route').val('');
+	}
+
+}
+
+//function to remove a row of a table
+var removeRow = function(ele){
+	ele.on('click',function(e){
+		e.preventDefault();
+		var context = $(this).closest('tbody');
+		$(this).closest('tr').remove();
+		if (!$(context).find('tr').length){
+			$(context).closest('table').hide();
+		}
+	});
+};
+
+var removeLink = function(ele){
+	ele.on('click',function(e){
+		e.preventDefault();
+		$(this).closest('li').remove();
+	});
+};
+
 
 function dosingRecommendations() {
 };
@@ -105,6 +157,8 @@ dosingRecommendations.serializeTable = function(geneOnly){
 	}
 	return output;
 };
+
+var pagechange = false;
 
 /* The Physician information and the patient information must be serialized into a usable format,
  * this function collects all the data and places it into an object separating Dr. and patient information
@@ -290,6 +344,7 @@ dosingRecommendations.serializeForm = function(){
 	output.recommendations = recs.drugs;
 	output.genes = this.serializeTable();
 	output.future = this.serializeFuture();
+	output.changed  = pagechange;
 	var flags = $('.flag:visible');
 	for (var i = 0; i < flags.length; i++ ){
 		if($(flags[i]).hasClass('warning')) output.flagged = true;
@@ -439,25 +494,6 @@ dosingRecommendations.getRecommendations = function(){
 dosingRecommendations.staticHandlers = function(){
 	var _this = this; // reference to the function
 
-	//function to remove a row of a table
-	var removeRow = function(ele){
-		ele.on('click',function(e){
-			e.preventDefault();
-			var context = $(this).closest('tbody');
-			$(this).closest('tr').remove();
-			if (!$(context).find('tr').length){
-				$(context).closest('table').hide();
-			}
-		});
-	};
-
-	var removeLink = function(ele){
-		ele.on('click',function(e){
-			e.preventDefault();
-			$(this).closest('li').remove();
-		});
-	};
-
 	$('.cnv').on("click",function(e){
 		e.preventDefault();
 		if ($(this).hasClass("editfixed")){
@@ -474,15 +510,7 @@ dosingRecommendations.staticHandlers = function(){
 
 	$('#add-drug-of-interest').on('click',function(e){
 		e.preventDefault();
-		var val = $('#patient-drug-of-interest-input').val();
-		if (val !== "" ){
-			var html = "<li class='multicol'><span>" + val + "</span>&nbsp&nbsp<a href='#'><i class='fi-x'></i></a></li>";
-			$('ol.multicol').append(html);
-			removeLink($('ol.multicol').last('li').find('a'));
-			$('#patient-drug-of-interest-input').val('')
-		} else {
-			$('#patient-drug-of-interest-input').addClass("glowing-error");
-		}
+		addNewDrugOfInterest();
 	});
 
 	/* anytime the user changes any of therapeutic classes in the PGX analyisis table, check to see if
@@ -525,23 +553,8 @@ dosingRecommendations.staticHandlers = function(){
 	*/
 	$('#patient-add-drug').on('click',function(e){
 		e.preventDefault();
-		var val = $('#patient-new-drug').val();
-		var dose = $('#patient-new-dose').val();
-		var freq = $('#patient-new-frequency').val();
-		var route = $('#patient-new-route').val();
-		var notes = $('#patient-new-notes').val();
-		if (val !== "" && dose !== "" && freq !== "" && route !== ""){
-			var html = "<tr><td class='patient-drug-name'>" + val + "</td><td class='patient-drug-dose text-center'>" + dose + "</td>"
-			html += '<td class="patient-drug-route text-center">' + route + '</td><td class="patient-drug-frequency text-center">' + freq + '</td>';
-			html += '<td class="patient-drug-notes">'+notes+"</td><td class='text-center'><a href='#'><i class='fi-x'></i></a></td></tr>";
-			$('#patient-drug-table').find('tbody').append(html);
-			removeRow($('#patient-drug-table').find('tbody').last('tr').find('a'));
-			if (!$('#patient-drug-table').is(":visible")){
-				$('#patient-drug-table').show();
-			}
-
-			$('#patient-new-drug,#patient-new-dose,#patient-new-notes,#patient-new-frequency,#patient-new-route').val('');
-		}
+		addNewCurrentMedication;
+		
 	});
 
 	$('#patient-dob-date,#patient-dob-month,#patient-dob-year').on('keyup',function(){
@@ -587,9 +600,15 @@ dosingRecommendations.staticHandlers = function(){
 			}
 		}).then(function(){
 			$('form').find('button').text('Generate Report');
+			pagechange = false;
 		}).catch(function(err){
 			console.error(err);
 		});
+
+		if (utility.getURLAtrribute('archived') == 'true')
+			$(document).on('change',function(){
+				pagechange = true;
+			});
 	});
 };
 
@@ -658,6 +677,121 @@ dosingRecommendations.generateData = function(templateData){
 	return templateData;
 }//end generateData
 
+
+/**
+ * Given an object that can be mapped to input names, recursively search through the objecct
+ * and set all of the input vals. The keys of the object can be concatenated together to build
+ * the input field name ie:
+ * patient: {
+ *	 name:{
+ *		last: jim
+ *	}
+ *}
+ * would concatentae to patient-name-last with the value being set as jim
+ *@param the object to iterate over
+ *@param currString the current state of the name string
+ */
+dosingRecommendations.settAttributesRecursive = function(obj,currString){
+	var _this = this;
+	var promise = Promise.resolve().then(function(){
+		if (!currString)
+			currString = "";
+		if (Object.prototype.toString.call(obj) != "[object Object]"){
+			$("input[name=" + currString + "],textarea[name=" + currString + "],select[name=" + currString + "]").val(obj);
+		}
+		else {
+			for (var attr in  obj){
+				if (obj.hasOwnProperty(attr)){
+					
+					_this.settAttributesRecursive(obj[attr], currString == "" ? attr : currString + "-" + attr);
+				}
+			}
+		}
+	});
+	return promise;
+	
+}
+
+/**
+ * Retrieve archived data from the databse and set all of the page inputs according
+ * to the state that the archived report was in.
+ */
+dosingRecommendations.setArchivedData = function(){
+	var _this = this;
+	this.getArchivedData().then(function(result){
+		result = result[0];
+		var data = result.data;
+		if (!result)
+			//If there is no result load the default page.
+			return _this.getRecommendations();
+		else {
+			//SET THE VALUES FOR THE PATIENT
+			_this.settAttributesRecursive(data.patient,"patient");
+			_this.settAttributesRecursive(data.dr, "dr");
+			_this.settAttributesRecursive(data.summary,"summary");
+
+			var genes = $('.gene-row');
+			for (var i = 0; i < data.genes.length;i++){
+				$(genes[i]).find(".therapeutic-class").val(data.genes[i].class);
+				if (data.genes[i].cnv > 0)
+					$(genes[i]).find('.cnv').trigger("click").closest('.row').find('.cnv-repeat-num').val(data.genes[i].cnv);
+			}
+
+			for (var i = 0; i < data.drugsOfInterest.length; i++ )
+				addNewDrugOfInterest(data.drugsOfInterest[i]);
+			var medication;
+			if (data.patient.allMedications)
+				for (var i = 0; i < data.patient.allMedications.length; i++ ){
+					medication = data.patient.allMedications[i];
+					addNewCurrentMedication(medication.name,medication.dose,medication.frequency,medication.route,medication.notes)
+				}
+
+
+			if (!data.recommendations)
+					$('#drug-recommendations').html(emptyFieldhtml.replace(/\{\{message\}\}/,'There are no recommendations to report'))
+			else {
+				utility.retrieveCitations(data.citations).then(function(citations){
+					return templates.drugs.rec.recs({recommendation:data.recommendations,citations:citations})
+				}).then(function(renderedHtml){
+					$('#drug-recommendations').html(renderedHtml);
+				}).then(function(){
+					_this.recommendationHandlers('#drug-recommendations');
+				}).catch(function(err){
+					console.error(err);
+				});
+			}
+
+
+			if (data.future.length === 0) {
+				$('#future-recommendations').html(emptyFieldhtml.replace(/\{\{message\}\}/,'There are no future considerations to report'))
+			} else {
+			 	templates.drugs.rec.future({future:data.future}).then(function(renderedHtml){
+					$('#future-recommendations').html(renderedHtml);
+				}).then(function(){
+					return _this.recommendationHandlers("#future-recommendations");
+				}).catch(function(err){
+					console.error(err);
+				});
+			}
+		}
+	});
+};
+
+dosingRecommendations.getArchivedData = function(){
+	var _this = this;
+	var id = utility.getURLAtrribute("reportID");
+	var promise = Promise.resolve($.ajax({
+		url:"/database/recommendations/archived?reportID=" + id,
+		type:"GET",
+		contentType:"application/json"
+	})).then(function(result){
+		if (Object.prototype.toString.call(result) == "[object Array]" && result.length > 0)
+			return result;
+		else
+			return undefined;
+	});
+	return promise;
+}
 /* Render the initial, get all gene information, re-run the pgx-analysis to get haplotype information and
  * add all helpers */
 dosingRecommendations.render = function(){
@@ -665,6 +799,7 @@ dosingRecommendations.render = function(){
 	var pgxTemplateData, therapeuticClasses, drugRecommendations;
 	//load information on patient and generate pgx info.
 	var location = window.location.pathname;
+	var archived = utility.getURLAtrribute('archived') == 'true';
 	var patientID = location.split('/').splice(-2)[0];
 	//Generate pgx results and convert them into a usable format;
 	pgx.generatePgxResults(patientID).then(function(result){
@@ -698,7 +833,10 @@ dosingRecommendations.render = function(){
 		return _this.getHaplos();
 		// get information from each gene
 	}).then(function(){
-		return _this.getRecommendations();
+		if (!archived)
+			return _this.getRecommendations();
+		else
+			return _this.setArchivedData();
 	}).then(function(){
 		// refresh foundation
 		return utility.refresh(abideOptions);

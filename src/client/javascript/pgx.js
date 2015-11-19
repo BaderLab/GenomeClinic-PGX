@@ -418,16 +418,34 @@ pgx.loadPGx= function(selectedPatientAlias) {
 		return self.convertTotemplateData();
 	}).then(function(result){
 		self.templateData = result;
-		templateData = result;
 		if (self.pgxGenesRemoved)
 			result.errMessage = self.pgxGenesRemoved.join(", ")
-		return templates.pgx(result);
+		return self.getArchivedReports(selectedPatientID);
+	}).then(function(result){
+		self.templateData.archived = result;
+		return templates.pgx(self.templateData);
 	}).then(function(html) {
 		$('#main').html(html);
 		self.addEventListeners();
 	}).then(function(){
 		utility.refresh();
 	});
+};
+
+pgx.getArchivedReports= function(patientID){
+	var _this = this;
+	var promise = Promise.resolve($.ajax({
+		url: "/database/recommendations/archived?patient=" + patientID,
+		type:"GET",
+		contentType:"application/json"
+	})).then(function(result){
+		if (Object.prototype.toString.call(result) == "[object Array]" && result.length > 0){
+			return result
+		} else {
+			return undefined;
+		}
+	});
+	return promise;
 };
 pgx.generatePgxResults= function(selectedPatientID,selectedPatientAlias){
 	var self = this;
