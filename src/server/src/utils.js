@@ -190,27 +190,27 @@ utils.checkAndExtend = function(baseClass,attrName,attrVal,ops){
 
 
 /**
- * utility functions for testing to see what type a parameter is. returns true / false
+ * utility functions for testing to see if a parameter matches the basic type that is
+ * being tested. returns a boolean true or false;
  */
-utils.isString = function(string){
-	if (!string) return false;
-	return Object.prototype.toString.call(string) == "[object String]";
+utils.isString = function(f){
+	return Object.prototype.toString.call(f) == "[object String]";
 
 }
 
-utils.isObject = function(obj){
-	if (!obj) return false;
-	return Object.prototype.toString.call(obj) == "[object Object]";
+utils.isObject = function(f){
+	return Object.prototype.toString.call(f) == "[object Object]";
 }
 
-utils.isArray = function(arr){
-	if (!arr) return false;
-	return Object.prototype.toString.call(arr) == "[object Array]";
+utils.isArray = function(f){
+	return Object.prototype.toString.call(f) == "[object Array]";
 }
 
-utils.isFunction = function(fn){
-	if (!fn) return false;
-	return Object.prototype.toString.call(fn) == "[object Function]";
+utils.isFunction = function(f){
+	return Object.prototype.toString.call(f) == "[object Function]";
 }
 
+utils.isBool = function(f){
+	return Object.prototype.toString.call(f) == "[object Boolean]";
+}
 module.exports = utils;

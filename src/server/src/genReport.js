@@ -2,8 +2,28 @@ var phantom = require('phantom');
 var Promise = require('bluebird');
 var constants = require("./conf/constants.json");
 var cons = Promise.promisifyAll(require('consolidate')); // Promisify consolidate
+var Handlebars = require("handlebars");
 var fs = Promise.promisifyAll(require('fs'));
 var Path = require('path');
+
+
+
+//add the handlebars helper functions
+
+/**
+ * look in the defined array at the specified index and check to see if the 
+ * cnv index does not == 0. if it equals zero do not continue, if not
+ * return the block
+ */
+Handlebars.registerHelper('ifCnv',function(cnvArr,index,block){
+	//var fnTrue = options.fn, fnFalse = options.inverse;
+	accum = "";
+	if (cnvArr && cnvArr[index] != 0)
+		accum+= block.fn(cnvArr[index]);
+	return accum;
+});
+
+
 /* Generate Reports based on the template provided and send the name of the report to the client 
  * once the report has been rendered for easy downloading.
  * The function takes in four mandatory fields:
@@ -50,7 +70,6 @@ module.exports = function(req,res,reportName,template,options,logger){
 		var opts = req.body;
 		opts.user = req.user[constants.dbConstants.USERS.ID_FIELD];
 		opts.date = date.getDay().toString() + '/' + date.getMonth().toString() + '/' + date.getUTCFullYear().toString();
-
 		//Render the Templates Asynchronously
 		return cons.handlebarsAsync(template,opts);
 	}).then(function(html){
@@ -103,7 +122,7 @@ module.exports = function(req,res,reportName,template,options,logger){
 		res.send(JSON.stringify(o));
 
 	}).catch(function(err){
-		//console.log(err.stack);
+		console.log(err.stack);
 		logger('error',err,{user:req.user[constants.dbConstants.USERS.ID_FIELD],'action':'genReport','target':name});
 		throw new Error(err);
 	});

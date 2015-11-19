@@ -123,6 +123,7 @@ module.exports = function(app,logger,opts){
 		});
 	});
 
+	/* RETURN THE OWNER Of the queried object */
 	app.post('/database/owner',utils.isLoggedIn,function(req,res){
 		var user = req.user[dbConstants.USERS.ID_FIELD];
 		var collection = req.body.collection;

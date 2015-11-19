@@ -199,7 +199,7 @@ dosingRecommendations.serializeRecommendations = function(){
 			$(fields[i]).find('.gene-name').each(function(ind,gene){
 				temp.genes.push($(gene).text());
 				if ($(gene).closest(".row").find(".cnv-count").length > 0)
-					temp.cnv.push($(gene).closest(".row").find(".cnv-count").val());
+					temp.cnv.push(parseInt($(gene).closest(".row").find(".cnv-count").text()));
 				else
 					temp.cnv.push(0);
 			});
@@ -245,7 +245,7 @@ dosingRecommendations.serializeFuture = function (){
 			$(fields[i]).find('.gene-name').each(function(ind,gene){
 				temp.genes.push($(gene).text());
 				if ($(gene).closest(".row").find(".cnv-count").length > 0)
-					temp.cnv.push($(gene).closest(".row").find(".cnv-count").val());
+					temp.cnv.push(parseInt($(gene).closest(".row").find(".cnv-count").text()));
 				else
 					temp.cnv.push(0);
 			});

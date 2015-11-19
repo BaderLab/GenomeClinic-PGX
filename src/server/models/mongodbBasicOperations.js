@@ -10,6 +10,14 @@ var utils = require("../lib/utils");
 var MissingParameterError = require("../lib/errors/MissingParameterError");
 var InvalidParameterError = require("../lib/errors/InvalidParameterError");
 
+/**
+ * Basic Operations constructor definition. The basic operations contains a set of functions
+ * that can be exntended and shared across db resources. These are the base fucntions that work
+ * on any collection
+ * @param db a database instance from mongodbConnect
+ * @param logger the logger instance
+ * @throws MissingParameterError
+ */
 function mongodbBasicOperations(db,logger){
 	if (db === undefined)
 		throw new MissingParameterError("database object is required");
@@ -18,6 +26,19 @@ function mongodbBasicOperations(db,logger){
 	this.logger = logger; //Accepts a logger instance
 }
 
+/**
+ * Search through a collection and find all of the entries that meet the query criteria, returning
+ * the result as an array. If the fields paramter is provided, only return the fields that are defined.
+ * takes additional options as well (look at mongodb find api)
+ * @param collectionName name of the collection
+ * @param query object with the query. can be {} but cannot be undefined
+ * @param fields which fields to return, defined as {<fieldname>:0 or 1}
+ * @param options object of additional options
+ * @param user
+ * @return promise
+ * @throws MissingParameterError
+ * @throws InvalidParameterError
+ */
 mongodbBasicOperations.prototype.find= function(collectionName, query, fields, options,user) {
 	var args = arguments;
 	var _this  = this;
@@ -52,20 +73,28 @@ mongodbBasicOperations.prototype.find= function(collectionName, query, fields, o
 };
 
 
-/* find and remove a patient where options are the query to submit
-* returns a promise */
-mongodbBasicOperations.prototype.removeDocument = function(collectionName,options,user){
+/**
+ * Search through a collection and find all of the entries that meet the query criteria and remove them
+ * from the collection
+ * @param collectionName name of the collection
+ * @param query object with the query. can be {} but cannot be undefined
+ * @param user
+ * @return promise
+ * @throws MissingParameterError
+ * @throws InvalidParameterError
+ */
+mongodbBasicOperations.prototype.removeDocument = function(collectionName,query,user){
 	var args = arguments;
 	var _this = this;
 	var promise = new Promise(function(resolve,reject){
 		if (!collectionName || !options)
 			reject(new MissingParameterError("Required parameter is missing"));
-		if ( !utils.isObject(options))
-			reject(new InvalidParameterError("Required paramter: Options in removeDocument must be an object"));
+		if ( !utils.isObject(query))
+			reject(new InvalidParameterError("Required paramter: query in removeDocument must be an object"));
 
-		_this.logger('info','removing document from collection', {'collection':collectionName,query:options});
+		_this.logger('info','removing document from collection', {'collection':collectionName,query:query});
 		var collection = _this.db.getDB().collection(collectionName);
-		collection.remove(options,function(err,doc){
+		collection.remove(query,function(err,doc){
 			if (err){
 				_this.logger('error',err,{action:'removeDocument',user:user,arguments:arguments, target:collectionName})
 				reject(err);
@@ -78,6 +107,17 @@ mongodbBasicOperations.prototype.removeDocument = function(collectionName,option
 	return promise;
 };
 
+/**
+ * Serach through a collection using a series of commands defined in the aggregation array.
+ * These commands allow the transformation of data (similar to a join except on a single dataset).
+ * See the mongodb api for a full explanation of aggregation
+ * @param collectionName name of the collection
+ * @param aggArray an Array of objects defining the actions to take
+ * @param user
+ * @return promise
+ * @throws MissingParameterError
+ * @throws InvalidParameterError
+ */
 mongodbBasicOperations.prototype.aggregate = function(collectionName,aggArray,user){
 		var args = arguments;
 		var _this = this;
@@ -101,7 +141,17 @@ mongodbBasicOperations.prototype.aggregate = function(collectionName,aggArray,us
 
 		return promise;
 	};
-
+/**
+ * Insert a new document into a given collection. This function does not enforce any rules about what
+ * is in the document and will simply insert any data supplied it. If more advanced type checking 
+ * and data models are required, it is advisable to write a wrapper around the insert to perform the check.
+ * @param collectionName name of the collection
+ * @param doc to be inserted
+ * @param user
+ * @return promise inserted document with Oid
+ * @throws MissingParameterError
+ * @throws InvalidParameterError
+ */
 mongodbBasicOperations.prototype.insert= function(collectionName, doc, user) {
 		var args = arguments;
 		var _this = this;
@@ -125,38 +175,49 @@ mongodbBasicOperations.prototype.insert= function(collectionName, doc, user) {
 		return promise;
 	};
 
-/* Insert Many documents at once into a collection.
- * Takes one Object with two paramters arguments:
- * tablename: tablename
- * documents: {object to insert}
- * Returns a promise. */
-mongodbBasicOperations.prototype.insertMany = function(options,user){
+/**
+ * Insert many documents at once in a single batch command. the Documents and the collectionName to insert
+ * them into must be in a single object. The documents are required to be in the format of an array like the
+ * following 
+ *
+ * documents: {
+ * 		collectionName: <name of collection>
+ *		documents: [<object of document>]	
+ * }
+ *
+ * @param documents object all documents to insert
+ * @param user
+ * @return promise
+ * @throws MissingParameterError
+ * @throws InvalidParameterError
+ */
+mongodbBasicOperations.prototype.insertMany = function(documents,user){
 	var _this = this;
 	
 
 	var promise = new Promise(function(resolve,reject){
-		if (!options)
+		if (!documents)
 			reject(new MissingParameterError("Required parameter is missing"));
-		if (!options.collectionName || !options.documents)
+		if (!documents.collectionName || !documents.documents)
 			reject(new MissingParameterError("Missing collection name or documents to add"));
-		if (!utils.isObject(options))
+		if (!utils.isObject(documents))
 			reject(new InvalidParameterError("Options must be an Object"));
-		if (!utils.isString(options.collectionName))
+		if (!utils.isString(documents.collectionName))
 			reject(new InvalidParameterError("collectionName must be a valid string"));
-		if (!utils.isArray(options.documents))
+		if (!utils.isArray(documents.documents))
 			reject(new InvalidParameterError("documents must be in an array"));
 
-		_this.db.getDB().collection(options.collectionName,function(err,collection){
+		_this.db.getDB().collection(documents.collectionName,function(err,collection){
 			var bulk = collection.initializeOrderedBulkOp();
-			for (var i = 0; i < options.documents.length; i++){
-				bulk.insert(options.documents[i]);
+			for (var i = 0; i < documents.documents.length; i++){
+				bulk.insert(documents.documents[i]);
 			}
 			bulk.execute(function(err,doc){
 				if(err){
-					_this.logger("error",err,{action:'insertMany',target:options.collectionName,user:user,arguments:options});
+					_this.logger("error",err,{action:'insertMany',target:documents.collectionName,user:user,arguments:documents});
 					reject(err);
 				} else {
-					_this.logger("info","successfully inserted " + options.documents.length.toString() + "documents",{action:'insertMany',target:options.collectionName,user:user});
+					_this.logger("info","successfully inserted " + documents.documents.length.toString() + "documents",{action:'insertMany',target:options.collectionName,user:user});
 					resolve(doc);
 				}
 			});
@@ -166,9 +227,20 @@ mongodbBasicOperations.prototype.insertMany = function(options,user){
 };
 
 
-	/* Update documents based on the query selector with the doc specifying which 
-	 * fields to update.
-	 * Returns a promise. */
+/**
+ * Update an entry or a number of entries with the document that fit the query criteria, using 
+ * the doc to update the found entry. refer to the mongodb api about the specific update commands
+ * that can be employed. Additionally, if you want to update more then once document at a time, 
+ * you must set the options to {multi:true} 
+ * @param collectionName name of the collection
+ * @oaram query serach query
+ * @param doc update documents
+ * @param options additional options to change update behaviour
+ * @param user
+ * @return promise inserted document with Oid
+ * @throws MissingParameterError
+ * @throws InvalidParameterError
+ */
 mongodbBasicOperations.prototype.update= function(collectionName, query, doc, options,user) {
 	var args = arguments;
 	var _this = this;
@@ -230,8 +302,17 @@ mongodbBasicOperations.prototype.createIndex= function(collectionName, spec, opt
 	return promise;	
 };
 
-/* Find a single document based on the query. 
- * Returns a promise. */
+/**
+ * Search through a collection and return the FIRST entry that meats the search criteria.
+ * Even if there would have been a number of matchesthis ONLY returns the frst encounter match
+ * additionally it is returned as an object.
+ * @param collectionName name of the collection
+ * @param query 
+ * @param user
+ * @return promise single entry
+ * @throws MissingParameterError
+ * @throws InvalidParameterError
+ */
 mongodbBasicOperations.prototype.findOne= function(collectionName,query,user) {
 	var args = arguments;
 	var _this = this;
@@ -261,8 +342,14 @@ mongodbBasicOperations.prototype.findOne= function(collectionName,query,user) {
 };
 
 
-/* Return the count of documents matching the query.
- * Returns a promise. */
+/**
+ * Serach through a collection and count the number of entries that match the query
+ * @param collectionName name of the collection
+ * @param query
+ * @return promise iwith settled value of the numebr
+ * @throws MissingParameterError
+ * @throws InvalidParameterError
+ */
 mongodbBasicOperations.prototype.count= function(collectionName, query) {
 	var _this = this;
 	var promise= new Promise(function(resolve, reject) {
@@ -283,8 +370,14 @@ mongodbBasicOperations.prototype.count= function(collectionName, query) {
 };
 
 
-/* Create a new collection, raising an error if it already exists
- * returns a promise */
+/**
+ * Create a new collection with the defined name in the current databse
+ * @param name
+ * @param user
+ * @throws MissingParameterError
+ * @throws InvalidParameterError
+ * @throws MongoError
+ */
 mongodbBasicOperations.prototype.createCollection = function(name,user){
 	var _this = this;
 
@@ -308,8 +401,15 @@ mongodbBasicOperations.prototype.createCollection = function(name,user){
 	return promise;
 };
 
-/* Drop a currently existing collection
- * returns a promise */
+/**
+ * Delete an entire collection from the databse. In general this is performed when faulty 
+ * patient data is encountered while parsing a VCF file. 
+ * @param collectionName 
+ * @param user
+ * @return promise 
+ * @throws MissingParameterError
+ * @throws InvalidParameterError
+ */
 mongodbBasicOperations.prototype.dropCollection = function(collectionName,user){
 	var _this = this;
 	var promise = new Promise(function(resolve,reject){
@@ -330,7 +430,16 @@ mongodbBasicOperations.prototype.dropCollection = function(collectionName,user){
 	return promise;
 };
 
-/* Check within the specified database to determine whether or not an item exists*/
+/**
+ * Check to see if a specifc field and value are already in the database.
+ * @param collectionName name of the collection
+ * @param field the field to test
+ * @param value the set value of the field
+ * @param user
+ * @return promise true / false
+ * @throws MissingParameterError
+ * @throws InvalidParameterError
+ */
 mongodbBasicOperations.prototype.checkInDatabase = function(collection,field,value,user){
 	var _this = this;
 	var promise = Promise.resolve().then(function(){

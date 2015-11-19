@@ -30,7 +30,13 @@ module.exports = function(dbOperations){
 	//=======================================================================================
 	//Login functions
 	//=======================================================================================
-	//Add a user to the database, encrypting the provided password and storing them in the users db
+	/**
+	 * Add a user to the database, encrypting the provided password and storing them in the users db
+	 * @param user An object with the new user credentials
+	 * @returns returns a promise
+	 * @throws MissingParameterError
+	 * @throws InvalidParameterError
+	 */
 	utils.checkAndExtend(dbOperations,"addUser", function(user){
 		var _this = this;
 		var promise = Promise.resolve().then(function(){
@@ -49,7 +55,12 @@ module.exports = function(dbOperations){
 		return promise;
 	});
 
-	//Find a user by the provided ID and return all information related to them
+	/* Find a user by their ID
+	 * @params id String of the user Id
+	 * @return promise with settled value of the user
+	 * @throws MissingParameterError
+	 * @throws InvalidParameterError
+	 */
 	utils.checkAndExtend(dbOperations,"findUserById", function(id){
 		var _this = this;
 		var promise = Promise.resolve().then(function(){
@@ -64,7 +75,14 @@ module.exports = function(dbOperations){
 		return promise;
 	});
 
-	//Validate the password during signon in a secure manner.
+	/*
+	 * Validate a user's password agaisnt that stored in the database
+	 * @param username the user identifier
+	 * @param password
+	 * @returns true / false
+	 * @throws MissingParameterError
+	 * @throws InvalidParameterError
+	 */
 	utils.checkAndExtend(dbOperations,"validatePassword", function(username,password){
 		var _this = this;
 		var promise = Promise.resolve().then(function(){
@@ -139,7 +157,14 @@ module.exports = function(dbOperations){
 		return promise;
 	});
 
-	//Change the current users password
+	/**
+	 * Update a users password to the new password supplied
+	 * @oaram username
+	 * @param password new password
+	 * @return promise of the update status
+	 * @throws MissingParameterError
+	 * @throws InvalidParameterError
+	 */
 	utils.checkAndExtend(dbOperations,"changePassword", function(user, password){
 		var _this  = this;
 		var promise = Promise.resolve().then(function(){

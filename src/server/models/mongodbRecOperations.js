@@ -255,6 +255,11 @@ module.exports = function(dbOperations){
 		return promise;
 	});
 
+	/**
+	 * Save the report data to enable recovery at a later time. The username, 
+	 * the patient_id and the date are added to the data to uniquely identify it at
+	 * a later time 
+	 */
 	utils.checkAndExtend(dbOperations, "saveReportData", function(data,patient,user){
 		var _this = this;
 		var promise = Promise.resolve().then(function(){
