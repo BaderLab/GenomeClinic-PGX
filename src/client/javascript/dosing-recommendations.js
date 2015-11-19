@@ -344,7 +344,7 @@ dosingRecommendations.serializeForm = function(){
 	output.recommendations = recs.drugs;
 	output.genes = this.serializeTable();
 	output.future = this.serializeFuture();
-	output.changed  = pagechange;
+	output.changed  = utility.getURLAtrribute('archived') == 'true' ? pagechange : true;
 	var flags = $('.flag:visible');
 	for (var i = 0; i < flags.length; i++ ){
 		if($(flags[i]).hasClass('warning')) output.flagged = true;
@@ -553,7 +553,7 @@ dosingRecommendations.staticHandlers = function(){
 	*/
 	$('#patient-add-drug').on('click',function(e){
 		e.preventDefault();
-		addNewCurrentMedication;
+		addNewCurrentMedication();
 		
 	});
 
@@ -604,11 +604,12 @@ dosingRecommendations.staticHandlers = function(){
 		}).catch(function(err){
 			console.error(err);
 		});
-
+	});
+	if (utility.getURLAtrribute('archived') == 'true'){
 		$(document).on('change',function(){
 			pagechange = true;
 		});
-	});
+	}
 };
 
 dosingRecommendations.recommendationHandlers = function(context){
