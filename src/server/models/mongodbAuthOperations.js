@@ -5,12 +5,15 @@
  * @author Patrick Magee
  */
 var Promise = require("bluebird");
-var assert= require("assert");
 var dbConstants = require("../lib/conf/constants.json").dbConstants;
 var nodeConstants = require('../lib/conf/constants.json').nodeConstants;
 var bcrypt = require("bcrypt-nodejs");
 var randomstring = require("just.randomstring");
 var utils = require("../lib/utils");
+
+//errors
+var InvalidParameterError = require("../lib/errors/InvalidParameterError");
+var MissingParameterError = require("../lib/errors/MissingParameterError");
 
 //Constant variables
 var SALT = 8;
@@ -29,93 +32,131 @@ module.exports = function(dbOperations){
 	//=======================================================================================
 	//Add a user to the database, encrypting the provided password and storing them in the users db
 	utils.checkAndExtend(dbOperations,"addUser", function(user){
-		assert(Object.prototype.toString.call(user[dbConstants.USERS.ID_FIELD]) == "[object String]",
-			"Invalid Options");
-		assert(Object.prototype.toString.call(user[dbConstants.USERS.PASSWORD_FIELD]) == "[object String]",
-			"Invalid Options");
-		//encrypt the password
-		this.logger('info','adding new user to databse', {'user':user[dbConstants.USER_ID_FIELD]});
-		user[dbConstants.USERS.PASSWORD_FIELD] = bcrypt.hashSync(user[dbConstants.USERS.PASSWORD_FIELD], bcrypt.genSaltSync(SALT), null);
-		return this.insert(dbConstants.USERS.COLLECTION,user);
+		var _this = this;
+		var promise = Promise.resolve().then(function(){
+			if (!user || !user[dbConstants.USERS.ID_FIELD] || !user[dbConstants.USERS.PASSWORD_FIELD])
+				throw new MissingParameterError("missing required parameter");
+			if (!utils.isObject(user))
+				throw new InvalidParameterError("user parameter must be an object");
+			if (!utils.isString(user[dbConstants.USERS.ID_FIELD]) || !utils.isString(user[dbConstants.USERS.PASSWORD_FIELD]))
+				throw new InvalidParameterError("user name and password must be valid strings");
+			//encrypt the password
+			_this.logger('info','adding new user to databse', {'user':user[dbConstants.USER_ID_FIELD]});
+			user[dbConstants.USERS.PASSWORD_FIELD] = bcrypt.hashSync(user[dbConstants.USERS.PASSWORD_FIELD], bcrypt.genSaltSync(SALT), null);
+			
+			return _this.insert(dbConstants.USERS.COLLECTION,user)
+		});
+		return promise;
 	});
 
 	//Find a user by the provided ID and return all information related to them
 	utils.checkAndExtend(dbOperations,"findUserById", function(id){
-		assert(Object.prototype.toString.call(id) == "[object String]",
-			"Invalid Options");
-		var query = {};
-		query[dbConstants.USERS.ID_FIELD] = id;
-		return this.findOne(dbConstants.USERS.COLLECTION,query);
+		var _this = this;
+		var promise = Promise.resolve().then(function(){
+			if (!id)
+				throw new MissingParameterError("id required");
+			if (!utils.isString(id))
+				throw new InvalidParameterError("Id field must be a string");
+			var query = {};
+			query[dbConstants.USERS.ID_FIELD] = id;
+			return _this.findOne(dbConstants.USERS.COLLECTION,query);
+		});
+		return promise;
 	});
 
 	//Validate the password during signon in a secure manner.
 	utils.checkAndExtend(dbOperations,"validatePassword", function(username,password){
-		assert(Object.prototype.toString.call(username) == "[object String]",
-			"Invalid Options");
-		assert(Object.prototype.toString.call(password) == "[object String]",
-			"Invalid Options");
-		return this.findUserById(username).then(function(result){
-			 return bcrypt.compareSync(password, result[dbConstants.USERS.PASSWORD_FIELD]);
+		var _this = this;
+		var promise = Promise.resolve().then(function(){
+			if (!username || !password )
+				throw new MissingParameterError("missing required paramter");
+			if (!utils.isString(username) || !utils.isString(password))
+				throw new InvalidParameterError("Username and password must be valid strings");
+
+			return _this.findUserById(username)
+		}).then(function(result){
+			return bcrypt.compareSync(password, result[dbConstants.USERS.PASSWORD_FIELD]);
 		});
+		return promise;
 	});
 
 
 	//Find the user by the google id
 	utils.checkAndExtend(dbOperations,"findUserByGoogleId", function(id){
-		assert(Object.prototype.toString.call(id) == "[object String]",
-			"Invalid Options");
-		var query = {};
-		query[dbConstants.USERS.GOOGLE.ID_FIELD] = id;
-		return this.findOne(dbConstants.USERS.COLLECTION,query);
+		var _this  = this;
+		var promise = Promise.resolve().then(function(){
+			if (!id)
+				throw new MissingParameterError("id required");
+			if (!utils.isString(id))
+				throw new InvalidParameterError("Id must be a valid string");
+			var query = {};
+			query[dbConstants.USERS.GOOGLE.ID_FIELD] = id;
+			return _this.findOne(dbConstants.USERS.COLLECTION,query);
+		});
+		return promise;
 	});
 
 	//Add a google user, only used for Google OAUTH
 	utils.checkAndExtend(dbOperations,"addUserGoogle",function(user){
-		assert(Object.prototype.toString.call(user[dbConstants.USERS.GOOGLE.ID_FIELD]) == "[object String]",
-			"Invalid Options");
-		assert(Object.prototype.toString.call(user[dbConstants.USERS.GOOGLE.TOKEN_FIELD]) == "[object String]",
-			"Invalid Options");
-		assert(Object.prototype.toString.call(user[dbConstants.USERS.GOOGLE.NAME_FIELD]) == "[object String]",
-			"Invalid Options");
-		assert(Object.prototype.toString.call(user[dbConstants.USERS.GOOGLE.EMAIL_FIELD]) == "[object String]",
-			"Invalid Options");
-		assert(Object.prototype.toString.call(user[dbConstants.USERS.ID_FIELD]) == "[object String]",
-			"Invalid Options");
-		return this.insert(dbConstants.USERS.COLLECTION,user);
+		var _this  = this;
+		var promise = Promise.resolve().then(function(){
+			if (!user || !user[dbConstants.USERS.GOOGLE.ID_FIELD] || ! user[dbConstants.USERS.GOOGLE.TOKEN_FIELD] || 
+				!user[dbConstants.USERS.GOOGLE.NAME_FIELD] || !user[dbConstants.USERS.GOOGLE.EMAIL_FIELD] || !user[dbConstants.USERS.ID_FIELD])
+				throw new MissingParameterError("missing required parameter");
+			if (!utils.isObject(user))
+				throw InvalidParameterError("user paramter must be an object");
+			if (!utils.isString(user[dbConstants.USERS.GOOGLE.ID_FIELD]) || !utils.isString(user[dbConstants.USERS.GOOGLE.TOKEN_FIELD]) || 
+				!utils.isString(user[dbConstants.USERS.GOOGLE.NAME_FIELD]) || !utils.isString(user[dbConstants.USERS.GOOGLE.EMAIL_FIELD]) || !utils.isString(user[dbConstants.USERS.ID_FIELD]))
+				throw new InvalidParameterError("Parameters must be a string");
+
+			return this.insert(dbConstants.USERS.COLLECTION,user);
+		});
+		return promise;
 	});
 
 
 	//When the password is lost and needs to be recovered, generate a random password, bcrypt it
 	//And return the new password in an non-encrypted format
 	utils.checkAndExtend(dbOperations,"generatePassword", function(user){
-		assert(Object.prototype.toString.call(user) == "[object String]",
-			"Invalid Options");
+		var _this  = this;
+		var promise = Promise.resolve().then(function(){
+			if (!user)
+				throw new MissingParameterError("user required");
+			if (!utils.isString(user))
+				throw new InvalidParameterError("user name must be a valid string");
 
-		var newPassowrd = randomstring(PWD_STRING_LEN);
-		var encryptPassword = bcrypt.hashSync(newPassowrd,bcrypt.genSaltSync(SALT),null);
-		var query = {};
-		query[dbConstants.USERS.ID_FIELD] = user;
-		newPass = {};
-		newPass[dbConstants.USERS.PASSWORD_FIELD] = encryptPassword;
-		var doc = {$set:newPass};
-		return this.update(dbConstants.USERS.COLLECTION,query,doc,undefined,user).then(function(result){
-			return newPassowrd;
+			var newPassowrd = randomstring(PWD_STRING_LEN);
+			var encryptPassword = bcrypt.hashSync(newPassowrd,bcrypt.genSaltSync(SALT),null);
+			var query = {};
+			query[dbConstants.USERS.ID_FIELD] = user;
+			newPass = {};
+			newPass[dbConstants.USERS.PASSWORD_FIELD] = encryptPassword;
+			var doc = {$set:newPass};
+			return _this.update(dbConstants.USERS.COLLECTION,query,doc,undefined,user).then(function(result){
+				return newPassowrd;
+			});
 		});
+		return promise;
 	});
 
 	//Change the current users password
 	utils.checkAndExtend(dbOperations,"changePassword", function(user, password){
-		assert(Object.prototype.toString.call(user) == "[object String]",
-			"Invalid Options");
-		assert(Object.prototype.toString.call(password) == "[object String]",
-			"Invalid Options");
-		var encryptPassword = bcrypt.hashSync(password,bcrypt.genSaltSync(SALT),null);
-		var doc = {};
-		var query = {};
-		query[dbConstants.USERS.ID_FIELD] = user;
-		doc[dbConstants.USERS.PASSWORD_FIELD] = encryptPassword;
-		doc = {$set:doc};
-		this.logger('info','changing password for' + user,{action:'changePassword'});
-		return this.update(dbConstants.USERS.COLLECTION,query,doc,undefined,user);
+		var _this  = this;
+		var promise = Promise.resolve().then(function(){
+			if (!user || !password)
+				throw new MissingParameterError("Missing required paramter");
+			if (!utils.isString(user) || !utils.isString(password))
+				throw new InvalidParameterError("user and password must be valid strings");
+			
+			var encryptPassword = bcrypt.hashSync(password,bcrypt.genSaltSync(SALT),null);
+			var doc = {};
+			var query = {};
+			query[dbConstants.USERS.ID_FIELD] = user;
+			doc[dbConstants.USERS.PASSWORD_FIELD] = encryptPassword;
+			doc = {$set:doc};
+			_this.logger('info','changing password for' + user,{action:'changePassword'});
+			return _this.update(dbConstants.USERS.COLLECTION,query,doc,undefined,user);
+		});
+		return promise;
 	});
 };

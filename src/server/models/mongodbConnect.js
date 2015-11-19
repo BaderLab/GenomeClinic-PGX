@@ -8,7 +8,7 @@ function createDBConnection (logger) {
 	var dbConnection;
 	if (logger) this.logger = logger;
 	else this.logger = require('../lib/logger')(nodeConstants.LOG_DIR)
-	this.ops; // operations once db is loaded
+	this.ops = undefined; // operations once db is loaded
 	//Return promise
 	var _this = this;
 	this.connect= function(user,pwd) {

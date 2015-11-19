@@ -1,11 +1,11 @@
 var Promise = require("bluebird");
-var assert= require("assert");
 var dbConstants = require("../lib/conf/constants.json").dbConstants;
 var nodeConstants = require('../lib/conf/constants.json').nodeConstants;
 var utils = require("../lib/utils");
 //var dbConstants = require("../conf/constants.json").dbConstants;
 //var nodeConstants = require('../conf/constants.json').nodeConstants;
-
+var MissingParameterError = require('../lib/errors/MissingParameterError');
+var InvalidParameterError = require('../lib/errors/InvalidParameterError');
 
 
 var ASCENDING_INDEX = 1;
@@ -25,7 +25,12 @@ module.exports = function(dbOperation){
 		var _this = this;
 		var args = arguments;
 		var currentPatientCollectionID;
+
 		var promise= new Promise(function(resolve, reject) {
+			if (!options)
+				reject(new MissingParameterError("Options parameter is required"));
+			if (!utils.isString(options) && !utils.isObject(options))
+				reject(new InvalidParameterError("Options must either be a string or an object"));
 			/* Get most recent patient collection ID integer from the admin table
 			 * and increment it. */
 			_this.findOne(dbConstants.DB.ADMIN_COLLECTION, {}, user)	
@@ -37,12 +42,7 @@ module.exports = function(dbOperation){
 					} else { 
 						currentDocument= {};
 						currentDocument[dbConstants.PATIENTS.ID_FIELD] = options;
-					}
-
-					if (currentDocument[dbConstants.PATIENTS.ID_FIELD]===undefined)
-						throw new ReferenceError("No Patient ID provided");
-						
-
+					}						
 					currentDocument[dbConstants.PATIENTS.COLLECTION_ID]= "p" + currentPatientCollectionID;
 					return _this.insert(dbConstants.PATIENTS.COLLECTION, currentDocument,user);
 				}).then(function(result) {
@@ -63,24 +63,31 @@ module.exports = function(dbOperation){
 	/* remove patient from the patient collection. Takes two arguments, the first is the
 	 * patient name, and the second is the suer adding the patient. */
 	utils.checkAndExtend(dbOperation, "removePatient", function(patient,user){
-		assert(Object.prototype.toString.call(patient) == "[object String]", "Invalid Patient Name");
 		var query = {};
 		var _this = this;
 		var failure;
-		query[dbConstants.PATIENTS.ID_FIELD] = patient;
-		return this.findOne(dbConstants.PATIENTS.COLLECTION,query,user).then(function(result){
-			failure = result;
-			return _this.dropCollection(result[dbConstants.PATIENTS.COLLECTION_ID],user);
-		}).catch(function(err){
-		}).then(function(){
-			return removeDocument(dbConstants.PATIENTS.COLLECTION,query,user);
-		}).then(function(){
-			failure[dbConstants.FAILURE.ANNO_COMPLETE] = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
-			failure[dbConstants.FAILURE.FAIL_FIELD] = true;
-			return _this.insert(dbConstants.FAILURE.COLLECTION,failure);
-		}).catch(function(err){
-				_this.logger('error',err,{user:user,action:'removePatient'});
+		var promise = Promise.resolve().then(function(){
+			if (!patient)
+				throw new MissingParameterError("missing required parameter");
+			if (!utils.isString(patient))
+				throw new InvalidParameterError("Patient name must be a string");
+
+			query[dbConstants.PATIENTS.ID_FIELD] = patient;
+			return this.findOne(dbConstants.PATIENTS.COLLECTION,query,user).then(function(result){
+				failure = result;
+				return _this.dropCollection(result[dbConstants.PATIENTS.COLLECTION_ID],user);
+			}).catch(function(err){
+			}).then(function(){
+				return _this.removeDocument(dbConstants.PATIENTS.COLLECTION,query,user);
+			}).then(function(){
+				failure[dbConstants.FAILURE.ANNO_COMPLETE] = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+				failure[dbConstants.FAILURE.FAIL_FIELD] = true;
+				return _this.insert(dbConstants.FAILURE.COLLECTION,failure);
+			}).catch(function(err){
+					_this.logger('error',err,{user:user,action:'removePatient'});
+			});
 		});
+		return promise;
 	});
 
 	/* Find all the patients in the 'patients' collection.
@@ -115,11 +122,20 @@ module.exports = function(dbOperation){
 	 * options == {sort: {"date": -1, "time": -1}} */
 
 	utils.checkAndExtend(dbOperation, "findAllPatientsInProject", function(project,options,user){
-		assert(Object.prototype.toString.call(project) == "[object String]", "Invalid Project Name");
-		var field = {'_id':0};
-		query = {};
-		query[dbConstants.PROJECTS.ARRAY_FIELD] = project;
-		return this.find(dbConstants.PATIENTS.COLLECTION,query,field,options,user);
+		var _this = this;
+	
+		var promise = Promise.resolve().then(function(){
+			var field = {'_id':0};
+			var query = {};
+
+			if (!project)
+				throw new MissingParameterError("Project name required");
+			if (!utils.isString(project))
+				throw new InvalidParameterError("project name must be a valid string");
+			query[dbConstants.PROJECTS.ARRAY_FIELD] = project;
+			return _this.find(dbConstants.PATIENTS.COLLECTION,query,field,options,user);
+		});
+		return promise;
 	});
 
 
@@ -128,34 +144,41 @@ module.exports = function(dbOperation){
 	 * project */
 	utils.checkAndExtend(dbOperation, "findAllPatientsNinProject", function(project,username,options){
 		var _this = this;
-		assert(Object.prototype.toString.call(project) == "[object String]", "Invalid Project Name");
 		//find all the availble projects for this person
-		return this.findProjects(undefined,username).then(function(result){
-			return result.filter(function(item){
-				if (item[dbConstants.PROJECTS.ID_FIELD] != project)
-					return item[dbConstants.PROJECTS.ID_FIELD];
-			});
-		}).then(function(result){
-			var query = {},tagQuery={},ownerQuery={},queryList=[];
-			ownerQuery[dbConstants.DB.OWNER_ID] = username;
-			queryList.push(ownerQuery);
-			if (result.length > 0){
-				tagQuery[dbConstants.PROJECTS.ARRAY_FIELD] = {$in:result};
-				queryList.push(tagQuery);
-				queryList.$or = queryList;
-			} else {
-				query = ownerQuery;
-			}
-			query[dbConstants.PATIENTS.READY_FOR_USE] = true;
-			return _this.find(dbConstants.PATIENTS.COLLECTION,query,null,options,username);
-		}).then(function(result){
-			return result.filter(function(patient){
-				if (!patient[dbConstants.PROJECTS.ARRAY_FIELD])
-					return patient;
-				if (patient[dbConstants.PROJECTS.ARRAY_FIELD].indexOf(project)==-1)
-					return patient;
+		var promise = Promise.resolve().then(function(){
+			if (!project)
+				throw new MissingParameterError("Project name required");
+			if (!utils.isString(project))
+				throw new InvalidParameterError("project name must be a valid string");
+
+			return _this.findProjects(undefined,username).then(function(result){
+				return result.filter(function(item){
+					if (item[dbConstants.PROJECTS.ID_FIELD] != project)
+						return item[dbConstants.PROJECTS.ID_FIELD];
+				});
+			}).then(function(result){
+				var query = {},tagQuery={},ownerQuery={},queryList=[];
+				ownerQuery[dbConstants.DB.OWNER_ID] = username;
+				queryList.push(ownerQuery);
+				if (result.length > 0){
+					tagQuery[dbConstants.PROJECTS.ARRAY_FIELD] = {$in:result};
+					queryList.push(tagQuery);
+					queryList.$or = queryList;
+				} else {
+					query = ownerQuery;
+				}
+				query[dbConstants.PATIENTS.READY_FOR_USE] = true;
+				return _this.find(dbConstants.PATIENTS.COLLECTION,query,null,options,username);
+			}).then(function(result){
+				return result.filter(function(patient){
+					if (!patient[dbConstants.PROJECTS.ARRAY_FIELD])
+						return patient;
+					if (patient[dbConstants.PROJECTS.ARRAY_FIELD].indexOf(project)==-1)
+						return patient;
+				});
 			});
 		});
+		return promise;
 	});
 
 	/* Find all of the patients for a praticular user. this will find either ALLL
@@ -165,52 +188,62 @@ module.exports = function(dbOperation){
 	 * And failed vcf files. It will then return a concatenated list of all of them
 	 */
 	utils.checkAndExtend(dbOperation, "findAllPatients", function(username,readyOnly,options){
-		assert(Object.prototype.toString.call(username) == "[object String]", "Invalid username Name");
 		var _this = this;
-		return this.findProjects(undefined,username)
-		.then(function(result){
-			return result.map(function(item){
-				return item[dbConstants.PROJECTS.ID_FIELD];
-			});
-		}).then(function(result){
-			var query = {},tagQuery={},ownwerQuery={},queryList=[];
-			ownwerQuery[dbConstants.DB.OWNER_ID] = username;
-			queryList.push(ownwerQuery);
-			if (result.length > 0){
-				tagQuery[dbConstants.PROJECTS.ARRAY_FIELD] = {$in:result};
-				queryList.push(tagQuery);
-			}
-			query.$or = queryList;
-			if (readyOnly){
-				query[dbConstants.PATIENTS.READY_FOR_USE] = true;
-				return _this.find(dbConstants.PATIENTS.COLLECTION,query,null,options,username);
-			} else {
-				var goodResults;
-				return _this.find(dbConstants.PATIENTS.COLLECTION,query,null,options,username)
-				.then(function(result){
-					goodResults = result;
-					return _this.find(dbConstants.FAILURE.COLLECTION,query,null,options,username);
-				}).then(function(failures){
-					return goodResults.concat(failures);
-				}).then(function(result){
-					result = result.sort(function(a,b){
-						a = a.added.split(/\s/);
-						b = b.added.split(/\s/);
-						if (a[0] < b[0]){
-							return 1;
-						} else if (a[0] > b[0]) {
-							return -1;
-						} else {
-							if (a[1] < b[1])
-								return 1;
-							else if (a[1] > b[1])
-								return -1;
-							return 0;
-						}
-					});
-					return result;
+		var promise = Promise.resolve().then(function(){
+			if (!username)
+				throw new MissingParameterError("username required");
+			if (!utils.isString(username))
+				throw new InvalidParameterError("username name must be a valid string");
+			if (readyOnly && !utils.isBool(readyOnly))
+				throw new InvalidParameterError("readyonly must be a boolean value");
+			if (options && !utils.isObject(options))
+				throw new InvalidParameterError("Options must be an object");
+			return _this.findProjects(undefined,username)
+			.then(function(result){
+				return result.map(function(item){
+					return item[dbConstants.PROJECTS.ID_FIELD];
 				});
-			}
+			}).then(function(result){
+				var query = {},tagQuery={},ownwerQuery={},queryList=[];
+				ownwerQuery[dbConstants.DB.OWNER_ID] = username;
+				queryList.push(ownwerQuery);
+				if (result.length > 0){
+					tagQuery[dbConstants.PROJECTS.ARRAY_FIELD] = {$in:result};
+					queryList.push(tagQuery);
+				}
+				query.$or = queryList;
+				if (readyOnly){
+					query[dbConstants.PATIENTS.READY_FOR_USE] = true;
+					return _this.find(dbConstants.PATIENTS.COLLECTION,query,null,options,username);
+				} else {
+					var goodResults;
+					return _this.find(dbConstants.PATIENTS.COLLECTION,query,null,options,username)
+					.then(function(result){
+						goodResults = result;
+						return _this.find(dbConstants.FAILURE.COLLECTION,query,null,options,username);
+					}).then(function(failures){
+						return goodResults.concat(failures);
+					}).then(function(result){
+						result = result.sort(function(a,b){
+							a = a.added.split(/\s/);
+							b = b.added.split(/\s/);
+							if (a[0] < b[0]){
+								return 1;
+							} else if (a[0] > b[0]) {
+								return -1;
+							} else {
+								if (a[1] < b[1])
+									return 1;
+								else if (a[1] > b[1])
+									return -1;
+								return 0;
+							}
+						});
+						return result;
+					});
+				}
+			});
 		});
+		return promise;
 	});
-}
+};

@@ -1,10 +1,12 @@
 var Promise = require("bluebird");
-var assert= require("assert");
 var dbConstants = require("../lib/conf/constants.json").dbConstants;
 var nodeConstants = require('../lib/conf/constants.json').nodeConstants;
 var utils = require("../lib/utils");
-//var dbConstants = require("../conf/constants.json").dbConstants;
-//var nodeConstants = require('../conf/constants.json').nodeConstants;
+
+//errors
+var InvalidParameterError = require("../lib/errors/InvalidParameterError");
+var MissingParameterError = require("../lib/errors/MissingParameterError");
+
 
 module.exports = function(dbOperations){
 
@@ -15,8 +17,10 @@ module.exports = function(dbOperations){
 	 * Returns a promise. */
 	utils.checkAndExtend(dbOperations,"isConfigured", function(set) {
 		var _this = this;
-		assert(Object.prototype.toString.call(set) == "[object Boolean]" || Object.prototype.toString.call(set) == "[object Undefined]","Invalid config set parameter");
 		var promise= new Promise(function(resolve, reject) {
+			if (!utils.isBool(set) && set !== undefined )
+				reject(new InvalidParameterError("Invalid config set parameter"));
+
 			if (set === undefined) {  // Return config status
 				_this.findOne(dbConstants.DB.ADMIN_COLLECTION, {})
 					.then(function(doc) {
