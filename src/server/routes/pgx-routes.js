@@ -56,7 +56,7 @@ module.exports = function(app,logger,opts){
 		});
 	});
 
-
+	//Check to ensure the hapid is present in the database
 	app.param('hapid',function(req,res,next,hapid){
 		//If there is no new status
 		var query = {};

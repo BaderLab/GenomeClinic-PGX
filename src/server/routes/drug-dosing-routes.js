@@ -593,6 +593,8 @@ module.exports = function(app,logger,opts){
 			left:LEFT_MARGIN,
 			rigth:RIGHT_MARGIN
 		};
+
+		app.dbFunctions.saveReportData(req.body,req.params.patientID,req.user.username);
 		//get disclaimer
 		var template = opts.report ? opts.report : constants.dbConstants.DRUGS.REPORT.DEFAULT;
 		app.dbFunctions.findOne(constants.dbConstants.DB.ADMIN_COLLECTION,{}).then(function(result){
