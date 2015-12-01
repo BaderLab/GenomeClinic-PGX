@@ -422,7 +422,7 @@ pgx.loadPGx= function(selectedPatientAlias) {
 			result.errMessage = self.pgxGenesRemoved.join(", ")
 		return self.getArchivedReports(selectedPatientID);
 	}).then(function(result){
-		self.templateData.archived = result;
+		self.templateData.archived = result;	
 		return templates.pgx(self.templateData);
 	}).then(function(html) {
 		$('#main').html(html);

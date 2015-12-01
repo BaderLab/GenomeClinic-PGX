@@ -65,7 +65,8 @@ mongodbBasicOperations.prototype.find= function(collectionName, query, fields, o
 				_this.logger('err',err,{action:'find',arguments:args});
 				reject(err);
 			}
-			_this.logger('info',"Found " + doc.length + "meeting search criteria",{action:'find',arguments:arguments,user:user,target:collectionName})
+			
+			_this.logger('info',"Found " + doc.length + "meeting search criteria",{action:'find',user:user,target:collectionName})
 			resolve(doc);
 		});
 	});
@@ -99,7 +100,7 @@ mongodbBasicOperations.prototype.removeDocument = function(collectionName,query,
 				_this.logger('error',err,{action:'removeDocument',user:user,arguments:arguments, target:collectionName})
 				reject(err);
 			} else {
-				_this.logger('info',"Document successfully removed",{action:'removeDocument',user:user,arguments:args,target:collectionName})
+				_this.logger('info',"Document successfully removed",{action:'removeDocument',user:user,target:collectionName})
 				resolve(doc);
 			}
 		});	
@@ -134,7 +135,7 @@ mongodbBasicOperations.prototype.aggregate = function(collectionName,aggArray,us
 					_this.logger('error',err,{action:'aggregate',user:user,arguments:args})
 					reject(err);
 				}
-				_this.logger('info',"Found " + doc.length + "meeting search criteria",{action:'aggregate',user:user,arguments:arguments,target:collectionName})
+				_this.logger('info',"Found " + doc.length + "meeting search criteria",{action:'aggregate',user:user,target:collectionName})
 				resolve(doc);
 			});
 		});
@@ -266,7 +267,7 @@ mongodbBasicOperations.prototype.update= function(collectionName, query, doc, op
 				_this.logger("error",err,{action:'update',arguments:args,target:collectionName,user:user});
 				reject(err);
 			}
-			_this.logger("info","successfully updated documents",{action:'update',arguments:args,target:collectionName,user:user});
+			_this.logger("info","successfully updated documents",{action:'update',target:collectionName,user:user});
 			resolve(resultDoc);
 		});
 	});
@@ -295,7 +296,7 @@ mongodbBasicOperations.prototype.createIndex= function(collectionName, spec, opt
 				_this.logger("error",err,{action:'createIndex',arguments:args,target:collectionName,user:user});
 				reject(err);
 			}
-			_this.logger("info","successfully created index",{action:'createIndex',arguments:args,target:collectionName,user:user});
+			_this.logger("info","successfully created index",{action:'createIndex',target:collectionName,user:user});
 			resolve(result);
 		});
 	});
@@ -331,9 +332,9 @@ mongodbBasicOperations.prototype.findOne= function(collectionName,query,user) {
 				reject(err);
 			}
 			if (doc){
-				_this.logger("info","Found one document corresponding to search criteria",{action:'findOne',arguments:args,target:collectionName,user:user});
+				_this.logger("info","Found one document corresponding to search criteria",{action:'findOne',target:collectionName,user:user});
 			} else {
-				_this.logger("info","Found no documents corresponding to search criteria",{action:'findOne',arguments:args,target:collectionName,user:user});
+				_this.logger("info","Found no documents corresponding to search criteria",{action:'findOne',target:collectionName,user:user});
 			}
 			resolve(doc);
 		});

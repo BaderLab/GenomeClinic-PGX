@@ -287,7 +287,7 @@ dbConnection.connect(opts.authdb,dbPassword).then(function(dbFunctions){
 .catch(function(err){
 	//could not connect to databse or there was authentication issue
 	process.stderr.write("ERROR: Could not connect to databse");
-	process.stderr.write(err);
+	process.stderr.write("Aborting server startup");
 	process.exit(1);
 });
 

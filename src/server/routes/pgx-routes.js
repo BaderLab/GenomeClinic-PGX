@@ -93,7 +93,6 @@ module.exports = function(app,logger,opts){
 		genReport(req,res,req.params.patientID,constants.dbConstants.PGX.REPORT.DEFAULT,options,logger)
 	});
 
-
 	/* Once the report has been generated with the previous path, the user is sent a link that they can use to
 	 * download the report that was just genereated. This Route serves that report and then subsequently deletes the temp
 	 * report afterwards
