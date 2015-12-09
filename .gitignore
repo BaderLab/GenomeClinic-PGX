@@ -16,3 +16,5 @@ GenomeClinic/
 *.njsproj
 .vs/
 .ntvs_analysis.dat
+bin/
+obj/
