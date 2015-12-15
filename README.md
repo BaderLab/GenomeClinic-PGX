@@ -19,19 +19,21 @@ To get the stable reslease version of GenomeClinic-PGX, clone the github reposit
 For the most recent development version you can `git --checkout dev`
 
 
-## Build Dependencies 
-
-Install the dependencies and then run `npm install` to build the required node.js libraries.
+## Build Dependencies:
 - [Node.js](http://nodejs.org/) >= 0.10.0 
 - [MongoDB](http://mongodb.org/downloads) >= 3.0.0
 - [PhantomJS](http://phantomjs.org/) >= 1.9.8
 
 ## Build instructions
+To build the project with all the vendor dependecies, simply run `npm install`. This will fetch all of the node.js and bower modules, as well as create the build directory which containing the application.
 
-Once installed run `gulp` from the console. By default gulp is not installed globally but can be found in the `node_modules/.bin/gulp`. You can Select from the following options.
+In addition to performing the full build pipeline you can specify the following scripts to individually run them:
+`npm run <script>`
 
-##### Building:
+- `postinstall` : run bower install and gulp default.
 - `default` : create the final `build` directory.
+- `uninstall` : run gulp clean to remove the build directory
+- `start` : start the webapp server with no options `node build\webapp.js`
 - `watch` : create the `build` directory and watch for any changes to source files, updating them they need be.
 - `clean` : clean the `build` directory
 

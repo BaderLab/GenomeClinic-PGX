@@ -86,7 +86,7 @@ utils.render = function(req,res,_o){
 
 
 	if (!_o.title)
-		_o.title = 'PGX webapp';
+		_o.title = 'GnC-PGX';
 	if(_o.cache === undefined)
 		_o.cache = true;
 		//_o.cache = false;

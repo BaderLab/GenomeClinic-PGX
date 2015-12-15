@@ -31,10 +31,13 @@
   "engines": {
     "node": ">=10.0"
   },
-  "scripts": {
+  "scripts":{
+    "postinstall": "bower install && gulp",
+    "uninstall": "gulp clean",
     "watch": "gulp watch",
     "build": "gulp",
-    "clean": "gulp clean"
+    "clean": "gulp clean",
+    "start": "node build/webapp.js"
   },
   "main": "build/webapp.js",
   "browserify": {
@@ -46,8 +49,6 @@
   "devDependencies": {
     "browserify": "^9.0.3",
     "browserify-shim": "^3.8.3",
-    "gulp": "^3.8.11",
-    "gulp-bower": "0.0.10",
     "gulp-clean": "^0.3.1",
     "gulp-concat": "^2.5.2",
     "gulp-cssmin": "^0.1.6",
@@ -66,6 +67,7 @@
   },
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
+    "bower": "^1.7.1",
     "bluebird": "^2.9.13",
     "blueimp-file-upload": "^9.9.3",
     "body-parser": "^1.12.0",
@@ -78,6 +80,7 @@
     "express": "^4.12.2",
     "express-session": "^1.10.3",
     "glob": "^5.0.1",
+    "gulp": "^3.8.11",
     "gulp-browserify": "^0.5.1",
     "gulp-load-plugins": "^1.0.0-rc.1",
     "handlebars": "^3.0.0",
@@ -98,5 +101,6 @@
     "underscore": "^1.8.3",
     "winston": "^0.9.0",
     "xml2js": "^0.4.9"
-  }
+  },
+  "preferGlobal": true
 }

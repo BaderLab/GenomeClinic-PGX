@@ -38,6 +38,9 @@
     "jquery": "~2.1.4",
     "font-awesome": "~4.3.0",
     "foundation-icon-fonts": "*",
-    "modernizr":"2.7.2"
+    "modernizr": "2.7.2"
+  },
+  "resolutions": {
+    "modernizr": "2.8.3"
   }
 }

@@ -1,8 +1,11 @@
-/*
+/**
  * GenomeClinic-PGX web server for clinical pharmacogenomics reporting
  * 
- * This script contains the main start method for setting various variables
- * and starting the server running.
+ * Initialize GenomeClinix-PGX Startup and configuration. enable the user
+ * to pass in a variety of configuration variables that change the default
+ * behaviour and functionality of the app.  This script facilityates the 
+ * connection to the database as well as establishing an http or https
+ * conection. It addditionally fully configures the server and all routing.
  *
  * @author Ron Ammar
  * @author Patrick Magee

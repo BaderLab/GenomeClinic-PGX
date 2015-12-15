@@ -168,9 +168,9 @@ gulp.task('server',function(next){
 
 /* Generic Tasks */
 
-gulp.task('bower',function(){
-	return plugins.bower()
-});
+//gulp.task('bower',function(){
+//	return plugins.bower()
+//});
 
 gulp.task('jshint',function(){
 	return gulp.src(paths.jshint)
@@ -179,7 +179,7 @@ gulp.task('jshint',function(){
 });
 
 gulp.task('prewatch', ['jshint'], function(next){
-	return runSequence('bower','client','server',next);
+	return runSequence('client','server',next);
 });
 
 
@@ -193,7 +193,7 @@ gulp.task('watch',['prewatch'], function(next){
 
 /* default task to run when gulp command is given */
 gulp.task('default',function(next){
-	return runSequence('bower','client','server',next);
+	return runSequence('client','server',next);
 
 });
 
