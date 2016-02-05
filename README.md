@@ -25,7 +25,12 @@ For the most recent development version you can `git --checkout dev`
 - [PhantomJS](http://phantomjs.org/) >= 1.9.8
 
 ## Build instructions
-To build the project with all the vendor dependecies, simply run `npm install`. This will fetch all of the node.js and bower modules, as well as create the build directory which containing the application.
+To build the project with all the vendor dependecies, simply run `npm install`. This will fetch all of the node.js and bower modules, as well as create the build directory which containing the application. As suggested [here](https://twitter.com/gavinjoyce/status/691783314261331969), disabling the progress bar for npm may result in a faster installation.
+
+```
+npm set progress=false
+npm install
+```
 
 In addition to performing the full build pipeline you can specify the following scripts to individually run them:
 `npm run <script>`
