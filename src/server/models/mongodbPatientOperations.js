@@ -73,7 +73,7 @@ module.exports = function(dbOperation){
 				throw new InvalidParameterError("Patient name must be a string");
 
 			query[dbConstants.PATIENTS.ID_FIELD] = patient;
-			return this.findOne(dbConstants.PATIENTS.COLLECTION,query,user).then(function(result){
+			return _this.findOne(dbConstants.PATIENTS.COLLECTION,query,user).then(function(result){
 				failure = result;
 				return _this.dropCollection(result[dbConstants.PATIENTS.COLLECTION_ID],user);
 			}).catch(function(err){
