@@ -1,5 +1,5 @@
 var constants = require('../lib/conf/constants.json'),
-	_ = require('underscore'),
+	_ = require('lodash'),
 	glob = require('glob'),
 	Promise = require('bluebird'),
 	assert = require("assert");
@@ -44,10 +44,10 @@ utils.isLoggedIn = function(req,res,next){
  *		Object of Meta information
  *		{
  *			name: Name String,
- *			content: Content string			
+ *			content: Content string
  *		}
  *	],
- *	code: { 
+ *	code: {
  *		code:string containing code snippet,
  *		type:type of code ie. text/javascript
  *	},
@@ -55,7 +55,7 @@ utils.isLoggedIn = function(req,res,next){
  *  title : app title,
  *  cache : should the template be chached
  * }
- * all other parameters are set internally wihtin the function. The Function renders the Html and sends the 
+ * all other parameters are set internally wihtin the function. The Function renders the Html and sends the
  * response to the client.*/
 utils.render = function(req,res,_o){
 	var template;
@@ -79,7 +79,7 @@ utils.render = function(req,res,_o){
 	// Convert the string to an array
 	else if (Object.prototype.toString.call(_o.scripts) == '[object String]')
 		_o.scripts = [_o.scripts];
-	//For each entry in _o.scripts add the static path to the content 
+	//For each entry in _o.scripts add the static path to the content
 	for (var i = 0; i < _o.scripts.length; i++){
 		_o.scripts[i] = '/static/js/' + _o.scripts[i];
 	}
@@ -111,9 +111,9 @@ utils.render = function(req,res,_o){
 			//is this user the admin?
 			_o.admin = result === _o.user;
 
-			res.render(template,_o);	
+			res.render(template,_o);
 		});
-		
+
 	} else {
 		//the user is not Authenticated, render the page without any nav links or access to additional content.
 		res.render(template,_o);
@@ -136,7 +136,7 @@ utils.sortWithIndeces = function(toSort, toSort2, toSort3) {
   for (var j = 0; j < toSort.length; j++) {
     sortIndices.push(toSort[j][1]);
     toSort[j] = toSort[j][0];
-  }	  
+  }
   for (var i = 0; i < toSort.length; i++ ){
   	output[i] = toSort2[sortIndices[i]];
   }
@@ -185,7 +185,7 @@ utils.checkAndExtend = function(baseClass,attrName,attrVal,ops){
 
 	if (context.hasOwnProperty(attrName) && ops && !ops.force)
 		throw new ObjectExtensionError("Attribute already set, and force is not set");
-	context[attrName] = attrVal; 		
+	context[attrName] = attrVal;
 }
 
 
@@ -193,24 +193,10 @@ utils.checkAndExtend = function(baseClass,attrName,attrVal,ops){
  * utility functions for testing to see if a parameter matches the basic type that is
  * being tested. returns a boolean true or false;
  */
-utils.isString = function(f){
-	return Object.prototype.toString.call(f) == "[object String]";
+utils.isString = _.isString.bind(_);
+utils.isObject = _.isObject.bind(_);
+utils.isArray = _.isArray.bind(_);
+utils.isFunction = _.isFunction.bind(_);
+utils.isBool = _.isBoolean.bind(_);
 
-}
-
-utils.isObject = function(f){
-	return Object.prototype.toString.call(f) == "[object Object]";
-}
-
-utils.isArray = function(f){
-	return Object.prototype.toString.call(f) == "[object Array]";
-}
-
-utils.isFunction = function(f){
-	return Object.prototype.toString.call(f) == "[object Function]";
-}
-
-utils.isBool = function(f){
-	return Object.prototype.toString.call(f) == "[object Boolean]";
-}
 module.exports = utils;

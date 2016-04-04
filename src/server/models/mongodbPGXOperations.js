@@ -2,7 +2,7 @@ var Promise = require("bluebird");
 var dbConstants = require("../lib/conf/constants.json").dbConstants;
 var nodeConstants = require('../lib/conf/constants.json').nodeConstants;
 var getRS = require('../lib/getDbSnp');
-var _ = require('underscore');
+var _ = require('lodash');
 var utils = require("../lib/utils");
 //var dbConstants = require("../conf/constants.json").dbConstants;
 //var nodeConstants = require('../conf/constants.json').nodeConstants;
@@ -12,11 +12,11 @@ var InvalidParameterError = require("../lib/errors/InvalidParameterError");
 
 module.exports  = function(dbOperations){
 /* Retrieve markers and coordinates from the server. Convert the data returned into an
-	 * Object with the marker names as the key. If no parameters are passed, return all 
+	 * Object with the marker names as the key. If no parameters are passed, return all
 	 * markers from the databse. if the marker name is provided only return information
 	 * for the specified marker. Two marker types are stored in the database, 'custom'
 	 * and 'dbsnp'. If the type parameter is passed return only the type of marker
-	 */ 
+	 */
 	utils.checkAndExtend(dbOperations, "getPGXCoords", function(rsID,username,type) {
 		var query = {};
 		var _this = this;
@@ -60,7 +60,7 @@ module.exports  = function(dbOperations){
 					if (result[i].merged)out[result[i].merged.from]._id = result[i].merged.from;
 
 				}
-				return out;	
+				return out;
 			});
 		});
 		return promise;
@@ -89,7 +89,7 @@ module.exports  = function(dbOperations){
 						if (markers[record._id].assembly < record.assembly ) update = true;
 						if (markers[record._id].ref != record.ref ) update = true;
 						if (!_.isEqual(markers[record._id].alt,record.alt) ) update = true;
-						if (update) toChange.push(record);	
+						if (update) toChange.push(record);
 						else notchanged.push(record._id);
 					}
 
@@ -117,7 +117,7 @@ module.exports  = function(dbOperations){
 	/* Each gene has an array of markers associated with it that links these markers
 	 * with the respective gene haplotype page. When a marker is present in the array
 	 * it will show up in the haplotype table for that gene. The function accepts a string
-	 * or an array of markers.  
+	 * or an array of markers.
 	 */
 	utils.checkAndExtend(dbOperations, "addMarkerToGene",  function(markers,gene,user){
 		var _this = this;
@@ -146,7 +146,7 @@ module.exports  = function(dbOperations){
 		var _this = this;
 		if (Object.prototype.toString.call(markers) == '[object String]')
 			markers = [markers];
-		
+
 		return Promise.resolve(markers).each(function(marker){
 			return _this.findOne(dbConstants.PGX.COORDS.COLLECTION, {_id:marker},user).then(function(result){
 				if (!result) {
@@ -305,7 +305,7 @@ module.exports  = function(dbOperations){
 							}
 						}
 					}
-					
+
 				}
 				for (i = 0; i< pgxGenesRemoved.length; i++){
 					delete pgxGenes[pgxGenesRemoved[i]];
@@ -313,7 +313,7 @@ module.exports  = function(dbOperations){
 
 				return pgxCoords;
 			}).then(function(result){
-				
+
 				var tempCoords;
 				var keys = Object.keys(result);
 				query = {};
