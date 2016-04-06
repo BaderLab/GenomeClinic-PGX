@@ -19,8 +19,9 @@ var _ = require('lodash');
 Handlebars.registerHelper('ifCnv',function(cnvArr,index,block){
 	//var fnTrue = options.fn, fnFalse = options.inverse;
 	accum = "";
-	if (cnvArr && cnvArr[index] != 0)
+	if (cnvArr && cnvArr[index] !== 0){
 		accum+= block.fn(cnvArr[index]);
+	}
 	return accum;
 });
 
@@ -68,7 +69,7 @@ module.exports = function(req,res,reportName,template,options,logger){
 		//the date and time are appending to the report name in order to make a unique report name, in the case of multiple files sharing the same name
 		name = reportName + "_report_"+ date.getDay().toString() + "_" + date.getMonth().toString() + "_" + date.getUTCFullYear().toString() +
 		"_" + date.getTime().toString();
-		path = Path.resolve(constants.nodeConstants.TMP_UPLOAD_DIR + '/' + name)
+		path = Path.resolve(constants.nodeConstants.TMP_UPLOAD_DIR + '/' + name);
 		path = path.replace(/\\/gi,'/');
 		//The options from the intial request will be ussed to populate the template. Additionally add user info and date info
 		var opts = req.body;
@@ -77,21 +78,27 @@ module.exports = function(req,res,reportName,template,options,logger){
 		//Render the Templates Asynchronously
 		return cons.handlebarsAsync(template,opts);
 	}).then(function(html){
-		return fs.writeFileAsync(path + '.html',html) // write the html to file
+		return fs.writeFileAsync(path + '.html',html); // write the html to file
 	}).then(function(){
 		return phantom.create(['--web-security=no', '--ignore-ssl-errors=yes']);
 	}).then(function( instance ){
-		return ph = instance;
+		return (ph = instance);
 	}).then(function(){
 		return ph.createPage();
 	}).then(function( page ){
-		return phPage = page;
+		return (phPage = page);
 	}).then(function(){
 		return phPage.property( 'paperSize', {
 			format: options.format,
 			orientation: options.orientation,
-			margin: _.pick( options, ['top', 'bottom', 'left', 'right'] )
-		} ) );
+			margin: _.pick( options, ['top', 'bottom', 'left', 'right'] ),
+			footer: {
+				height: '1cm',
+				contents: ph.callback(function( pageNum, numPages ){
+					return "<span style='float:right'><p style='font-size:10px'>page: " + pageNum + " / " + numPages + "</p></span>";
+				})
+			}
+		} );
 	}).then(function(){
 		// use standard 16:9 res but doesn't really matter for pdf output...
 		return phPage.property('viewportSize', { width: 1360, height: 768 });
