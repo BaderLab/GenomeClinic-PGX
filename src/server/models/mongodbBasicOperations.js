@@ -65,12 +65,12 @@ mongodbBasicOperations.prototype.find= function(collectionName, query, fields, o
 				_this.logger('err',err,{action:'find',arguments:args});
 				reject(err);
 			}
-			
+
 			_this.logger('info',"Found " + doc.length + "meeting search criteria",{action:'find',user:user,target:collectionName})
 			resolve(doc);
 		});
 	});
-	return promise;	
+	return promise;
 };
 
 
@@ -88,7 +88,7 @@ mongodbBasicOperations.prototype.removeDocument = function(collectionName,query,
 	var args = arguments;
 	var _this = this;
 	var promise = new Promise(function(resolve,reject){
-		if (!collectionName || !options)
+		if (!collectionName || !query)
 			reject(new MissingParameterError("Required parameter is missing"));
 		if ( !utils.isObject(query))
 			reject(new InvalidParameterError("Required paramter: query in removeDocument must be an object"));
@@ -103,7 +103,7 @@ mongodbBasicOperations.prototype.removeDocument = function(collectionName,query,
 				_this.logger('info',"Document successfully removed",{action:'removeDocument',user:user,target:collectionName})
 				resolve(doc);
 			}
-		});	
+		});
 	});
 	return promise;
 };
@@ -144,7 +144,7 @@ mongodbBasicOperations.prototype.aggregate = function(collectionName,aggArray,us
 	};
 /**
  * Insert a new document into a given collection. This function does not enforce any rules about what
- * is in the document and will simply insert any data supplied it. If more advanced type checking 
+ * is in the document and will simply insert any data supplied it. If more advanced type checking
  * and data models are required, it is advisable to write a wrapper around the insert to perform the check.
  * @param collectionName name of the collection
  * @param doc to be inserted
@@ -179,11 +179,11 @@ mongodbBasicOperations.prototype.insert= function(collectionName, doc, user) {
 /**
  * Insert many documents at once in a single batch command. the Documents and the collectionName to insert
  * them into must be in a single object. The documents are required to be in the format of an array like the
- * following 
+ * following
  *
  * documents: {
  * 		collectionName: <name of collection>
- *		documents: [<object of document>]	
+ *		documents: [<object of document>]
  * }
  *
  * @param documents object all documents to insert
@@ -194,7 +194,7 @@ mongodbBasicOperations.prototype.insert= function(collectionName, doc, user) {
  */
 mongodbBasicOperations.prototype.insertMany = function(documents,user){
 	var _this = this;
-	
+
 
 	var promise = new Promise(function(resolve,reject){
 		if (!documents)
@@ -229,10 +229,10 @@ mongodbBasicOperations.prototype.insertMany = function(documents,user){
 
 
 /**
- * Update an entry or a number of entries with the document that fit the query criteria, using 
+ * Update an entry or a number of entries with the document that fit the query criteria, using
  * the doc to update the found entry. refer to the mongodb api about the specific update commands
- * that can be employed. Additionally, if you want to update more then once document at a time, 
- * you must set the options to {multi:true} 
+ * that can be employed. Additionally, if you want to update more then once document at a time,
+ * you must set the options to {multi:true}
  * @param collectionName name of the collection
  * @oaram query serach query
  * @param doc update documents
@@ -247,7 +247,7 @@ mongodbBasicOperations.prototype.update= function(collectionName, query, doc, op
 	var _this = this;
 
 	// validate input
-	
+
 
 	var promise= new Promise(function(resolve, reject) {
 		if (! collectionName || ! query || !doc)
@@ -300,7 +300,7 @@ mongodbBasicOperations.prototype.createIndex= function(collectionName, spec, opt
 			resolve(result);
 		});
 	});
-	return promise;	
+	return promise;
 };
 
 /**
@@ -308,7 +308,7 @@ mongodbBasicOperations.prototype.createIndex= function(collectionName, spec, opt
  * Even if there would have been a number of matchesthis ONLY returns the frst encounter match
  * additionally it is returned as an object.
  * @param collectionName name of the collection
- * @param query 
+ * @param query
  * @param user
  * @return promise single entry
  * @throws MissingParameterError
@@ -317,7 +317,7 @@ mongodbBasicOperations.prototype.createIndex= function(collectionName, spec, opt
 mongodbBasicOperations.prototype.findOne= function(collectionName,query,user) {
 	var args = arguments;
 	var _this = this;
-	
+
 	var promise= new Promise(function(resolve, reject) {
 		if (! collectionName || ! query)
 			reject(new MissingParameterError("Required parameters are missing"));
@@ -339,7 +339,7 @@ mongodbBasicOperations.prototype.findOne= function(collectionName,query,user) {
 			resolve(doc);
 		});
 	});
-	return promise;	
+	return promise;
 };
 
 
@@ -403,11 +403,11 @@ mongodbBasicOperations.prototype.createCollection = function(name,user){
 };
 
 /**
- * Delete an entire collection from the databse. In general this is performed when faulty 
- * patient data is encountered while parsing a VCF file. 
- * @param collectionName 
+ * Delete an entire collection from the databse. In general this is performed when faulty
+ * patient data is encountered while parsing a VCF file.
+ * @param collectionName
  * @param user
- * @return promise 
+ * @return promise
  * @throws MissingParameterError
  * @throws InvalidParameterError
  */
