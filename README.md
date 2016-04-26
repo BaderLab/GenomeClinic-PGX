@@ -12,7 +12,7 @@ Reports are the cornerstone of the app and are generated in PDF format with the 
 
 ## Downloading
 
-To get the stable reslease version of GenomeClinic-PGX, clone the github repository via: 
+To get the stable reslease version of GenomeClinic-PGX, clone the github repository via:
 
 `git clone https://github.com/BaderLab/GenomeClinic-PGX.git`
 
@@ -20,9 +20,8 @@ For the most recent development version you can `git --checkout dev`
 
 
 ## Build Dependencies:
-- [Node.js](http://nodejs.org/) >= 0.10.0 
+- [Node.js](http://nodejs.org/) >= 0.10.0
 - [MongoDB](http://mongodb.org/downloads) >= 3.0.0
-- [PhantomJS](http://phantomjs.org/) >= 1.9.8
 
 ## Build instructions
 To build the project with all the vendor dependecies, simply run `npm install`. This will fetch all of the node.js and bower modules, as well as create the build directory which containing the application. As suggested [here](https://twitter.com/gavinjoyce/status/691783314261331969), disabling the progress bar for npm may result in a faster installation.
@@ -74,7 +73,7 @@ Additionally In order to set up Google OAUTH requires registering with google an
 ##### Database settings
 
 By default the server will attempt to connect to a mongodb instance running on the `localhost` on port `27017`. However this can be modified from the commandline to connect to a remote mongodb server. Password Authentication is not currently provided.
-	
+
 - Set Mongodb Host Path : `--mongodb-host [address Default: localhost]`
 - Set Mongodb Port Number : `--mongodb-port [number Default: 27017]`
 - Set Mongodb Database : `--mongodb-db [ databse Default: webappDB ]`
@@ -98,7 +97,7 @@ The server will first check to see if a command line argument has been passed pr
 ##### Setting up HTTPS
 
 By default the server routes all traffic through HTTP, however it can be configured to run as an HTTPS server so long as the user supplies a valid certificate and key. Additionally, the user can specify a custom https or http port number.
-	
+
 - Turn on HTTPS usage : `--https`
 - SSL key : `--key [ path to key ]`
 - SSL Certificate : `--crt [path to certificate]`
