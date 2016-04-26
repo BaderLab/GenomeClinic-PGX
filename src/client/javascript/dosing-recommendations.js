@@ -1,4 +1,4 @@
-/* Javascript for handling the dosing recommendations form 
+/* Javascript for handling the dosing recommendations form
  * @author Patrick Magee
 */
 
@@ -41,7 +41,7 @@ var abideOptions = {
 				if (val > maxDays || val <= 0) return false;
 				return true;
 			},
-			
+
 			month:function(el,required,parent){
 				/* The incoming gene name must be unique */
 				var val = el.value;
@@ -124,7 +124,7 @@ var removeLink = function(ele){
 function dosingRecommendations() {
 };
 /* The PGX analysis table is the basis for all recommendations. It contains not only the haplotypes,
- * but also the predicted Therapeutic class. The claass can be changed by the user (this will be remembered 
+ * but also the predicted Therapeutic class. The claass can be changed by the user (this will be remembered
  * when the user submits the new form), or it can be left the same. Serializing the table will result in an
  * array of objects, each containing the gene name, haplotypes, as well as the therapeutic class. Returns
  * and object. If genee only is true, only include the name of the gene in the array.
@@ -134,7 +134,7 @@ dosingRecommendations.serializeTable = function(geneOnly){
 	var temp;
 	var rows = $('.gene-row');
 	for (var i = 0; i < rows.length; i++ ){
-		
+
 		if (geneOnly){
 			output.push($(rows[i]).find('.gene-name').text());
 		} else {
@@ -233,7 +233,7 @@ dosingRecommendations.serializeRecommendations = function(){
 		drugs:[],
 		citations:[]
 	}
-	var fields = $('.recommendation-field:visible'); 
+	var fields = $('.recommendation-field:visible');
 	// Gather all of the receomendations
 	//If the user has toggled the recommendations off dont iterate over them
 	if ($('#drug-recommendations').is(':visible')){
@@ -286,7 +286,7 @@ dosingRecommendations.serializeRecommendations = function(){
 
 /* Serialize the future recommednations and return the serialized object */
 dosingRecommendations.serializeFuture = function (){
-	output = [];	
+	output = [];
 	var temp;
 	var fields = $('.future-field:visible');
 	if ($('#future-recommendations').is(':visible')){
@@ -311,7 +311,7 @@ dosingRecommendations.serializeFuture = function (){
 			}
 			output.push(temp);
 		}
-	
+
 	}
 	return this.sortFlaggedData(output);
 };//end serializeFuture
@@ -332,7 +332,7 @@ dosingRecommendations.sortFlaggedData = function(input){
 
 };//end sortFlaggedData
 
-/* function to serialize the entire form. Calls the other serialize functions in order and 
+/* function to serialize the entire form. Calls the other serialize functions in order and
  * adds the results to a single output object
  */
 dosingRecommendations.serializeForm = function(){
@@ -374,7 +374,7 @@ dosingRecommendations.getHaplos = function(){
 	});
 };
 
-/* Collect the current state of the haplotypes and therapeutic classes for each gene and send them to the server to be 
+/* Collect the current state of the haplotypes and therapeutic classes for each gene and send them to the server to be
  * remembered for next time. This acts a method to speed up the process for the user, essentially adding a haplotype
  * association without them having to navigate to the manage dosinng recommendations page.
  */
@@ -406,7 +406,7 @@ dosingRecommendations.sendHaplos = function(){
 				data:JSON.stringify(data)
 			}));
 		}
-		
+
 		//Submit an ajax request for each gene  to update their haplotype;
 		promise.then(function(result){
 			if (result){
@@ -414,7 +414,7 @@ dosingRecommendations.sendHaplos = function(){
 					$(rows[index]).find("select").data('id',result._id);
 				}
 			}
-			def.resolve(result);	
+			def.resolve(result);
 		}).catch(function(err){
 			def.reject(err)
 		});
@@ -455,7 +455,7 @@ dosingRecommendations.getRecommendations = function(){
 		var futureRes = result.future;
 
 		//Add Drug recommendations for drug dosing
-		for (var i=0; i < doseRes.length; i++ ){	
+		for (var i=0; i < doseRes.length; i++ ){
 			pubMedIDs = pubMedIDs.concat(doseRes[i].pubmed);
 		}
 		if ( doseRes.length === 0 && otherValues.length == 0){
@@ -499,7 +499,7 @@ dosingRecommendations.staticHandlers = function(){
 		if ($(this).hasClass("editfixed")){
 			if ($(this).hasClass('secondary')){
 				$(this).removeClass('secondary').addClass('warning');
-				$(this).closest(".row").find(".cnv-repeat-num").show();	
+				$(this).closest(".row").find(".cnv-repeat-num").show();
 			} else {
 				$(this).addClass('secondary').removeClass('warning');
 				$(this).closest(".row").find(".cnv-repeat-num").hide().val("");
@@ -541,20 +541,20 @@ dosingRecommendations.staticHandlers = function(){
 
 	//prevent form from being submitted prematurely
 	$('form').on("keyup keypress", function(e) {
-	  var code = e.keyCode || e.which; 
-	  if (code  == 13 && document.activeElement.type !== 'textarea') {               
+	  var code = e.keyCode || e.which;
+	  if (code  == 13 && document.activeElement.type !== 'textarea') {
 	    e.preventDefault();
 	    return false;
 	  }
 	});
 
-	/* Add a drug to the new-drug table. additionally add the hanlers to it as well 
+	/* Add a drug to the new-drug table. additionally add the hanlers to it as well
 	 * //Eventually link to db with current drug list to offer suggestions
 	*/
 	$('#patient-add-drug').on('click',function(e){
 		e.preventDefault();
 		addNewCurrentMedication();
-		
+
 	});
 
 	$('#patient-dob-date,#patient-dob-month,#patient-dob-year').on('keyup',function(){
@@ -576,8 +576,8 @@ dosingRecommendations.staticHandlers = function(){
 					age--;
 				}
 				$('input[name=patient-age]').val(age);
-			}	
-		}		
+			}
+		}
 	});
 
 
@@ -596,7 +596,7 @@ dosingRecommendations.staticHandlers = function(){
 		})).then(function(result){
 			if (result.name){
 				_this.sendHaplos()
-				open(window.location.pathname + '/download/' + result.name);	
+				open(window.location.pathname + '/download/' + result.name);
 			}
 		}).then(function(){
 			$('form').find('button').text('Generate Report');
@@ -625,12 +625,12 @@ dosingRecommendations.recommendationHandlers = function(context){
 		e.preventDefault();
 		if ($(this).hasClass('secondary')) $(this).removeClass('secondary').addClass('warning');
 		else $(this).addClass('secondary').removeClass('warning');
-		
+
 	});
 };
 
 
-/* take the PGX output data as the input and putthe data into a form 
+/* take the PGX output data as the input and putthe data into a form
  * that can easily displayed on the page */
 dosingRecommendations.generateData = function(templateData){
 	var genes = [];
@@ -645,7 +645,7 @@ dosingRecommendations.generateData = function(templateData){
 		if (templateData.pgxGenes[i].possibleHaplotypes !== undefined){
 				/* if there are multiple possible haplotypes beacuse the patient
 				 * data is unphased or heterozygous unphased then we cannot interpret
-				 * it appropriately, therefore we should only take genes that for 
+				 * it appropriately, therefore we should only take genes that for
 				 * Sure are known. */
 			 var keys = Object.keys(templateData.pgxGenes[i].possibleHaplotypes);
 			 closestMatches = [];
@@ -654,19 +654,16 @@ dosingRecommendations.generateData = function(templateData){
 			 })
 			 //There are only 2 possible haploptypes and there are only 2 possible matches
 			 //THis means it is a distinct match.
-			 if (keys.length == 2 && closestMatches.length == 2){
-
+			 if (keys.length <= 2 && closestMatches.length <= 2){
 			 	geneData.push(templateData.pgxGenes[i]);
 			 	genes.push(templateData.pgxGenes[i].gene);
-			 } else if (keys.length > 2 && closestMatches.length > 2) {
-			 	otherGenes.push(templateData.pgxGenes[i]);
 			 } else {
-			 	ignoredGenes.push(templateData.pgxGenes[i]);
+			 	otherGenes.push(templateData.pgxGenes[i]);
 			 }
 		} else {
-			ignoredGenes.push(templateData.pgxGenes[i]);
+			otherGenes.push(templateData.pgxGenes[i]);
 		}
-		
+
 	}
 
 	templateData.ignoredGenes = ignoredGenes;
@@ -702,14 +699,14 @@ dosingRecommendations.settAttributesRecursive = function(obj,currString){
 		else {
 			for (var attr in  obj){
 				if (obj.hasOwnProperty(attr)){
-					
+
 					_this.settAttributesRecursive(obj[attr], currString == "" ? attr : currString + "-" + attr);
 				}
 			}
 		}
 	});
 	return promise;
-	
+
 }
 
 /**
@@ -812,7 +809,7 @@ dosingRecommendations.render = function(){
 				type:"GET"
 			})).then(function(result){
 				pgxTemplateData.pgxGenes[ind].type = result;
-			});	
+			});
 		});
 		return Promise.all(promises);
 	}).then(function(){
