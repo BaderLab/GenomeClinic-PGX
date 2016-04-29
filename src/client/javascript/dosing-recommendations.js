@@ -120,6 +120,79 @@ var removeLink = function(ele){
 	});
 };
 
+var addGene = function(){
+	var $list = $('#added-genes');
+
+	var id = 'added-gene-' + Date.now() + '-' + Math.round( Math.random() * 10000 );
+
+	var $gene = $('\
+		<tr class="gene-row" data-id="' + id + '">\
+			<td>\
+				<a class="delete-gene button tiny radius"><i class="fi-x"></i></a>\
+				<input class="gene-name" type="text"></input>\
+			</td>\
+			<td><i><input class="allele_1" type="text"></input></i></td>\
+			<td><i><input class="allele_2" type="text"></input></i></td>\
+			<td><input class="therapeutic-class" type="text"></input></td>\
+			<td>\
+				<div class="row collapse prefix-radius">\
+					<div class="large-6 small-4 medium-4 columns">\
+						<a href="#" data-originalvalue="false" class="button editfixed secondary tiny radius cnv"><b>CNV</b></a>\
+					</div>\
+					<div class="large-6 small-8 medium-8 columns">\
+						<input class="cnv-repeat-num" type="number" placeholder="#" style="display:none" required data-abide-validator="greaterThan">\
+						<small class="error">Required</small>\
+					</div>\
+				</div>\
+			</td>\
+		</tr>\
+	');
+
+	$list.append( $gene );
+
+	var dummyRec = {
+		_id: id,
+		class: '',
+		classes: [],
+		cnv: 0,
+		drug: '',
+		flagged: true,
+		gene: '',
+		genes: [''],
+		haplotypes: [],
+		pubmed: [],
+		rec: ''
+	};
+
+	templates.drugs.rec.recs({ recommendation: [ dummyRec ], citations: {} }).then(function( html ){
+		$('#drug-recommendations-added').append( html );
+	});
+
+	templates.drugs.rec.future({ future: [ dummyRec ] }).then(function( html ){
+		$('#future-recommendations-added').append( html );
+	});
+
+};
+
+var updateGeneName = function( id, name ){
+	$('.future-field[data-id="'+id+'"] .gene-name i').html( name );
+	$('.recommendation-field[data-id="'+id+'"] .gene-name i').html( name );
+};
+
+var updateGeneHaplotype = function( id, index, haplotype ){
+
+};
+
+var updateGenePredictedEffect = function( id, effect ){
+	$('.future-field[data-id="'+id+'"] .class-name i').html( effect );
+	$('.recommendation-field[data-id="'+id+'"] .class-name i').html( effect );
+};
+
+var deleteGene = function( id ){
+	$('.gene-row[data-id="'+id+'"]').remove();
+	$('.future-field[data-id="'+id+'"]').remove();
+	$('.recommendation-field[data-id="'+id+'"]').remove();
+};
 
 function dosingRecommendations() {
 };
@@ -493,8 +566,9 @@ dosingRecommendations.getRecommendations = function(){
 /* Page handlers */
 dosingRecommendations.staticHandlers = function(){
 	var _this = this; // reference to the function
+	var $body = $('body');
 
-	$('.cnv').on("click",function(e){
+	$body.on("click", '.cnv', function(e){
 		e.preventDefault();
 		if ($(this).hasClass("editfixed")){
 			if ($(this).hasClass('secondary')){
@@ -508,39 +582,39 @@ dosingRecommendations.staticHandlers = function(){
 	});
 
 
-	$('#add-drug-of-interest').on('click',function(e){
+	$body.on('click', '#add-drug-of-interest', function(e){
 		e.preventDefault();
 		addNewDrugOfInterest();
 	});
 
 	/* anytime the user changes any of therapeutic classes in the PGX analyisis table, check to see if
 	 * there are any new recommendations and re-render the contents */
-	$('.therapeutic-class,.cnv-repeat-num').on('change',function(){
+	$body.on('change', 'select.therapeutic-class,.cnv-repeat-num', function(){
 		_this.getRecommendations();
 		//_this.getFutureRecommendations();
 	});
 
 	/* If on, recomednations are included, however if the user selects off, then no recomendations are included */
-	$('#turnoffrecommendations').on('click',function(){
+	$body.on('click', '#turnoffrecommendations', function(){
 		var isChecked = $(this).is(':checked');
 		if (isChecked){
-			$('#drug-recommendations').slideDown();
+			$('#drug-recommendations, #drug-recommendations-added').slideDown();
 		} else {
-			$('#drug-recommendations').slideUp();
+			$('#drug-recommendations, #drug-recommendations-added').slideUp();
 		}
 	});
 
-	$('#turnofffuture').on('click',function(){
+	$body.on('click', '#turnofffuture', function(){
 		var isChecked = $(this).is(':checked');
 		if (isChecked){
-			$('#future-recommendations').slideDown();
+			$('#future-recommendations, #future-recommendations-added').slideDown();
 		} else {
-			$('#future-recommendations').slideUp();
+			$('#future-recommendations, #future-recommendations-added').slideUp();
 		}
 	});
 
 	//prevent form from being submitted prematurely
-	$('form').on("keyup keypress", function(e) {
+	$body.on("keyup keypress", 'form', function(e) {
 	  var code = e.keyCode || e.which;
 	  if (code  == 13 && document.activeElement.type !== 'textarea') {
 	    e.preventDefault();
@@ -551,13 +625,13 @@ dosingRecommendations.staticHandlers = function(){
 	/* Add a drug to the new-drug table. additionally add the hanlers to it as well
 	 * //Eventually link to db with current drug list to offer suggestions
 	*/
-	$('#patient-add-drug').on('click',function(e){
+	$body.on('click','#patient-add-drug',function(e){
 		e.preventDefault();
 		addNewCurrentMedication();
 
 	});
 
-	$('#patient-dob-date,#patient-dob-month,#patient-dob-year').on('keyup',function(){
+	$body.on('keyup','#patient-dob-date,#patient-dob-month,#patient-dob-year',function(){
 		var date = $('#patient-dob-date').val();
 		var month = $('#patient-dob-month').val();
 		var year = $('#patient-dob-year').val();
@@ -580,11 +654,44 @@ dosingRecommendations.staticHandlers = function(){
 		}
 	});
 
+	$body.on('click', '.add-gene', function( e ){
+		e.preventDefault();
+
+		addGene();
+	});
+
+	var getGeneIdFromChildEle = function( childEle ){
+		return $(childEle).parents('[data-id]').attr('data-id');
+	};
+
+	var debounce = Foundation.utils.debounce.bind( Foundation.utils );
+
+	$body.on('click', '.delete-gene', function( e ){
+		e.preventDefault();
+
+		var id = getGeneIdFromChildEle( this );
+
+		deleteGene( id );
+	});
+
+	$body.on('keydown', 'input.gene-name', debounce(function( e ){
+		var id = getGeneIdFromChildEle( this );
+		var name = $(this).val();
+
+		updateGeneName( id, name );
+	}, 150));
+
+	$body.on('keydown', 'input.therapeutic-class', debounce(function( e ){
+		var id = getGeneIdFromChildEle( this );
+		var effect = $(this).val();
+
+		updateGenePredictedEffect( id, effect );
+	}, 150));
 
 	/* Once the form is submitted, listen for a valid event. When all fields are validated, serialize the form and submit
 	 * and Ajax request to the server with the form info. If the submission is successful and returns the name of the report,
 	 * open the report while simultaneously sending the currently updated haplotypes. */
-	$('form').on('valid.fndtn.abide',function(){
+	$body.on('valid.fndtn.abide','form',function(){
 		var formInfo = _this.serializeForm();
 		$(this).find('button').text('Generating...');
 		Promise.resolve($.ajax({

@@ -1,4 +1,4 @@
-<div class="row" style="padding-top: 30px;">  
+<div class="row" style="padding-top: 30px;">
 	<div class="large-12 small-12 medium-12 columns">
 		<a href="/browsepatients/id/{{patientID}}" class="button radius"><i class="fa fa-arrow-left"></i>&nbspBack</a>
 		<h2><i class="fa fa-medkit"></i>&nbsp Dosing Recommendations for {{patientID}}</h2>
@@ -332,7 +332,7 @@
 									</div>
 								</div>
 							</div>
-							<div class="large-3 small-3 medium-3 columns"><a href="#" id="add-drug-of-interest" class="button secondary tiny postfix" style="margin:0;line-height:100%"><i class="fa fa-plus size-14"></i></a>	
+							<div class="large-3 small-3 medium-3 columns"><a href="#" id="add-drug-of-interest" class="button secondary tiny postfix" style="margin:0;line-height:100%"><i class="fa fa-plus size-14"></i></a>
 							</div>
 						</div>
 						<div class="row">
@@ -373,7 +373,7 @@
 										</tr>
 									</thead>
 									<tbody>
-										{{#each pgxGenes}}	
+										{{#each pgxGenes}}
 										<tr class="gene-row">
 											<td class="gene-name">{{gene}}</td>
 											<td class="allele_1"><i>{{possibleHaplotypes.h1.closestMatch}}</i></td>
@@ -430,6 +430,22 @@
 											</td>
 										</tr>
 										{{/each}}
+									<thead>
+										<tr>
+											<th class="large-2 small-2 medium-2">Gene</th>
+											<th class="large-2 small-2 medium-2">First Haplotype</th>
+											<th class="large-2 small-2 medium-2">Second Haplotype</th>
+											<th class="large-4 small-4 medium-4">Predicted Effect</th>
+											<th class="large-2 small-2 medium-2">CNV Repeats</th>
+										</tr>
+									</thead>
+										<tbody id="added-genes">
+										</tbody>
+										<tr>
+											<td colspan="5">
+												<a class="add-gene button tiny radius"><i class="fi-plus"></i> Add gene</a>
+											</td>
+										</tr>
 									</tbody>
 								</table>
 								{{else}}
@@ -463,6 +479,8 @@
 					<div class="row">
 						<div class="large-12 small-12 medium-12 columns" id="future-recommendations">
 						</div>
+						<div class="large-12 small-12 medium-12 columns" id="future-recommendations-added">
+						</div>
 					</div>
 					<div class="row">
 						<div class="large-8 small-6 medium-6 columns">
@@ -480,6 +498,8 @@
 					</div>
 					<div class="row">
 						<div class="large-12 small-12 medium-12 columns" id="drug-recommendations">
+						</div>
+						<div class="large-12 small-12 medium-12 columns" id="drug-recommendations-added">
 						</div>
 					</div>
 					<div class="row">
