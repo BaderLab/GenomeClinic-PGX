@@ -9,7 +9,7 @@
 var gulp = require('gulp'),
 	gutil = require('gulp-util'),
 	plugins = require('gulp-load-plugins')()
-	_ = require('underscore'),
+	_ = require('lodash'),
 	jshstylish = require('jshint-stylish'),
 	Browserify = require('browserify'),
 	source = require('vinyl-source-stream'),
@@ -45,7 +45,7 @@ gulp.task( 'client-upload',['client-upload-vendor'], function(){
 	.bundle()
 	.pipe( source(paths.client.uploader.name))
 	.pipe( DEBUG ? gutil.noop():buffer() )
-	.pipe( DEBUG ? gutil.noop():plugins.uglify()  )	
+	.pipe( DEBUG ? gutil.noop():plugins.uglify()  )
 	.pipe( gulp.dest(paths.client.uploader.dest) )
 });
 
@@ -55,7 +55,7 @@ gulp.task('client-upload-vendor',function(){
 	.pipe( plugins.concat(paths.client.uploader.vendorName) )
 	.pipe( plugins.uglify() )
 	.pipe( gulp.dest(paths.client.uploader.vendorDest) )
-	
+
 })
 //precompile templates into a single packages
 gulp.task('client-templates',['client-partials'], function(){
@@ -202,4 +202,3 @@ gulp.task('clean',function(){
 	return gulp.src(['build'])
 	.pipe(plugins.clean({read:false}));
 });
-
