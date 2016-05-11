@@ -472,8 +472,22 @@ dosingRecommendations.serializeForm = function(){
 		if($(flags[i]).hasClass('warning')) output.flagged = true;
 	}
 
+	var classIsOk = function( cls ){
+		cls = cls.toLowerCase();
+
+		if( cls.match(/normal/) ){
+			return true;
+		} else if( cls.match(/unfavorable/) ){
+			return false;
+		} else if( cls.match(/favorable/) ){
+			return true;
+		}
+
+		return false;
+	};
+
 	var classIsProblematic = function( cls ){
-		return !cls.toLowerCase().match(/normal|favorable/);
+		return !classIsOk( cls );
 	};
 
 	if( output.recommendations ){
