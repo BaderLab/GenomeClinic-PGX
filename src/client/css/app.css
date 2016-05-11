@@ -60,6 +60,10 @@
 	padding-bottom: 5px;
 }
 
+#webapp-plus-icon + .dropdown {
+  margin-top: 0.6em;
+}
+
 /* Remove the caret from the Foundation dropdown style */
 #webapp-plus-icon::after {
   display: none;
