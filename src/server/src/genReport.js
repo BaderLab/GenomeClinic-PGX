@@ -48,7 +48,7 @@ module.exports = function(req,res,reportName,template,options,logger){
 		bottom: '1cm',
 		left: '1cm',
 		right: '1cm',
-		format: 'A4',
+		format: 'Letter',
 		orientation: 'portrait'
 	}, options);
 
@@ -74,7 +74,7 @@ module.exports = function(req,res,reportName,template,options,logger){
 		//The options from the intial request will be ussed to populate the template. Additionally add user info and date info
 		var opts = req.body;
 		opts.user = req.user[constants.dbConstants.USERS.ID_FIELD];
-		opts.date = date.getDay().toString() + '/' + date.getMonth().toString() + '/' + date.getUTCFullYear().toString();
+		opts.date = { day: date.getDay().toString(), month: date.getMonth().toString(), year: date.getUTCFullYear().toString() };
 		//Render the Templates Asynchronously
 		return cons.handlebarsAsync(template,opts);
 	}).then(function(html){
@@ -95,7 +95,7 @@ module.exports = function(req,res,reportName,template,options,logger){
 			footer: {
 				height: '1cm',
 				contents: ph.callback(function( pageNum, numPages ){
-					return "<span style='float:right'><p style='font-size:10px'>page: " + pageNum + " / " + numPages + "</p></span>";
+					return "<div style='font-size: 10pt; text-align: center; font-family: texgyrescholaregular, palatino linotype, book antiqua, palatino, georgia, serif;'>Page " + pageNum + " of " + numPages + "</div>";
 				})
 			}
 		} );

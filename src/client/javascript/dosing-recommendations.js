@@ -6,6 +6,17 @@ var pgx = require('./pgx'),
 	utility = require('./utility');
 
 
+var strcmp = function( a, b ){
+	if( a < b ){
+		return -1;
+	} else if( a > b ){
+		return 1;
+	} else {
+		return 0;
+	}
+};
+
+
 /* jshint multistr:true */
 var emptyFieldhtml = '<div class="row">\
 						<div class="small-12 columns">\
@@ -288,6 +299,10 @@ dosingRecommendations.serializeInputs = function(){
 			output.patient.medications += $(currDrugs[i]).text() + ' at ' + $(currDose[i]).text()
 
 		}
+
+		output.patient.allMedications.sort(function( a, b ){
+			return strcmp( a.name, b.name );
+		});
 		//Convert the current drugs form an array into text
 	}
 	output.drugsOfInterest = [];
@@ -400,6 +415,36 @@ dosingRecommendations.sortFlaggedData = function(input){
 			else unflagged.push(input[i])
 		}
 	}
+
+	var byGenes = function( a, b ){
+		var aGenes = a.genes.splice().sort( strcmp );
+		var bGenes = b.genes.splice().sort( strcmp );
+		var length = Math.min( aGenes.length, bGenes.length );
+
+		for( var i = 0 ; i < length; i++ ){
+			var cmp = strcmp( aGenes[i], bGenes[i] );
+
+			if( cmp !== 0 ){ return cmp; }
+		}
+
+		return aGenes.length - bGenes.length;
+	};
+
+	var byDrug = function( a, b ){
+		return strcmp( a.drug, b.drug );
+	};
+
+	var byDrugOrGenes = function( a, b ){
+		if( a.drug && b.drug ){
+			return byDrug( a, b );
+		} else if( a.genes && b.genes ){
+			return byGenes( a, b );
+		}
+	};
+
+	flagged.sort( byDrugOrGenes );
+	unflagged.sort( byDrugOrGenes );
+
 	//return sorted input
 	return flagged.concat(unflagged);
 
@@ -411,17 +456,121 @@ dosingRecommendations.sortFlaggedData = function(input){
 dosingRecommendations.serializeForm = function(){
 	var output  = this.serializeInputs();
 	var recs = this.serializeRecommendations();
+
 	output.citations = recs.citations.map(function(item,ind){
 		return {index:ind+1,citation:item}
 	});
+
 	output.recommendations = recs.drugs;
 	output.genes = this.serializeTable();
 	output.future = this.serializeFuture();
 	output.changed  = utility.getURLAtrribute('archived') == 'true' ? pagechange : true;
+
 	var flags = $('.flag:visible');
+
 	for (var i = 0; i < flags.length; i++ ){
 		if($(flags[i]).hasClass('warning')) output.flagged = true;
 	}
+
+	var classIsProblematic = function( cls ){
+		return !cls.toLowerCase().match(/normal|favorable/);
+	};
+
+	if( output.recommendations ){
+
+		// mark drugs with non-normal status with a warning
+		output.recommendations.forEach(function( rec ){
+			if( rec.classes.some( classIsProblematic ) ){
+				rec.warning = true;
+			}
+		});
+
+		// flagged or warning drugs should have a concern state to be bumped up in the report
+		output.recommendations.forEach(function( rec ){
+			if( rec.warning || rec.flagged ){
+				rec.concern = true;
+			}
+		});
+
+		var findMed = function( rec ){
+			var meds = output.patient.allMedications;
+
+			return (meds || []).filter(function( med ){
+				return med.name.toLowerCase() === rec.drug.toLowerCase();
+			})[0];
+		};
+
+		// meds that are flagged should have the flagged state in the patient's med list
+		output.recommendations.forEach(function( rec ){
+			if( rec.flagged ){
+				var med = findMed( rec );
+
+				if( med ){
+					med.flagged = true;
+				}
+			}
+
+			if( rec.warning ){
+				var med = findMed( rec );
+
+				if( med ){
+					med.warning = true;
+				}
+			}
+		});
+
+		// note if we have an "other" drug flagged
+		output.recommendationsHasOtherFlagged = output.recommendations.filter(function( rec ){
+			return rec.drug.toLowerCase() === 'other' && rec.flagged;
+		}).length > 0;
+
+		// whether we have no flags
+		output.recommendationsHasNoneFlagged = output.recommendations.filter(function( rec ){
+			return rec.flagged;
+		}).length === 0;
+
+		// note whether the drug is specified for the recs
+		output.recommendations.forEach(function( rec ){
+			rec.specifiedDrug = rec.drug.toLowerCase() !== 'other';
+		});
+
+	}
+
+	if( output.future ){
+
+		output.futureHasNoneFlagged = !output.future.some(function( rec ){ return rec.flagged; });
+
+		// mark warning and concern state
+		output.future.forEach(function( rec ){
+			if( rec.classes.some( classIsProblematic ) ){
+				rec.warning = true;
+			}
+
+			if( rec.flagged || rec.warning ){
+				rec.concern = true;
+			}
+		});
+
+		// organise the genes properly
+		output.future.forEach(function( rec ){
+			rec.geneStatus = [];
+
+			rec.genes.forEach(function( gene, i ){
+				var status = rec.classes[i];
+
+				rec.geneStatus.push({
+					gene: gene,
+					status: status
+				});
+			});
+
+			rec.geneStatus.sort(function( a, b ){
+				return strcmp( a.gene, b.gene );
+			});
+		});
+
+	}
+
 	return output;
 };//end serializeFuture
 
