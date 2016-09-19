@@ -6,89 +6,58 @@
 			<div class="large-12 small-12 medium-12 columns">
 				<form data-abide="ajax" id="drug-rec-form">
 					<div class="row">
+						<script>
+							$(function(){
+								$('#toc a').on('click', function( e ){
+									var sel = $(this).attr('href');
+									var top = $(sel).offset().top - $('.sticky').outerHeight();
+
+									window.scrollTo( 0, top );
+
+									e.preventDefault();
+								});
+							});
+						</script>
+						<div id="toc" class="toc">
+							<h4>Contents</h4>
+							<ul>
+								<li><a href="#secn-physician-info">Physician Information</a></li>
+								<li><a href="#secn-patient-info">Patient Information</a></li>
+								<li><a href="#secn-meds-of-int">Medications of Interest</a></li>
+								<li><a href="#secn-reason-for-testing">Reason for Testing</a></li>
+								<li><a href="#secn-report-summary">Report Summary</a></li>
+								<li><a href="#secn-pgx-results">PGX Results</a></li>
+								<li><a href="#secn-future-considerations">Future Considerations Based on Genetic Profile</a></li>
+								<li><a href="#secn-drug-recommendations">Drug Recommendations</a></li>
+							</ul>
+						</div>
+					</div>
+					<div class="row">
 						<div class="large-3 small-12 medium-4 right columns">
 							<button type="submit" class="button radius large-12 small-12 medium-12">Generate Report</button>
 						</div>
 					</div>
-					<fieldset>
+					<fieldset id="secn-physician-info">
 						<legend>Physician Information</legend>
-						<h5 class="subheader">Referring Physician:</h5>
+						<h5 class="subheader">Responsible Physician:</h5>
 						<div class="row">
-							<div class="large-6 small-12 medium-6 columns">
-								<div class="row collapse prefix-radius">
-									<div class="large-4 small-4 medium-4 columns">
-										<span class='prefix'>First Name</span>
-									</div>
-									<div class="large-8 small-8 medium-8 columns">
-										<input name="dr-name-first" type="text">
-									</div>
-								</div>
-							</div>
-							<div class="large-6 small-12 medium-6 columns">
-								<div class="row collapse prefix-radius">
-									<div class="large-4 small-4 medium-4 columns">
-										<span class='prefix'><b style="color:red">*</b> Last Name</span>
-									</div>
-									<div class="large-8 small-8 medium-8 columns">
-										<input name="dr-name-last" type="text" required>
-										<small class="error">Required</small>
-									</div>
-								</div>
+							<div class="large-12 small-12 medium-12 columns">
+								<label><b style="color:red">*</b> Contact Information</label>
+								<textarea id="physician-contact-info" name="dr-contact" rows="10" required></textarea>
+								<small class="error">Required</small>
 							</div>
 						</div>
 						<br>
+						<h5 class="subheader">CC:</h5>
 						<div class="row">
 							<div class="large-12 small-12 medium-12 columns">
-								<div class="row collapse prefix-radius">
-									<div class="large-2 small-4 medium-2 columns">
-										<span class='prefix'><b style="color:red">*</b> Address</span>
-									</div>
-									<div class="large-10 small-8 medium-10 columns">
-										<input name="dr-address" type="text" required>
-										<small class="error">Required</small>
-									</div>
-								</div>
+								<label>Contact Information</label>
+								<textarea id="physician-cc-info" name="dr-cc" rows="10"></textarea>
 							</div>
 						</div>
-						<div class="row">
-							<div class="large-6 small-12 medium-6 columns">
-								<div class="row collapse prefix-radius">
-									<div class="large-4 small-4 medium-4 columns">
-										<span class='prefix'><b style="color:red">*</b> City</span>
-									</div>
-									<div class="large-8 small-8 medium-8 columns">
-										<input name="dr-city" type="text" required>
-										<small class="error">Required</small>
-									</div>
-								</div>
-							</div>
-							<div class="large-6 small-12 medium-6 columns">
-								<div class="row collapse prefix-radius">
-									<div class="large-4 small-4 medium-4 columns">
-										<span class='prefix'><b style="color:red">*</b> Province</span>
-									</div>
-									<div class="large-8 small-8 medium-8 columns">
-										<input name="dr-region" type="text" required>
-										<small class="error">Required</small>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="row">
-							<div class="large-6 small-12 medium-6 columns left">
-								<div class="row collapse prefix-radius">
-									<div class="large-4 small-4 medium-4 columns">
-										<span class='prefix'><b style="color:red">*</b> Postal Code</span>
-									</div>
-									<div class="large-8 small-8 medium-8 columns">
-										<input name="dr-postal" type="text" required>
-										<small class="error">Required</small>
-									</div>
-								</div>
-							</div>
-						</div>
+
 					</fieldset>
-					<fieldset>
+					<fieldset id="secn-patient-info">
 						<legend>Patient Information</legend>
 						<div class="row">
 							<div class="large-6 small-12 medium-6 columns">
@@ -317,7 +286,7 @@
 							</div>
 						</div>
 					</fieldset>
-					<fieldset>
+					<fieldset id="secn-meds-of-int">
 						<legend>Medications of Interest</legend>
 						<div class="row collapse prefix-radius postfix-radius">
 							<div class="large-3 small-3 medium-3 columns">
@@ -346,17 +315,17 @@
 
 					</fieldset>
 
-					<fieldset>
+					<fieldset id="secn-reason-for-testing">
 						<legend><b style="color:red">*</b> Reason for Testing</legend>
 						<textarea name="patient-reason" rows="5" required></textarea>
 						<small class="error">Required</small>
 					</fieldset>
-					<fieldset>
+					<fieldset id="secn-report-summary">
 						<legend><b style="color:red">*</b> Report Summary</legend>
 						<textarea name="summary" rows="5" required></textarea>
 						<small class="error">Required</small>
 					</fieldset>
-					<fieldset>
+					<fieldset id="secn-pgx-results">
 						<legend>PGX Results</legend>
 						<div class="row">
 							<div class="large-12 small-12 medium-12 columns">
@@ -462,17 +431,27 @@
 							</div>
 						</div>
 					</fieldset>
-					<div class="row">
+					<div id="secn-future-considerations" class="row">
 						<div class="large-8 small-6 medium-6 columns">
 							<h3>Future Considerations Based on Genetic Profile</h3>
 						</div>
-						<div class="large-3 small-4 medium-4 columns">
-							<h5>Include Future Considerations?</h5>
-						</div>
-						<div class="large-1 small-2 medium-2 columns">
-							<div class="switch right radius">
-								<input type="checkbox" id="turnofffuture" checked>
-								<label for="turnofffuture"></label>
+					</div>
+					<div class="row">
+						<div class="large-12 small-12 medium-12 columns">
+							<p class="legend-descr"><i class="fa fa-flag flag-legend"></i> indicates a gene is to be flagged in the report</p>
+
+							<div class="button-group">
+							  <a id="genes-flag-all" class="button secondary">Flag all genes</a>
+							  <a id="genes-flag-abnormal" class="button secondary">Flag abnormal genes</a>
+							  <a id="genes-flag-none" class="button secondary">Flag no genes</a>
+							</div>
+
+							<p class="legend-descr"><i class="fa fa-check check-legend"></i> indicates a gene is to be included in the report</p>
+
+							<div class="button-group">
+							  <a id="genes-inc-all" class="button secondary">Include all genes</a>
+							  <a id="genes-inc-abnormal" class="button secondary">Include abnormal genes</a>
+							  <a id="genes-inc-none" class="button secondary">Include no genes</a>
 							</div>
 						</div>
 					</div>
@@ -482,17 +461,27 @@
 						<div class="large-12 small-12 medium-12 columns" id="future-recommendations-added">
 						</div>
 					</div>
-					<div class="row">
+					<div id="secn-drug-recommendations" class="row">
 						<div class="large-8 small-6 medium-6 columns">
 							<h3>Drug Recommendations</h3>
 						</div>
-						<div class="large-3 small-4 medium-4 columns">
-							<h5>Include Recommendations?</h5>
-						</div>
-						<div class="large-1 small-2 medium-2 columns">
-							<div class="switch right radius">
-								<input type="checkbox" id="turnoffrecommendations" checked>
-								<label for="turnoffrecommendations"></label>
+					</div>
+					<div class="row">
+						<div class="large-12 small-12 medium-12 columns">
+							<p class="legend-descr"><i class="fa fa-flag flag-legend"></i> indicates a drug is to be flagged in the report</p>
+
+							<div class="button-group">
+							  <a id="drugs-flag-all" class="button secondary">Flag all drugs</a>
+							  <a id="drugs-flag-abnormal" class="button secondary">Flag abnormal drugs</a>
+							  <a id="drugs-flag-none" class="button secondary">Flag no drugs</a>
+							</div>
+
+							<p class="legend-descr"><i class="fa fa-check check-legend"></i> indicates a drug is to be included in the report</p>
+
+							<div class="button-group">
+							  <a id="drugs-inc-all" class="button secondary">Include all drugs</a>
+							  <a id="drugs-inc-abnormal" class="button secondary">Include abnormal drugs</a>
+							  <a id="drugs-inc-none" class="button secondary">Include no drugs</a>
 							</div>
 						</div>
 					</div>

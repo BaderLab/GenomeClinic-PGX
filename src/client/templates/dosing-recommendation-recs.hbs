@@ -6,10 +6,10 @@
 				<label><h6><b>Dependant Genes</b></h6></label>
 			</div>
 			<div class="large-1 small-2 medium-2 columns">
-				<a href="#" class="button tiny flag radius right {{#unless flagged}}secondary{{else}}warning{{/unless}}"><i class="fa fa-flag"></i></a>
+				<a href="#" class="button tiny flag radius right {{#if flagged}}warning{{else}}secondary{{/if}}"><i class="fa fa-flag"></i></a>
 			</div>
 			<div class="large-1 small-2 medium-2 columns">
-				<a href="#" class="button tiny radius right remove"><i class="fi-x"></i></a>
+				<a href="#" class="button tiny radius right remove {{#if flagged}}{{else if warning}}{{else}}secondary removed{{/if}}"><i class="fa fa-check"></i></a>
 			</div>
 		</div>
 		{{#each genes}}
@@ -39,7 +39,7 @@
 		<div class="row">
 			<div class="large-12 small-12 medium-12 columns">
 				<label><h6><b>Dosing Recommendation</b></h6></label>
-				<textarea class="rec" rows=5 required>{{rec}}</textarea>
+				<textarea class="rec" rows=5>{{rec}}</textarea>
 				<small class="error">Required</small>
 			</div>
 		</div>

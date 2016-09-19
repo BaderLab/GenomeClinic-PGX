@@ -16,6 +16,25 @@ var strcmp = function( a, b ){
 	}
 };
 
+var classIsOk = function( cls ){
+	cls = cls.toLowerCase();
+
+	if( cls.match(/normal/) ){
+		return true;
+	} else if( cls.match(/unfavorable/) ){
+		return false;
+	} else if( cls.match(/favorable/) ){
+		return true;
+	}
+
+	return false;
+};
+
+var classIsProblematic = function( cls ){
+	return !classIsOk( cls );
+};
+
+
 
 /* jshint multistr:true */
 var emptyFieldhtml = '<div class="row">\
@@ -321,7 +340,9 @@ dosingRecommendations.serializeRecommendations = function(){
 		drugs:[],
 		citations:[]
 	}
-	var fields = $('.recommendation-field:visible');
+	var fields = $('.recommendation-field').filter(function(){
+		return !$(this).find('a.remove').hasClass('removed');
+	});
 	// Gather all of the receomendations
 	//If the user has toggled the recommendations off dont iterate over them
 	if ($('#drug-recommendations').is(':visible')){
@@ -376,7 +397,9 @@ dosingRecommendations.serializeRecommendations = function(){
 dosingRecommendations.serializeFuture = function (){
 	output = [];
 	var temp;
-	var fields = $('.future-field:visible');
+	var fields = $('.future-field').filter(function(){
+		return !$(this).find('a.remove').hasClass('removed');
+	});
 	if ($('#future-recommendations').is(':visible')){
 		for (var i = 0; i < fields.length; i++ ){
 			temp = {};
@@ -471,24 +494,6 @@ dosingRecommendations.serializeForm = function(){
 	for (var i = 0; i < flags.length; i++ ){
 		if($(flags[i]).hasClass('warning')) output.flagged = true;
 	}
-
-	var classIsOk = function( cls ){
-		cls = cls.toLowerCase();
-
-		if( cls.match(/normal/) ){
-			return true;
-		} else if( cls.match(/unfavorable/) ){
-			return false;
-		} else if( cls.match(/favorable/) ){
-			return true;
-		}
-
-		return false;
-	};
-
-	var classIsProblematic = function( cls ){
-		return !classIsOk( cls );
-	};
 
 	if( output.recommendations ){
 
@@ -701,6 +706,13 @@ dosingRecommendations.getRecommendations = function(){
 			//TODO: decouple citations from rendering, so they render after and do not hold up page dispkay
 			utility.retrieveCitations(pubMedIDs).then(function(citations){
 				doseRes = doseRes.concat(otherValues);
+
+				doseRes.forEach(function( drug ){
+					if( drug.classes.some( classIsProblematic ) ){
+						drug.warning = true;
+					}
+				});
+
 				return templates.drugs.rec.recs({recommendation:doseRes,citations:citations})
 			}).then(function(renderedHtml){
 				$('#drug-recommendations').html(renderedHtml);
@@ -715,6 +727,13 @@ dosingRecommendations.getRecommendations = function(){
 			$('#future-recommendations').html(emptyFieldhtml.replace(/\{\{message\}\}/,'There are no future considerations to report'))
 		} else {
 			futureRes = futureRes.concat(otherValues);
+
+			futureRes.forEach(function( gene ){
+				if( gene.classes.some( classIsProblematic ) ){
+					gene.warning = true;
+				}
+			});
+
 		 	templates.drugs.rec.future({future:futureRes}).then(function(renderedHtml){
 				$('#future-recommendations').html(renderedHtml);
 			}).then(function(){
@@ -749,6 +768,83 @@ dosingRecommendations.staticHandlers = function(){
 		e.preventDefault();
 		addNewDrugOfInterest();
 	});
+
+	function isAbnormal( cls ){
+		return classIsProblematic( cls );
+	}
+
+	function updateRequired( $rec, req ){
+		if( req ){
+			$rec.attr('required', '');
+		} else {
+			$rec.removeAttr('required');
+		}
+	}
+
+	function click( $ele ){
+		$ele.trigger('click');
+	}
+
+	function toggle( sel, tog ){
+		$(sel).each(function(){ debugger;
+			var $this = $(this);
+			var $fieldset = $this.parents('fieldset:first');
+			var cls = $fieldset.find('.class-name').text();
+			var enabled = !$this.hasClass('secondary');
+
+			if( tog === 'abnormal' ){
+				if( isAbnormal(cls) !== enabled ){
+					click( $this );
+
+					updateRequired( $rec, enabled );
+				}
+			} else { // true|false
+				if( tog !== enabled ){
+					click( $this );
+
+					updateRequired( $rec, enabled );
+				}
+			}
+		});
+	}
+
+	function flag( sel, tog ){
+		toggle( sel + ' .flag', tog );
+	}
+
+	function inc( sel, tog ){
+		toggle( sel + ' .remove', tog );
+	}
+
+	function defineToggles( idPrefix, cls ){
+		$body.on('click', '#' + idPrefix + '-flag-all', function(){
+			flag( cls, true );
+		});
+
+		$body.on('click', '#' + idPrefix + '-flag-abnormal', function(){
+			flag( cls, 'abnormal' );
+		});
+
+		$body.on('click', '#' + idPrefix + '-flag-none', function(){
+			flag( cls, false );
+		});
+
+		$body.on('click', '#' + idPrefix + '-inc-all', function(){
+			inc( cls, true );
+		});
+
+		$body.on('click', '#' + idPrefix + '-inc-abnormal', function(){
+			inc( cls, 'abnormal' );
+		});
+
+		$body.on('click', '#' + idPrefix + '-inc-none', function(){
+			inc( cls, false );
+		});
+	}
+
+	defineToggles( 'genes', '.future-field' );
+
+	defineToggles( 'drugs', '.recommendation-field' );
 
 	/* anytime the user changes any of therapeutic classes in the PGX analyisis table, check to see if
 	 * there are any new recommendations and re-render the contents */
@@ -866,7 +962,7 @@ dosingRecommendations.staticHandlers = function(){
 		})).then(function(result){
 			if (result.name){
 				_this.sendHaplos()
-				open(window.location.pathname + '/download/' + result.name);
+				window.location.assign(window.location.pathname + '/download/' + result.name);
 			}
 		}).then(function(){
 			$('form').find('button').text('Generate Report');
@@ -883,19 +979,48 @@ dosingRecommendations.staticHandlers = function(){
 };
 
 dosingRecommendations.recommendationHandlers = function(context){
-	$(context).find('a.remove').on('click',function(e){
-		var _this = this;
+	function updateRemState( $rem ){
+		var $row = $rem.parents('.row:first');
+		var $fieldset = $rem.parents('fieldset:first');
+		var $rec = $fieldset.find('.rec');
+
+		if( $rem.hasClass('secondary') ){
+			$row.find('a.flag').addClass('secondary').removeClass('warning');
+
+			$rec
+				.removeAttr('required')
+				.attr('aria-invalid', 'false')
+				.removeAttr('data-invalid')
+				.trigger('blur') // hack to remove red
+			;
+		} else {
+			$rec.attr('required', true);
+		}
+	}
+
+	var $rems = $(context).find('a.remove').on('click',function(e){
+		var $rem = $(this);
+
+		$rem.toggleClass('secondary removed');
+
+		updateRemState( $rem );
+
 		e.preventDefault();
-		$(this).closest('fieldset').slideUp(function(){
-			$(_this).remove()
-		})
+	});
+
+	$rems.each(function(){ // make sure init required state is correct
+		updateRemState( $(this) );
 	});
 
 	$(context).find('.flag').on('click',function(e){
 		e.preventDefault();
-		if ($(this).hasClass('secondary')) $(this).removeClass('secondary').addClass('warning');
-		else $(this).addClass('secondary').removeClass('warning');
+		if( $(this).hasClass('secondary') ){
+			$(this).removeClass('secondary').addClass('warning');
 
+			$(this).parents('.row:first').find('a.remove').removeClass('secondary removed');
+		} else {
+			$(this).addClass('secondary').removeClass('warning');
+		}
 	});
 };
 

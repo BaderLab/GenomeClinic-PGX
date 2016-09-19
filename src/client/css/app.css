@@ -70,7 +70,8 @@
 }
 
 /* Adjust the button padding to match other "has-form" buttons. */
-#webapp-status-page {
+#webapp-status-page,
+#webapp-top {
   padding-left: 12px;
   padding-right: 12px;
   padding-top: 5px;
@@ -379,4 +380,51 @@ div.multicol {
   padding-left: 0 !important;
   padding-right: 0 !important;
   height: 3em !important;
+}
+
+.legend {
+  border-radius: 0.25em;
+  background: #f0f0f0;
+  border: 1px solid #e0e0e0;
+}
+
+.flag-legend {
+  background-color: #f08a24;
+  border-radius: 0.25em;
+  padding: 0.25em 0.5em;
+  color: #fff;
+}
+
+.check-legend {
+  background-color: #008CBA;
+  border-radius: 0.25em;
+  padding: 0.25em 0.5em;
+  color: #fff;
+}
+
+.button-group .button {
+  padding: .625rem 1.25rem .6875rem;
+  width: 33%;
+}
+
+.button-group .button:first-child {
+  border-top-left-radius: 0.25rem;
+  border-bottom-left-radius: 0.25rem;
+}
+
+.button-group .button:last-child {
+  border-top-right-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+}
+
+.legend-descr {
+  margin-top: 1.5em;
+}
+
+#toc {
+  display: table;
+  border: 1px solid #bbb;
+  background: #fafafa;
+  padding: 1em;
+  margin: 1em;
 }

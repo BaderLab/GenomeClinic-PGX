@@ -6,6 +6,7 @@ var Handlebars = require("handlebars");
 var fs = Promise.promisifyAll(require('fs'));
 var Path = require('path');
 var _ = require('lodash');
+var moment = require('moment');
 
 
 
@@ -61,20 +62,31 @@ module.exports = function(req,res,reportName,template,options,logger){
 	var ph; // phantom instance
 	var phPage; // phantom page
 
+	var opts = req.body;
+
+	var date = moment().format('D MMMM YYYY');
+
 	//Turn the process into a promise.
 	return Promise.resolve().then(function(){
-		//Get the current date
-		var date = new Date();
+
+		var dobToStr = function( dob ){
+			return [ dob.year, dob.month, dob.day ].map(function( n ){
+				if( n < 10 ){
+					return '0' + n;
+				} else {
+					return '' + n;
+				}
+			}).join('-');
+		};
 
 		//the date and time are appending to the report name in order to make a unique report name, in the case of multiple files sharing the same name
-		name = reportName + "_report_"+ date.getDay().toString() + "_" + date.getMonth().toString() + "_" + date.getUTCFullYear().toString() +
-		"_" + date.getTime().toString();
+		name = reportName + "_report_" + moment().format('D_MMMM_YYYY_[at]_HHmm_ss');
 		path = Path.resolve(constants.nodeConstants.TMP_UPLOAD_DIR + '/' + name);
 		path = path.replace(/\\/gi,'/');
 		//The options from the intial request will be ussed to populate the template. Additionally add user info and date info
-		var opts = req.body;
 		opts.user = req.user[constants.dbConstants.USERS.ID_FIELD];
-		opts.date = { day: date.getDay().toString(), month: date.getMonth().toString(), year: date.getUTCFullYear().toString() };
+		opts.date = { day: moment().format('D'), month: moment().format('MMMM'), year: moment().format('YYYY') };
+		opts.patient.dob.month = moment( dobToStr( opts.patient.dob ) ).format('MMMM');
 		//Render the Templates Asynchronously
 		return cons.handlebarsAsync(template,opts);
 	}).then(function(html){
@@ -95,7 +107,11 @@ module.exports = function(req,res,reportName,template,options,logger){
 			footer: {
 				height: '1cm',
 				contents: ph.callback(function( pageNum, numPages ){
-					return "<div style='font-size: 10pt; text-align: center; font-family: texgyrescholaregular, palatino linotype, book antiqua, palatino, georgia, serif;'>Page " + pageNum + " of " + numPages + "</div>";
+					return "<div style='font-size: 10pt; text-align: center; font-family: palatino linotype, book antiqua, palatino, georgia, serif; position: relative;'>" +
+						// " <div style='position: absolute; left: 0;'>" + "NAME" + "</div> " +
+						// " <div style='position: absolute; right: 0;'>" + "DATE" + "</div> " +
+						" Page " + pageNum + " of " + numPages +
+					"</div>";
 				})
 			}
 		} );

@@ -10,10 +10,10 @@
     <link rel="stylesheet" href="/static/icons/foundation-icons.css" />
     <link rel="stylesheet" href="/static/icons/font-awesome-4.2.0/css/font-awesome.min.css" />
 
-    <!-- Js --> 
+    <!-- Js -->
     <script type="text/javascript" src="/static/js/vendor/vendor.bundle.min.js"></script>
     <script type="text/javascript" src="/static/js/templates.js"></script>
-    
+
     {{#each scripts}}
     <script type="text/javascript" src="{{this}}"></script>
     {{/each}}
@@ -24,13 +24,18 @@
     {{/if}}
     <script type="text/javascript">
       $(document).ready(function(){
-        $(document).foundation()
+        $(document).foundation();
+
+        $('#webapp-top').on('click', function(){
+          window.scrollTo( 0, 0 );
+        });
       });
     </script>
     <link rel="icon" href="/static/img/pharmacogenomics.jpg" />
     <link rel="author" href="/static/humans.txt" />
   </head>
   <body>
+    <div id="top"></div>
     <!-- Nav bar -->
     <div class="sticky contain-to-grid show-for-medium-up">
       <nav class="top-bar" data-topbar role="navigation">
@@ -41,6 +46,9 @@
           <section class="top-bar-section">
             <!-- Right Nav Section -->
             <ul class="right">
+              <li class="has-form">
+                <span data-tooltip data-options="show_on:large" aria-haspopup="true" class="has-tip tip-bottom radius" title="Go to the top of the page"><a href='#' class="button radius alert" id='webapp-top'><i class='fi-arrow-up size-16'></i></a></span>
+              </li>
               <li class="has-dropdown">
                 <a href="#" class="button radius alert" id="webapp-plus-icon"><i class="fi-plus size-16"></i></a>
                 <ul class="dropdown">
@@ -70,7 +78,7 @@
                   <li><label>Admin actions</labels></li>
                   <li><a href="/config"><i class="fa fa-gears" style="size:16;"></i>&nbsp&nbspConfigure Admin Settings</a></li>
                   {{/if}}
-                </ul> 
+                </ul>
               </li>
             </ul>
           </section>
