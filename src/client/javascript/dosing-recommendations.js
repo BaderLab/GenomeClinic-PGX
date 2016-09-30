@@ -890,29 +890,6 @@ dosingRecommendations.staticHandlers = function(){
 
 	});
 
-	$body.on('keyup','#patient-dob-date,#patient-dob-month,#patient-dob-year',function(){
-		var date = $('#patient-dob-date').val();
-		var month = $('#patient-dob-month').val();
-		var year = $('#patient-dob-year').val();
-		if (year.length == 4 && date.length <= 2 && month.length <= 2 && year > 0 && date > 0 && month > 0){
-			$('#patient-dob-date,#patient-dob-month,#patient-dob-year').trigger('change');
-			if(!$('#patient-dob-date').hasClass('error') && !$('#patient-dob-month').hasClass('error') && !$('#patient-dob-year').hasClass('error')){
-				var todayDate = new Date();
-				var todayYear = todayDate.getFullYear();
-				var todayMonth = todayDate.getMonth();
-				var todayDay = todayDate.getDate();
-				var age = todayYear - year;
-				if (todayMonth < month - 1) {
-					age--;
-				}
-				if (month - 1 == todayMonth && todayDay < date){
-					age--;
-				}
-				$('input[name=patient-age]').val(age);
-			}
-		}
-	});
-
 	$body.on('click', '.add-gene', function( e ){
 		e.preventDefault();
 
