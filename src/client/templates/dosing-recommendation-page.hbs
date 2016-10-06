@@ -23,12 +23,11 @@
 							<ul>
 								<li><a href="#secn-physician-info">Physician Information</a></li>
 								<li><a href="#secn-patient-info">Patient Information</a></li>
-								<li><a href="#secn-meds-of-int">Medications of Interest</a></li>
 								<li><a href="#secn-reason-for-testing">Reason for Testing</a></li>
 								<li><a href="#secn-report-summary">Report Summary</a></li>
 								<li><a href="#secn-pgx-results">PGX Results</a></li>
-								<li><a href="#secn-future-considerations">Future Considerations Based on Genetic Profile</a></li>
-								<li><a href="#secn-drug-recommendations">Drug Recommendations</a></li>
+								<li><a href="#secn-future-considerations">Patient Pharmacogenetic Profile</a></li>
+								<li><a href="#secn-drug-recommendations">Medication Recommendations</a></li>
 							</ul>
 						</div>
 					</div>
@@ -227,35 +226,6 @@
 							</div>
 						</div>
 					</fieldset>
-					<fieldset id="secn-meds-of-int">
-						<legend>Medications of Interest</legend>
-						<div class="row collapse prefix-radius postfix-radius">
-							<div class="large-3 small-3 medium-3 columns">
-								<span class="prefix">Drug Name</span>
-							</div>
-							<div class="large-6 small-6 medium-6 columns">
-								<input type="text" id="patient-drug-of-interest-input" placeholder="Drug Name" class="suggestion-input" data-col="drugs" data-num="10">
-								<div class="suggestion-wrapper">
-									<div class="suggestions" for="#patient-drug-of-interest-input" style="z-index:100">
-										<ul class="suggestion-list">
-										</ul>
-									</div>
-								</div>
-							</div>
-							<div class="large-3 small-3 medium-3 columns"><a href="#" id="add-drug-of-interest" class="button secondary tiny postfix"><i class="fa fa-plus size-14"></i></a>
-							</div>
-						</div>
-						<div class="row">
-							<div class="large-12 small-12 medium-12 columns">
-								<div class="multicol">
-									<ol class="multicol" id="patient-drug-of-interest">
-									</ol>
-								</div>
-							</div>
-						</div>
-
-					</fieldset>
-
 					<fieldset id="secn-reason-for-testing">
 						<legend><b style="color:red">*</b> Reason for Testing</legend>
 						<textarea name="patient-reason" rows="5" required></textarea>
@@ -374,12 +344,12 @@
 					</fieldset>
 					<div id="secn-future-considerations" class="row">
 						<div class="large-8 small-6 medium-6 columns">
-							<h3>Future Considerations Based on Genetic Profile</h3>
+							<h3>Patient Pharmacogenomic Profile</h3>
 						</div>
 					</div>
 					<div class="row">
 						<div class="large-12 small-12 medium-12 columns">
-							<p class="legend-descr">Click <i class="fa fa-flag flag-legend"></i> to move gene to top of list in report</p>
+							<p class="legend-descr">Click <i class="fa fa-flag flag-legend"></i> to move a gene to the top of list in the report</p>
 
 							<div class="button-group">
 							  <a id="genes-flag-all" class="button secondary">Flag all genes</a>
@@ -387,7 +357,7 @@
 							  <a id="genes-flag-none" class="button secondary">Flag no genes</a>
 							</div>
 
-							<p class="legend-descr">Click <i class="fa fa-check check-legend"></i> to move gene to top of list report</p>
+							<p class="legend-descr">Click <i class="fa fa-check check-legend"></i> to include a gene in the report</p>
 
 							<div class="button-group">
 							  <a id="genes-inc-all" class="button secondary">Include all genes</a>
@@ -404,12 +374,12 @@
 					</div>
 					<div id="secn-drug-recommendations" class="row">
 						<div class="large-8 small-6 medium-6 columns">
-							<h3>Drug Recommendations</h3>
+							<h3>Medication Recommendations</h3>
 						</div>
 					</div>
 					<div class="row">
 						<div class="large-12 small-12 medium-12 columns">
-							<p class="legend-descr">Click <i class="fa fa-flag flag-legend"></i> to move a recommendation to top of report</p>
+							<p class="legend-descr">Click <i class="fa fa-flag flag-legend"></i> to move a recommendation to the top of the list in the report</p>
 
 							<div class="button-group">
 							  <a id="drugs-flag-all" class="button secondary">Flag all recommendations</a>

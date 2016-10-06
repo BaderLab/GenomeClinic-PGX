@@ -185,7 +185,7 @@ var addGene = function(){
 		class: '',
 		classes: [],
 		cnv: 0,
-		drug: '',
+		drug: 'Other',
 		flagged: true,
 		gene: '',
 		genes: [''],
