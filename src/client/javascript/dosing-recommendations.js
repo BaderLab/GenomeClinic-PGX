@@ -1119,7 +1119,15 @@ dosingRecommendations.setArchivedData = function(){
 			if (!data.recommendations)
 					$('#drug-recommendations').html(emptyFieldhtml.replace(/\{\{message\}\}/,'There are no recommendations to report'))
 			else {
-				utility.retrieveCitations(data.citations).then(function(citations){
+				// TODO can we really skip the citations lookup with pubmed ids or is this
+				// data correctly stored already by this stage (albeit in a slightly different
+				// object format)?
+				// utility.retrieveCitations(data.citations).then(function(citations){
+				Promise.resolve( (function(){
+					return data.citations.map(function( citationObj ){
+						return citationObj.citation; // the template needs the string
+					});
+				})() ).then(function(citations){
 					return templates.drugs.rec.recs({recommendation:data.recommendations,citations:citations})
 				}).then(function(renderedHtml){
 					$('#drug-recommendations').html(renderedHtml);
