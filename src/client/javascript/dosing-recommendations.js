@@ -1124,9 +1124,13 @@ dosingRecommendations.setArchivedData = function(){
 				// object format)?
 				// utility.retrieveCitations(data.citations).then(function(citations){
 				Promise.resolve( (function(){
-					return data.citations.map(function( citationObj ){
-						return citationObj.citation; // the template needs the string
+					var ctns = [];
+
+					data.citations.forEach(function( citationObj ){
+						ctns[citationObj.index] = citationObj.citation; // the template needs the string
 					});
+
+					return ctns;
 				})() ).then(function(citations){
 					return templates.drugs.rec.recs({recommendation:data.recommendations,citations:citations})
 				}).then(function(renderedHtml){
