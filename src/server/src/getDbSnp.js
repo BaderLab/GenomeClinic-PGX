@@ -1,14 +1,15 @@
-/* Query dbSNP database based on the speicified rsID's and 
+/* Query dbSNP database based on the speicified rsID's and
  * retrieve information for each rsID. Submitts an http request
  * to the NCBI eutils url.
  * @author Patrick Magee */
 var http = require('http');
+var https = require('https');
 var parseString = require('xml2js').parseString;
 var fs = require('fs');
 var Promise = require('bluebird');
 
 
-/* submit an http request to the NCBI's e-utils server and retrieve information 
+/* submit an http request to the NCBI's e-utils server and retrieve information
  * for a set of rsID's in xml format. The Data is parsed and then put into an object
  * that is ready to be inserted into the database.
  * The returned object contains thre constant returned fields:
@@ -44,7 +45,7 @@ function getRsIds(ids){
 		D:"A/G/T",
 		N:"A/C/G/T"
 	}
-	
+
 
 	//Perform the call in a promise so the function knows when to return the appropriate data
 	var promise = new Promise(function(resolve,reject){
@@ -187,7 +188,7 @@ function getRsIds(ids){
 			});
 		}
 
-		http.request(options,cb).end();
+		https.request(options,cb).end();
 	});
 	return promise;
 }
